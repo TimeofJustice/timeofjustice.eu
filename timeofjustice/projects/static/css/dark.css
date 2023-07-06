@@ -1,0 +1,248 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    background: radial-gradient(331.49% 141.42% at 100% 0%, #070141 0%, #000000 100%);
+    color: #ffffff;
+    height: 100%;
+    font-family: "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif;
+}
+
+body {
+    padding: 20px 40px 40px 40px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: #ffffff;
+    text-decoration: none;
+    transition: all 0.25s ease-in-out;
+}
+
+a:hover {
+    color: #545454;
+    margin-bottom: 5px;
+}
+
+.header {
+    flex: 0 0 40px;
+    width: 1200px;
+    height: 40px;
+    margin: 0 auto 25px auto;
+    border-bottom: 1px solid #383838;
+    display: flex;
+    padding: 0 10px 0 10px;
+}
+
+.header > .left-side {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.header > .left-side > i {
+    margin-right: 5px;
+}
+
+.header > .right-side {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+}
+
+.header > .right-side > div {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    font-size: 1.25rem;
+    letter-spacing: 8px;
+}
+
+.header > .right-side > .socials {
+    margin-right: 8px;
+}
+
+.socials::after {
+    content : "";
+    border-right:1px solid #383838;
+    padding: 10px 0;
+}
+
+
+.content {
+    display: flex;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex: 1 1 100%;
+}
+
+.project-container {
+    flex: 0 1 400px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-right: 20px;
+}
+
+.project-container > .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0px 0 25px 10px;
+    flex: 0 1 auto;
+}
+
+.projects {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    margin-bottom: 25px;
+    border-radius: 15px;
+}
+
+.project {
+    background: rgba(10, 10, 10, 0.75);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease-in-out;
+}
+
+.project:hover {
+    background: rgba(10, 10, 10, 0.85);
+    margin-left: 5px;
+}
+
+.project > .active {
+    border-left: 5px solid #0c0365;
+}
+
+.project > .title {
+    font-size: 1.25rem;
+    margin: 5px 0 5px 0;
+}
+
+.project > .status {
+    font-size: 0.75rem;
+    color: #919191;
+}
+
+.project > .languages {
+    font-size: 0.75rem;
+    color: #919191;
+}
+
+.project > .git {
+    float: right;
+}
+
+.rondel-container {
+    flex: 1 1 100%;
+    height: 100%;
+    background: #0a0a0a;
+    border-radius: 25px;
+
+    position: relative;
+    display: inline-block;
+}
+
+.rondel-container > .image {
+    width: 100%;
+    height: 100%;
+    border-radius: 25px;
+    object-fit: cover;
+    overflow: hidden;
+
+    vertical-align: middle;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+.arrow-left, .arrow-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.arrow-left {
+    left: 10px;
+}
+
+.arrow-right {
+    right: 10px;
+}
+
+.arrow-left > i, .arrow-right > i {
+    background: rgba(10, 10, 10, 0.75);
+    border-radius: 360px;
+    width: 36px;
+    height: 36px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.arrow-left > i:hover, .arrow-right > i:hover {
+    background: rgba(10, 10, 10, 0.85);
+    cursor: pointer;
+}
+
+.rondel-container > .dots {
+    font-size: 0.5rem;
+    position: absolute;
+    bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    letter-spacing: 3px;
+    user-select: none;
+}
+
+.rondel-container > .dots > .active {
+    color: #3a3a3a;
+    -webkit-text-stroke: 1px #ffffff;
+}
+
+.information-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    background: rgba(10, 10, 10, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 360px;
+    width: 46px;
+    height: 46px;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1d1d1d;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #383838;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: lightgrey;
+}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ title }}</title>
+
+        {% load static %}
+        <link href="{% static 'fontawesome/css/all.css' %}" rel="stylesheet">
+        <link href="{% static 'css/' %}/{{ mode }}.css" rel="stylesheet">
+
+        {% block additionalHead %}
+        {% endblock %}
+    </head>
+
+    <body>
+
+    {% block content %}
+    {% endblock %}
+
+    </body>
+</html>
