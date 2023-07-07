@@ -1,0 +1,275 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    font-family: "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif;
+}
+
+body {
+    padding: 20px 40px 40px 40px;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 40px calc(100% - 65px);
+    grid-gap: 25px;
+}
+
+a {
+    text-decoration: none;
+    transition: all 0.25s ease-in-out;
+}
+
+a:hover {
+    margin-bottom: 5px;
+}
+
+#modeButton {
+    transition: all 0.25s ease-in-out;
+    width: 20px;
+}
+
+#modeButton:hover {
+    margin-bottom: 5px;
+}
+
+.header-container, .content-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.header {
+    flex: 0 0 40px;
+    width: 100%;
+    max-width: 1200px;
+    height: 40px;
+    display: flex;
+    padding: 0 10px 0 10px;
+}
+
+.header > .left-side {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.header > .left-side > i {
+    margin-right: 5px;
+}
+
+.header > .right-side {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+}
+
+.header > .right-side > div {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    font-size: 1.25rem;
+    letter-spacing: 8px;
+}
+
+.header > .right-side > .socials {
+    margin-right: 8px;
+}
+
+.socials::after {
+    content : "";
+    padding: 10px 0;
+}
+
+.content {
+    display: flex;
+    max-width: 1200px;
+    height: 100%;
+    flex: 1 1 100%;
+    width: 100%;
+    padding: 0 50px 0 50px;
+}
+
+.project-container {
+    flex: 0 1 300px;
+
+    display: flex;
+    flex-direction: column;
+
+    margin-right: 20px;
+    height: 100%;
+}
+
+.project-container > .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0px 0 25px 10px;
+    flex: 0 1 auto;
+}
+
+.projects {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    margin-bottom: 25px;
+    border-radius: 15px;
+}
+
+.project {
+    transition: background 0.25s ease-in-out, margin-right 0.25s ease-in-out;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    margin-right: 5px;
+}
+
+.project:hover {
+    margin-right: 1px;
+}
+
+.project.active {
+    border-radius: 15px;
+    margin-right: 1px;
+}
+
+.project > div {
+    padding: 15px;
+    border-radius: 15px;
+    transition: margin-left 0.25s ease-in-out;
+}
+
+.project > div:hover {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.project.active > div {
+    margin-left: 5px;
+}
+
+.project > div > .title {
+    font-size: 1.25rem;
+    margin: 5px 0 5px 0;
+}
+
+.project > div > .status {
+    font-size: 0.75rem;
+}
+
+.project > div > .languages {
+    font-size: 0.75rem;
+}
+
+.project > div > .git {
+    float: right;
+}
+
+.rondel-container {
+    flex: 0 1 800px;
+    height: 100%;
+    border-radius: 25px;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.rondel-container > .images {
+    display: grid;
+    width: 100%;
+    height: 100%;
+}
+
+.images > .image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    overflow: hidden;
+    vertical-align: middle;
+    user-select: none;
+    -webkit-user-drag: none;
+    transition: left 0.5s ease-in-out;
+    position: absolute;
+    left: 100%;
+}
+
+.arrow-left, .arrow-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+.arrow-left {
+    left: 10px;
+}
+
+.arrow-right {
+    right: 10px;
+}
+
+.arrow-left > i, .arrow-right > i {
+    border-radius: 360px;
+    width: 36px;
+    height: 36px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.arrow-left > i:hover, .arrow-right > i:hover {
+    cursor: pointer;
+}
+
+.rondel-container > .dots {
+    font-size: 0.5rem;
+    position: absolute;
+    bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    letter-spacing: 3px;
+    user-select: none;
+}
+
+.rondel-container > .description {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 30px;
+    max-height: 200px;
+    height: 20%;
+}
+
+.description > div {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.information-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 360px;
+    width: 46px;
+    height: 46px;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}

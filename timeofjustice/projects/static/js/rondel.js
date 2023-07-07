@@ -61,12 +61,24 @@ function loadProject(projectId) {
     jQuery.get("/project/" + projectId, function(data) {
         const images = data.images;
         maxImg = images.length;
+        currentImg = 0;
+
+        const projectsElements = document.getElementsByClassName("project");
+
+        for (let i = 0; i < projectsElements.length; i++) {
+            projectsElements[i].classList.remove("active");
+        }
+
+        projectsElements[projectId].classList.add("active");
 
         const imagesElement = document.getElementById("images");
         const dotsElement = document.getElementById("dots");
+        const descriptionElement = document.getElementById("description");
 
         imagesElement.innerHTML = "";
         dotsElement.innerHTML = "";
+
+        descriptionElement.innerHTML = data.description;
 
         for (let i = 0; i < maxImg; i++) {
             const image = images[i];

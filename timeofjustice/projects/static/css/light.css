@@ -1,31 +1,26 @@
 html {
-    background: radial-gradient(331.49% 141.42% at 100% 0%, #070141 0%, #000000 100%);
+    background: radial-gradient(331.49% 141.42% at 100% 0%, #cccccc 0%, #ffffff 100%);
     color: #ffffff;
 }
 
 a {
-    color: #ffffff;
+    color: #333333;
 }
 
 a:hover {
-    color: #545454;
-}
-
-#modeButton:hover {
-    margin-bottom: 5px;
-    color: #545454;
+    color: #a2a2a2;
 }
 
 .header {
-    border-bottom: 1px solid #383838;
+    border-bottom: 1px solid #333333;
 }
 
 .socials::after {
-    border-right:1px solid #383838;
+    border-right:1px solid #333333;
 }
 
 .project.active {
-    background: #0c0365;
+    background: #1504e5;
 }
 
 .project > div {
@@ -79,7 +74,6 @@ a:hover {
 
 ::-webkit-scrollbar-thumb {
     background: #383838;
-    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

@@ -3,85 +3,95 @@
 
 {% block additionalHead %}
 <script src="{% static 'js/rondel.js' %}"></script>
+<script src="{% static 'js/darkmode.js' %}" defer data-lightcss="{% static 'css/light.css' %}" data-darkcss="{% static 'css/dark.css' %}"></script>
 {% endblock %}
 
 {% block content %}
-<div class="header">
-    <div class="left-side">
-        <i class="fas fa-code"></i>
-        TimeofJustice
-    </div>
-
-    <div class="right-side">
-        <div class="socials">
-            <a href="">
-                <i class="fa-brands fa-github"></i>
-            </a>
-            <a href="">
-                <i class="fa-brands fa-linkedin"></i>
-            </a>
-            <a href="">
-                <i class="fa-brands fa-twitter"></i>
-            </a>
-            <a href="">
-                <i class="fa-brands fa-instagram"></i>
-            </a>
-            <a href="">
-                <i class="fa-brands fa-steam"></i>
-            </a>
-            <a href="">
-                <i class="fa fa-envelope"></i>
-            </a>
+<div class="header-container">
+    <div class="header">
+        <div class="left-side">
+            <i class="fas fa-code"></i>
+            TimeofJustice
         </div>
-        <div class="functions">
-            <i class="fa fa-moon"></i>
+
+        <div class="right-side">
+            <div class="socials">
+                <a href="">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+                <a href="">
+                    <i class="fa-brands fa-linkedin"></i>
+                </a>
+                <a href="">
+                    <i class="fa-brands fa-twitter"></i>
+                </a>
+                <a href="">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="">
+                    <i class="fa-brands fa-steam"></i>
+                </a>
+                <a href="">
+                    <i class="fa fa-envelope"></i>
+                </a>
+            </div>
+            <div class="functions">
+                <i class="fa fa-moon" onclick="changeMode()" id="modeButton"></i>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="content">
-    <div class="project-container">
-        <div class="title">/Projects</div>
+<div class="content-container">
+    <div class="content">
+        <div class="project-container">
+            <div class="title">/Projects</div>
 
-        <div class="projects">
-            {% for project in projects %}
-            <div class="project" onclick="loadProject({{ forloop.counter0 }})">
-                {% if project.git %}
-                <a class="git" href="{{ project.git }}" target="_blank">
-                    <i class="fab fa-github"></i>
-                </a>
-                {% endif %}
-                <div class="status">{{project.status}}</div>
-                <div class="title">{{project.name}}</div>
-                <div class="languages">
-                    (
-                    {% for language in project.languages %}
-                    {% if forloop.last %}
-                    {{language}}
-                    {% else %}
-                    {{language}},
-                    {% endif %}
-                    {% empty %}
-                    Leer
-                    {% endfor %}
-                    )
+            <div class="projects">
+                {% for project in projects %}
+                <div class="project" onclick="loadProject({{ forloop.counter0 }})">
+                    <div>
+                        {% if project.git %}
+                        <a class="git" href="{{ project.git }}" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        {% endif %}
+                        <div class="status">{{project.status}}</div>
+                        <div class="title">{{project.name}}</div>
+                        <div class="languages">
+                            (
+                            {% for language in project.languages %}
+                            {% if forloop.last %}
+                            {{language}}
+                            {% else %}
+                            {{language}},
+                            {% endif %}
+                            {% empty %}
+                            Leer
+                            {% endfor %}
+                            )
+                        </div>
+                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="rondel-container">
-        <div class="images" id="images">
         </div>
 
-        <div class="arrow-left" onclick="changeImage(-1)">
-            <i class="fa fa-arrow-circle-left"></i>
-        </div>
-        <div class="arrow-right" onclick="changeImage(1)">
-            <i class="fa fa-arrow-circle-right"></i>
-        </div>
-        <div class="dots" id="dots">
+        <div class="rondel-container">
+            <div class="images" id="images"></div>
+
+            <div class="description">
+                <div id="description"></div>
+            </div>
+
+            <div class="dots" id="dots"></div>
+
+            <div class="arrow-left" onclick="changeImage(-1)">
+                <i class="fa fa-arrow-circle-left"></i>
+            </div>
+            <div class="arrow-right" onclick="changeImage(1)">
+                <i class="fa fa-arrow-circle-right"></i>
+            </div>
         </div>
     </div>
 </div>
