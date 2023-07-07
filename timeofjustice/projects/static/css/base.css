@@ -248,12 +248,12 @@ a:hover {
     left: 0;
     padding: 30px;
     max-height: 200px;
-    height: 20%;
+    display: flex;
 }
 
 .description > div {
     overflow-y: auto;
-    height: 100%;
+    flex: 1 1 100%;
 }
 
 .information-button {
@@ -267,6 +267,48 @@ a:hover {
     border-radius: 360px;
     width: 46px;
     height: 46px;
+}
+
+.cookie-banner {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: #383838;
+    border-radius: 15px;
+    padding: 15px;
+    max-width: 255px;
+    box-shadow: #0a0a0a 0px 0px 10px 0px;
+}
+
+.cookie-banner > .text {
+    margin-bottom: 5px;
+}
+
+.cookie-banner a {
+    color: #ffffff;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+.cookie-banner > .buttons {
+    margin-top: 10px;
+    display: flex;
+}
+
+.cookie-banner > .buttons > div {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: #a2a2a2 2px solid;
+    border-radius: 15px;
+    margin-right: 5px;
+    transition: background-color 0.25s ease-in-out;
+}
+
+.cookie-banner > .buttons > div:hover {
+    cursor: pointer;
+    background: #a2a2a2;
 }
 
 ::-webkit-scrollbar {

@@ -12,7 +12,7 @@ projects = [
             "https://www.shutterstock.com/image-vector/links-colorful-vector-typography-web-260nw-1617964219.jpg",
             "https://kinsta.com/de/wp-content/uploads/sites/5/2019/11/ankerlinks-wordpress.png"
         ],
-        "description": "This is a description of the project. It is a very cool project."*10
+        "description": "This is a description of the project. It is a very cool project."*12
     },
     {
         "name": "TimeofJustice",
