@@ -10,6 +10,7 @@
         <link href="{% static 'css/' %}{{ mode }}.css" rel="stylesheet" id="styling">
 
         <script src="{% static 'js/jquery.js' %}/"></script>
+        <script src="{% static 'js/cookie.js' %}/"></script>
 
         {% block additionalHead %}
         {% endblock %}
@@ -19,6 +20,17 @@
 
     {% block content %}
     {% endblock %}
+
+    <div class="cookie-banner">
+        <div class="text">
+            This website uses cookies to improve your experience 🍪
+        </div>
+        <a href="https://gdpr-info.eu/" target="_blank">Read more</a>
+        <div class="buttons">
+            <div class="accept" onclick="onAccept()">Accept</div>
+            <div class="decline" onclick="onDecline()">Decline</div>
+        </div>
+    </div>
 
     </body>
 </html>

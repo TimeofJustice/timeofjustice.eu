@@ -4,23 +4,54 @@ html {
 }
 
 a {
-    color: #333333;
+    color: #ffffff;
 }
 
 a:hover {
-    color: #a2a2a2;
+    color: #545454;
+}
+
+#modeButton:hover {
+    color: #545454;
 }
 
 .header {
-    border-bottom: 1px solid #333333;
+    border-bottom: 1px solid #383838;
+}
+
+.header > .left-side, .header > .right-side a {
+    color: #2a2a2a;
+}
+
+.header > .left-side > div:hover {
+    color: #2a2a2a;
+}
+
+.header > .left-side > span::after {
+    border-right:1px solid #2a2a2a;
 }
 
 .socials::after {
-    border-right:1px solid #333333;
+    border-right:1px solid #2a2a2a;
+}
+
+.switch {
+    border: 2px solid #2a2a2a;
+}
+
+.switch > .handle {
+    background: #2a2a2a;
+    color: white;
+    left: 22px;
+}
+
+.switch:hover > .handle {
+    background: white;
+    color: #2a2a2a;
 }
 
 .project.active {
-    background: #1504e5;
+    background: #0c0365;
 }
 
 .project > div {
@@ -68,12 +99,30 @@ a:hover {
     background: rgba(10, 10, 10, 0.75);
 }
 
+.cookie-banner {
+    background: #383838;
+    box-shadow: #0a0a0a 0 0 10px 0;
+}
+
+.cookie-banner a {
+    color: #ffffff;
+}
+
+.cookie-banner > .buttons > div {
+    border: #a2a2a2 2px solid;
+}
+
+.cookie-banner > .buttons > div:hover {
+    background: #a2a2a2;
+}
+
 ::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0);
 }
 
 ::-webkit-scrollbar-thumb {
     background: #383838;
+    border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {

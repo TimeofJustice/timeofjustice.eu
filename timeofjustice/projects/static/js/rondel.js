@@ -1,7 +1,10 @@
-let maxImg = 3;
+let maxImg = 0;
 let currentImg = 0;
+let isRondelReady = true;
 
 function changeImage(changer, isTouch = true) {
+    if (maxImg === 0 || !isRondelReady) return;
+
     let newImg = (currentImg + changer + maxImg) % maxImg;
 
     const imagesElement = document.getElementById("images");
@@ -13,9 +16,7 @@ function changeImage(changer, isTouch = true) {
     const currentDotElement = dotsElement.getElementsByTagName("i")[currentImg];
     const newDotElement = dotsElement.getElementsByTagName("i")[newImg];
 
-    if (newImg === currentImg) {
-        return;
-    }
+    if (newImg === currentImg) return;
 
     if (changer < 0) {
         newImgElement.style.transition = "none";
@@ -27,7 +28,7 @@ function changeImage(changer, isTouch = true) {
 
             currentImgElement.style.left = "100%";
             newImgElement.style.left = "0";
-        }, 10);
+        }, 100);
     } else {
         newImgElement.style.transition = "none";
         newImgElement.style.left = "100%";
@@ -38,7 +39,7 @@ function changeImage(changer, isTouch = true) {
 
             currentImgElement.style.left = "-100%";
             newImgElement.style.left = "0";
-        }, 10);
+        }, 100);
     }
 
     newDotElement.classList.add("active");
@@ -47,6 +48,12 @@ function changeImage(changer, isTouch = true) {
     currentImg = newImg;
 
     if (isTouch) lastTouchX = new Date().getTime();
+
+    isRondelReady = false;
+
+    setTimeout(() => {
+        isRondelReady = true;
+    }, 500);
 }
 
 function changeImageTo(newImg) {

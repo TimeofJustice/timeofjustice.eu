@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    transition: all 0.25s ease-in-out;
 }
 
 html {
@@ -19,19 +20,13 @@ body {
 
 a {
     text-decoration: none;
-    transition: all 0.25s ease-in-out;
+}
+
+a > i {
+    transition: color 0.1s ease-in-out;
 }
 
 a:hover {
-    margin-bottom: 5px;
-}
-
-#modeButton {
-    transition: all 0.25s ease-in-out;
-    width: 20px;
-}
-
-#modeButton:hover {
     margin-bottom: 5px;
 }
 
@@ -56,6 +51,25 @@ a:hover {
     display: flex;
     justify-content: left;
     align-items: center;
+}
+
+.header > .left-side > span::after {
+    content : "";
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.header > .left-side > div {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-right: 5px;
+}
+
+.header > .left-side > div:hover {
+    cursor: pointer;
+    margin-bottom: 5px;
 }
 
 .header > .left-side > i {
@@ -84,6 +98,41 @@ a:hover {
 .socials::after {
     content : "";
     padding: 10px 0;
+}
+
+.switch {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    border-radius: 15px;
+    padding: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.switch:hover {
+    cursor: pointer;
+}
+
+.switch > .handle {
+    border-radius: 360px;
+    position: absolute;
+    left: 2px;
+    height: calc(100% - 4px);
+    aspect-ratio: 1 / 1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 8px;
+}
+
+.switch > .handle > i {
+    width: fit-content;
+    letter-spacing: normal;
+    margin-left: 0.75px;
 }
 
 .content {
@@ -120,7 +169,6 @@ a:hover {
 }
 
 .project {
-    transition: background 0.25s ease-in-out, margin-right 0.25s ease-in-out;
     border-radius: 15px;
     overflow: hidden;
     margin-bottom: 10px;
@@ -133,13 +181,12 @@ a:hover {
 
 .project.active {
     border-radius: 15px;
-    margin-right: 1px;
+    margin-right: 5px;
 }
 
 .project > div {
     padding: 15px;
     border-radius: 15px;
-    transition: margin-left 0.25s ease-in-out;
 }
 
 .project > div:hover {
@@ -249,6 +296,7 @@ a:hover {
     padding: 30px;
     max-height: 200px;
     display: flex;
+    width: 100%;
 }
 
 .description > div {
@@ -271,13 +319,12 @@ a:hover {
 
 .cookie-banner {
     position: fixed;
-    bottom: 10px;
+    bottom: -200px;
     left: 10px;
-    background: #383838;
     border-radius: 15px;
     padding: 15px;
     max-width: 255px;
-    box-shadow: #0a0a0a 0px 0px 10px 0px;
+    transition: bottom 0.5s ease-in-out;
 }
 
 .cookie-banner > .text {
@@ -285,7 +332,6 @@ a:hover {
 }
 
 .cookie-banner a {
-    color: #ffffff;
     text-decoration: underline;
     font-weight: bold;
 }
@@ -300,15 +346,12 @@ a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: #a2a2a2 2px solid;
     border-radius: 15px;
     margin-right: 5px;
-    transition: background-color 0.25s ease-in-out;
 }
 
 .cookie-banner > .buttons > div:hover {
     cursor: pointer;
-    background: #a2a2a2;
 }
 
 ::-webkit-scrollbar {

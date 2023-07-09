@@ -12,7 +12,6 @@ a:hover {
 }
 
 #modeButton:hover {
-    margin-bottom: 5px;
     color: #545454;
 }
 
@@ -20,8 +19,31 @@ a:hover {
     border-bottom: 1px solid #383838;
 }
 
+.header > .left-side > div:hover {
+    color: #545454;
+}
+
+.header > .left-side > span::after {
+    border-right:1px solid #383838;
+}
+
 .socials::after {
     border-right:1px solid #383838;
+}
+
+.switch {
+    border: 2px solid white;
+}
+
+.switch > .handle {
+    background: white;
+    color: #333333;
+    left: 2px;
+}
+
+.switch:hover > .handle {
+    background: #333333;
+    color: white;
 }
 
 .project.active {
@@ -71,6 +93,23 @@ a:hover {
 
 .information-button {
     background: rgba(10, 10, 10, 0.75);
+}
+
+.cookie-banner {
+    background: #383838;
+    box-shadow: #0a0a0a 0 0 10px 0;
+}
+
+.cookie-banner a {
+    color: #ffffff;
+}
+
+.cookie-banner > .buttons > div {
+    border: #a2a2a2 2px solid;
+}
+
+.cookie-banner > .buttons > div:hover {
+    background: #a2a2a2;
 }
 
 ::-webkit-scrollbar-track {

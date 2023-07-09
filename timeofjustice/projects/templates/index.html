@@ -11,32 +11,35 @@
     <div class="header">
         <div class="left-side">
             <i class="fas fa-code"></i>
-            TimeofJustice
+            <span>TimeofJustice</span>
+            <div>/Privacy Policy</div>
+            <div>/Legal Notice</div>
         </div>
 
         <div class="right-side">
             <div class="socials">
-                <a href="">
+                <a href="https://github.com/TimeofJustice" target="_blank">
                     <i class="fa-brands fa-github"></i>
                 </a>
-                <a href="">
-                    <i class="fa-brands fa-linkedin"></i>
-                </a>
-                <a href="">
-                    <i class="fa-brands fa-twitter"></i>
-                </a>
-                <a href="">
+                <a href="https://instagram.com/jonas.oel" target="_blank">
                     <i class="fa-brands fa-instagram"></i>
                 </a>
-                <a href="">
+                <a href="https://linkedin.com/in/jonas-oelschner-2569441b3" target="_blank">
+                    <i class="fa-brands fa-linkedin"></i>
+                </a>
+                <a href="https://steamcommunity.com/id/TimeJustice" target="_blank">
                     <i class="fa-brands fa-steam"></i>
                 </a>
-                <a href="">
-                    <i class="fa fa-envelope"></i>
+                <a href="https://twitter.com/timeofjustice_" target="_blank">
+                    <i class="fa-brands fa-twitter"></i>
                 </a>
             </div>
             <div class="functions">
-                <i class="fa fa-moon" onclick="changeMode()" id="modeButton"></i>
+                <div class="switch" id="modeButton" onclick="changeMode()">
+                    <div class="handle">
+                        <i class="fa fa-moon"></i>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -98,16 +101,5 @@
 
 <div class="information-button">
     <i class="fa fa-info-circle"></i>
-</div>
-
-<div class="cookie-banner">
-    <div class="text">
-        This website uses cookies to improve your experience 🍪
-    </div>
-    <a href="https://gdpr-info.eu/" target="_blank">Read more</a>
-    <div class="buttons">
-        <div class="accept">Accept</div>
-        <div class="decline">Decline</div>
-    </div>
 </div>
 {% endblock %}

@@ -1,41 +1,48 @@
 const data = document.currentScript.dataset;
-
-function setCookie(cname, cvalue, exdays) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    let expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
-function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for(let i = 0; i <ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
+let currentMode = getCookie("mode") ? getCookie("mode") : "dark";
 
 function changeMode() {
     const stylingElement = document.getElementById("styling");
     const modeButton = document.getElementById("modeButton");
 
-    if (getCookie("mode") == "dark") {
+    if (currentMode === "dark") {
         stylingElement.href = data.lightcss;
-        setCookie("mode", "light", 365);
-        modeButton.classList.remove("fa-moon");
-        modeButton.classList.add("fa-sun");
+
+        setCookie("mode", "light");
+
+        setTimeout(function () {
+            modeButton.getElementsByTagName("i")[0].classList.add("fa-sun");
+            modeButton.getElementsByTagName("i")[0].classList.remove("fa-moon");
+        }, 125);
+
+        currentMode = "light";
     } else {
         stylingElement.href = data.darkcss;
-        setCookie("mode", "dark", 365);
-        modeButton.classList.remove("fa-sun");
-        modeButton.classList.add("fa-moon");
+
+        setCookie("mode", "dark");
+
+        setTimeout(function () {
+            modeButton.getElementsByTagName("i")[0].classList.add("fa-moon");
+            modeButton.getElementsByTagName("i")[0].classList.remove("fa-sun");
+        }, 125);
+
+        currentMode = "dark";
     }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const stylingElement = document.getElementById("styling");
+    const modeButton = document.getElementById("modeButton");
+
+    if (getCookie("mode") === "light") {
+        stylingElement.href = data.lightcss;
+
+        modeButton.getElementsByTagName("i")[0].classList.add("fa-sun");
+        modeButton.getElementsByTagName("i")[0].classList.remove("fa-moon");
+    } else {
+        stylingElement.href = data.darkcss;
+
+        modeButton.getElementsByTagName("i")[0].classList.add("fa-moon");
+        modeButton.getElementsByTagName("i")[0].classList.remove("fa-sun");
+    }
+});
