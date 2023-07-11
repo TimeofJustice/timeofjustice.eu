@@ -3,48 +3,15 @@
 
 {% block additionalHead %}
 <script src="{% static 'js/rondel.js' %}"></script>
-<script src="{% static 'js/darkmode.js' %}" defer data-lightcss="{% static 'css/light.css' %}" data-darkcss="{% static 'css/dark.css' %}"></script>
+
+<style>
+    .header .projects-link {
+        font-weight: bold!important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="header-container">
-    <div class="header">
-        <div class="left-side">
-            <i class="fas fa-code"></i>
-            <span>TimeofJustice</span>
-            <div>/Privacy Policy</div>
-            <div>/Legal Notice</div>
-        </div>
-
-        <div class="right-side">
-            <div class="socials">
-                <a href="https://github.com/TimeofJustice" target="_blank">
-                    <i class="fa-brands fa-github"></i>
-                </a>
-                <a href="https://instagram.com/jonas.oel" target="_blank">
-                    <i class="fa-brands fa-instagram"></i>
-                </a>
-                <a href="https://linkedin.com/in/jonas-oelschner-2569441b3" target="_blank">
-                    <i class="fa-brands fa-linkedin"></i>
-                </a>
-                <a href="https://steamcommunity.com/id/TimeJustice" target="_blank">
-                    <i class="fa-brands fa-steam"></i>
-                </a>
-                <a href="https://twitter.com/timeofjustice_" target="_blank">
-                    <i class="fa-brands fa-twitter"></i>
-                </a>
-            </div>
-            <div class="functions">
-                <div class="switch" id="modeButton" onclick="changeMode()">
-                    <div class="handle">
-                        <i class="fa fa-moon"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="content-container">
     <div class="content">
         <div class="project-container">
@@ -53,7 +20,8 @@
             <div class="projects">
                 {% for project in projects %}
                 <div class="project" onclick="loadProject({{ forloop.counter0 }})">
-                    <div>
+                    <div class="mark"></div>
+                    <div class="inner">
                         {% if project.git %}
                         <a class="git" href="{{ project.git }}" target="_blank">
                             <i class="fab fa-github"></i>
@@ -97,9 +65,5 @@
             </div>
         </div>
     </div>
-</div>
-
-<div class="information-button">
-    <i class="fa fa-info-circle"></i>
 </div>
 {% endblock %}

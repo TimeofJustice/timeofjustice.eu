@@ -2,7 +2,6 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    transition: all 0.25s ease-in-out;
 }
 
 html {
@@ -20,14 +19,11 @@ body {
 
 a {
     text-decoration: none;
-}
-
-a > i {
-    transition: color 0.1s ease-in-out;
+    transition: color 0.25s ease-in-out, padding-bottom 0.25s ease-in-out;
 }
 
 a:hover {
-    margin-bottom: 5px;
+    padding-bottom: 5px;
 }
 
 .header-container, .content-container {
@@ -46,11 +42,19 @@ a:hover {
     padding: 0 10px 0 10px;
 }
 
+.header .legal-link {
+    display: none!important;
+}
+
 .header > .left-side {
     flex: 1 1 auto;
     display: flex;
     justify-content: left;
     align-items: center;
+}
+
+.header > .left-side > span, .header > .left-side > i{
+    transition: color 0.25s ease-in-out;
 }
 
 .header > .left-side > span::after {
@@ -59,17 +63,18 @@ a:hover {
     margin-right: 5px;
 }
 
-.header > .left-side > div {
+.header > .left-side > a {
     display: flex;
     justify-content: left;
     align-items: center;
     font-size: 0.9rem;
     margin-right: 5px;
+    transition: color 0.25s ease-in-out, padding-bottom 0.25s ease-in-out;
 }
 
-.header > .left-side > div:hover {
+.header > .left-side > a:hover {
     cursor: pointer;
-    margin-bottom: 5px;
+    padding-bottom: 5px;
 }
 
 .header > .left-side > i {
@@ -109,6 +114,7 @@ a:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: border 0.25s ease-in-out;
 }
 
 .switch:hover {
@@ -121,18 +127,31 @@ a:hover {
     left: 2px;
     height: calc(100% - 4px);
     aspect-ratio: 1 / 1;
-
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
     font-size: 8px;
+    transition: color 0.25s ease-in-out, left 0.25s ease-in-out;
 }
 
 .switch > .handle > i {
     width: fit-content;
     letter-spacing: normal;
-    margin-left: 0.75px;
+}
+
+.privacy-container {
+    height: 100%;
+    overflow-y: auto;
+    line-height: 2rem;
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 50px 0 50px;
+}
+
+.privacy-container a {
+    font-weight: bold;
+    text-decoration: underline;
 }
 
 .content {
@@ -157,8 +176,9 @@ a:hover {
 .project-container > .title {
     font-size: 1.5rem;
     font-weight: bold;
-    margin: 0px 0 25px 10px;
+    margin: 0 0 25px 10px;
     flex: 0 1 auto;
+    transition: color 0.25s ease-in-out;
 }
 
 .projects {
@@ -173,6 +193,8 @@ a:hover {
     overflow: hidden;
     margin-bottom: 10px;
     margin-right: 5px;
+    transition: margin-right 0.25s ease-in-out, background 0.25s ease-in-out;
+    position: relative;
 }
 
 .project:hover {
@@ -184,34 +206,50 @@ a:hover {
     margin-right: 5px;
 }
 
-.project > div {
-    padding: 15px;
-    border-radius: 15px;
+.project > .mark {
+    opacity: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 100%;
+    z-index: -1;
+    transition: opacity 0.25s ease-in-out, background 0.25s ease-in-out;
 }
 
-.project > div:hover {
+.project.active > .mark {
+    opacity: 1;
+}
+
+.project > .inner {
+    padding: 15px;
+    border-radius: 15px;
+    transition: margin-left 0.25s ease-in-out, background 0.25s ease-in-out;
+}
+
+.project > .inner:hover {
     margin-left: 5px;
     cursor: pointer;
 }
 
-.project.active > div {
+.project.active > .inner {
     margin-left: 5px;
 }
 
-.project > div > .title {
-    font-size: 1.25rem;
+.project > .inner > .title {
+    font-size: 1.125rem;
     margin: 5px 0 5px 0;
 }
 
-.project > div > .status {
+.project > .inner > .status {
     font-size: 0.75rem;
 }
 
-.project > div > .languages {
+.project > .inner > .languages {
     font-size: 0.75rem;
 }
 
-.project > div > .git {
+.project > .inner > .git {
     float: right;
 }
 
@@ -270,6 +308,7 @@ a:hover {
     align-items: center;
     margin-left: auto;
     margin-right: auto;
+    transition: background 0.25s ease-in-out;
 }
 
 .arrow-left > i:hover, .arrow-right > i:hover {
@@ -287,6 +326,10 @@ a:hover {
     text-align: center;
     letter-spacing: 3px;
     user-select: none;
+}
+
+.dots > .active {
+    transition: color 0.25s ease-in-out, -webkit-text-strokes 0.25s ease-in-out;
 }
 
 .rondel-container > .description {
@@ -327,6 +370,10 @@ a:hover {
     transition: bottom 0.5s ease-in-out;
 }
 
+.cookie-banner a:hover {
+    cursor: pointer;
+}
+
 .cookie-banner > .text {
     margin-bottom: 5px;
 }
@@ -348,6 +395,7 @@ a:hover {
     align-items: center;
     border-radius: 15px;
     margin-right: 5px;
+    transition: color 0.25s ease-in-out, background 0.25s ease-in-out;
 }
 
 .cookie-banner > .buttons > div:hover {
@@ -357,4 +405,98 @@ a:hover {
 ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
+}
+
+@media screen and (max-width: 1280px) {
+    .content {
+        display: grid;
+        grid-template-rows: 60% 40%;
+        grid-gap: 20px;
+    }
+
+    .content > .project-container {
+        margin-bottom: 10px;
+        height: 100%;
+        margin-right: 0;
+    }
+
+    .content > .project-container > .projects {
+        display: grid;
+        grid-template-columns: 50% 50%;
+        grid-auto-rows: max-content;
+    }
+
+    .content > .rondel-container {
+        height: 100%;
+        grid-row: 1;
+    }
+}
+
+@media screen and (max-width: 750px) {
+    body {
+        padding: 10px;
+    }
+
+    .header {
+        padding: 0;
+    }
+
+    .header > .left-side > a,
+    .header > .left-side > span,
+    .header > .left-side > i {
+        font-size: 0.8rem;
+    }
+
+    .header > .right-side > div {
+        font-size: 1rem;
+        letter-spacing: 4px;
+    }
+
+    .privacy-container {
+        padding: 0 10px;
+        width: 100%;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+
+    .content > .project-container > .projects {
+        display: grid;
+        grid-template-columns: 100%;
+        grid-auto-rows: max-content;
+    }
+
+    .content {
+        padding: 0;
+    }
+
+    .project-container > .title {
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+    }
+
+    .projects {
+        margin-bottom: 15px;
+    }
+
+    .rondel-container {
+        margin-bottom: 15px;
+    }
+
+    .rondel-container > .description {
+        padding: 20px;
+    }
+
+    .information-button {
+        font-size: 1.25rem;
+        width: 40px;
+        height: 40px;
+    }
+
+    .cookie-banner {
+        max-width: 200px;
+    }
+
+    .header .socials {
+        display: none!important;
+    }
 }

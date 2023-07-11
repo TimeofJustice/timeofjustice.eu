@@ -28,6 +28,32 @@ def project(request, project_id):
     return JsonResponse(projects[project_id], safe=False)
 
 
+def privacy(request):
+    context = {
+        "title": "Privacy Policy - TimeofJustice",
+        "mode": "dark"
+    }
+
+    if request.COOKIES.get("mode") is not None:
+        context["mode"] = request.COOKIES.get("mode")
+
+    response = render(request, "privacy.html", context)
+    return response
+
+
+def legal(request):
+    context = {
+        "title": "Legal Notice - TimeofJustice",
+        "mode": "dark"
+    }
+
+    if request.COOKIES.get("mode") is not None:
+        context["mode"] = request.COOKIES.get("mode")
+
+    response = render(request, "legal.html", context)
+    return response
+
+
 def robot(request):
     lines = [
         "User-Agent: *",
