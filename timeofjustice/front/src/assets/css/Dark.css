@@ -1,131 +1,131 @@
-html {
+html.dark {
     background: radial-gradient(331.49% 141.42% at 100% 0%, #070141 0%, #000000 100%);
     color: #ffffff;
 }
 
-a {
+html.dark a {
     color: #ffffff;
 }
 
-a:hover {
+html.dark a:hover {
     color: #545454;
 }
 
-#modeButton:hover {
+html.dark #modeButton:hover {
     color: #545454;
 }
 
-.header {
+html.dark .header {
     border-bottom: 1px solid #383838;
 }
 
-.header > .left-side > div:hover {
+html.dark .header > .left-side > div:hover {
     color: #545454;
 }
 
-.header > .left-side > span::after {
+html.dark .header > .left-side > span::after {
     border-right:1px solid #383838;
 }
 
-.socials::after {
+html.dark .socials::after {
     border-right:1px solid #383838;
 }
 
-.switch {
+html.dark .switch {
     border: 2px solid white;
 }
 
-.switch > .handle {
+html.dark .switch > .handle {
     background: white;
     color: #333333;
     left: 2px;
 }
 
-.switch:hover > .handle {
+html.dark .switch:hover > .handle {
     background: #333333;
     color: white;
 }
 
-.project.active {
+html.dark .project.active {
     background: #0c0365;
 }
 
-.project > div {
+html.dark .project > div {
     background: rgba(10, 10, 10, 0.75);
 }
 
-.project > div:hover {
+html.dark .project > div:hover {
     background: rgba(10, 10, 10, 1);
 }
 
-.project.active > div {
+html.dark .project.active > div {
     background: rgba(10, 10, 10, 1);
 }
 
-.project > div > .status {
+html.dark .project > div > .status {
     color: #919191;
 }
 
-.project > div > .languages {
+html.dark .project > div > .languages {
     color: #919191;
 }
 
-.rondel-container {
+html.dark .rondel-container {
     background: #0a0a0a;
     box-shadow: #0a0a0a 0 0 10px 0;
 }
 
-.arrow-left > i, .arrow-right > i {
+html.dark .arrow-left > i, html.dark .arrow-right > i {
     background: rgba(10, 10, 10, 0.75);
 }
 
-.arrow-left > i:hover, .arrow-right > i:hover {
+html.dark .arrow-left > i:hover, html.dark .arrow-right > i:hover {
     background: rgba(10, 10, 10, 0.85);
 }
 
-.rondel-container > .dots > .active {
+html.dark .rondel-container > .dots > .active {
     color: #3a3a3a;
     -webkit-text-stroke: 1px #ffffff;
 }
 
-.rondel-container > .description {
+html.dark .rondel-container > .description {
     background: rgba(10, 10, 10, 0.75);
 }
 
-.information-button {
+html.dark .information-button {
     background: rgba(10, 10, 10, 0.75);
 }
 
-.cookie-banner {
+html.dark .cookie-banner {
     background: #383838;
     box-shadow: #0a0a0a 0 0 10px 0;
 }
 
-.cookie-banner a {
+html.dark .cookie-banner a {
     color: #ffffff;
 }
 
-.cookie-banner a:hover {
+html.dark .cookie-banner a:hover {
     color: #545454;
 }
 
-.cookie-banner > .buttons > div {
+html.dark .cookie-banner > .buttons > div {
     border: #a2a2a2 2px solid;
 }
 
-.cookie-banner > .buttons > div:hover {
+html.dark .cookie-banner > .buttons > div:hover {
     background: #a2a2a2;
 }
 
-::-webkit-scrollbar-track {
+html.dark ::-webkit-scrollbar-track {
     background: rgba(0, 0, 0, 0);
 }
 
-::-webkit-scrollbar-thumb {
+html.dark ::-webkit-scrollbar-thumb {
     background: #383838;
     border-radius: 5px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+html.dark ::-webkit-scrollbar-thumb:hover {
     background: lightgrey;
 }

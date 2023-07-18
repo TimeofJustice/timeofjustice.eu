@@ -6,11 +6,11 @@
     "languages": ["Python", "Django", "HTML", "CSS", "JS"],
     "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
-      "https://www.thoughtco.com/thmb/KH0SxyxmymjQtoTffjClEQiGOB0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-116248249-5be59c3cc9e77c00514fed87.jpg",
-      "https://www.shutterstock.com/image-vector/links-colorful-vector-typography-web-260nw-1617964219.jpg",
-      "https://kinsta.com/de/wp-content/uploads/sites/5/2019/11/ankerlinks-wordpress.png"
+      ["https://www.thoughtco.com/thmb/KH0SxyxmymjQtoTffjClEQiGOB0=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-116248249-5be59c3cc9e77c00514fed87.jpg", "Das ist ein ALT"],
+      ["https://www.shutterstock.com/image-vector/links-colorful-vector-typography-web-260nw-1617964219.jpg", ""],
+      ["https://kinsta.com/de/wp-content/uploads/sites/5/2019/11/ankerlinks-wordpress.png", ""]
     ],
-    "description": "This is a description of the project. It is a very cool project."
+    "description": "This is a description of the project. It is a very cool project.This is a description of the project. It is a very cool project.This is a description of the project. It is a very cool project."
   },
   {
     "name": "Mensaplan",
@@ -83,7 +83,6 @@
     "status": "Finished",
     "status_id": 1,
     "languages": [".NET", "C#", "XML"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -94,7 +93,6 @@
     "status": "Finished",
     "status_id": 1,
     "languages": ["Python", "SQL"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -105,7 +103,6 @@
     "status": "Ongoing",
     "status_id": 2,
     "languages": ["Python", "SQLite"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -116,7 +113,6 @@
     "status": "Finished",
     "status_id": 1,
     "languages": ["Python", "Flask", "HTML", "CSS", "JS"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -127,7 +123,6 @@
     "status": "Finished",
     "status_id": 1,
     "languages": ["Python"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -138,7 +133,6 @@
     "status": "On Hold",
     "status_id": 0,
     "languages": ["Python"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -149,7 +143,6 @@
     "status": "On Hold",
     "status_id": 0,
     "languages": ["C#"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -160,7 +153,6 @@
     "status": "In Development",
     "status_id": 3,
     "languages": ["C#"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],
@@ -171,7 +163,6 @@
     "status": "Finished",
     "status_id": 1,
     "languages": ["C#"],
-    "git": "https://github.com/TimeofJustice/timeofjustice.eu",
     "images": [
 
     ],

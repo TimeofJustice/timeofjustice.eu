@@ -1,0 +1,126 @@
+import {useEffect, useRef, useState} from "react";
+import {Project} from "../data/Project.tsx";
+
+
+export default function Rondell({index}: {index: number}) {
+    const [data, setData] = useState<Project>();
+    const [current_image_index, set_current_image_index] = useState(0);
+    const current_image_indexRef = useRef<number>();
+    current_image_indexRef.current = current_image_index;
+    const [prev_image_index, set_prev_image_index] = useState(1);
+    const [maxImg, set_maxImg] = useState(0);
+    const maxImgRef = useRef<number>();
+    maxImgRef.current = maxImg;
+    const [isRondellReady, set_isRondellReady] = useState<number>(0);
+    const isRondellReadyRef = useRef<number>();
+    isRondellReadyRef.current = isRondellReady;
+    const [lastTouchX, set_lastTouchX] = useState(0);
+    const lastTouchXRef = useRef<number>();
+    lastTouchXRef.current = lastTouchX;
+    const [styles, setStyle] = useState<{}[]>([{left: "0"}, {}])
+
+    useEffect(() => {
+        const dataFetch = async () => {
+            const data = await (
+                await fetch('http://localhost:8000/api/project/' + index)
+            ).json();
+
+            setData(data)
+            set_maxImg(data.images.length)
+            set_current_image_index(0)
+            set_prev_image_index(1)
+            setStyle([{left: "0"}, {}])
+        }
+
+        dataFetch().then(() => {})
+    }, [index]);
+
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            if (30000 < new Date().getTime() - lastTouchXRef.current!) {
+                await change_active_image(1, false)
+            }
+        }, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    if (data === undefined) return <h1>Loading...</h1>;
+    else {
+        return <div className="rondel-container">
+        <div className="images" id="images">
+            {data.images.map((content: string[], _index: number) =>
+                <img
+                    src={content[0]}
+                    className="image"
+                    style={_index === current_image_index ? styles[0] : _index ===  prev_image_index ? styles[1] : {display: "none"}}
+                    key={_index}
+                    alt={content[1]}
+                />
+            )}
+        </div>
+
+        <div className="description">
+            <div id="description">
+                {data.description}
+            </div>
+        </div>
+
+        <div className="dots" id="dots">
+            {data.images.map((_, _index: number) =>
+                <i
+                    className={`fa fa-circle ${_index === current_image_index ? "active" : ""}`}
+                    onClick={() => change_active_image_to(_index)}
+                    key={_index}
+                />
+            )}
+        </div>
+
+        <div className="arrow-left" onClick={async () => {await change_active_image(-1)}}>
+            <i className="fa fa-arrow-circle-left"></i>
+        </div>
+        <div className="arrow-right" onClick={async () => {await change_active_image(1)}}>
+            <i className="fa fa-arrow-circle-right"></i>
+        </div>
+    </div>
+    }
+
+    async function change_active_image(changer: number, isTouch: boolean = true) {
+        if (maxImgRef.current === 0 || !(500 < new Date().getTime() - isRondellReadyRef.current!)) return;
+
+        let newImg = (current_image_indexRef.current! + changer + maxImgRef.current!) % maxImgRef.current!;
+
+        if (newImg === current_image_indexRef.current) return;
+
+        set_current_image_index(newImg)
+        set_prev_image_index(current_image_indexRef.current!)
+
+        if (changer < 0) {
+            await setStyleForMovement(false)
+        } else {
+            await setStyleForMovement(true)
+        }
+
+        if (isTouch) set_lastTouchX(new Date().getTime())
+
+        set_isRondellReady(new Date().getTime())
+    }
+
+    async function setStyleForMovement(isRight: Boolean) {
+        let directions = ["-", ""]
+        if (isRight) directions = ["", "-"]
+
+        setStyle([{left: `${directions[0]}100%`, transition: "none"}, {left: "0"}])
+
+        await timeout(100)
+
+        setStyle([{left: "0"}, {left: `${directions[1]}100%`}])
+    }
+
+    function timeout(delay: number) {
+        return new Promise( res => setTimeout(res, delay) );
+    }
+
+    async function change_active_image_to(_index: number) {
+        await change_active_image(_index - current_image_index)
+    }
+}
