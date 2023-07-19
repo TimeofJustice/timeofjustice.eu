@@ -25,8 +25,8 @@ def get_json():
         serialized_obj["images"] = []
 
         for image in project.image_set.all():
-            image_elements = image.image.url.split("/")[3::]
-            preview_elements = image.preview.url.split("/")[3::]
+            image_elements = image.image.url.split("/")[6::]
+            preview_elements = image.preview.url.split("/")[6::]
             serialized_obj["images"].append([["/".join(image_elements), "/".join(preview_elements)], image.alt])
 
         json_projects.append(serialized_obj)
