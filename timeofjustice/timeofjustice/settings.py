@@ -141,6 +141,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "data/dist/static"),
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, "data/static")
+
 if DEBUG:
     import mimetypes
     mimetypes.add_type("application/javascript", ".js", True)
