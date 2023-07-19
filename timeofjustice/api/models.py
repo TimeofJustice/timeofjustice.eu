@@ -41,8 +41,8 @@ class Project(models.Model):
 
 
 class Image(models.Model):
-    image = models.ImageField(upload_to=os.path.join(settings.BASE_DIR, 'data/images/'))
-    preview = models.ImageField(upload_to=os.path.join(settings.BASE_DIR, 'data/images/'))
+    image = models.ImageField(upload_to='timeofjustice/data/images/')
+    preview = models.ImageField(upload_to='timeofjusticedata/images/')
     alt = models.CharField(max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     index = models.IntegerField(default=0)
