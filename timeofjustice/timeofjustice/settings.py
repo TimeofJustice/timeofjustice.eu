@@ -37,6 +37,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'https://timeofjustice.eu',
     'http://timeofjustice.eu',
+    'http://localhost',
+    'http://127.0.0.1',
 ]
 
 
