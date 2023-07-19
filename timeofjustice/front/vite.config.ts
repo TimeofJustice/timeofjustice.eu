@@ -8,6 +8,6 @@ export default defineConfig({
     server: {
       port: 3000,
     },
-    build: { manifest: true, outDir: '../dist', assetsDir: 'static' },
+    build: { manifest: true, outDir: '../../data/dist', assetsDir: 'static' },
 
 })

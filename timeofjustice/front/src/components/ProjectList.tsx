@@ -3,11 +3,12 @@ import {Project} from "../data/Project.tsx";
 
 export const ProjectList = ({callback}: {callback: Function}) => {
     const [data, setData] = useState<Project[]>([]);
+    const [selected, setSelected] = useState<number>(0);
 
     useEffect(() => {
         const dataFetch = async () => {
             const data = await (
-                await fetch('http://localhost:8000/api/projects')
+                await fetch('/api/projects')
             ).json();
 
             setData(data);
@@ -21,7 +22,10 @@ export const ProjectList = ({callback}: {callback: Function}) => {
     if (!data) return <h1>Loading...</h1>;
     else {
         listItems = data.map((project, index) =>
-            <div className="project" onClick={() => callback(index)} key={project.name}>
+            <div className={selected == index ? "project active" : "project"} onClick={() => {
+                callback(index);
+                setSelected(index);
+            }} key={project.name}>
                 <div className="mark"></div>
                 <div className="inner">
                     {project.git &&

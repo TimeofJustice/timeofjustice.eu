@@ -1,18 +1,40 @@
 import json
 import os
 from django.conf import settings
-from django.http import JsonResponse, HttpResponseRedirect
+from django.forms.models import model_to_dict
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+from . import models
 
 
 def get_json():
-    with open(os.path.join(os.path.join(settings.BASE_DIR, 'api/data/projects.json'))) as file:
-        projects = json.load(file)
+    json_projects = []
+    projects = models.Project.objects.all()
 
-    projects = sorted(projects, key=lambda d: d['status_id'])
-    projects.reverse()
+    for project in projects:
+        serialized_obj = model_to_dict(project)
 
-    return projects
+        serialized_obj["status_id"] = project.status.id
+        serialized_obj["status"] = project.status.name
+
+        serialized_obj["languages"] = []
+
+        for language in project.languages.all():
+            serialized_obj["languages"].append(language.name)
+
+        serialized_obj["images"] = []
+
+        for image in project.image_set.all():
+            image_elements = image.image.url.split("/")[3::]
+            preview_elements = image.preview.url.split("/")[3::]
+            serialized_obj["images"].append([["/".join(image_elements), "/".join(preview_elements)], image.alt])
+
+        json_projects.append(serialized_obj)
+
+    json_projects = sorted(json_projects, key=lambda k: k["status_id"])
+    json_projects.reverse()
+
+    return json_projects
 
 
 def project(request, project_id):
@@ -44,3 +66,14 @@ def index(request):
 
 def handler404(request, *args, **kwargs):
     return HttpResponseRedirect('/')
+
+
+def robot(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /api/",
+        "Disallow: /admin/",
+        "Allow: /"
+    ]
+
+    return HttpResponse("\n".join(lines), content_type="text/plain")

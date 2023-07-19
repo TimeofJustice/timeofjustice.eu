@@ -22,14 +22,12 @@ export default function Rondell({index}: {index: number}) {
     useEffect(() => {
         const dataFetch = async () => {
             const data = await (
-                await fetch('http://localhost:8000/api/project/' + index)
+                await fetch('/api/project/' + index)
             ).json();
 
             setData(data)
             set_maxImg(data.images.length)
             set_current_image_index(0)
-            set_prev_image_index(1)
-            setStyle([{left: "0"}, {}])
         }
 
         dataFetch().then(() => {})
@@ -37,7 +35,7 @@ export default function Rondell({index}: {index: number}) {
 
     useEffect(() => {
         const interval = setInterval(async () => {
-            if (30000 < new Date().getTime() - lastTouchXRef.current!) {
+            if (30000 < new Date().getTime() - lastTouchXRef.current! && document.visibilityState === "visible") {
                 await change_active_image(1, false)
             }
         }, 5000);
@@ -49,13 +47,27 @@ export default function Rondell({index}: {index: number}) {
         return <div className="rondel-container">
         <div className="images" id="images">
             {data.images.map((content: string[], _index: number) =>
-                <img
-                    src={content[0]}
-                    className="image"
-                    style={_index === current_image_index ? styles[0] : _index ===  prev_image_index ? styles[1] : {display: "none"}}
+                <div
+                    className={"blur-load blur image-container"}
                     key={_index}
-                    alt={content[1]}
-                />
+                    style={Object.assign(
+                        _index === current_image_index ? styles[0] : _index === prev_image_index ? styles[1] : {display: "none"},
+                        {backgroundImage: `url(${content[0][1]})`}
+                        )
+                }
+                >
+                    <img
+                        src={content[0][0]}
+                        className={"image"}
+                        alt={content[1]}
+                        loading={"lazy"}
+                        onLoad={() => {
+                            const images = document.getElementsByClassName("image")
+                            images[_index].classList.add("loaded")
+                            images[_index].parentElement!.classList.add("loaded")
+                        }}
+                    />
+                </div>
             )}
         </div>
 

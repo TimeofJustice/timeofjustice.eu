@@ -24,11 +24,18 @@ SECRET_KEY = 'django-insecure--2&uehmj*cc7mu=2k2li+%)jafm5qe-g7b%simpa4)5dvb)efg
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# Show error messages in production
+DEBUG_PROPAGATE_EXCEPTIONS = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'timeofjustice.eu',
+]
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',
     'http://localhost:3000',
+    'https://timeofjustice.eu',
 ]
 
 
@@ -41,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'api',
     'corsheaders',
 ]
 
@@ -55,13 +63,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 ROOT_URLCONF = 'timeofjustice.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, "front/dist")
+            os.path.join(BASE_DIR, "data/dist")
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -126,7 +135,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "front/dist/static")
+    os.path.join(BASE_DIR, "data/dist/static"),
 ]
 
 if DEBUG:
