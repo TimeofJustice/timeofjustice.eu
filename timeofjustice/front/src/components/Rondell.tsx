@@ -18,6 +18,9 @@ export default function Rondell({index}: { index: number }) {
     const lastTouchXRef = useRef<number>();
     lastTouchXRef.current = lastTouchX;
     const [styles, setStyle] = useState<{}[]>([{left: "0"}, {}])
+    const [isInFullview, set_isInFullview] = useState(false)
+    const isInFullviewRef = useRef<boolean>();
+    isInFullviewRef.current = isInFullview;
 
     const handlers = useSwipeable(
         {
@@ -44,15 +47,16 @@ export default function Rondell({index}: { index: number }) {
 
     useEffect(() => {
         const interval = setInterval(async () => {
-            if (30000 < new Date().getTime() - lastTouchXRef.current! && document.visibilityState === "visible") {
+            if (30000 < new Date().getTime() - lastTouchXRef.current! && document.visibilityState === "visible" && !isInFullviewRef.current!) {
                 await change_active_image(1, false)
             }
         }, 5000);
         return () => clearInterval(interval);
     }, []);
 
-    if (data === undefined) return <h1>Loading...</h1>;
-    else {
+    if (data === undefined) {
+        return <h1>Loading...</h1>
+    } else {
         return <div className="rondel-container" {...handlers}>
             <div className="images" id="images">
                 {data.images.map((content: string[], _index: number) =>
@@ -64,6 +68,12 @@ export default function Rondell({index}: { index: number }) {
                             {backgroundImage: `url(${content[0][1]})`}
                         )
                         }
+                        onClick={
+                            () => {
+                                document.getElementById("fullview")!.classList.add("active")
+                                set_isInFullview(true)
+                            }
+                        }
                     >
                         <img
                             src={content[0][0]}
@@ -71,7 +81,8 @@ export default function Rondell({index}: { index: number }) {
                             alt={content[1]}
                             loading={"lazy"}
                             onLoad={() => {
-                                const images = document.getElementsByClassName("image")
+                                const imagesContainer = document.getElementById("images")!
+                                const images = imagesContainer.getElementsByClassName("image")
                                 images[_index].classList.add("loaded")
                                 images[_index].parentElement!.classList.add("loaded")
                             }}
@@ -105,6 +116,34 @@ export default function Rondell({index}: { index: number }) {
                 await change_active_image(1)
             }}>
                 <i className="fa fa-arrow-circle-right"></i>
+            </div>
+
+            <div id={"fullview"} onClick={
+                () => {
+                    document.getElementById("fullview")!.classList.remove("active")
+                    set_isInFullview(false)
+                }
+            }>
+                {data.images.map((content: string[], _index: number) =>
+                    <div
+                        className={"blur-load blur"}
+                        key={_index}
+                        style={{backgroundImage: `url(${content[0][1]})`}}
+                    >
+                        <img
+                            src={content[0][0]}
+                            style={current_image_index === _index ? {display: "block"} : {display: "none"}}
+                            alt={content[1]}
+                            loading={"lazy"}
+                            onLoad={() => {
+                                const fullview = document.getElementById("fullview")!
+                                const images = fullview.getElementsByClassName("image")
+                                images[_index].classList.add("loaded")
+                                images[_index].parentElement!.classList.add("loaded")
+                            }}
+                        />
+                    </div>
+                )}
             </div>
         </div>
     }
