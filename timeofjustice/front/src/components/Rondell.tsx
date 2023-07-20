@@ -137,7 +137,7 @@ export default function Rondell({index}: { index: number }) {
                             loading={"lazy"}
                             onLoad={() => {
                                 const fullview = document.getElementById("fullview")!
-                                const images = fullview.getElementsByClassName("image")
+                                const images = fullview.getElementsByTagName("img")
                                 images[_index].classList.add("loaded")
                                 images[_index].parentElement!.classList.add("loaded")
                             }}
