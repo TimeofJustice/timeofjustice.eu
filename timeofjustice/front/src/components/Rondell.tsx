@@ -1,8 +1,8 @@
 import {useEffect, useRef, useState} from "react";
 import {Project} from "../data/Project.tsx";
+import {useSwipeable} from "react-swipeable";
 
-
-export default function Rondell({index}: {index: number}) {
+export default function Rondell({index}: { index: number }) {
     const [data, setData] = useState<Project>();
     const [current_image_index, set_current_image_index] = useState(0);
     const current_image_indexRef = useRef<number>();
@@ -19,6 +19,14 @@ export default function Rondell({index}: {index: number}) {
     lastTouchXRef.current = lastTouchX;
     const [styles, setStyle] = useState<{}[]>([{left: "0"}, {}])
 
+    const handlers = useSwipeable(
+        {
+            onSwipedLeft: () => change_active_image(1),
+            onSwipedRight: () => change_active_image(-1),
+            trackMouse: true
+        }
+    )
+
     useEffect(() => {
         const dataFetch = async () => {
             const data = await (
@@ -30,7 +38,8 @@ export default function Rondell({index}: {index: number}) {
             set_current_image_index(0)
         }
 
-        dataFetch().then(() => {})
+        dataFetch().then(() => {
+        })
     }, [index]);
 
     useEffect(() => {
@@ -44,56 +53,60 @@ export default function Rondell({index}: {index: number}) {
 
     if (data === undefined) return <h1>Loading...</h1>;
     else {
-        return <div className="rondel-container">
-        <div className="images" id="images">
-            {data.images.map((content: string[], _index: number) =>
-                <div
-                    className={"blur-load blur image-container"}
-                    key={_index}
-                    style={Object.assign(
-                        _index === current_image_index ? styles[0] : _index === prev_image_index ? styles[1] : {display: "none"},
-                        {backgroundImage: `url(${content[0][1]})`}
+        return <div className="rondel-container" {...handlers}>
+            <div className="images" id="images">
+                {data.images.map((content: string[], _index: number) =>
+                    <div
+                        className={"blur-load blur image-container"}
+                        key={_index}
+                        style={Object.assign(
+                            _index === current_image_index ? styles[0] : _index === prev_image_index ? styles[1] : {display: "none"},
+                            {backgroundImage: `url(${content[0][1]})`}
                         )
-                }
-                >
-                    <img
-                        src={content[0][0]}
-                        className={"image"}
-                        alt={content[1]}
-                        loading={"lazy"}
-                        onLoad={() => {
-                            const images = document.getElementsByClassName("image")
-                            images[_index].classList.add("loaded")
-                            images[_index].parentElement!.classList.add("loaded")
-                        }}
-                    />
-                </div>
-            )}
-        </div>
+                        }
+                    >
+                        <img
+                            src={content[0][0]}
+                            className={"image"}
+                            alt={content[1]}
+                            loading={"lazy"}
+                            onLoad={() => {
+                                const images = document.getElementsByClassName("image")
+                                images[_index].classList.add("loaded")
+                                images[_index].parentElement!.classList.add("loaded")
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
 
-        <div className="description">
-            <div id="description">
-                {data.description}
+            <div className="description">
+                <div id="description">
+                    {data.description}
+                </div>
+            </div>
+
+            <div className="dots" id="dots">
+                {data.images.map((_, _index: number) =>
+                    <i
+                        className={`fa fa-circle ${_index === current_image_index ? "active" : ""}`}
+                        onClick={() => change_active_image_to(_index)}
+                        key={_index}
+                    />
+                )}
+            </div>
+
+            <div className="arrow-left" onClick={async () => {
+                await change_active_image(-1)
+            }}>
+                <i className="fa fa-arrow-circle-left"></i>
+            </div>
+            <div className="arrow-right" onClick={async () => {
+                await change_active_image(1)
+            }}>
+                <i className="fa fa-arrow-circle-right"></i>
             </div>
         </div>
-
-        <div className="dots" id="dots">
-            {data.images.map((_, _index: number) =>
-                <i
-                    className={`fa fa-circle ${_index === current_image_index ? "active" : ""}`}
-                    onClick={() => change_active_image_to(_index)}
-                    key={_index}
-                />
-            )}
-        </div>
-
-        <div className="arrow-left" onClick={async () => {await change_active_image(-1)}}>
-            <i className="fa fa-arrow-circle-left"></i>
-        </div>
-        <div className="arrow-right" onClick={async () => {await change_active_image(1)}}>
-            <i className="fa fa-arrow-circle-right"></i>
-        </div>
-    </div>
     }
 
     async function change_active_image(changer: number, isTouch: boolean = true) {
@@ -129,7 +142,7 @@ export default function Rondell({index}: {index: number}) {
     }
 
     function timeout(delay: number) {
-        return new Promise( res => setTimeout(res, delay) );
+        return new Promise(res => setTimeout(res, delay));
     }
 
     async function change_active_image_to(_index: number) {

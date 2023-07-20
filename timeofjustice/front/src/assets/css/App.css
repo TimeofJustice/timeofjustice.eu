@@ -271,6 +271,8 @@ a:hover {
     position: relative;
     display: inline-block;
     overflow: hidden;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 .rondel-container > .images {
