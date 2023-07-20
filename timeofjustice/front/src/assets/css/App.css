@@ -68,8 +68,8 @@ a:hover {
 
 .header > .left-side > span::after {
     content: "";
-    margin-left: 5px;
-    margin-right: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .header > .left-side > a {
@@ -362,9 +362,16 @@ a:hover {
     pointer-events: all;
 }
 
-#fullview > img {
-    max-width: 100%;
-    max-height: 100%;
+#fullview > div {
+    width: 100%;
+    height: 100%;
+    max-width: 1200px;
+    max-height: 800px;
+}
+
+#fullview > div > img {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     user-select: none;
     -webkit-user-drag: none;

@@ -26,7 +26,11 @@ export default function Rondell({index}: { index: number }) {
         {
             onSwipedLeft: () => change_active_image(1),
             onSwipedRight: () => change_active_image(-1),
-            trackMouse: true
+            onTap: () => {
+                document.getElementById("fullview")!.classList.add("active")
+                set_isInFullview(true)
+            },
+            trackMouse: true,
         }
     )
 
@@ -67,12 +71,6 @@ export default function Rondell({index}: { index: number }) {
                             _index === current_image_index ? styles[0] : _index === prev_image_index ? styles[1] : {display: "none"},
                             {backgroundImage: `url(${content[0][1]})`}
                         )
-                        }
-                        onClick={
-                            () => {
-                                document.getElementById("fullview")!.classList.add("active")
-                                set_isInFullview(true)
-                            }
                         }
                     >
                         <img
