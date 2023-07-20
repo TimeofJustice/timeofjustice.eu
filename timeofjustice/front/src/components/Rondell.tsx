@@ -126,11 +126,14 @@ export default function Rondell({index}: { index: number }) {
                     <div
                         className={"blur-load blur"}
                         key={_index}
-                        style={{backgroundImage: `url(${content[0][1]})`}}
+                        style={Object.assign(
+                            current_image_index === _index ? {display: "block"} : {display: "none"},
+                            {backgroundImage: `url(${content[0][1]})`}
+                        )
+                        }
                     >
                         <img
                             src={content[0][0]}
-                            style={current_image_index === _index ? {display: "block"} : {display: "none"}}
                             alt={content[1]}
                             loading={"lazy"}
                             onLoad={() => {
