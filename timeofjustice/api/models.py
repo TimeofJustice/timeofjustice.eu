@@ -41,8 +41,13 @@ class Project(models.Model):
 
 
 class Image(models.Model):
-    image = models.ImageField(upload_to='home/jonas/timeofjustice.eu/timeofjustice/data/images/')
-    preview = models.ImageField(upload_to='home/jonas/timeofjustice.eu/timeofjustice/data/images/')
+    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+
+    if os.name == 'nt':
+        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
+
+    image = models.ImageField(upload_to=destination)
+    preview = models.ImageField(upload_to=destination)
     alt = models.CharField(max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     index = models.IntegerField(default=0)

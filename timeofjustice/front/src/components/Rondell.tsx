@@ -26,7 +26,7 @@ export default function Rondell({index}: { index: number }) {
         {
             onSwipedLeft: () => change_active_image(1),
             onSwipedRight: () => change_active_image(-1),
-            onTap: () => {
+            onTouchStartOrOnMouseDown: () => {
                 document.getElementById("fullview")!.classList.add("active")
                 set_isInFullview(true)
             },
