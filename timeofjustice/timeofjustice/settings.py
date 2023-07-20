@@ -30,6 +30,7 @@ DEBUG_PROPAGATE_EXCEPTIONS = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
+    'timeofjustice.eu',
 ]
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',
