@@ -24,15 +24,34 @@ export default function Rondell({index}: { index: number }) {
 
     const handlers = useSwipeable(
         {
-            onSwipedLeft: () => change_active_image(1),
-            onSwipedRight: () => change_active_image(-1),
-            onTouchStartOrOnMouseDown: () => {
-                document.getElementById("fullview")!.classList.add("active")
-                set_isInFullview(true)
+            onSwipedLeft: async () => {
+                await change_active_image(1)
             },
+            onSwipedRight: async () => {
+                await change_active_image(-1)
+            },
+            delta: 10,
+            trackTouch: true,
             trackMouse: true,
         }
     )
+
+    let mouseDownX = 0;
+    let mouseDownY = 0;
+
+    const mouseDownCapture = (e: any) => {
+        mouseDownX = e.clientX;
+        mouseDownY = e.clientY;
+    };
+
+    const handleClickCapture = (e: any) => {
+        if (
+            Math.abs(mouseDownX - e.clientX) >= 30 ||
+            Math.abs(mouseDownY - e.clientY) >= 30
+        ) {
+            e.stopPropagation();
+        }
+    };
 
     useEffect(() => {
         const dataFetch = async () => {
@@ -62,7 +81,16 @@ export default function Rondell({index}: { index: number }) {
         return <h1>Loading...</h1>
     } else {
         return <div className="rondel-container">
-            <div className="images" id="images" {...handlers}>
+            <div
+                className="images"
+                id="images"
+                onClick={() => {
+                    document.getElementById("fullview")!.classList.add("active")
+                    set_isInFullview(true)
+                }}
+                onMouseDownCapture={mouseDownCapture}
+                onClickCapture={handleClickCapture}
+                {...handlers}>
                 {data.images.map((content: string[], _index: number) =>
                     <div
                         className={"blur-load blur image-container"}
