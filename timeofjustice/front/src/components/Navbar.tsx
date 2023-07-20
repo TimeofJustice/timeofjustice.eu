@@ -9,6 +9,7 @@ export default function Navbar() {
                 <span>TimeofJustice</span>
                 <PageLink to="/">/Projects</PageLink>
                 <PageLink to="/privacy">/Privacy Policy</PageLink>
+                <PageLink to="/place">/Place</PageLink>
                 <a href="/legal" className="legal-link">/Legal Notice</a>
             </div>
 

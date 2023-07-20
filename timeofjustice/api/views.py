@@ -77,3 +77,31 @@ def robot(request):
     ]
 
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+def place_get(request):
+    # Get a list of all cells
+    cells = models.Cell.objects.all()
+
+    # Create a list of all cells
+    cells_list = {}
+
+    for cell in cells:
+        cells_list.update({cell.id: cell.color})
+
+    return JsonResponse(cells_list, safe=False)
+
+
+def place_set(request):
+    # Get the color
+    color = request.GET.get("color")
+    id = request.GET.get("id")
+
+    # Get the cell or create it
+    cell = models.Cell.objects.get_or_create(id=id)[0]
+
+    # Set the color
+    cell.color = f"#{color}"
+    cell.save()
+
+    return JsonResponse({"success": True})

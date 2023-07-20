@@ -69,3 +69,8 @@ class Image(models.Model):
 
     class Meta:
         ordering = ('index', )
+
+
+class Cell(models.Model):
+    id = models.IntegerField(primary_key=True, auto_created=True)
+    color = models.CharField(max_length=100)

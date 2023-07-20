@@ -8,6 +8,7 @@ import {useState} from "react";
 import Projects from "./pages/Projects.tsx";
 import Privacy from "./pages/Privacy.tsx";
 import {Navigate, Route, Routes} from "react-router-dom";
+import Place from "./pages/Place.tsx";
 
 function App() {
     const [current_index, set_index] = useState(0);
@@ -19,6 +20,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={<Projects callback={callback} current_index={current_index} />} />
                     <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/place" element={<Place />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </div>
