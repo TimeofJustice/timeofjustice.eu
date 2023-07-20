@@ -61,8 +61,8 @@ export default function Rondell({index}: { index: number }) {
     if (data === undefined) {
         return <h1>Loading...</h1>
     } else {
-        return <div className="rondel-container" {...handlers}>
-            <div className="images" id="images">
+        return <div className="rondel-container">
+            <div className="images" id="images" {...handlers}>
                 {data.images.map((content: string[], _index: number) =>
                     <div
                         className={"blur-load blur image-container"}
