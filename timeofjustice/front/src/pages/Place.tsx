@@ -18,25 +18,6 @@ export default function Place() {
     const [cellColors, set_cellColors] = useState({} as { [key: string]: { [key: string]: string } })
     const cellColorsRef = useRef(cellColors);
     cellColorsRef.current = cellColors;
-
-    useEffect(() => {
-        const dataFetch = async () => {
-            const data = await (
-                await fetch("/api/place/get")
-            ).json();
-
-            set_cellColors(data);
-            draw();
-        };
-
-        setInterval(() => {
-            dataFetch().then(() => {
-            });
-        }, 2000)
-        dataFetch().then(() => {
-        });
-    }, []);
-
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [activeCell, set_activeCell] = useState<number[]>([0, 0]);
     const activeCellRef = useRef(activeCell);
@@ -44,58 +25,10 @@ export default function Place() {
     const currentScale = useRef(0.0);
     const size = 500;
     const cellSize = 10;
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-
-        if (canvas) {
-            canvas.width = size * cellSize;
-            canvas.height = size * cellSize;
-            draw();
-        }
-    }, [canvasRef])
-
-    function draw() {
-        const canvas = canvasRef.current;
-        const cellList = cellColorsRef.current;
-
-        if (!canvas || !cellList) {
-            return;
-        }
-
-        const ctx = canvas.getContext("2d");
-
-        if (!ctx) {
-            return;
-        }
-
-        const widthInCells = canvas.width / cellSize;
-        const heightInCells = canvas.height / cellSize;
-
-        for (let i = 0; i < widthInCells; i++) {
-            const cellRow = cellList[i];
-
-            for (let j = 0; j < heightInCells; j++) {
-                const cellColor = cellRow && cellRow[j];
-
-                ctx.fillStyle = cellColor || "#FFF";
-                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
-            }
-        }
-    }
-
     const wrapperRef = useRef<ReactZoomPanPinchRef | null>(null);
     const [wrapperScale, set_wrapperScale] = useState(1.0);
     let currentScaleRef = useRef(wrapperScale);
     currentScaleRef.current = wrapperScale;
-
-    // Get the scale of the wrapper
-    useEffect(() => {
-        const wrapper = wrapperRef.current;
-        if (wrapper && wrapper.state) {
-            set_wrapperScale(wrapper.state.scale);
-        }
-    }, [wrapperRef])
 
     const canvasClick = (e: any) => {
         const parent = canvasRef.current!.parentElement!;
@@ -129,6 +62,41 @@ export default function Place() {
         })
     }
 
+    useEffect(() => {
+        const dataFetch = async () => {
+            const data = await (
+                await fetch("/api/place/get")
+            ).json();
+
+            set_cellColors(data);
+            draw();
+        };
+
+        setInterval(() => {
+            dataFetch().then(() => {
+            });
+        }, 2000)
+        dataFetch().then(() => {
+        });
+    }, []);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+
+        if (canvas) {
+            canvas.width = size * cellSize;
+            canvas.height = size * cellSize;
+            draw();
+        }
+    }, [canvasRef])
+
+    useEffect(() => {
+        const wrapper = wrapperRef.current;
+        if (wrapper && wrapper.state) {
+            set_wrapperScale(wrapper.state.scale);
+        }
+    }, [wrapperRef])
+
     return <>
         <div className={"place-field"}>
             <div className={"place-content"}>
@@ -150,6 +118,7 @@ export default function Place() {
                             width: "100%",
                             height: "100%",
                         }}
+                        wrapperClass={"field-wrapper"}
                     >
                         <canvas
                             ref={canvasRef} className={"field"}
@@ -186,4 +155,33 @@ export default function Place() {
             </div>
         </div>
     </>
+
+    function draw() {
+        const canvas = canvasRef.current;
+        const cellList = cellColorsRef.current;
+
+        if (!canvas || !cellList) {
+            return;
+        }
+
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) {
+            return;
+        }
+
+        const widthInCells = canvas.width / cellSize;
+        const heightInCells = canvas.height / cellSize;
+
+        for (let i = 0; i < widthInCells; i++) {
+            const cellRow = cellList[i];
+
+            for (let j = 0; j < heightInCells; j++) {
+                const cellColor = cellRow && cellRow[j];
+
+                ctx.fillStyle = cellColor || "#FFF";
+                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+            }
+        }
+    }
 }

@@ -503,6 +503,17 @@ a:hover {
     height: 5px;
 }
 
+.field-wrapper {
+    background: radial-gradient(331.49% 141.42% at 100% 0%, #1a1a1a 0%, #0e0e0e 100%);
+    border-radius: 10px;
+    border: 3px solid #e0e0e0;
+}
+
+html.dark .field-wrapper {
+    background: radial-gradient(331.49% 141.42% at 100% 0%, #1a1a1a 0%, #0e0e0e 100%);
+    border: 3px solid #000000;
+}
+
 .place-field {
     position: relative;
     width: 100%;
@@ -563,15 +574,15 @@ a:hover {
 
 @media screen and (max-width: 1280px) {
     .content {
-        display: grid;
-        grid-template-rows: 60% 40%;
-        grid-gap: 20px;
+        flex-direction: column;
+        max-width: calc(100vw - 100px);
     }
 
     .content > .project-container {
         margin-bottom: 10px;
         height: 100%;
         margin-right: 0;
+        flex: 0 0 40%;
     }
 
     .content > .project-container > .projects {
@@ -582,7 +593,9 @@ a:hover {
 
     .content > .rondel-container {
         height: 100%;
-        grid-row: 1;
+        flex: 0 0 60%;
+        order: -1;
+        margin-bottom: 20px;
     }
 }
 

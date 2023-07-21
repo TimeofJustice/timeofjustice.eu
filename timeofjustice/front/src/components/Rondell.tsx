@@ -78,7 +78,11 @@ export default function Rondell({index}: { index: number }) {
     }, []);
 
     if (data === undefined) {
-        return <h1>Loading...</h1>
+        return <div  className="rondel-container" style={{
+            padding: "20px",
+        }}>
+            <h1>Loading...</h1>
+        </div>
     } else {
         return <div className="rondel-container">
             <div
