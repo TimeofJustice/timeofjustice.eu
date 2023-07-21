@@ -18,12 +18,15 @@ export default function Place() {
     const [cellColors, set_cellColors] = useState({} as { [key: string]: { [key: string]: string } })
     const cellColorsRef = useRef(cellColors);
     cellColorsRef.current = cellColors;
+    const [knownColors] = useState({} as { [key: string]: { [key: string]: string } })
+    const knownColorsRef = useRef(knownColors);
+    knownColorsRef.current = knownColors;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [activeCell, set_activeCell] = useState<number[]>([0, 0]);
     const activeCellRef = useRef(activeCell);
     activeCellRef.current = activeCell;
     const currentScale = useRef(0.0);
-    const size = 500;
+    const size = 1000;
     const cellSize = 10;
     const wrapperRef = useRef<ReactZoomPanPinchRef | null>(null);
     const [wrapperScale, set_wrapperScale] = useState(1.0);
@@ -54,30 +57,51 @@ export default function Place() {
                 return;
             }
 
+            const ctx = canvasRef.current!.getContext("2d");
+            if (ctx) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            }
+
             if (cellColorsRef.current[x] === undefined) {
                 cellColorsRef.current[x] = {};
             }
             cellColorsRef.current[x][y] = color;
-            draw();
+
+            // Check if we know this cell
+            if (knownColorsRef.current[x] === undefined) {
+                knownColorsRef.current[x] = {};
+            }
+
+            knownColorsRef.current[x][y] = color;
         })
     }
 
     useEffect(() => {
         const dataFetch = async () => {
             const data = await (
-                await fetch("/api/place/get")
+                await fetch("/api/place/get", {
+                    headers: {'X-CURRENT-CELLS':
+                        JSON.stringify({
+                            cellColors: knownColorsRef.current,
+                        })
+                    }
+                })
             ).json();
 
             set_cellColors(data);
-            draw();
+            await draw(cellColorsRef.current);
         };
 
-        setInterval(() => {
-            dataFetch().then(() => {
-            });
-        }, 2000)
-        dataFetch().then(() => {
-        });
+        const intervalId = setInterval(() => {
+            dataFetch().then(async () => {});
+        }, 5000)
+
+        dataFetch().then(async () => {});
+
+        return () => {
+            clearInterval(intervalId);
+        }
     }, []);
 
     useEffect(() => {
@@ -86,7 +110,7 @@ export default function Place() {
         if (canvas) {
             canvas.width = size * cellSize;
             canvas.height = size * cellSize;
-            draw();
+            draw(cellColorsRef.current);
         }
     }, [canvasRef])
 
@@ -156,9 +180,8 @@ export default function Place() {
         </div>
     </>
 
-    function draw() {
+    function draw(cellList: { [key: string]: { [key: string]: string } }) {
         const canvas = canvasRef.current;
-        const cellList = cellColorsRef.current;
 
         if (!canvas || !cellList) {
             return;
@@ -179,8 +202,19 @@ export default function Place() {
             for (let j = 0; j < heightInCells; j++) {
                 const cellColor = cellRow && cellRow[j];
 
-                ctx.fillStyle = cellColor || "#FFF";
+                if (!cellColor) {
+                    continue;
+                }
+
+                ctx.fillStyle = cellColor;
                 ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+
+                // Check if we know this cell
+                if (knownColorsRef.current[i] === undefined) {
+                    knownColorsRef.current[i] = {};
+                }
+
+                knownColorsRef.current[i][j] = cellColor;
             }
         }
     }

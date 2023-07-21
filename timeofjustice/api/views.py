@@ -81,21 +81,42 @@ def robot(request):
 
 def get_cells():
     cells = models.Cell.objects.all()
-    print(cells)
 
     cells_list = {}
 
     for cell in cells:
-        if cell.x not in cells_list.keys():
-            cells_list.update({cell.x: {}})
+        if str(cell.x) not in cells_list.keys():
+            cells_list.update({str(cell.x): {}})
 
-        cells_list[cell.x].update({cell.y: cell.color})
+        cells_list[str(cell.x)].update({str(cell.y): cell.color})
 
     return cells_list
 
 
 def place_get(request):
-    return JsonResponse(get_cells(), safe=False)
+    cells = get_cells()
+    header_cells = json.loads(request.META.get('HTTP_X_CURRENT_CELLS'))["cellColors"]
+    final_cells = {}
+
+    for x in cells.keys():
+        if str(x) not in header_cells.keys():
+            final_cells.update({str(x): cells[x]})
+            continue
+
+        set1 = set(cells[x].items())
+        set2 = set(header_cells[str(x)].items())
+
+        diff_items = dict(set2 ^ set1)
+
+        if x not in final_cells.keys():
+            final_cells[x] = {}
+
+        for item in diff_items.keys():
+            if x in cells.keys():
+                if item in cells[x].keys():
+                    final_cells[x][item] = cells[x][item]
+
+    return JsonResponse(final_cells, safe=False)
 
 
 def place_set(request):
