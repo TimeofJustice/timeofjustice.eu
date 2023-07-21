@@ -8,8 +8,8 @@ export default function Navbar() {
                 <i className="fas fa-code"></i>
                 <span>TimeofJustice</span>
                 <PageLink to="/">/Projects</PageLink>
-                <PageLink to="/privacy">/Privacy Policy</PageLink>
                 <PageLink to="/place">/Place</PageLink>
+                <PageLink to="/privacy">/Privacy Policy</PageLink>
                 <a href="/legal" className="legal-link">/Legal Notice</a>
             </div>
 

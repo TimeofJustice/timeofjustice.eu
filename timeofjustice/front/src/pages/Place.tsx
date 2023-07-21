@@ -1,8 +1,14 @@
 import {useEffect, useRef, useState} from "react";
 import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch"
+import {isMobile} from 'react-device-detect'
 
 export default function Place() {
     document.title = "Place - TimeofJustice";
+
+    if (isMobile)
+        return <div className={"place-field"}>
+            Mobile devices are not supported. Due to performance issues.
+            </div>
 
     const colors = [
         "#FF0000",

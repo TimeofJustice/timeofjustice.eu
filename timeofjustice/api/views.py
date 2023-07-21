@@ -116,6 +116,9 @@ def place_get(request):
                 if item in cells[x].keys():
                     final_cells[x][item] = cells[x][item]
 
+        if len(final_cells[x]) == 0:
+            final_cells.pop(x)
+
     return JsonResponse(final_cells, safe=False)
 
 
