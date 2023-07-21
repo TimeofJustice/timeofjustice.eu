@@ -579,29 +579,31 @@ html.dark .field-wrapper {
     }
 
     .content > .project-container {
-        margin-bottom: 10px;
-        height: 100%;
         margin-right: 0;
-        flex: 0 0 40%;
+        height: 40%;
     }
 
     .content > .project-container > .projects {
         display: grid;
         grid-template-columns: 50% 50%;
         grid-auto-rows: max-content;
+        margin-bottom: 0;
     }
 
     .content > .rondel-container {
-        height: 100%;
-        flex: 0 0 60%;
         order: -1;
         margin-bottom: 20px;
+        height: 60%;
     }
 }
 
 @media screen and (max-width: 750px) {
     #root {
         padding: 10px;
+    }
+
+    .content {
+        max-width: calc(100vw - 20px);
     }
 
     .header {
@@ -638,10 +640,6 @@ html.dark .field-wrapper {
 
     .project-container > .title {
         font-size: 1.25rem;
-        margin-bottom: 15px;
-    }
-
-    .projects {
         margin-bottom: 15px;
     }
 
