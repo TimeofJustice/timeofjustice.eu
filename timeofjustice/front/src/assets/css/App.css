@@ -518,12 +518,10 @@ a:hover {
     overflow: auto;
 }
 
-.place-content > .field {
+.place-content .field {
     background-color: #FFFFFF;
-    overflow: auto;
     image-rendering: pixelated;
     transform-origin: top left;
-    width: 100%;
 }
 
 .place-cell {
