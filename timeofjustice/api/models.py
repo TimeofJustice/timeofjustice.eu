@@ -73,4 +73,9 @@ class Image(models.Model):
 
 class Cell(models.Model):
     id = models.IntegerField(primary_key=True, auto_created=True)
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
     color = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.x} {self.y} {self.color}"
