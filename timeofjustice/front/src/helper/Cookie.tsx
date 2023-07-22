@@ -10,3 +10,7 @@ export function trySetCookie(cname: string, cvalue: String, exdays: number = 30,
 
     cookies.set(cname, cvalue, { path: '/', expires: expires });
 }
+
+export function getCookie(cname: string) {
+    return cookies.get(cname);
+}

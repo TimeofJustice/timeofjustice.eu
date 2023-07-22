@@ -1,9 +1,8 @@
 import json
-import os
-from django.conf import settings
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
 from . import models
 
 
@@ -37,6 +36,7 @@ def get_json():
     return json_projects
 
 
+@ensure_csrf_cookie
 def project(request, project_id):
     projects = get_json()
 
@@ -46,12 +46,14 @@ def project(request, project_id):
     return JsonResponse(projects[project_id], safe=False)
 
 
+@ensure_csrf_cookie
 def projects_list(request):
     projects = get_json()
 
     return JsonResponse(projects, safe=False)
 
 
+@ensure_csrf_cookie
 def index(request):
     context = {
         "mode": "dark"
@@ -64,10 +66,12 @@ def index(request):
     return response
 
 
+@ensure_csrf_cookie
 def handler404(request, *args, **kwargs):
     return HttpResponseRedirect('/')
 
 
+@ensure_csrf_cookie
 def robot(request):
     lines = [
         "User-agent: *",
@@ -93,6 +97,7 @@ def get_cells():
     return cells_list
 
 
+@ensure_csrf_cookie
 def place_get(request):
     cells = get_cells()
     header_cells = json.loads(request.META.get('HTTP_X_CURRENT_CELLS'))["cellColors"]
@@ -122,11 +127,19 @@ def place_get(request):
     return JsonResponse(final_cells, safe=False)
 
 
+@ensure_csrf_cookie
 def place_set(request):
+    origin = request.META.get('HTTP_ORIGIN')
+    print(origin)
+
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+    content = body
+
     # Get the color
-    color = request.GET.get("color")
-    x = request.GET.get("x")
-    y = request.GET.get("y")
+    color = content.get("color")
+    x = content.get("x")
+    y = content.get("y")
 
     # check if cell exists
     cell = models.Cell.objects.filter(x=x, y=y)
@@ -139,4 +152,4 @@ def place_set(request):
 
     cell.save()
 
-    return JsonResponse(get_cells(), safe=False)
+    return JsonResponse({"x": cell.x, "y": cell.y, "color": cell.color}, safe=False)

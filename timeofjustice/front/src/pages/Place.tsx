@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch"
 import {isMobile} from 'react-device-detect'
+import {getCookie} from "../helper/Cookie.tsx";
 
 export default function Place() {
     document.title = "Place - TimeofJustice";
@@ -56,7 +57,18 @@ export default function Place() {
         const y = activeCellRef.current[1];
 
         fetch(
-            `/api/place/set?x=${x}&y=${y}&color=${color.replace("#", "")}`,
+            `/api/place/set`,
+            {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCookie("csrftoken")
+                },
+                body: JSON.stringify({
+                    color: color.replace("#", ""),
+                    x: x,
+                    y: y
+                })
+            }
         ).then((response) => {
             if (response.status !== 200) {
                 alert("Error: " + response.statusText);
