@@ -1,20 +1,21 @@
 import {useEffect, useRef, useState} from "react";
 import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch"
 import {getCookie} from "../helper/Cookie.tsx";
+import {isMobile} from "react-device-detect";
 import {timeout} from "../helper/Timeout.tsx";
 
 export default function Place() {
     document.title = "Place - TimeofJustice";
 
-    // if (isMobile)
-    //     return <div className={"place-field"}>
-    //         Mobile devices are not supported. Due to performance issues.
-    //         </div>
+    if (isMobile)
+        return <div className={"place-field"}>
+            Mobile devices are not supported. Due to performance issues.
+            </div>
 
     const colors = [
-        "#FF0000",
-        "#FF7F00",
-        "#FFFF00",
+        "#FF4500",
+        "#FFA800",
+        "#FFD635",
         "#00FF00",
         "#0000FF",
         "#4B0082",
@@ -40,6 +41,10 @@ export default function Place() {
     let currentScaleRef = useRef(wrapperScale);
     currentScaleRef.current = wrapperScale;
 
+    const [drawTimeout, set_drawTimeout] = useState(0);
+    const drawTimeoutRef = useRef(drawTimeout);
+    drawTimeoutRef.current = drawTimeout;
+
     const canvasClick = (e: any) => {
         const parent = canvasRef.current!.parentElement!;
         currentScale.current = parent.clientWidth / canvasRef.current!.width;
@@ -55,6 +60,8 @@ export default function Place() {
     const drawCell = (color: string) => {
         const x = activeCellRef.current[0];
         const y = activeCellRef.current[1];
+
+        drawTimeoutRef.current = 3;
 
         fetch(
             `/api/place/set`,
@@ -116,8 +123,13 @@ export default function Place() {
 
         dataFetch().then(async () => {});
 
+        const timeOutInterval = setInterval(() => {
+            set_drawTimeout(drawTimeoutRef.current - 1)
+        }, 1000);
+
         return () => {
             clearInterval(intervalId);
+            clearInterval(timeOutInterval);
         }
     }, []);
 
@@ -186,7 +198,9 @@ export default function Place() {
                     </TransformComponent>
                 </TransformWrapper>
             </div>
-            <div className={"colors"}>
+            <div className={
+                "colors" + (drawTimeout > 0 ? "" : " ready")
+            }>
                 {colors.map((c, i) => {
                     return <div
                         className={"color"}
@@ -198,11 +212,19 @@ export default function Place() {
                     ></div>
                 })}
             </div>
+            <div className={"cords"}>
+                <span>x: {activeCell && canvasRef.current ? activeCell[0] : 0}, </span>
+                <span>y: {activeCell && canvasRef.current ? activeCell[1] : 0}</span>
+            </div>
+            <div className={"timer"} style={
+                {display: drawTimeout > 0 ? "block" : "none"}
+            }>
+                {drawTimeout > 0 ? drawTimeout + " seconds" : ""}
+            </div>
         </div>
     </>
 
     async function draw(cellList: { [key: string]: { [key: string]: string } }) {
-        console.log("draw")
         const canvas = canvasRef.current;
 
         if (!canvas || !cellList) {
@@ -237,7 +259,7 @@ export default function Place() {
                 knownColorsRef.current[rowIndex][cellIndex] = cellColor;
             }
 
-            if (i % 10 === 0) await timeout(1000)
+            if (i % 10 === 0) await timeout(100)
 
             i++;
         }
