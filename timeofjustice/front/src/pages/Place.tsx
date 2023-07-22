@@ -1,15 +1,15 @@
 import {useEffect, useRef, useState} from "react";
 import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch"
-import {isMobile} from 'react-device-detect'
 import {getCookie} from "../helper/Cookie.tsx";
+import {timeout} from "../helper/Timeout.tsx";
 
 export default function Place() {
     document.title = "Place - TimeofJustice";
 
-    if (isMobile)
-        return <div className={"place-field"}>
-            Mobile devices are not supported. Due to performance issues.
-            </div>
+    // if (isMobile)
+    //     return <div className={"place-field"}>
+    //         Mobile devices are not supported. Due to performance issues.
+    //         </div>
 
     const colors = [
         "#FF0000",
@@ -108,7 +108,6 @@ export default function Place() {
             ).json();
 
             set_cellColors(data);
-            await draw(cellColorsRef.current);
         };
 
         const intervalId = setInterval(() => {
@@ -121,6 +120,10 @@ export default function Place() {
             clearInterval(intervalId);
         }
     }, []);
+
+    useEffect(() => {
+        draw(cellColorsRef.current);
+    }, [cellColors])
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -198,7 +201,8 @@ export default function Place() {
         </div>
     </>
 
-    function draw(cellList: { [key: string]: { [key: string]: string } }) {
+    async function draw(cellList: { [key: string]: { [key: string]: string } }) {
+        console.log("draw")
         const canvas = canvasRef.current;
 
         if (!canvas || !cellList) {
@@ -211,29 +215,31 @@ export default function Place() {
             return;
         }
 
-        const widthInCells = canvas.width / cellSize;
-        const heightInCells = canvas.height / cellSize;
+        let i: number = 0;
 
-        for (let i = 0; i < widthInCells; i++) {
-            const cellRow = cellList[i];
+        for (let rowIndex in cellList) {
+            let row = cellList[rowIndex];
 
-            for (let j = 0; j < heightInCells; j++) {
-                const cellColor = cellRow && cellRow[j];
+            for (let cellIndex in row) {
+                let cellColor = row[cellIndex];
 
                 if (!cellColor) {
                     continue;
                 }
 
                 ctx.fillStyle = cellColor;
-                ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+                ctx.fillRect(parseInt(rowIndex) * cellSize, parseInt(cellIndex) * cellSize, cellSize, cellSize);
 
-                // Check if we know this cell
-                if (knownColorsRef.current[i] === undefined) {
-                    knownColorsRef.current[i] = {};
+                if (knownColorsRef.current[rowIndex] === undefined) {
+                    knownColorsRef.current[rowIndex] = {};
                 }
 
-                knownColorsRef.current[i][j] = cellColor;
+                knownColorsRef.current[rowIndex][cellIndex] = cellColor;
             }
+
+            if (i % 10 === 0) await timeout(1000)
+
+            i++;
         }
     }
 }

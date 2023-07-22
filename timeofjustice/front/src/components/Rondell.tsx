@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {Project} from "../data/Project.tsx";
 import {useSwipeable} from "react-swipeable";
+import {timeout} from "../helper/Timeout.tsx";
 
 export default function Rondell({index}: { index: number }) {
     const [data, setData] = useState<Project>();
@@ -207,10 +208,6 @@ export default function Rondell({index}: { index: number }) {
         await timeout(100)
 
         setStyle([{left: "0"}, {left: `${directions[1]}100%`}])
-    }
-
-    function timeout(delay: number) {
-        return new Promise(res => setTimeout(res, delay));
     }
 
     async function change_active_image_to(_index: number) {
