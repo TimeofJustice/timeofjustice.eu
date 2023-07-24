@@ -107,7 +107,7 @@ export default function Field() {
 
                             {Array.from({ length: 4 }, (_, i) =>
                                 Array.from({ length: 4 }, (_, j) =>
-                                <img src={`http://localhost/api/place/generate/${j * 250}/${i * 250}`}
+                                <img src={`/api/place/generate/${j * 250}/${i * 250}`}
                                      style={{
                                          width: 2500 + "px",
                                          height: 2500 + "px",
