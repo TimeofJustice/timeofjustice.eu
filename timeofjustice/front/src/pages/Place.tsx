@@ -1,4 +1,3 @@
-import {isMobile} from "react-device-detect";
 import Field from "../components/place/Field.tsx";
 import {useState} from "react";
 
@@ -22,13 +21,7 @@ export default function Place() {
         </div>
     );
 
-    if (isMobile)
-        return <div className={"place-field"} style={
-            {padding: "10px"}
-        }>
-            Mobile devices are not supported. Due to performance issues.
-            </div>
-    else return canvas
+    return canvas
 
     function enter() {
         set_canvas(<Field/>)

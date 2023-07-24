@@ -47,7 +47,7 @@ export default function Field() {
 
             for (let i = 0; i < images.length; i++) {
                 const img = images[i];
-                img.src = img.src;
+                img.src = img.src + "?" + new Date().getTime();
 
                 await timeout(100)
             }
@@ -271,7 +271,7 @@ export default function Field() {
             const img = document.getElementById(`${xArea}-${yArea}`) as HTMLImageElement;
 
             if (img) {
-                img.src = img.src;
+                img.src = img.src + "?" + new Date().getTime();
             }
         })
     }
