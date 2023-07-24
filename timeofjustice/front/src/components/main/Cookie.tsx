@@ -1,5 +1,5 @@
 import Cookies from 'universal-cookie';
-import {trySetCookie} from "../helper/Cookie.tsx";
+import {trySetCookie} from "../../helper/Cookie.tsx";
 import { useState } from "react";
 
 const cookies = new Cookies();

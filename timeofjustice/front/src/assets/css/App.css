@@ -526,6 +526,29 @@ html.dark .place-field {
     border: 3px solid #000000;
 }
 
+.place-field > .place-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #e0e0e0;
+    transition: background 0.25s ease-in-out;
+    margin-top: 10px;
+}
+
+html.dark .place-field > .place-button {
+    background-color: #000000;
+}
+
+.place-field > .place-button:hover {
+    cursor: pointer;
+    background-color: #d0d0d0;
+}
+
+html.dark .place-field > .place-button:hover {
+    background-color: #1a1a1a;
+}
+
 .place-container, .place-content {
     width: 100%!important;
     height: 100%!important;

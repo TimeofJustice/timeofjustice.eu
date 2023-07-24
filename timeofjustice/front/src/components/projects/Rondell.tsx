@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
-import {Project} from "../data/Project.tsx";
+import {Project} from "../../data/Project.tsx";
 import {useSwipeable} from "react-swipeable";
-import {timeout} from "../helper/Timeout.tsx";
+import {timeout} from "../../helper/Timeout.tsx";
 
 export default function Rondell({index}: { index: number }) {
     const [data, setData] = useState<Project>();

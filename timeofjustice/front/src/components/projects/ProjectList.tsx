@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Project} from "../data/Project.tsx";
+import {Project} from "../../data/Project.tsx";
 
 export const ProjectList = ({callback}: {callback: Function}) => {
     const [data, setData] = useState<Project[]>([]);

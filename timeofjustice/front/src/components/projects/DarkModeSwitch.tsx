@@ -1,5 +1,5 @@
-import Switch from "./Switch.tsx";
-import {trySetCookie} from "../helper/Cookie.tsx";
+import Switch from "../main/Switch.tsx";
+import {trySetCookie} from "../../helper/Cookie.tsx";
 
 export default function DarkModeSwitch() {
     let current_mode = document.getElementsByTagName("html")[0].className

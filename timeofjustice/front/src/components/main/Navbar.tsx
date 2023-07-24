@@ -1,5 +1,6 @@
-import DarkModeSwitch from "./DarkModeSwitch.tsx";
+import DarkModeSwitch from "../projects/DarkModeSwitch.tsx";
 import {NavLink} from "react-router-dom";
+import {isMobile} from "react-device-detect";
 
 export default function Navbar() {
     return <div className="header-container">
@@ -8,7 +9,9 @@ export default function Navbar() {
                 <i className="fas fa-code"></i>
                 <span>TimeofJustice</span>
                 <PageLink to="/">/Projects</PageLink>
-                <PageLink to="/place">/Place</PageLink>
+                {!isMobile &&
+                    <PageLink to="/place">/Place</PageLink>
+                }
                 <PageLink to="/privacy">/Privacy Policy</PageLink>
                 <a href="/legal" className="legal-link">/Legal Notice</a>
             </div>
@@ -32,13 +35,13 @@ export default function Navbar() {
                     </a>
                 </div>
                 <div className="functions">
-                    <DarkModeSwitch />
+                    <DarkModeSwitch/>
                 </div>
             </div>
         </nav>
     </div>
 
-    function PageLink({to, children = ""}: {to: string, children: string}) {
+    function PageLink({to, children = ""}: { to: string, children: string }) {
         return <>
             <NavLink to={to}>{children}</NavLink>
         </>
