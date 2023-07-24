@@ -27,6 +27,9 @@ DEBUG = False
 # Show error messages in production
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
+TIME_ZONE = 'Europe/Berlin'
+USE_TZ = True
+
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',

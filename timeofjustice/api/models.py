@@ -1,8 +1,10 @@
+import datetime
 import os
 
 import PIL.Image
-from django.conf import settings
 from django.db import models
+import numpy
+from PIL import Image as PILImage
 
 
 class Tag(models.Model):
@@ -76,6 +78,55 @@ class Cell(models.Model):
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
     color = models.CharField(max_length=100)
+    last_modified = models.DateTimeField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
-        return f"{self.x} {self.y} {self.color}"
+        return f"{self.x} {self.y} {self.color} {self.last_modified}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+
+        if os.name == 'nt':
+            destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
+
+        # the images are 100x100 find the correct image
+        x = self.x - (self.x % 250)
+        y = self.y - (self.y % 250)
+        file_name = destination + f"{x}_{y}.png"
+
+        if os.path.isfile(file_name):
+            image = PILImage.open(file_name)
+            image = image.convert("RGBA")
+            image = image.resize((250, 250), PILImage.ANTIALIAS)
+            data = numpy.array(image)
+
+            date = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
+            date = date - datetime.timedelta(hours=2)
+
+            cells = Cell.objects.filter(
+                x__gte=x,
+                x__lte=x + 249,
+                y__gte=y,
+                y__lte=y + 249,
+                last_modified__gte=date
+            )
+
+            print(cells)
+        else:
+            image = PILImage.new('RGBA', (250, 250), (255, 255, 255, 0))
+            data = numpy.array(image)
+
+            cells = Cell.objects.filter(
+                x__gte=x,
+                x__lte=x + 249,
+                y__gte=y,
+                y__lte=y + 249
+            )
+
+        for cell in cells:
+            data[cell.y - y][cell.x - x] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)] + [255]
+
+        image = PILImage.fromarray(data)
+
+        image.save(file_name)

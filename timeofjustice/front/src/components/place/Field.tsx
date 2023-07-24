@@ -1,8 +1,9 @@
 import {useEffect, useRef, useState} from "react";
 import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch";
 import {getCookie} from "../../helper/Cookie.tsx";
+import {timeout} from "../../helper/Timeout.tsx";
 
-export default function Field({size}: { size: number }) {
+export default function Field() {
     const colors = [
         "#FF4500",
         "#FFA800",
@@ -22,14 +23,6 @@ export default function Field({size}: { size: number }) {
         "#FFFFFF",
     ]
 
-    const [currentColors, set_currentColors] = useState({} as { [key: string]: { [key: string]: string } })
-    const currentColorsRef = useRef(currentColors);
-    currentColorsRef.current = currentColors;
-
-    const [knownColors] = useState({} as { [key: string]: { [key: string]: string } })
-    const knownColorsRef = useRef(knownColors);
-    knownColorsRef.current = knownColors;
-
     const [activeCell, set_activeCell] = useState<number[]>([0, 0]);
     const activeCellRef = useRef(activeCell);
     activeCellRef.current = activeCell;
@@ -42,32 +35,23 @@ export default function Field({size}: { size: number }) {
     const drawTimeoutRef = useRef(drawTimeout);
     drawTimeoutRef.current = drawTimeout;
 
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const canvasRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<ReactZoomPanPinchRef | null>(null);
 
     const currentScale = useRef(0.0);
     const cellSize = 10;
 
     useEffect(() => {
-        const dataFetch = async () => {
-            const data = await (
-                await fetch("/api/place/get", {
-                    headers: {'X-CURRENT-CELLS':
-                            JSON.stringify({
-                                cellColors: knownColorsRef.current,
-                            })
-                    }
-                })
-            ).json();
+        const intervalId = setInterval(async () => {
+            const images = canvasRef.current!.getElementsByTagName("img");
 
-            set_currentColors(data);
-        };
+            for (let i = 0; i < images.length; i++) {
+                const img = images[i];
+                img.src = img.src;
 
-        const intervalId = setInterval(() => {
-            dataFetch().then(async () => {});
-        }, 5000)
-
-        dataFetch().then(async () => {});
+                await timeout(100)
+            }
+        }, 10000)
 
         const timeOutInterval = setInterval(() => {
             set_drawTimeout(drawTimeoutRef.current - 1)
@@ -78,20 +62,6 @@ export default function Field({size}: { size: number }) {
             clearInterval(timeOutInterval);
         }
     }, []);
-
-    useEffect(() => {
-        draw(currentColorsRef.current)
-    }, [currentColors])
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-
-        if (canvas) {
-            canvas.width = size * cellSize;
-            canvas.height = size * cellSize;
-            draw(currentColorsRef.current);
-        }
-    }, [canvasRef])
 
     useEffect(() => {
         const wrapper = wrapperRef.current;
@@ -124,23 +94,110 @@ export default function Field({size}: { size: number }) {
                         }}
                         wrapperClass={"field-wrapper"}
                     >
-                        <canvas
-                            ref={canvasRef} className={"field"}
-                            onClick={canvasClick}
-                            style={{
-                                width: size * cellSize + "px!important",
-                                height: size * cellSize + "px!important",
-                            }}
-                        ></canvas>
+                        <div className={"field"}
+                             ref={canvasRef}
+                             onClick={canvasClick}
+                             style={{
+                                 minWidth: 10000 + "px",
+                                 minHeight: 10000 + "px",
+                                 display: "grid",
+                                 gridTemplateColumns: "repeat(10, 1000px)",
+                                    gridTemplateRows: "repeat(10, 1000px)",
+                             }}>
+
+                            {Array.from({ length: 4 }, (_, i) =>
+                                Array.from({ length: 4 }, (_, j) =>
+                                <img src={`http://localhost/api/place/generate/${j * 250}/${i * 250}`}
+                                     style={{
+                                         width: 2500 + "px",
+                                         height: 2500 + "px",
+                                         imageRendering: "pixelated"
+                                     }}
+                                     key={`${j * 250}-${i * 250}`}
+                                     id={`${j * 250}-${i * 250}`}
+                                />))
+                            }
+                        </div>
 
                         <div className={"active-cell"} style={{
                             position: "absolute",
                             left: activeCell && canvasRef.current ? activeCell[0] * cellSize + "px" : "0",
                             top: activeCell && canvasRef.current ? activeCell[1] * cellSize + "px" : "0",
-                            border: "0.1px solid #000",
                             width: cellSize + "px",
                             height: cellSize + "px",
                         }}>
+                            <div style={{
+                                position: "absolute",
+                                borderLeft: "1px solid #FFF",
+                                borderTop: "1px solid #FFF",
+                                width: cellSize / 2 + "px",
+                                height: cellSize / 2 + "px",
+                                left: -1 + "px",
+                                top: -1 + "px",
+                            }}></div>
+                            <div style={{
+                                position: "absolute",
+                                borderRight: "1px solid #FFF",
+                                borderTop: "1px solid #FFF",
+                                width: cellSize / 2 + "px",
+                                height: cellSize / 2 + "px",
+                                right: -1 + "px",
+                                top: -1 + "px",
+                            }}></div>
+                            <div style={{
+                                position: "absolute",
+                                borderLeft: "1px solid #FFF",
+                                borderBottom: "1px solid #FFF",
+                                width: cellSize / 2 + "px",
+                                height: cellSize / 2 + "px",
+                                left: -1 + "px",
+                                bottom: -1 + "px",
+                            }}></div>
+                            <div style={{
+                                position: "absolute",
+                                borderRight: "1px solid #FFF",
+                                borderBottom: "1px solid #FFF",
+                                width: cellSize / 2 + "px",
+                                height: cellSize / 2 + "px",
+                                right: -1 + "px",
+                                bottom: -1 + "px",
+                            }}></div>
+                            <div style={{
+                                    position: "absolute",
+                                    borderLeft: "1px solid #000",
+                                    borderTop: "1px solid #000",
+                                    width: cellSize / 2 - 2 + "px",
+                                    height: cellSize / 2 - 2 + "px",
+                                    left: 0 + "px",
+                                    top: 0 + "px",
+                                }}></div>
+                            <div style={{
+                                position: "absolute",
+                                borderRight: "1px solid #000",
+                                borderTop: "1px solid #000",
+                                width: cellSize / 2 - 2 + "px",
+                                height: cellSize / 2 - 2 + "px",
+                                right: 0 + "px",
+                                top: 0 + "px",
+                            }}></div>
+                            <div style={{
+                                position: "absolute",
+                                borderLeft: "1px solid #000",
+                                borderBottom: "1px solid #000",
+                                width: cellSize / 2 - 2 + "px",
+                                height: cellSize / 2 - 2 + "px",
+                                left: 0 + "px",
+                                bottom: 0 + "px",
+                            }}></div>
+                            <div style={{
+                                position: "absolute",
+                                borderRight: "1px solid #000",
+                                borderBottom: "1px solid #000",
+                                width: cellSize / 2 - 2 + "px",
+                                height: cellSize / 2 - 2 + "px",
+                                right: 0 + "px",
+                                bottom: 0 + "px",
+                            }}></div>
                         </div>
                     </TransformComponent>
                 </TransformWrapper>
@@ -174,7 +231,7 @@ export default function Field({size}: { size: number }) {
 
     function canvasClick(e: any) {
         const parent = canvasRef.current!.parentElement!;
-        currentScale.current = parent.clientWidth / canvasRef.current!.width;
+        currentScale.current = parent.clientWidth / canvasRef.current!.clientWidth;
 
         const bounds = e.target.getBoundingClientRect();
 
@@ -208,57 +265,14 @@ export default function Field({size}: { size: number }) {
                 return;
             }
 
-            const ctx = canvasRef.current!.getContext("2d");
-            if (ctx) {
-                ctx.fillStyle = color;
-                ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-            }
+            const xArea = Math.floor(x / 250) * 250;
+            const yArea = Math.floor(y / 250) * 250;
 
-            if (currentColorsRef.current[x] === undefined) {
-                currentColorsRef.current[x] = {};
-            }
-            currentColorsRef.current[x][y] = color;
+            const img = document.getElementById(`${xArea}-${yArea}`) as HTMLImageElement;
 
-            if (knownColorsRef.current[x] === undefined) {
-                knownColorsRef.current[x] = {};
+            if (img) {
+                img.src = img.src;
             }
-
-            knownColorsRef.current[x][y] = color;
         })
-    }
-
-    function draw(cellList: { [key: string]: { [key: string]: string } }) {
-        const canvas = canvasRef.current;
-
-        if (!canvas || !cellList) {
-            return;
-        }
-
-        const ctx = canvas.getContext("2d");
-
-        if (!ctx) {
-            return;
-        }
-
-        for (let rowIndex in cellList) {
-            let row = cellList[rowIndex];
-
-            for (let cellIndex in row) {
-                let cellColor = row[cellIndex];
-
-                if (!cellColor) {
-                    continue;
-                }
-
-                ctx.fillStyle = cellColor;
-                ctx.fillRect(parseInt(rowIndex) * cellSize, parseInt(cellIndex) * cellSize, cellSize, cellSize);
-
-                if (knownColorsRef.current[rowIndex] === undefined) {
-                    knownColorsRef.current[rowIndex] = {};
-                }
-
-                knownColorsRef.current[rowIndex][cellIndex] = cellColor;
-            }
-        }
     }
 }

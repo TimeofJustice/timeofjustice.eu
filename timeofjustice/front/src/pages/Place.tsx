@@ -31,6 +31,6 @@ export default function Place() {
     else return canvas
 
     function enter() {
-        set_canvas(<Field size={1000}/>)
+        set_canvas(<Field/>)
     }
 }

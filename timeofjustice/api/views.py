@@ -1,7 +1,11 @@
+import datetime
 import json
+import os
+
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
+from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from . import models
 
@@ -153,3 +157,30 @@ def place_set(request):
     cell.save()
 
     return JsonResponse({"x": cell.x, "y": cell.y, "color": cell.color}, safe=False)
+
+
+def gen(request, from_x, from_y):
+    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+
+    if os.name == 'nt':
+        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
+
+    from PIL import Image
+
+    if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
+        return HttpResponse("Wrong coordinates")
+
+    file_name = destination + f"{from_x}_{from_y}.png"
+
+    if os.path.isfile(file_name):
+        image = Image.open(file_name)
+        image = image.convert("RGBA")
+        image = image.resize((250, 250), Image.ANTIALIAS)
+    else:
+        # Create a new image of the size required with transparent background
+        image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
+
+    response = HttpResponse(content_type="image/png")
+    image.save(response, "PNG")
+
+    return response
