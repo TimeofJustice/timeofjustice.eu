@@ -108,11 +108,12 @@ export default function Field({size}: { size: number }) {
     }, [])
 
     useEffect(() => {
-        console.log("activeCell", activeCell)
         wrapperRef.current!.zoomToElement(
             cursorRef.current!,
             currentScaleRef.current,
         )
+
+        window.history.pushState({}, "", `?x=${activeCell[0]}&y=${activeCell[1]}`)
     }, [activeCell])
 
     let mouseDownX = 0;
@@ -316,8 +317,6 @@ export default function Field({size}: { size: number }) {
         const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current)
 
         if (x < 0 || x > 1000 || y < 0 || y > 1000) return
-
-        window.history.pushState({}, "", `?x=${x}&y=${y}`)
 
         set_activeCell([x, y])
     }
