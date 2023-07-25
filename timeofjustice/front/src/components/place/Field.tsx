@@ -42,11 +42,20 @@ export default function Field({size}: { size: number }) {
         "V": "#FFFFFF"
     }
 
-    const [activeCell, set_activeCell] = useState<number[]>([0, 0])
+    const queryParameters = new URLSearchParams(window.location.search)
+    const getX = queryParameters.get("x") ? parseInt(queryParameters.get("x")!) : 500
+    const getY = queryParameters.get("y") ? parseInt(queryParameters.get("y")!) : 500
+    const initialScale = queryParameters.get("x") || queryParameters.get("y") ? 2 : 0.08
+
+    const [currentTimeout, set_currentTimeout] = useState(0)
+    const currentTimeoutRef = useRef(currentTimeout)
+    currentTimeoutRef.current = currentTimeout
+
+    const [activeCell, set_activeCell] = useState<number[]>([getX, getY])
     const activeCellRef = useRef(activeCell)
     activeCellRef.current = activeCell
 
-    const [wrapperScale, set_wrapperScale] = useState(1.0)
+    const [wrapperScale, set_wrapperScale] = useState(initialScale)
     let currentScaleRef = useRef(wrapperScale)
     currentScaleRef.current = wrapperScale
 
@@ -61,6 +70,18 @@ export default function Field({size}: { size: number }) {
     const cellSize = 10
 
     useEffect(() => {
+        fetch('/api/place/timeout').then(
+            res => res.json()
+        ).then(
+            data => set_currentTimeout(data["seconds"])
+        )
+
+        fetch('/api/place/lastplaced').then(
+            res => res.json()
+        ).then(
+            data => set_drawTimeout(Math.ceil(data["seconds"]))
+        )
+
         const intervalId = setInterval(async () => {
             const images = canvasRef.current!.getElementsByTagName("img")
 
@@ -87,6 +108,7 @@ export default function Field({size}: { size: number }) {
     }, [])
 
     useEffect(() => {
+        console.log("activeCell", activeCell)
         wrapperRef.current!.zoomToElement(
             cursorRef.current!,
             currentScaleRef.current,
@@ -121,6 +143,7 @@ export default function Field({size}: { size: number }) {
                                   doubleClick={{disabled: true}}
                                   minScale={0.05}
                                   maxScale={10}
+                                  initialScale={currentScaleRef.current!}
                 >
                     <TransformComponent
                         wrapperStyle={{
@@ -165,8 +188,8 @@ export default function Field({size}: { size: number }) {
                              ref={cursorRef}
                              style={{
                                  position: "absolute",
-                                 left: activeCell && canvasRef.current ? activeCell[0] * cellSize - 1 + "px" : "0",
-                                 top: activeCell && canvasRef.current ? activeCell[1] * cellSize - 1 + "px" : "0",
+                                 left: activeCell[0] * cellSize - 1 + "px",
+                                 top: activeCell[1] * cellSize - 1 + "px",
                                  width: cellSize + 2 + "px",
                                  height: cellSize + 2 + "px",
                              }}>
@@ -294,6 +317,8 @@ export default function Field({size}: { size: number }) {
 
         if (x < 0 || x > 1000 || y < 0 || y > 1000) return
 
+        window.history.pushState({}, "", `?x=${x}&y=${y}`)
+
         set_activeCell([x, y])
     }
 
@@ -304,7 +329,7 @@ export default function Field({size}: { size: number }) {
         const x = activeCellRef.current[0]
         const y = activeCellRef.current[1]
 
-        set_drawTimeout(3)
+        set_drawTimeout(currentTimeoutRef.current)
 
         fetch(
             `/api/place/set`,

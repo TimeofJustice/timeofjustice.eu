@@ -80,6 +80,7 @@ class Cell(models.Model):
     y = models.IntegerField(default=0)
     color = models.CharField(max_length=100)
     last_modified = models.DateTimeField(auto_now=True, auto_now_add=False)
+    placed_by = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ('x', 'y')
@@ -115,8 +116,6 @@ class Cell(models.Model):
                 y__lte=y + 249,
                 last_modified__gte=date
             )
-
-            print(cells)
         else:
             image = PILImage.new('RGBA', (250, 250), (255, 255, 255, 0))
             data = numpy.array(image)
@@ -163,3 +162,13 @@ def delete_hook(sender, instance, using, **kwargs):
     image = PILImage.fromarray(data)
 
     image.save(file_name)
+
+
+class LastPlaced(models.Model):
+    id = models.CharField(primary_key=True, max_length=255)
+    timestamp = models.DateTimeField(auto_now=True, auto_now_add=False)
+
+
+class PlaceTimeOut(models.Model):
+    id = models.IntegerField(primary_key=True, auto_created=True, default=0)
+    seconds = models.IntegerField(default=0)

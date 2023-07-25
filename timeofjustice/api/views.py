@@ -1,5 +1,8 @@
+import datetime
 import json
 import os
+
+from PIL.Image import Resampling
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
@@ -82,16 +85,56 @@ def robot(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
+def get_time_out(request):
+    time_out = models.PlaceTimeOut.objects.all()[0].seconds
+    return JsonResponse({"seconds": time_out}, safe=False)
+
+
+def get_last_placed(request):
+    session_id = request.COOKIES.get("sessionid")
+
+    if session_id is None:
+        return JsonResponse({"seconds": 0}, safe=False)
+
+    # check if session id exists
+    session = models.LastPlaced.objects.filter(id=session_id)
+
+    if len(session) == 0:
+        return JsonResponse({"seconds": 0}, safe=False)
+
+    timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
+
+    time = datetime.datetime.now(tz=datetime.timezone.utc)
+
+    if session[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
+        return JsonResponse({"seconds": 0}, safe=False)
+    else:
+        seconds = (session[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
+        return JsonResponse({"seconds": seconds}, safe=False)
+
+
 @ensure_csrf_cookie
 def place_set(request):
-    origin = request.META.get('HTTP_ORIGIN')
-    print(origin)
+    session_id = request.COOKIES.get("sessionid")
+
+    if session_id is None:
+        return JsonResponse({"error": "Missing session id"}, status=400)
+
+    sessions = models.LastPlaced.objects.filter(id=session_id)
+    timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
+
+    if len(sessions) != 0:
+        time = datetime.datetime.now(tz=datetime.timezone.utc)
+
+        if not sessions[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
+            seconds = (sessions[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
+
+            return JsonResponse({"error": "You have cooldown", "seconds": seconds}, status=400)
 
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
     content = body
 
-    # Get the color
     color = content.get("color")
     x = content.get("x")
     y = content.get("y")
@@ -104,12 +147,21 @@ def place_set(request):
     cell = models.Cell.objects.filter(x=x, y=y)
 
     if len(cell) == 0:
-        cell = models.Cell(x=x, y=y, color=f"#{color}")
+        cell = models.Cell(x=x, y=y, color=f"#{color}", placed_by=session_id)
     else:
         cell = cell[0]
         cell.color = f"#{color}"
+        cell.placed_by = session_id
 
     cell.save()
+
+    if len(sessions) == 0:
+        session = models.LastPlaced(id=session_id, timestamp=content.get("timestamp"))
+    else:
+        session = sessions[0]
+        session.timestamp = datetime.datetime.now()
+
+    session.save()
 
     return JsonResponse({"x": cell.x, "y": cell.y, "color": cell.color}, safe=False)
 
@@ -134,6 +186,48 @@ def gen(request, from_x, from_y):
     else:
         # Create a new image of the size required with transparent background
         image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
+
+    response = HttpResponse(content_type="image/png")
+    image.save(response, "PNG")
+
+    return response
+
+
+def export(request, from_x, from_y, to_x, to_y, factor=1):
+    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+
+    if os.name == 'nt':
+        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
+
+    from PIL import Image
+    import numpy
+
+    if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
+        return HttpResponse("Wrong coordinates")
+
+    size = (to_x - from_x + 1), (to_y - from_y + 1)
+
+    image = Image.new('RGB', size, (255, 255, 255))
+    image = image.resize(size, Image.ANTIALIAS)
+    data = numpy.array(image)
+
+    cells = models.Cell.objects.filter(
+        x__gte=from_x,
+        x__lte=to_x,
+        y__gte=from_y,
+        y__lte=to_y
+    )
+
+    print(cells)
+
+    for cell in cells:
+        data[cell.y - from_x][cell.x - from_y] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)]
+
+    image = Image.fromarray(data)
+
+    scaled_size = size[0] * factor, size[1] * factor
+
+    image = image.resize(scaled_size, Resampling.NEAREST)
 
     response = HttpResponse(content_type="image/png")
     image.save(response, "PNG")
