@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-
 from PIL.Image import Resampling
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
@@ -40,6 +39,15 @@ def get_json():
     return json_projects
 
 
+def set_session_cookie(request):
+    import uuid
+
+    if request.COOKIES.get("session") is None:
+        return uuid.uuid4()
+    else:
+        return request.COOKIES.get("session")
+
+
 @ensure_csrf_cookie
 def project(request, project_id):
     projects = get_json()
@@ -59,6 +67,8 @@ def projects_list(request):
 
 @ensure_csrf_cookie
 def index(request):
+    session = set_session_cookie(request)
+
     context = {
         "mode": "dark"
     }
@@ -67,6 +77,7 @@ def index(request):
         context["mode"] = request.COOKIES.get("mode")
 
     response = render(request, "index.html", context)
+    response.set_cookie("session", session)
     return response
 
 
@@ -91,7 +102,7 @@ def get_time_out(request):
 
 
 def get_last_placed(request):
-    session_id = request.COOKIES.get("sessionid")
+    session_id = request.COOKIES.get("session")
 
     if session_id is None:
         return JsonResponse({"seconds": 0}, safe=False)
@@ -115,7 +126,7 @@ def get_last_placed(request):
 
 @ensure_csrf_cookie
 def place_set(request):
-    session_id = request.COOKIES.get("sessionid")
+    session_id = request.COOKIES.get("session")
 
     if session_id is None:
         return JsonResponse({"error": "Missing session id"}, status=400)
