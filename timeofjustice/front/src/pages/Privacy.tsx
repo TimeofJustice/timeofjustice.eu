@@ -1,3 +1,5 @@
+import "../assets/css/Privacy.css";
+
 export default function Privacy() {
     document.title = "Privacy Policy - TimeofJustice";
 

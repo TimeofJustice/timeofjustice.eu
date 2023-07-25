@@ -55,6 +55,7 @@ export default function Field({size}: { size: number }) {
     drawTimeoutRef.current = drawTimeout
 
     const canvasRef = useRef<HTMLDivElement>(null)
+    const cursorRef = useRef<HTMLDivElement>(null)
     const wrapperRef = useRef<ReactZoomPanPinchRef>(null)
 
     const cellSize = 10
@@ -83,6 +84,30 @@ export default function Field({size}: { size: number }) {
         }
     }, [])
 
+    useEffect(() => {
+        wrapperRef.current!.zoomToElement(
+            cursorRef.current!,
+            currentScaleRef.current,
+        )
+    }, [activeCell])
+
+    let mouseDownX = 0;
+    let mouseDownY = 0;
+
+    const mouseDownCapture = (e: any) => {
+        mouseDownX = e.clientX;
+        mouseDownY = e.clientY;
+    };
+
+    const handleClickCapture = (e: any) => {
+        if (
+            Math.abs(mouseDownX - e.clientX) >= 30 ||
+            Math.abs(mouseDownY - e.clientY) >= 30
+        ) {
+            e.stopPropagation();
+        }
+    };
+
     return <>
         <div className={"place-field"}>
             <div className={"place-content"}>
@@ -109,6 +134,8 @@ export default function Field({size}: { size: number }) {
                         <div className={"field"}
                              ref={canvasRef}
                              onClick={canvasClick}
+                             onMouseDownCapture={mouseDownCapture}
+                             onClickCapture={handleClickCapture}
                              style={{
                                  minWidth: size * cellSize + "px",
                                  minHeight: size * cellSize + "px",
@@ -132,13 +159,15 @@ export default function Field({size}: { size: number }) {
                             }
                         </div>
 
-                        <div className={"active-cell"} style={{
-                            position: "absolute",
-                            left: activeCell && canvasRef.current ? activeCell[0] * cellSize - 1 + "px" : "0",
-                            top: activeCell && canvasRef.current ? activeCell[1] * cellSize - 1 + "px" : "0",
-                            width: cellSize + 2 + "px",
-                            height: cellSize + 2 + "px",
-                        }}>
+                        <div className={"active-cell"}
+                             ref={cursorRef}
+                             style={{
+                                 position: "absolute",
+                                 left: activeCell && canvasRef.current ? activeCell[0] * cellSize - 1 + "px" : "0",
+                                 top: activeCell && canvasRef.current ? activeCell[1] * cellSize - 1 + "px" : "0",
+                                 width: cellSize + 2 + "px",
+                                 height: cellSize + 2 + "px",
+                             }}>
                             <div style={{
                                 position: "absolute",
                                 borderLeft: "1px solid #FFF",
@@ -222,23 +251,26 @@ export default function Field({size}: { size: number }) {
                  }}>
                 <i className="fa-solid fa-rotate-left"></i>
             </div>
+
             <div className={
-                "colors" + (drawTimeout > 0 ? "" : " ready")
+                "colors-container" + (drawTimeout > 0 ? "" : " ready")
             }>
-                {Object.keys(colors).map((key) => {
-                    return <div
-                        className={"color"}
-                        style={{backgroundColor: colors[key]}}
-                        key={key}
-                        onClick={() => {
-                            drawCell(colors[key])
-                        }}
-                    >
-                        <div>
-                            {key}
+                <div className={"colors"}>
+                    {Object.keys(colors).map((key) => {
+                        return <div
+                            className={"color"}
+                            style={{backgroundColor: colors[key]}}
+                            key={key}
+                            onClick={() => {
+                                drawCell(colors[key])
+                            }}
+                        >
+                            <div>
+                                {key}
+                            </div>
                         </div>
-                    </div>
-                })}
+                    })}
+                </div>
             </div>
             <div className={"cords"}>
                 <span>x: {activeCell && canvasRef.current ? activeCell[0] : 0}, </span>
@@ -257,6 +289,8 @@ export default function Field({size}: { size: number }) {
 
         const x = Math.floor((e.clientX - bounds.left) / cellSize / currentScaleRef.current)
         const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current)
+
+        if (x < 0 || x > 1000 || y < 0 || y > 1000) return
 
         set_activeCell([x, y])
     }
@@ -303,13 +337,33 @@ export default function Field({size}: { size: number }) {
         let key = e.key.toString().toUpperCase()
 
         if (key === "ARROWLEFT") {
-            set_activeCell([activeCellRef.current[0] - 1, activeCellRef.current[1]])
+            const x = activeCellRef.current[0] - 1
+            const y = activeCellRef.current[1]
+
+            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+
+            set_activeCell([x, y])
         } else if (key === "ARROWRIGHT") {
-            set_activeCell([activeCellRef.current[0] + 1, activeCellRef.current[1]])
+            const x = activeCellRef.current[0] + 1
+            const y = activeCellRef.current[1]
+
+            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+
+            set_activeCell([x, y])
         } else if (key === "ARROWUP") {
-            set_activeCell([activeCellRef.current[0], activeCellRef.current[1] - 1])
+            const x = activeCellRef.current[0]
+            const y = activeCellRef.current[1] - 1
+
+            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+
+            set_activeCell([x, y])
         } else if (key === "ARROWDOWN") {
-            set_activeCell([activeCellRef.current[0], activeCellRef.current[1] + 1])
+            const x = activeCellRef.current[0]
+            const y = activeCellRef.current[1] + 1
+
+            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+
+            set_activeCell([x, y])
         }
 
         if (colors[key])

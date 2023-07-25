@@ -1,6 +1,4 @@
 import './assets/css/App.css';
-import './assets/css/Dark.css';
-import './assets/css/Light.css';
 import './assets/fontawesome/css/all.css';
 import Navbar from './components/main/Navbar.tsx';
 import Cookie from "./components/main/Cookie.tsx";

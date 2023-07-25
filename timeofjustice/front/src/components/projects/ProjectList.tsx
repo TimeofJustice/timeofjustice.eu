@@ -8,7 +8,7 @@ export const ProjectList = ({onProjectSelect}: { onProjectSelect: (projectIndex:
     const [selected, setSelected] = useState<number>(0);
 
     useEffect(() => {
-        fetch('http://localhost/api/projects').then(
+        fetch('/api/projects').then(
             res => res.json()
         ).then(
             data => setData(data)

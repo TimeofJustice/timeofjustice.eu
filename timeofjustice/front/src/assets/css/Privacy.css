@@ -1,0 +1,22 @@
+.privacy-container {
+    height: 100%;
+    overflow-y: auto;
+    line-height: 2rem;
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 50px 0 50px;
+}
+
+.privacy-container a {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+@media screen and (max-width: 750px) {
+    .privacy-container {
+        padding: 0 10px;
+        width: 100%;
+        overflow-wrap: break-word;
+        hyphens: auto;
+    }
+}

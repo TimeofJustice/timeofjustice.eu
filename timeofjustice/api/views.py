@@ -1,11 +1,8 @@
-import datetime
 import json
 import os
-
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from . import models
 
@@ -70,12 +67,10 @@ def index(request):
     return response
 
 
-@ensure_csrf_cookie
 def handler404(request, *args, **kwargs):
     return HttpResponseRedirect('/')
 
 
-@ensure_csrf_cookie
 def robot(request):
     lines = [
         "User-agent: *",
@@ -85,50 +80,6 @@ def robot(request):
     ]
 
     return HttpResponse("\n".join(lines), content_type="text/plain")
-
-
-def get_cells():
-    cells = models.Cell.objects.all()
-
-    cells_list = {}
-
-    for cell in cells:
-        if str(cell.x) not in cells_list.keys():
-            cells_list.update({str(cell.x): {}})
-
-        cells_list[str(cell.x)].update({str(cell.y): cell.color})
-
-    return cells_list
-
-
-@ensure_csrf_cookie
-def place_get(request):
-    cells = get_cells()
-    header_cells = json.loads(request.META.get('HTTP_X_CURRENT_CELLS'))["cellColors"]
-    final_cells = {}
-
-    for x in cells.keys():
-        if str(x) not in header_cells.keys():
-            final_cells.update({str(x): cells[x]})
-            continue
-
-        set1 = set(cells[x].items())
-        set2 = set(header_cells[str(x)].items())
-
-        diff_items = dict(set2 ^ set1)
-
-        if x not in final_cells.keys():
-            final_cells[x] = {}
-
-        for item in diff_items.keys():
-            if x in cells.keys():
-                if item in cells[x].keys():
-                    final_cells[x][item] = cells[x][item]
-
-        if len(final_cells[x]) == 0:
-            final_cells.pop(x)
-
-    return JsonResponse(final_cells, safe=False)
 
 
 @ensure_csrf_cookie
@@ -145,7 +96,11 @@ def place_set(request):
     x = content.get("x")
     y = content.get("y")
 
-    # check if cell exists
+    if color is None or x is None or y is None:
+        return JsonResponse({"error": "Missing parameters"}, status=400)
+    elif x < 0 or y < 0 or x > 1000 or y > 1000:
+        return JsonResponse({"error": "Wrong coordinates"}, status=400)
+
     cell = models.Cell.objects.filter(x=x, y=y)
 
     if len(cell) == 0:
