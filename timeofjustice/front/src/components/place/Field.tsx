@@ -119,7 +119,7 @@ export default function Field({size}: { size: number }) {
 
                             {Array.from({length: 4}, (_, i) =>
                                 Array.from({length: 4}, (_, j) =>
-                                    <img src={`http://localhost/api/place/generate/${j * 250}/${i * 250}`}
+                                    <img src={`/api/place/generate/${j * 250}/${i * 250}`}
                                          style={{
                                              width: 250 * cellSize + "px",
                                              height: 250 * cellSize + "px",
