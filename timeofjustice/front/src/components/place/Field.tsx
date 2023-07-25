@@ -66,7 +66,9 @@ export default function Field({size}: { size: number }) {
 
             for (let i = 0; i < images.length; i++) {
                 const img = images[i]
-                img.src = img.src + "?" + new Date().getTime()
+                const source = img.src.split("?")[0]
+
+                img.src = source + "?" + new Date().getTime()
             }
         }, 5000)
 
@@ -328,7 +330,9 @@ export default function Field({size}: { size: number }) {
             const img = document.getElementById(`${xArea}-${yArea}`) as HTMLImageElement
 
             if (img) {
-                img.src = img.src + "?" + new Date().getTime()
+                const source = img.src.split("?")[0]
+
+                img.src = source + "?" + new Date().getTime()
             }
         })
     }
