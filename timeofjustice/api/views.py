@@ -232,7 +232,7 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
     print(cells)
 
     for cell in cells:
-        data[cell.y - from_x][cell.x - from_y] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)]
+        data[cell.y - from_y][cell.x - from_x] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)]
 
     image = Image.fromarray(data)
 
