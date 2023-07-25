@@ -142,8 +142,8 @@ export default function Field({size}: { size: number }) {
                                  minWidth: size * cellSize + "px",
                                  minHeight: size * cellSize + "px",
                                  display: "grid",
-                                 gridTemplateColumns: "repeat(10, 1000px)",
-                                 gridTemplateRows: "repeat(10, 1000px)",
+                                 gridTemplateColumns: "repeat(4, 2500px)",
+                                 gridTemplateRows: "repeat(4, 2500px)",
                              }}>
 
                             {Array.from({length: 4}, (_, i) =>
