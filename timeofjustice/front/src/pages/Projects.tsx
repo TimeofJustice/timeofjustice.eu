@@ -5,7 +5,7 @@ export default function Projects({ callback, current_index }: { callback: (index
     document.title = "Projects - TimeofJustice";
 
     return <>
-        <ProjectList callback={(index: number) => {callback(index)}}/>
+        <ProjectList onProjectSelect={(index: number) => {callback(index)}}/>
         <Rondell index={current_index}/>
     </>
 }

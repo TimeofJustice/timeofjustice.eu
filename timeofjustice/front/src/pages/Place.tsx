@@ -1,4 +1,5 @@
 import Field from "../components/place/Field.tsx";
+import "../assets/css/Field.css";
 import {useState} from "react";
 
 export default function Place() {
@@ -24,6 +25,6 @@ export default function Place() {
     return canvas
 
     function enter() {
-        set_canvas(<Field/>)
+        set_canvas(<Field size={1000}/>)
     }
 }

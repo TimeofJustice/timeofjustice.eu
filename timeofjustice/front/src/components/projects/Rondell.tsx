@@ -1,10 +1,10 @@
 import {useEffect, useRef, useState} from "react";
-import {Project} from "../../data/Project.tsx";
+import {ProjectData} from "../../data/ProjectData.tsx";
 import {useSwipeable} from "react-swipeable";
 import {timeout} from "../../helper/Timeout.tsx";
 
 export default function Rondell({index}: { index: number }) {
-    const [data, setData] = useState<Project>();
+    const [data, setData] = useState<ProjectData>();
     const [current_image_index, set_current_image_index] = useState(0);
     const current_image_indexRef = useRef<number>();
     current_image_indexRef.current = current_image_index;

@@ -45,7 +45,7 @@ def project(request, project_id):
     projects = get_json()
 
     if len(projects) < project_id:
-        return JsonResponse({"error": "Project not found."}, status=404)
+        return JsonResponse({"error": "ProjectData not found."}, status=404)
 
     return JsonResponse(projects[project_id], safe=False)
 
