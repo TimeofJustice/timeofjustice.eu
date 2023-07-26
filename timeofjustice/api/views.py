@@ -7,6 +7,8 @@ from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import ensure_csrf_cookie
 from . import models
+import requests
+import configparser
 
 
 def get_json():
@@ -244,3 +246,39 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
     image.save(response, "PNG")
 
     return response
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def validate_captcha(request):
+    if request.method == "POST":
+        config_path = '/home/jonas/timeofjustice.eu/timeofjustice/data/config.ini'
+
+        if os.name == 'nt':
+            config_path = 'C:/Users/ogtim/Documents/GitHub/timeofjustice.eu/timeofjustice/data/config.ini'
+
+        config = configparser.ConfigParser()
+        config.read(config_path)
+
+        response = {}
+        data = request.POST
+        captcha_rs = data.get('token')
+        url = "https://www.google.com/recaptcha/api/siteverify"
+        params = {
+            'secret': config["DEFAULT"]["SECRET_KEY"],
+            'response': captcha_rs,
+            'remoteip': get_client_ip(request)
+        }
+        verify_rs = requests.get(url, params=params, verify=True)
+        verify_rs = verify_rs.json()
+        response["status"] = verify_rs.get("success", False)
+        response['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
+
+        return JsonResponse(response, safe=False)

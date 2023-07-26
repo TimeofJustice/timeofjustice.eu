@@ -1,9 +1,16 @@
 import Field from "../components/place/Field.tsx";
 import "../assets/css/Field.css";
-import {useState} from "react";
+import {useRef, useState} from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import {isLocalhost} from "../helper/Localhost.tsx";
+import {getCookie} from "../helper/Cookie.tsx";
 
 export default function Place() {
     document.title = "Place - TimeofJustice";
+
+    const apiSiteKey = isLocalhost ?
+        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : "6Lcba1cnAAAAAN3R3_W2gThRkiPkUrCjzgBCrNcu"
+    const captchaRef = useRef<ReCAPTCHA>(null)
 
     const [canvas, set_canvas] = useState(
         <div className={"place-field"} style={
@@ -16,15 +23,38 @@ export default function Place() {
             It is an experimental project, and is not affiliated with Reddit.
             It could lag, and it could crash. <strong>Use at your own risk!</strong>
 
-            <div className={"place-button"} onClick={enter}>
-                Enter
+            <div className={"captcha-container"}>
+                <ReCAPTCHA
+                    sitekey={apiSiteKey}
+                    ref={captchaRef}
+                />
+                <div className={"place-button"} onClick={onEnterSubmit}>
+                    Enter
+                </div>
             </div>
         </div>
     );
 
     return canvas
 
-    function enter() {
-        set_canvas(<Field size={1000}/>)
+    function onEnterSubmit(event: any) {
+        event.preventDefault()
+        const token = captchaRef.current!.getValue();
+        captchaRef.current!.reset();
+
+        fetch('/api/validate', {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': getCookie("csrftoken")
+                },
+                body: JSON.stringify({token})
+            }
+        ).then(
+            res => res.json()
+        ).then(
+            data => {
+                if (data["status"]) set_canvas(<Field size={1000}/>)
+            }
+        )
     }
 }

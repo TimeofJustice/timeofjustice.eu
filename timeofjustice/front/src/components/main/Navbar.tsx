@@ -1,6 +1,5 @@
 import DarkModeSwitch from "../projects/DarkModeSwitch.tsx";
 import {NavLink} from "react-router-dom";
-import {isMobile} from "react-device-detect";
 
 export default function Navbar() {
     return <div className="header-container">
@@ -9,9 +8,7 @@ export default function Navbar() {
                 <i className="fas fa-code"></i>
                 <span>TimeofJustice</span>
                 <PageLink to="/">/Projects</PageLink>
-                {!isMobile &&
-                    <PageLink to="/place">/Place</PageLink>
-                }
+                <PageLink to="/place">/Place</PageLink>
                 <PageLink to="/privacy">/Privacy Policy</PageLink>
                 <a href="/legal" className="legal-link">/Legal Notice</a>
             </div>
