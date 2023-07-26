@@ -4,8 +4,8 @@ from . import models
 
 # Register your models here.
 @admin.register(models.Project)
-class StatusAdmin(admin.ModelAdmin):
-    list_display = ['name', 'status', 'languages', 'git', 'description']
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ['name', 'status', 'git', 'description']
     search_fields = ['name']
 
 
