@@ -3,7 +3,8 @@ import json
 import os
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from . import models
 import requests
@@ -109,7 +110,7 @@ def get_last_placed(request):
     session_id = request.COOKIES.get("session")
 
     if session_id is None:
-        session = models.LastPlaced(id=session_id, timestamp=datetime.datetime.now())
+        session = models.LastPlaced(id=session_id, timestamp=timezone.now())
         session.save()
         return JsonResponse({"seconds": timeout_in_seconds}, safe=False)
 
@@ -117,11 +118,11 @@ def get_last_placed(request):
     sessions = models.LastPlaced.objects.filter(id=session_id)
 
     if len(sessions) == 0:
-        session = models.LastPlaced(id=session_id, timestamp=datetime.datetime.now())
+        session = models.LastPlaced(id=session_id, timestamp=timezone.now())
         session.save()
         return JsonResponse({"seconds": timeout_in_seconds}, safe=False)
 
-    time = datetime.datetime.now(tz=datetime.timezone.utc)
+    time = timezone.now()
 
     if sessions[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
         return JsonResponse({"seconds": 0}, safe=False)
@@ -141,7 +142,7 @@ def place_set(request):
     timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
 
     if len(sessions) != 0:
-        time = datetime.datetime.now(tz=datetime.timezone.utc)
+        time = timezone.now()
 
         if not sessions[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
             seconds = (sessions[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
@@ -175,10 +176,10 @@ def place_set(request):
     cell.save()
 
     if len(sessions) == 0:
-        session = models.LastPlaced(id=session_id, timestamp=content.get("timestamp"))
+        session = models.LastPlaced(id=session_id, timestamp=timezone.now())
     else:
         session = sessions[0]
-        session.timestamp = datetime.datetime.now()
+        session.timestamp = timezone.now()
 
     session.save()
 
@@ -272,7 +273,6 @@ def validate_captcha(request):
         captcha_rs = data.get('token')
         url = "https://www.google.com/recaptcha/api/siteverify"
 
-        print(config["DEFAULT"]["SECRET_KEY"], data)
         params = {
             'secret': config["DEFAULT"]["SECRET_KEY"],
             'response': captcha_rs,
@@ -284,3 +284,28 @@ def validate_captcha(request):
         response['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
 
         return JsonResponse(response, safe=False)
+
+
+def get_overlay(request, overlay_name):
+    json_images = []
+    overlays = models.Overlay.objects.filter(name=overlay_name)
+
+    if len(overlays) == 0:
+        return JsonResponse([], safe=False)
+    else:
+        overlay = overlays[0]
+
+    images = models.OverlayImage.objects.filter(overlay=overlay)
+
+    for image in images:
+        image_elements = image.image.url.split("/")[6::]
+
+        json_images.append({
+            "url": "/".join(image_elements),
+            "x": image.x,
+            "y": image.y,
+            "width": image.width,
+            "height": image.height
+        })
+
+    return JsonResponse(json_images, safe=False)

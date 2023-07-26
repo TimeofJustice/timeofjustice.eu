@@ -14,6 +14,14 @@ interface LastPlacedResponse {
     seconds: number
 }
 
+interface OverlayImage {
+    url: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+}
+
 export default function Field({size}: { size: number }) {
     const colors: Colors = {
         '1': '#6D001A',
@@ -55,11 +63,14 @@ export default function Field({size}: { size: number }) {
     const customColorRef = useRef(customColor)
     customColorRef.current = customColor
     const customColorKey = 'B'
-    
+
     const queryParameters = new URLSearchParams(window.location.search)
     const getX = queryParameters.get('x') ? parseInt(queryParameters.get('x')!) : 500
     const getY = queryParameters.get('y') ? parseInt(queryParameters.get('y')!) : 500
     const initialScale = queryParameters.get('x') || queryParameters.get('y') ? 2 : 0.08
+
+    const initOverlay = queryParameters.get('overlay') ? queryParameters.get('overlay')! : ''
+    const [activeOverlay] = useState<string>(initOverlay)
 
     const [currentTimeout, set_currentTimeout] = useState(0)
     const currentTimeoutRef = useRef(currentTimeout)
@@ -77,6 +88,8 @@ export default function Field({size}: { size: number }) {
     const drawTimeoutRef = useRef(drawTimeout)
     drawTimeoutRef.current = drawTimeout
 
+    const [overlayImages, set_overlayImages] = useState<OverlayImage[]>([])
+
     const canvasRef = useRef<HTMLDivElement>(null)
     const cursorRef = useRef<HTMLDivElement>(null)
     const wrapperRef = useRef<ReactZoomPanPinchRef>(null)
@@ -89,6 +102,14 @@ export default function Field({size}: { size: number }) {
         ).then(
             (data: TimeoutResponse) => set_currentTimeout(data['seconds'])
         )
+
+        if (activeOverlay != '') {
+            fetch('/api/place/overlay/' + activeOverlay).then(
+                res => res.json()
+            ).then(
+                (data: OverlayImage[]) => set_overlayImages(data)
+            )
+        }
 
         fetch('/api/place/lastplaced').then(
             res => res.json()
@@ -127,7 +148,10 @@ export default function Field({size}: { size: number }) {
             currentScaleRef.current,
         )
 
-        window.history.pushState({}, '', `?x=${activeCell[0]}&y=${activeCell[1]}`)
+        const queries = new URLSearchParams(window.location.search)
+        queries.set('x', activeCell[0].toString())
+        queries.set('y', activeCell[1].toString())
+        window.history.replaceState({}, '', window.location.pathname + '?' + queries.toString())
     }, [activeCell])
 
     let mouseDownX = 0;
@@ -198,6 +222,17 @@ export default function Field({size}: { size: number }) {
                                     />))
                             }
                         </div>
+
+                        {Array.from({length: overlayImages.length}, (_, i) =>
+                            <img src={overlayImages[i]['url']} style={{
+                                imageRendering: 'pixelated',
+                                position: 'absolute',
+                                top: overlayImages[i]['y'] * cellSize + 'px',
+                                left: overlayImages[i]['x'] * cellSize + 'px',
+                                width: overlayImages[i]['width'] * cellSize + 'px',
+                                height: overlayImages[i]['height'] * cellSize + 'px',
+                            }}/>
+                        )}
 
                         <div className={'active-cell'}
                             ref={cursorRef}
@@ -362,7 +397,7 @@ export default function Field({size}: { size: number }) {
     }
 
     function drawCell(color: string) {
-        if (drawTimeout > 0)
+        if (drawTimeoutRef.current > 0)
             return
 
         const x = activeCellRef.current[0]
@@ -385,6 +420,7 @@ export default function Field({size}: { size: number }) {
             }
         ).then((response) => {
             if (response.status !== 200) {
+                set_drawTimeout(0)
                 return
             }
 

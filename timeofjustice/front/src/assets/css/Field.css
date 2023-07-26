@@ -42,6 +42,19 @@ html.dark .place-field {
     text-align: center;
 }
 
+.overlay-input {
+    position: absolute;
+    top: 0;
+    right: 105px;
+    height: 35px;
+    padding: 5px;
+}
+
+.overlay-input input {
+    width: 100%;
+    height: 100%;
+}
+
 .timer {
     position: absolute;
     bottom: 0;

@@ -59,6 +59,14 @@ class Image(models.Model):
     def __str__(self):
         return f"{self.image}"
 
+    def image_name(self):
+        return f"{self.image.name.split('/')[-1]}"
+    image_name.short_description = 'Image'
+
+    def preview_name(self):
+        return f"{self.preview.name.split('/')[-1]}"
+    preview_name.short_description = 'Preview'
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         img = PIL.Image.open(self.preview)
@@ -80,7 +88,7 @@ class Cell(models.Model):
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
     color = models.CharField(max_length=100)
-    last_modified = models.DateTimeField(default=timezone.now)
+    last_modified = models.DateTimeField(auto_now=True)
     placed_by = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
@@ -109,7 +117,7 @@ class Cell(models.Model):
 
             date = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
             date = date - datetime.timedelta(hours=2)
-            date = timezone.make_aware(date, timezone.get_current_timezone())
+            date = timezone.make_aware(date)
 
             cells = Cell.objects.filter(
                 x__gte=x,
@@ -174,3 +182,55 @@ class LastPlaced(models.Model):
 class PlaceTimeOut(models.Model):
     id = models.IntegerField(primary_key=True, auto_created=True, default=0)
     seconds = models.IntegerField(default=0)
+
+
+class Overlay(models.Model):
+    id = models.IntegerField(primary_key=True, auto_created=True)
+    name = models.CharField(max_length=255)
+
+
+class OverlayImage(models.Model):
+    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+
+    if os.name == 'nt':
+        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
+
+    id = models.IntegerField(primary_key=True, auto_created=True)
+    image = models.ImageField(upload_to=destination)
+    x = models.IntegerField(default=0)
+    y = models.IntegerField(default=0)
+    width = models.IntegerField(default=50)
+    height = models.IntegerField(default=50)
+    overlay = models.ForeignKey(Overlay, on_delete=models.CASCADE, default=None)
+
+    def image_name(self):
+        return f"{self.image.name.split('/')[-1]}"
+    image_name.short_description = 'Image'
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        img = PIL.Image.open(self.image)
+
+        original_width, original_height = img.size
+        aspect_ratio = original_width / original_height
+        scale_factor = min(self.width / original_width, self.height / original_height)
+
+        new_width = int(original_width * scale_factor)
+        new_height = int(original_height * scale_factor)
+
+        image = img.resize((new_width, new_height), PIL.Image.BICUBIC)
+        im_matrix = numpy.array(image)
+
+        imageLay = PIL.Image.new('RGBA', (new_width * 3, new_height * 3), (255, 255, 255, 0))
+        data = numpy.array(imageLay)
+
+        for i in range(0, new_width):
+            for j in range(0, new_height):
+                data[j * 3 + 1][i * 3 + 1] = im_matrix[j][i]
+
+        fin_image = PIL.Image.fromarray(data)
+        fin_image.save(self.image.path, quality=100)
+        img.close()
+        self.image.close()
+

@@ -29,7 +29,7 @@ class PlaceTimeOutAdmin(admin.ModelAdmin):
 
 @admin.register(models.Image)
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ('image', 'preview', 'alt', 'project', 'index')
+    list_display = ('image_name', 'preview_name', 'alt', 'project', 'index')
     search_fields = ['project']
     list_filter = ['project']
 
@@ -45,3 +45,15 @@ class CellAdmin(admin.ModelAdmin):
     list_display = ('x', 'y', 'color', 'last_modified', 'placed_by')
     search_fields = ['x', 'y']
     list_filter = ('x', 'y', 'color', 'last_modified')
+
+
+@admin.register(models.Overlay)
+class OverlayAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name']
+    search_fields = ['name']
+
+
+@admin.register(models.OverlayImage)
+class OverlayImageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'image_name', 'overlay', 'x', 'y', 'width', 'height']
+    search_fields = ['x', 'y']
