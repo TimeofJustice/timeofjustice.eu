@@ -280,5 +280,6 @@ def validate_captcha(request):
         verify_rs = verify_rs.json()
         response["status"] = verify_rs.get("success", False)
         response['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
+        response["status"] = True
 
         return JsonResponse(response, safe=False)
