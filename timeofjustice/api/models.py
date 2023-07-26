@@ -219,6 +219,9 @@ class OverlayImage(models.Model):
         new_width = int(original_width * scale_factor)
         new_height = int(original_height * scale_factor)
 
+        self.width = new_width
+        self.height = new_height
+
         image = img.resize((new_width, new_height), PIL.Image.BICUBIC)
         im_matrix = numpy.array(image)
 
@@ -233,4 +236,4 @@ class OverlayImage(models.Model):
         fin_image.save(self.image.path, quality=100)
         img.close()
         self.image.close()
-
+        super().save(*args, **kwargs)
