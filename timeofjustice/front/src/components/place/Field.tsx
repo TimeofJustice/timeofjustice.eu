@@ -42,6 +42,12 @@ export default function Field({size}: { size: number }) {
         "V": "#FFFFFF"
     }
 
+    const colorPickerRef = useRef<HTMLInputElement>(null)
+    const [customColor, set_customColor] = useState("#FFFFFF")
+    const customColorRef = useRef(customColor)
+    customColorRef.current = customColor
+    const customColorKey = "B"
+
     const queryParameters = new URLSearchParams(window.location.search)
     const getX = queryParameters.get("x") ? parseInt(queryParameters.get("x")!) : 500
     const getY = queryParameters.get("y") ? parseInt(queryParameters.get("y")!) : 500
@@ -73,7 +79,7 @@ export default function Field({size}: { size: number }) {
         fetch('/api/place/timeout').then(
             res => res.json()
         ).then(
-            data => set_currentTimeout(data["seconds"])
+            data => set_currentTimeout(data["seconds"] + 1)
         )
 
         fetch('/api/place/lastplaced').then(
@@ -297,6 +303,32 @@ export default function Field({size}: { size: number }) {
                         </div>
                     })}
                 </div>
+                <div className={"color-picker"}
+                     style={{backgroundColor: customColor}}
+                     onClick={(e) => {
+                         const element = e.target as Element
+
+                         if (element.id == "color_picker")
+                            drawCell(customColor)
+                     }}
+                     id={"color_picker"}
+                >
+                    <div  className={"color-picker-button"}>
+                        <button type="button" className="btn btn-secondary herramienta">
+                            <i className="fa-solid fa-eye-dropper"></i>
+                        </button>
+
+                        <input type="color" ref={colorPickerRef} value={customColor} onChange={
+                            (e) => {
+                                set_customColor(e.target.value.toUpperCase())
+                            }
+                        }/>
+                    </div>
+
+                    <div>
+                        {customColorKey}
+                    </div>
+                </div>
             </div>
             <div className={"cords"}>
                 <span>x: {activeCell && canvasRef.current ? activeCell[0] : 0}, </span>
@@ -316,7 +348,7 @@ export default function Field({size}: { size: number }) {
         const x = Math.floor((e.clientX - bounds.left) / cellSize / currentScaleRef.current)
         const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current)
 
-        if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+        if (x < 0 || x > 999 || y < 0 || y > 999) return
 
         set_activeCell([x, y])
     }
@@ -368,33 +400,35 @@ export default function Field({size}: { size: number }) {
             const x = activeCellRef.current[0] - 1
             const y = activeCellRef.current[1]
 
-            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+            if (x < 0 || x > 999 || y < 0 || y > 999) return
 
             set_activeCell([x, y])
         } else if (key === "ARROWRIGHT") {
             const x = activeCellRef.current[0] + 1
             const y = activeCellRef.current[1]
 
-            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+            if (x < 0 || x > 999 || y < 0 || y > 999) return
 
             set_activeCell([x, y])
         } else if (key === "ARROWUP") {
             const x = activeCellRef.current[0]
             const y = activeCellRef.current[1] - 1
 
-            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+            if (x < 0 || x > 999 || y < 0 || y > 999) return
 
             set_activeCell([x, y])
         } else if (key === "ARROWDOWN") {
             const x = activeCellRef.current[0]
             const y = activeCellRef.current[1] + 1
 
-            if (x < 0 || x > 1000 || y < 0 || y > 1000) return
+            if (x < 0 || x > 999 || y < 0 || y > 999) return
 
             set_activeCell([x, y])
         }
 
         if (colors[key])
             drawCell(colors[key])
+        else if (key === customColorKey)
+            drawCell(customColorRef.current)
     }
 }

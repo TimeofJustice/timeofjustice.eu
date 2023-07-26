@@ -20,8 +20,15 @@ export default function Place() {
             <br/>
             <br/>
             This version of r/Place is a recreation of the original r/Place, but with a few changes.
-            It is an experimental project, and is not affiliated with Reddit.
-            It could lag, and it could crash. <strong>Use at your own risk!</strong>
+            It is not affiliated with Reddit.
+            <br/>
+            The shown content is user-generated and do not necessarily reflect our views or opinions.
+            We do not endorse or claim ownership of any specific image.
+            Users are solely responsible for the content they create, and we cannot guarantee its accuracy or appropriateness.
+            <br/>
+            <br/>
+            By using this website, you agree to these terms and accept the risks associated with user-generated content.
+            <strong>Use at your own risk!</strong>
 
             <div className={"captcha-container"}>
                 <ReCAPTCHA
@@ -38,6 +45,8 @@ export default function Place() {
     return canvas
 
     function onEnterSubmit(event: any) {
+        if (isLocalhost) set_canvas(<Field size={1000}/>); return;
+
         event.preventDefault()
         const token = captchaRef.current!.getValue();
         captchaRef.current!.reset();
@@ -47,7 +56,9 @@ export default function Place() {
                 headers: {
                     'X-CSRFToken': getCookie("csrftoken")
                 },
-                body: JSON.stringify({token})
+                body: JSON.stringify({
+                    token: token
+                })
             }
         ).then(
             res => res.json()

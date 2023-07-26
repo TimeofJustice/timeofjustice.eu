@@ -85,6 +85,74 @@ html.dark .place-field {
     height: 100%;
 }
 
+.color-picker {
+    margin-left: 5px;
+    height: 100%;
+    -webkit-appearance: none;
+    padding: 0;
+    position: relative;
+    border-radius: 10px;
+    border: 1px solid #737373;
+    overflow: hidden;
+    width: 50px;
+}
+
+.color-picker:hover {
+    cursor: pointer;
+    border: 2px solid #737373;
+}
+
+.color-picker > div {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #a2a2a2;
+    font-size: 0.5rem;
+    padding: 3px;
+    border-radius: 0 0 0 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #000000;
+}
+
+.color-picker .color-picker-button {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    top: auto;
+    display: inline-block;
+    height: 20px;
+}
+
+.color-picker-button button {
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    height: 100%;
+    background-color: #a2a2a2;
+    border: none;
+}
+
+.color-picker-button input[type="color"] {
+    opacity:0;
+    position:absolute;
+    left:0;
+    bottom:0;
+    width:100%;
+    height: 100%;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+    border: none;
+}
+
 .colors .color {
     position: relative;
     width: 30px;
@@ -145,6 +213,10 @@ html.dark .place-field {
 
     .colors .color > div {
         display: none;
+    }
+
+    .color-picker {
+        display: none
     }
 }
 

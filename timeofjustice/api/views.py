@@ -4,7 +4,7 @@ import os
 from PIL.Image import Resampling
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import ensure_csrf_cookie
 from . import models
 import requests
@@ -104,25 +104,28 @@ def get_time_out(request):
 
 
 def get_last_placed(request):
+    timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
     session_id = request.COOKIES.get("session")
 
     if session_id is None:
-        return JsonResponse({"seconds": 0}, safe=False)
+        session = models.LastPlaced(id=session_id, timestamp=datetime.datetime.now())
+        session.save()
+        return JsonResponse({"seconds": timeout_in_seconds}, safe=False)
 
     # check if session id exists
-    session = models.LastPlaced.objects.filter(id=session_id)
+    sessions = models.LastPlaced.objects.filter(id=session_id)
 
-    if len(session) == 0:
-        return JsonResponse({"seconds": 0}, safe=False)
-
-    timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
+    if len(sessions) == 0:
+        session = models.LastPlaced(id=session_id, timestamp=datetime.datetime.now())
+        session.save()
+        return JsonResponse({"seconds": timeout_in_seconds}, safe=False)
 
     time = datetime.datetime.now(tz=datetime.timezone.utc)
 
-    if session[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
+    if sessions[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
         return JsonResponse({"seconds": 0}, safe=False)
     else:
-        seconds = (session[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
+        seconds = (sessions[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
         return JsonResponse({"seconds": seconds}, safe=False)
 
 
@@ -143,6 +146,8 @@ def place_set(request):
             seconds = (sessions[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
 
             return JsonResponse({"error": "You have cooldown", "seconds": seconds}, status=400)
+    else:
+        return JsonResponse({"error": "You have cooldown", "seconds": timeout_in_seconds}, status=400)
 
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
@@ -193,9 +198,7 @@ def gen(request, from_x, from_y):
     file_name = destination + f"{from_x}_{from_y}.png"
 
     if os.path.isfile(file_name):
-        image = Image.open(file_name)
-        image = image.convert("RGBA")
-        image = image.resize((250, 250), Image.ANTIALIAS)
+        return redirect(f"/images/{from_x}_{from_y}.png?{datetime.datetime.now()}")
     else:
         # Create a new image of the size required with transparent background
         image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
@@ -268,9 +271,13 @@ def validate_captcha(request):
         config.read(config_path)
 
         response = {}
-        data = request.POST
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        data = body
         captcha_rs = data.get('token')
         url = "https://www.google.com/recaptcha/api/siteverify"
+
+        print(config["DEFAULT"]["SECRET_KEY"], data)
         params = {
             'secret': config["DEFAULT"]["SECRET_KEY"],
             'response': captcha_rs,
