@@ -45,7 +45,10 @@ export default function Place() {
     return canvas
 
     function onEnterSubmit(event: any) {
-        if (isLocalhost) set_canvas(<Field size={1000}/>); return;
+        if (isLocalhost) {
+            set_canvas(<Field size={1000}/>);
+            return;
+        }
 
         event.preventDefault()
         const token = captchaRef.current!.getValue();
