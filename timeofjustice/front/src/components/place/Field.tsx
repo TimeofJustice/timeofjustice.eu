@@ -79,7 +79,7 @@ export default function Field({size}: { size: number }) {
         fetch('/api/place/timeout').then(
             res => res.json()
         ).then(
-            data => set_currentTimeout(data["seconds"] + 1)
+            data => set_currentTimeout(data["seconds"])
         )
 
         fetch('/api/place/lastplaced').then(
