@@ -6,6 +6,7 @@ import numpy
 from PIL import Image as PILImage
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.utils import timezone
 
 
 class Tag(models.Model):
@@ -79,7 +80,7 @@ class Cell(models.Model):
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
     color = models.CharField(max_length=100)
-    last_modified = models.DateTimeField(auto_now=True, auto_now_add=False)
+    last_modified = models.DateTimeField(default=timezone.now)
     placed_by = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
@@ -108,6 +109,7 @@ class Cell(models.Model):
 
             date = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
             date = date - datetime.timedelta(hours=2)
+            date = timezone.make_aware(date, timezone.get_current_timezone())
 
             cells = Cell.objects.filter(
                 x__gte=x,
@@ -166,7 +168,7 @@ def delete_hook(sender, instance, using, **kwargs):
 
 class LastPlaced(models.Model):
     id = models.CharField(primary_key=True, max_length=255)
-    timestamp = models.DateTimeField(auto_now=True, auto_now_add=False)
+    timestamp = models.DateTimeField(default=timezone.now)
 
 
 class PlaceTimeOut(models.Model):

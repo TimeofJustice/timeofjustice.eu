@@ -1,57 +1,65 @@
-import {useEffect, useRef, useState} from "react"
-import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from "react-zoom-pan-pinch"
-import {getCookie} from "../../helper/Cookie.tsx"
+import React, {useEffect, useRef, useState} from 'react'
+import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch'
+import {getCookie} from '../../helper/Cookie.tsx'
 
 interface Colors {
     [key: string]: string
 }
 
+interface TimeoutResponse {
+    seconds: number
+}
+
+interface LastPlacedResponse {
+    seconds: number
+}
+
 export default function Field({size}: { size: number }) {
     const colors: Colors = {
-        "1": "#6D001A",
-        "2": "#FF4500",
-        "3": "#FFD635",
-        "4": "#00A368",
-        "5": "#7EED56",
-        "6": "#009EAA",
-        "7": "#2450A4",
-        "8": "#51E9F4",
-        "9": "#6A5CFF",
-        "Q": "#811E9F",
-        "W": "#E4ABFF",
-        "E": "#FF3881",
-        "R": "#6D482F",
-        "T": "#FFB470",
-        "Z": "#515252",
-        "U": "#D4D7D9",
-        "I": "#BE0039",
-        "O": "#FFA800",
-        "P": "#FFF8B8",
-        "A": "#00CC78",
-        "S": "#00756F",
-        "D": "#00CCC0",
-        "F": "#3690EA",
-        "G": "#493AC1",
-        "H": "#94B3FF",
-        "J": "#B44AC0",
-        "K": "#DE107F",
-        "L": "#FF99AA",
-        "Y": "#9C6926",
-        "X": "#000000",
-        "C": "#898D90",
-        "V": "#FFFFFF"
+        '1': '#6D001A',
+        '2': '#FF4500',
+        '3': '#FFD635',
+        '4': '#00A368',
+        '5': '#7EED56',
+        '6': '#009EAA',
+        '7': '#2450A4',
+        '8': '#51E9F4',
+        '9': '#6A5CFF',
+        'Q': '#811E9F',
+        'W': '#E4ABFF',
+        'E': '#FF3881',
+        'R': '#6D482F',
+        'T': '#FFB470',
+        'Z': '#515252',
+        'U': '#D4D7D9',
+        'I': '#BE0039',
+        'O': '#FFA800',
+        'P': '#FFF8B8',
+        'A': '#00CC78',
+        'S': '#00756F',
+        'D': '#00CCC0',
+        'F': '#3690EA',
+        'G': '#493AC1',
+        'H': '#94B3FF',
+        'J': '#B44AC0',
+        'K': '#DE107F',
+        'L': '#FF99AA',
+        'Y': '#9C6926',
+        'X': '#000000',
+        'C': '#898D90',
+        'V': '#FFFFFF'
     }
 
     const colorPickerRef = useRef<HTMLInputElement>(null)
-    const [customColor, set_customColor] = useState("#FFFFFF")
+    const [customColor, set_customColor] = useState('#FFFFFF')
     const customColorRef = useRef(customColor)
     customColorRef.current = customColor
-    const customColorKey = "B"
-
+    const customColorKey = 'B'
+    
     const queryParameters = new URLSearchParams(window.location.search)
-    const getX = queryParameters.get("x") ? parseInt(queryParameters.get("x")!) : 500
-    const getY = queryParameters.get("y") ? parseInt(queryParameters.get("y")!) : 500
-    const initialScale = queryParameters.get("x") || queryParameters.get("y") ? 2 : 0.08
+    const getX = queryParameters.get('x') ? parseInt(queryParameters.get('x')!) : 500
+    const getY = queryParameters.get('y') ? parseInt(queryParameters.get('y')!) : 500
+    const initialScale = queryParameters.get('x') || queryParameters.get('y') ? 2 : 0.08
 
     const [currentTimeout, set_currentTimeout] = useState(0)
     const currentTimeoutRef = useRef(currentTimeout)
@@ -62,7 +70,7 @@ export default function Field({size}: { size: number }) {
     activeCellRef.current = activeCell
 
     const [wrapperScale, set_wrapperScale] = useState(initialScale)
-    let currentScaleRef = useRef(wrapperScale)
+    const currentScaleRef = useRef(wrapperScale)
     currentScaleRef.current = wrapperScale
 
     const [drawTimeout, set_drawTimeout] = useState(0)
@@ -79,31 +87,31 @@ export default function Field({size}: { size: number }) {
         fetch('/api/place/timeout').then(
             res => res.json()
         ).then(
-            data => set_currentTimeout(data["seconds"])
+            (data: TimeoutResponse) => set_currentTimeout(data['seconds'])
         )
 
         fetch('/api/place/lastplaced').then(
             res => res.json()
         ).then(
-            data => set_drawTimeout(Math.ceil(data["seconds"]))
+            (data: LastPlacedResponse) => set_drawTimeout(Math.ceil(data['seconds']))
         )
 
-        const intervalId = setInterval(async () => {
-            const images = canvasRef.current!.getElementsByTagName("img")
+        const intervalId = setInterval(() => {
+            const images = canvasRef.current!.getElementsByTagName('img')
 
             for (let i = 0; i < images.length; i++) {
                 const img = images[i]
-                const source = img.src.split("?")[0]
+                const source = img.src.split('?')[0]
 
-                img.src = source + "?" + new Date().getTime()
+                img.src = source + '?' + Date.now().toString()
             }
         }, 5000)
 
         const timeOutInterval = setInterval(() => {
-            set_drawTimeout(drawTimeoutRef.current - 1)
+            set_drawTimeout(t => t - 1)
         }, 1000)
 
-        document.addEventListener("keydown", (e) => {
+        document.addEventListener('keydown', (e) => {
             handleHotkey(e)
         })
 
@@ -119,18 +127,18 @@ export default function Field({size}: { size: number }) {
             currentScaleRef.current,
         )
 
-        window.history.pushState({}, "", `?x=${activeCell[0]}&y=${activeCell[1]}`)
+        window.history.pushState({}, '', `?x=${activeCell[0]}&y=${activeCell[1]}`)
     }, [activeCell])
 
     let mouseDownX = 0;
     let mouseDownY = 0;
 
-    const mouseDownCapture = (e: any) => {
+    const mouseDownCapture = (e: React.MouseEvent<HTMLDivElement>) => {
         mouseDownX = e.clientX;
         mouseDownY = e.clientY;
     };
 
-    const handleClickCapture = (e: any) => {
+    const handleClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
         if (
             Math.abs(mouseDownX - e.clientX) >= 30 ||
             Math.abs(mouseDownY - e.clientY) >= 30
@@ -140,157 +148,157 @@ export default function Field({size}: { size: number }) {
     };
 
     return <>
-        <div className={"place-field"}>
-            <div className={"place-content"}>
+        <div className={'place-field'}>
+            <div className={'place-content'}>
                 <TransformWrapper ref={wrapperRef}
-                                  onZoom={(e) => {
-                                      set_wrapperScale(e.state.scale)
-                                  }}
-                                  limitToBounds={false}
-                                  doubleClick={{disabled: true}}
-                                  minScale={0.05}
-                                  maxScale={10}
-                                  initialScale={currentScaleRef.current!}
+                    onZoom={(e) => {
+                        set_wrapperScale(e.state.scale)
+                    }}
+                    limitToBounds={false}
+                    doubleClick={{disabled: true}}
+                    minScale={0.05}
+                    maxScale={10}
+                    initialScale={currentScaleRef.current}
                 >
                     <TransformComponent
                         wrapperStyle={{
-                            width: "100%",
-                            height: "100%",
+                            width: '100%',
+                            height: '100%',
                         }}
                         contentStyle={{
-                            width: "100%",
-                            height: "100%",
+                            width: '100%',
+                            height: '100%',
                         }}
-                        wrapperClass={"field-wrapper"}
+                        wrapperClass={'field-wrapper'}
                     >
-                        <div className={"field"}
-                             ref={canvasRef}
-                             onClick={canvasClick}
-                             onMouseDownCapture={mouseDownCapture}
-                             onClickCapture={handleClickCapture}
-                             style={{
-                                 minWidth: size * cellSize + "px",
-                                 minHeight: size * cellSize + "px",
-                                 display: "grid",
-                                 gridTemplateColumns: "repeat(4, 2500px)",
-                                 gridTemplateRows: "repeat(4, 2500px)",
-                             }}>
+                        <div className={'field'}
+                            ref={canvasRef}
+                            onClick={canvasClick}
+                            onMouseDownCapture={mouseDownCapture}
+                            onClickCapture={handleClickCapture}
+                            style={{
+                                minWidth: size * cellSize + 'px',
+                                minHeight: size * cellSize + 'px',
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(4, 2500px)',
+                                gridTemplateRows: 'repeat(4, 2500px)',
+                            }}>
 
                             {Array.from({length: 4}, (_, i) =>
                                 Array.from({length: 4}, (_, j) =>
                                     <img src={`/api/place/generate/${j * 250}/${i * 250}`}
-                                         style={{
-                                             width: 250 * cellSize + "px",
-                                             height: 250 * cellSize + "px",
-                                             imageRendering: "pixelated"
-                                         }}
-                                         key={`${j * 250}-${i * 250}`}
-                                         id={`${j * 250}-${i * 250}`}
-                                         alt={"This is a tile"}
+                                        style={{
+                                            width: 250 * cellSize + 'px',
+                                            height: 250 * cellSize + 'px',
+                                            imageRendering: 'pixelated'
+                                        }}
+                                        key={`${j * 250}-${i * 250}`}
+                                        id={`${j * 250}-${i * 250}`}
+                                        alt={'This is a tile'}
                                     />))
                             }
                         </div>
 
-                        <div className={"active-cell"}
-                             ref={cursorRef}
-                             style={{
-                                 position: "absolute",
-                                 left: activeCell[0] * cellSize - 1 + "px",
-                                 top: activeCell[1] * cellSize - 1 + "px",
-                                 width: cellSize + 2 + "px",
-                                 height: cellSize + 2 + "px",
-                             }}>
+                        <div className={'active-cell'}
+                            ref={cursorRef}
+                            style={{
+                                position: 'absolute',
+                                left: activeCell[0] * cellSize - 1 + 'px',
+                                top: activeCell[1] * cellSize - 1 + 'px',
+                                width: cellSize + 2 + 'px',
+                                height: cellSize + 2 + 'px',
+                            }}>
                             <div style={{
-                                position: "absolute",
-                                borderLeft: "1px solid #FFF",
-                                borderTop: "1px solid #FFF",
-                                width: cellSize / 2 + "px",
-                                height: cellSize / 2 + "px",
-                                left: 0 + "px",
-                                top: 0 + "px",
+                                position: 'absolute',
+                                borderLeft: '1px solid #FFF',
+                                borderTop: '1px solid #FFF',
+                                width: cellSize / 2 + 'px',
+                                height: cellSize / 2 + 'px',
+                                left: 0 + 'px',
+                                top: 0 + 'px',
                             }}></div>
                             <div style={{
-                                position: "absolute",
-                                borderRight: "1px solid #FFF",
-                                borderTop: "1px solid #FFF",
-                                width: cellSize / 2 + "px",
-                                height: cellSize / 2 + "px",
-                                right: 0 + "px",
-                                top: 0 + "px",
+                                position: 'absolute',
+                                borderRight: '1px solid #FFF',
+                                borderTop: '1px solid #FFF',
+                                width: cellSize / 2 + 'px',
+                                height: cellSize / 2 + 'px',
+                                right: 0 + 'px',
+                                top: 0 + 'px',
                             }}></div>
                             <div style={{
-                                position: "absolute",
-                                borderLeft: "1px solid #FFF",
-                                borderBottom: "1px solid #FFF",
-                                width: cellSize / 2 + "px",
-                                height: cellSize / 2 + "px",
-                                left: 0 + "px",
-                                bottom: 0 + "px",
+                                position: 'absolute',
+                                borderLeft: '1px solid #FFF',
+                                borderBottom: '1px solid #FFF',
+                                width: cellSize / 2 + 'px',
+                                height: cellSize / 2 + 'px',
+                                left: 0 + 'px',
+                                bottom: 0 + 'px',
                             }}></div>
                             <div style={{
-                                position: "absolute",
-                                borderRight: "1px solid #FFF",
-                                borderBottom: "1px solid #FFF",
-                                width: cellSize / 2 + "px",
-                                height: cellSize / 2 + "px",
-                                right: 0 + "px",
-                                bottom: 0 + "px",
+                                position: 'absolute',
+                                borderRight: '1px solid #FFF',
+                                borderBottom: '1px solid #FFF',
+                                width: cellSize / 2 + 'px',
+                                height: cellSize / 2 + 'px',
+                                right: 0 + 'px',
+                                bottom: 0 + 'px',
                             }}></div>
                             <div style={{
-                                position: "absolute",
-                                borderLeft: "1px solid #000",
-                                borderTop: "1px solid #000",
-                                width: cellSize / 2 - 2 + "px",
-                                height: cellSize / 2 - 2 + "px",
-                                left: 1 + "px",
-                                top: 1 + "px",
+                                position: 'absolute',
+                                borderLeft: '1px solid #000',
+                                borderTop: '1px solid #000',
+                                width: cellSize / 2 - 2 + 'px',
+                                height: cellSize / 2 - 2 + 'px',
+                                left: 1 + 'px',
+                                top: 1 + 'px',
                             }}></div>
                             <div style={{
-                                position: "absolute",
-                                borderRight: "1px solid #000",
-                                borderTop: "1px solid #000",
-                                width: cellSize / 2 - 2 + "px",
-                                height: cellSize / 2 - 2 + "px",
-                                right: 1 + "px",
-                                top: 1 + "px",
+                                position: 'absolute',
+                                borderRight: '1px solid #000',
+                                borderTop: '1px solid #000',
+                                width: cellSize / 2 - 2 + 'px',
+                                height: cellSize / 2 - 2 + 'px',
+                                right: 1 + 'px',
+                                top: 1 + 'px',
                             }}></div>
                             <div style={{
-                                position: "absolute",
-                                borderLeft: "1px solid #000",
-                                borderBottom: "1px solid #000",
-                                width: cellSize / 2 - 2 + "px",
-                                height: cellSize / 2 - 2 + "px",
-                                left: 1 + "px",
-                                bottom: 1 + "px",
+                                position: 'absolute',
+                                borderLeft: '1px solid #000',
+                                borderBottom: '1px solid #000',
+                                width: cellSize / 2 - 2 + 'px',
+                                height: cellSize / 2 - 2 + 'px',
+                                left: 1 + 'px',
+                                bottom: 1 + 'px',
                             }}></div>
                             <div style={{
-                                position: "absolute",
-                                borderRight: "1px solid #000",
-                                borderBottom: "1px solid #000",
-                                width: cellSize / 2 - 2 + "px",
-                                height: cellSize / 2 - 2 + "px",
-                                right: 1 + "px",
-                                bottom: 1 + "px",
+                                position: 'absolute',
+                                borderRight: '1px solid #000',
+                                borderBottom: '1px solid #000',
+                                width: cellSize / 2 - 2 + 'px',
+                                height: cellSize / 2 - 2 + 'px',
+                                right: 1 + 'px',
+                                bottom: 1 + 'px',
                             }}></div>
                         </div>
                     </TransformComponent>
                 </TransformWrapper>
             </div>
 
-            <div className={"reset-transform"}
-                 onClick={() => {
+            <div className={'reset-transform'}
+                onClick={() => {
                      wrapperRef.current!.resetTransform()
-                 }}>
+                }}>
                 <i className="fa-solid fa-rotate-left"></i>
             </div>
 
             <div className={
-                "colors-container" + (drawTimeout > 0 ? "" : " ready")
+                'colors-container' + (drawTimeout > 0 ? '' : ' ready')
             }>
-                <div className={"colors"}>
+                <div className={'colors'}>
                     {Object.keys(colors).map((key) => {
                         return <div
-                            className={"color"}
+                            className={'color'}
                             style={{backgroundColor: colors[key]}}
                             key={key}
                             onClick={() => {
@@ -303,17 +311,17 @@ export default function Field({size}: { size: number }) {
                         </div>
                     })}
                 </div>
-                <div className={"color-picker"}
-                     style={{backgroundColor: customColor}}
-                     onClick={(e) => {
-                         const element = e.target as Element
+                <div className={'color-picker'}
+                    style={{backgroundColor: customColor}}
+                    onClick={(e) => {
+                        const element = e.target as Element
 
-                         if (element.id == "color_picker")
+                        if (element.id == 'color_picker')
                             drawCell(customColor)
-                     }}
-                     id={"color_picker"}
+                    }}
+                    id={'color_picker'}
                 >
-                    <div  className={"color-picker-button"}>
+                    <div className={'color-picker-button'}>
                         <button type="button" className="btn btn-secondary herramienta">
                             <i className="fa-solid fa-eye-dropper"></i>
                         </button>
@@ -330,20 +338,20 @@ export default function Field({size}: { size: number }) {
                     </div>
                 </div>
             </div>
-            <div className={"cords"}>
+            <div className={'cords'}>
                 <span>x: {activeCell && canvasRef.current ? activeCell[0] : 0}, </span>
                 <span>y: {activeCell && canvasRef.current ? activeCell[1] : 0}</span>
             </div>
-            <div className={"timer"} style={
-                {display: drawTimeout > 0 ? "block" : "none"}
+            <div className={'timer'} style={
+                {display: drawTimeout > 0 ? 'block' : 'none'}
             }>
-                {drawTimeout > 0 ? drawTimeout + " seconds" : ""}
+                {drawTimeout > 0 ? drawTimeout + ' seconds' : ''}
             </div>
         </div>
     </>
 
-    function canvasClick(e: any) {
-        const bounds = e.target.getBoundingClientRect()
+    function canvasClick(e: React.MouseEvent<HTMLDivElement>) {
+        const bounds = (e.target as HTMLDivElement).getBoundingClientRect()
 
         const x = Math.floor((e.clientX - bounds.left) / cellSize / currentScaleRef.current)
         const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current)
@@ -354,7 +362,7 @@ export default function Field({size}: { size: number }) {
     }
 
     function drawCell(color: string) {
-        if (drawTimeoutRef.current > 0)
+        if (drawTimeout > 0)
             return
 
         const x = activeCellRef.current[0]
@@ -363,14 +371,14 @@ export default function Field({size}: { size: number }) {
         set_drawTimeout(currentTimeoutRef.current)
 
         fetch(
-            `/api/place/set`,
+            '/api/place/set',
             {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    'X-CSRFToken': getCookie("csrftoken")
+                    'X-CSRFToken': getCookie('csrftoken')
                 },
                 body: JSON.stringify({
-                    color: color.replace("#", ""),
+                    color: color.replace('#', ''),
                     x: x,
                     y: y
                 })
@@ -386,38 +394,38 @@ export default function Field({size}: { size: number }) {
             const img = document.getElementById(`${xArea}-${yArea}`) as HTMLImageElement
 
             if (img) {
-                const source = img.src.split("?")[0]
+                const source = img.src.split('?')[0]
 
-                img.src = source + "?" + new Date().getTime()
+                img.src = source + '?' + new Date().getTime()
             }
         })
     }
 
-    function handleHotkey(e: any) {
-        let key = e.key.toString().toUpperCase()
+    function handleHotkey(e: KeyboardEvent) {
+        const key = e.key.toString().toUpperCase()
 
-        if (key === "ARROWLEFT") {
+        if (key === 'ARROWLEFT') {
             const x = activeCellRef.current[0] - 1
             const y = activeCellRef.current[1]
 
             if (x < 0 || x > 999 || y < 0 || y > 999) return
 
             set_activeCell([x, y])
-        } else if (key === "ARROWRIGHT") {
+        } else if (key === 'ARROWRIGHT') {
             const x = activeCellRef.current[0] + 1
             const y = activeCellRef.current[1]
 
             if (x < 0 || x > 999 || y < 0 || y > 999) return
 
             set_activeCell([x, y])
-        } else if (key === "ARROWUP") {
+        } else if (key === 'ARROWUP') {
             const x = activeCellRef.current[0]
             const y = activeCellRef.current[1] - 1
 
             if (x < 0 || x > 999 || y < 0 || y > 999) return
 
             set_activeCell([x, y])
-        } else if (key === "ARROWDOWN") {
+        } else if (key === 'ARROWDOWN') {
             const x = activeCellRef.current[0]
             const y = activeCellRef.current[1] + 1
 

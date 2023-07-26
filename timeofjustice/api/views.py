@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-from PIL.Image import Resampling
 from django.forms.models import model_to_dict
 from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
@@ -9,6 +8,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from . import models
 import requests
 import configparser
+from PIL import Image
+import numpy
 
 
 def get_json():
@@ -51,7 +52,7 @@ def set_session_cookie(request):
 
 
 @ensure_csrf_cookie
-def project(request, project_id):
+def get_project(request, project_id):
     projects = get_json()
 
     if len(projects) < project_id:
@@ -198,7 +199,11 @@ def gen(request, from_x, from_y):
     file_name = destination + f"{from_x}_{from_y}.png"
 
     if os.path.isfile(file_name):
-        return redirect(f"/images/{from_x}_{from_y}.png?{datetime.datetime.now()}")
+        try:
+            with open(file_name, "rb") as f:
+                return HttpResponse(f.read(), content_type="image/png")
+        except IOError:
+            print("Error reading")
     else:
         # Create a new image of the size required with transparent background
         image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
@@ -210,14 +215,6 @@ def gen(request, from_x, from_y):
 
 
 def export(request, from_x, from_y, to_x, to_y, factor=1):
-    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
-
-    if os.name == 'nt':
-        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
-
-    from PIL import Image
-    import numpy
-
     if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
         return HttpResponse("Wrong coordinates")
 
@@ -234,8 +231,6 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
         y__lte=to_y
     )
 
-    print(cells)
-
     for cell in cells:
         data[cell.y - from_y][cell.x - from_x] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)]
 
@@ -243,7 +238,7 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
 
     scaled_size = size[0] * factor, size[1] * factor
 
-    image = image.resize(scaled_size, Resampling.NEAREST)
+    image = image.resize(scaled_size, Image.NEAREST)
 
     response = HttpResponse(content_type="image/png")
     image.save(response, "PNG")

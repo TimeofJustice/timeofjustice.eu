@@ -23,5 +23,11 @@ module.exports = {
       { allowConstantExport: true },
     ],
     '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-floating-promises': 'off',
+    'react-hooks/exhaustive-deps': 'off',
+    '@typescript-eslint/restrict-plus-operands': 'off',
+    "indent": ["error", 4],
+    "linebreak-style": ["error", "windows"],
+    "quotes": ["error", "single"],
   },
 }
