@@ -58,6 +58,12 @@ hex_color_palette = [
 ]
 
 
+destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+
+if os.name == 'nt':
+    destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=100)
 
@@ -94,11 +100,6 @@ class Project(models.Model):
 
 
 class Image(models.Model):
-    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
-
-    if os.name == 'nt':
-        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
-
     image = models.ImageField(upload_to=destination)
     preview = models.ImageField(upload_to=destination)
     alt = models.CharField(max_length=100)
@@ -176,7 +177,7 @@ class Cell(models.Model):
                 last_modified__gte=date
             )
         else:
-            image = PILImage.new('RGBA', (250, 250), (255, 255, 255, 0))
+            image = PILImage.new('RGBA', (250, 250), (255, 255, 255, 255))
             data = numpy.array(image)
 
             cells = Cell.objects.filter(
@@ -205,7 +206,7 @@ def delete_hook(sender, instance, using, **kwargs):
     y = instance.y - (instance.y % 250)
     file_name = destination + f"{x}_{y}.png"
 
-    image = PILImage.new('RGBA', (250, 250), (255, 255, 255, 0))
+    image = PILImage.new('RGBA', (250, 250), (255, 255, 255, 255))
     data = numpy.array(image)
 
     cells = Cell.objects.filter(
@@ -239,11 +240,6 @@ class Overlay(models.Model):
 
 
 class OverlayImage(models.Model):
-    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
-
-    if os.name == 'nt':
-        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
-
     id = models.IntegerField(primary_key=True, auto_created=True)
     image = models.ImageField(upload_to=destination)
     x = models.IntegerField(default=0)
@@ -261,9 +257,9 @@ class OverlayImage(models.Model):
         super().save(*args, **kwargs)
 
         img = PIL.Image.open(self.image)
+        img = img.convert("RGBA")
 
         original_width, original_height = img.size
-        aspect_ratio = original_width / original_height
         scale_factor = min(self.width / original_width, self.height / original_height)
 
         new_width = int(original_width * scale_factor)
@@ -297,7 +293,15 @@ class OverlayImage(models.Model):
                     data[j * 3 + 1][i * 3 + 1][3] = 255
 
         fin_image = PIL.Image.fromarray(data)
-        fin_image.save(self.image.path, quality=100)
         img.close()
         self.image.close()
+
+        name = "".join(os.path.basename(self.image.name).split(".")[0:-1])
+
+        png_name = f'{name}.png'
+        png_path = destination + png_name
+        fin_image.save(png_path, quality=100)
+
+        self.image = png_path
+
         super().save(*args, **kwargs)

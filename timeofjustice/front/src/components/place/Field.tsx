@@ -94,7 +94,7 @@ export default function Field({size}: { size: number }) {
     const isInInputRef = useRef(isInInput)
     isInInputRef.current = isInInput
 
-    const canvasRef = useRef<HTMLDivElement>(null)
+    const canvasRef2 = useRef<HTMLCanvasElement>(null)
     const cursorRef = useRef<HTMLDivElement>(null)
     const wrapperRef = useRef<ReactZoomPanPinchRef>(null)
 
@@ -121,22 +121,17 @@ export default function Field({size}: { size: number }) {
             (data: LastPlacedResponse) => set_drawTimeout(Math.ceil(data['seconds']))
         )
 
-        const intervalId = setInterval(() => {
-            const images = canvasRef.current!.getElementsByTagName('img')
-
-            for (let i = 0; i < images.length; i++) {
-                const img = images[i]
-                const source = img.src.split('?')[0]
-
-                img.src = source + '?' + Date.now().toString()
-            }
-        }, 5000)
-
         const timeOutInterval = setInterval(() => {
             set_drawTimeout(t => t - 1)
         }, 1000)
 
         document.addEventListener('keydown', handleHotkey)
+
+        drawImages();
+
+        const intervalId = setInterval(() => {
+            drawImages();
+        }, 2000)
 
         return () => {
             clearInterval(intervalId)
@@ -157,15 +152,35 @@ export default function Field({size}: { size: number }) {
         window.history.replaceState({}, '', window.location.pathname + '?' + queries.toString())
     }, [activeCell])
 
+    const drawImages = () => {
+        for (let j = 0; j < 4; j++) {
+            for (let i = 0; i < 4; i++) {
+                drawImage(250 * i, 250 * j);
+            }
+        }
+    }
+
+    const drawImage = (x: number, y: number) => {
+        const image = new Image(250, 250);
+        image.src = `/api/place/generate/${x}/${y}?${(new Date()).getTime()}`;
+
+        image.onload = () => {
+            const canvas = canvasRef2.current!
+            const ctx = canvas.getContext("2d")!
+
+            ctx.drawImage(image, x, y, 250, 250);
+        }
+    }
+
     let mouseDownX = 0;
     let mouseDownY = 0;
 
-    const mouseDownCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    const mouseDownCapture = (e: React.MouseEvent<HTMLCanvasElement>) => {
         mouseDownX = e.clientX;
         mouseDownY = e.clientY;
     };
 
-    const handleClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    const handleClickCapture = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (
             Math.abs(mouseDownX - e.clientX) >= 30 ||
             Math.abs(mouseDownY - e.clientY) >= 30
@@ -180,14 +195,14 @@ export default function Field({size}: { size: number }) {
         <div className={'place-field'}>
             <div className={'place-content'}>
                 <TransformWrapper ref={wrapperRef}
-                    onZoom={(e) => {
-                        set_wrapperScale(e.state.scale)
-                    }}
-                    limitToBounds={false}
-                    doubleClick={{disabled: true}}
-                    minScale={0.05}
-                    maxScale={10}
-                    initialScale={currentScaleRef.current}
+                                  onZoom={(e) => {
+                                      set_wrapperScale(e.state.scale)
+                                  }}
+                                  limitToBounds={false}
+                                  doubleClick={{disabled: true}}
+                                  minScale={0.05}
+                                  maxScale={10}
+                                  initialScale={currentScaleRef.current}
                 >
                     <TransformComponent
                         wrapperStyle={{
@@ -200,33 +215,18 @@ export default function Field({size}: { size: number }) {
                         }}
                         wrapperClass={'field-wrapper'}
                     >
-                        <div className={'field'}
-                            ref={canvasRef}
-                            onClick={canvasClick}
-                            onMouseDownCapture={mouseDownCapture}
-                            onClickCapture={handleClickCapture}
-                            style={{
-                                minWidth: size * cellSize + 'px',
-                                minHeight: size * cellSize + 'px',
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(4, 2500px)',
-                                gridTemplateRows: 'repeat(4, 2500px)',
-                            }}>
+                        <canvas className={'field'}
+                                ref={canvasRef2}
+                                width={size} height={size}
+                                onClick={canvasClick}
+                                onMouseDownCapture={mouseDownCapture}
+                                onClickCapture={handleClickCapture}
+                                style={{
+                                    minWidth: size * cellSize + 'px',
+                                    minHeight: size * cellSize + 'px'
+                                }}>
 
-                            {Array.from({length: 4}, (_, i) =>
-                                Array.from({length: 4}, (_, j) =>
-                                    <img src={`/api/place/generate/${j * 250}/${i * 250}`}
-                                        style={{
-                                            width: 250 * cellSize + 'px',
-                                            height: 250 * cellSize + 'px',
-                                            imageRendering: 'pixelated'
-                                        }}
-                                        key={`${j * 250}-${i * 250}`}
-                                        id={`${j * 250}-${i * 250}`}
-                                        alt={'This is a tile'}
-                                    />))
-                            }
-                        </div>
+                        </canvas>
 
                         {Array.from({length: overlayImages.length}, (_, i) =>
                             <img src={overlayImages[i]['url']} style={{
@@ -240,14 +240,14 @@ export default function Field({size}: { size: number }) {
                         )}
 
                         <div className={'active-cell'}
-                            ref={cursorRef}
-                            style={{
-                                position: 'absolute',
-                                left: activeCell[0] * cellSize - 1 + 'px',
-                                top: activeCell[1] * cellSize - 1 + 'px',
-                                width: cellSize + 2 + 'px',
-                                height: cellSize + 2 + 'px',
-                            }}>
+                             ref={cursorRef}
+                             style={{
+                                 position: 'absolute',
+                                 left: activeCell[0] * cellSize - 1 + 'px',
+                                 top: activeCell[1] * cellSize - 1 + 'px',
+                                 width: cellSize + 2 + 'px',
+                                 height: cellSize + 2 + 'px',
+                             }}>
                             <div style={{
                                 position: 'absolute',
                                 borderLeft: '1px solid #FFF',
@@ -326,9 +326,9 @@ export default function Field({size}: { size: number }) {
             </div>
 
             <div className={'reset-transform'}
-                onClick={() => {
+                 onClick={() => {
                      wrapperRef.current!.resetTransform()
-                }}>
+                 }}>
                 <i className="fa-solid fa-rotate-left"></i>
             </div>
 
@@ -354,14 +354,14 @@ export default function Field({size}: { size: number }) {
 
                 <div className={'color-picker-container'}>
                     <div className={'color-picker'}
-                        style={{backgroundColor: customColor}}
-                        onClick={(e) => {
-                            const element = e.target as Element
+                         style={{backgroundColor: customColor}}
+                         onClick={(e) => {
+                             const element = e.target as Element
 
-                            if (element.id == 'color_picker')
-                                drawCell(customColor)
-                        }}
-                        id={'color_picker'}
+                             if (element.id == 'color_picker')
+                                 drawCell(customColor)
+                         }}
+                         id={'color_picker'}
                     >
                         <div className={'hotkey'}>
                             {customColorKey}
@@ -406,8 +406,8 @@ export default function Field({size}: { size: number }) {
                 </div>
             </div>
             <div className={'cords'}>
-                <span>x: {activeCell && canvasRef.current ? activeCell[0] : 0}, </span>
-                <span>y: {activeCell && canvasRef.current ? activeCell[1] : 0}</span>
+                <span>x: {activeCell ? activeCell[0] : 0}, </span>
+                <span>y: {activeCell ? activeCell[1] : 0}</span>
             </div>
             <div className={'timer'} style={
                 {display: drawTimeout > 0 ? 'block' : 'none'}
@@ -417,8 +417,8 @@ export default function Field({size}: { size: number }) {
         </div>
     </>
 
-    function canvasClick(e: React.MouseEvent<HTMLDivElement>) {
-        const bounds = (e.target as HTMLDivElement).getBoundingClientRect()
+    function canvasClick(e: React.MouseEvent<HTMLCanvasElement>) {
+        const bounds = (e.target as HTMLCanvasElement).getBoundingClientRect()
 
         const x = Math.floor((e.clientX - bounds.left) / cellSize / currentScaleRef.current)
         const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current)
@@ -456,16 +456,11 @@ export default function Field({size}: { size: number }) {
                 return
             }
 
-            const xArea = Math.floor(x / 250) * 250
-            const yArea = Math.floor(y / 250) * 250
+            const canvas = canvasRef2.current!
+            const ctx = canvas.getContext("2d")!
 
-            const img = document.getElementById(`${xArea}-${yArea}`) as HTMLImageElement
-
-            if (img) {
-                const source = img.src.split('?')[0]
-
-                img.src = source + '?' + new Date().getTime()
-            }
+            ctx.fillStyle = color
+            ctx.fillRect(x, y, 1, 1)
         })
     }
 

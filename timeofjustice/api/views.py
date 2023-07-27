@@ -207,7 +207,7 @@ def gen(request, from_x, from_y):
             print("Error reading")
     else:
         # Create a new image of the size required with transparent background
-        image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
+        image = Image.new('RGBA', (250, 250), (255, 255, 255, 255))
 
     response = HttpResponse(content_type="image/png")
     image.save(response, "PNG")
@@ -298,10 +298,10 @@ def get_overlay(request, overlay_name):
     images = models.OverlayImage.objects.filter(overlay=overlay)
 
     for image in images:
-        image_elements = image.image.url.split("/")[6::]
+        image_name = os.path.basename(image.image.path)
 
         json_images.append({
-            "url": "/".join(image_elements),
+            "url": f"/images/{image_name}",
             "x": image.x,
             "y": image.y,
             "width": image.width,

@@ -23,7 +23,6 @@ html.dark .place-field {
 }
 
 .place-content .field {
-    background-color: #FFFFFF;
     image-rendering: pixelated;
     transform-origin: top left;
 }
