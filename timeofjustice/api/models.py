@@ -1,7 +1,6 @@
 import datetime
 import os
 import PIL.Image
-import numpy as np
 from django.db import models
 import numpy
 from PIL import Image as PILImage
@@ -280,7 +279,7 @@ class OverlayImage(models.Model):
         data = numpy.array(imageLay)
 
         if self.convert:
-            color_array = np.array([hex_to_rgb(hex_code) for hex_code in hex_color_palette])
+            color_array = numpy.array([hex_to_rgb(hex_code) for hex_code in hex_color_palette])
 
             for y in range(new_height):
                 for x in range(new_width):
