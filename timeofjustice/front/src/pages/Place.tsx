@@ -9,7 +9,7 @@ export default function Place() {
     document.title = "Place - TimeofJustice";
 
     const apiSiteKey = isLocalhost ?
-        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : "6Lcba1cnAAAAAN3R3_W2gThRkiPkUrCjzgBCrNcu"
+        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : "6LdDGVwnAAAAAHBjqXk7HEr-UkIHzNKyPKK_tnl7"
     const captchaRef = useRef<ReCAPTCHA>(null)
 
     const [canvas, set_canvas] = useState(
