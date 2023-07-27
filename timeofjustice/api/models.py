@@ -232,6 +232,9 @@ class OverlayImage(models.Model):
             for j in range(0, new_height):
                 data[j * 3 + 1][i * 3 + 1] = im_matrix[j][i]
 
+                if im_matrix[j][i][3] != 0:
+                    data[j * 3 + 1][i * 3 + 1][3] = 255
+
         fin_image = PIL.Image.fromarray(data)
         fin_image.save(self.image.path, quality=100)
         img.close()
