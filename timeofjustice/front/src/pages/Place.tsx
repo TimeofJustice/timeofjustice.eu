@@ -33,9 +33,12 @@ export default function Place() {
             <div className={"captcha-container"}>
                 <ReCAPTCHA
                     sitekey={apiSiteKey}
+                    size="invisible"
                     ref={captchaRef}
+                    onChange={onCaptchaChange}
+                    badge="bottomright"
                 />
-                <div className={"place-button"} onClick={onEnterSubmit}>
+                <div className={"place-button"} onClick={onClickEnter}>
                     Enter
                 </div>
             </div>
@@ -44,13 +47,11 @@ export default function Place() {
 
     return canvas
 
-    function onEnterSubmit(event: any) {
-        if (isLocalhost) {
-            set_canvas(<Field size={1000}/>);
-            return;
-        }
+    function onClickEnter() {
+        captchaRef.current!.execute()
+    }
 
-        event.preventDefault()
+    function onCaptchaChange() {
         const token = captchaRef.current!.getValue();
         captchaRef.current!.reset();
 
