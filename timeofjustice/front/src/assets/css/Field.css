@@ -84,6 +84,8 @@ html.dark .place-field {
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
 .colors-container.ready {
@@ -96,6 +98,16 @@ html.dark .place-field {
     grid-template-columns: repeat(16, fit-content(100%));
     grid-gap: 5px;
     height: 100%;
+}
+
+.color-picker-container {
+    position: relative;
+    height: 100%;
+    padding-bottom: 3px;
+}
+
+.chrome-picker {
+    font-family: "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif !important;
 }
 
 .color-picker {
@@ -115,12 +127,12 @@ html.dark .place-field {
     border: 2px solid #737373;
 }
 
-.color-picker > div {
+.color-picker > .hotkey {
     position: absolute;
     top: 0;
     right: 0;
     background-color: #a2a2a2;
-    font-size: 0.5rem;
+    font-size: 0.65rem;
     padding: 3px;
     border-radius: 0 0 0 10px;
     display: flex;
@@ -135,35 +147,17 @@ html.dark .place-field {
     left: 0;
     bottom: 0;
     top: auto;
-    display: inline-block;
     height: 20px;
-}
-
-.color-picker-button button {
-    position:absolute;
-    left:0;
-    bottom:0;
-    width:100%;
-    height: 100%;
+    width: 100%;
     background-color: #a2a2a2;
-    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.color-picker-button input[type="color"] {
-    opacity:0;
-    position:absolute;
-    left:0;
-    bottom:0;
-    width:100%;
-    height: 100%;
-}
-
-input[type="color"]::-webkit-color-swatch-wrapper {
-    padding: 0;
-}
-
-input[type="color"]::-webkit-color-swatch {
-    border: none;
+.color-picker-button > i {
+    color: #000;
+    font-size: 0.75rem;
 }
 
 .colors .color {
@@ -197,7 +191,7 @@ input[type="color"]::-webkit-color-swatch {
     top: 0;
     right: 0;
     background-color: #a2a2a2;
-    font-size: 0.5rem;
+    font-size: 0.65rem;
     padding: 3px;
     border-radius: 0 0 0 10px;
     display: flex;

@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react'
 import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch'
 import {getCookie} from '../../helper/Cookie.tsx'
+import {ChromePicker, ColorResult} from 'react-color';
 
 interface Colors {
     [key: string]: string
@@ -58,8 +59,7 @@ export default function Field({size}: { size: number }) {
         'V': '#FFFFFF'
     }
 
-    const colorPickerRef = useRef<HTMLInputElement>(null)
-    const [customColor, set_customColor] = useState('#FFFFFF')
+    const [customColor, set_customColor] = useState<string>('#FFFFFF')
     const customColorRef = useRef(customColor)
     customColorRef.current = customColor
     const customColorKey = 'B'
@@ -89,6 +89,10 @@ export default function Field({size}: { size: number }) {
     drawTimeoutRef.current = drawTimeout
 
     const [overlayImages, set_overlayImages] = useState<OverlayImage[]>([])
+
+    const [isInInput, set_isInInput] = useState(false)
+    const isInInputRef = useRef(isInInput)
+    isInInputRef.current = isInInput
 
     const canvasRef = useRef<HTMLDivElement>(null)
     const cursorRef = useRef<HTMLDivElement>(null)
@@ -133,6 +137,8 @@ export default function Field({size}: { size: number }) {
         }, 1000)
 
         document.addEventListener('keydown', (e) => {
+            if (isInInputRef.current) return;
+
             handleHotkey(e)
         })
 
@@ -170,6 +176,8 @@ export default function Field({size}: { size: number }) {
             e.stopPropagation();
         }
     };
+
+    const [displayColorPicker, set_displayColorPicker] = useState(false)
 
     return <>
         <div className={'place-field'}>
@@ -346,31 +354,58 @@ export default function Field({size}: { size: number }) {
                         </div>
                     })}
                 </div>
-                <div className={'color-picker'}
-                    style={{backgroundColor: customColor}}
-                    onClick={(e) => {
-                        const element = e.target as Element
 
-                        if (element.id == 'color_picker')
-                            drawCell(customColor)
-                    }}
-                    id={'color_picker'}
-                >
-                    <div className={'color-picker-button'}>
-                        <button type="button" className="btn btn-secondary herramienta">
-                            <i className="fa-solid fa-eye-dropper"></i>
-                        </button>
+                <div className={'color-picker-container'}>
+                    <div className={'color-picker'}
+                        style={{backgroundColor: customColor}}
+                        onClick={(e) => {
+                            const element = e.target as Element
 
-                        <input type="color" ref={colorPickerRef} value={customColor} onChange={
-                            (e) => {
-                                set_customColor(e.target.value.toUpperCase())
-                            }
-                        }/>
+                            if (element.id == 'color_picker')
+                                drawCell(customColor)
+                        }}
+                        id={'color_picker'}
+                    >
+                        <div className={'hotkey'}>
+                            {customColorKey}
+                        </div>
+
+                        <div className={'color-picker-button'} onClick={() => {
+                            set_displayColorPicker(!displayColorPicker);
+                            set_isInInput(!isInInput);
+                        }}
+                        >
+                            <i className={'fa-solid fa-eye-dropper'}></i>
+                        </div>
                     </div>
 
-                    <div>
-                        {customColorKey}
-                    </div>
+                    {displayColorPicker ? <div style={{
+                        position: 'absolute',
+                        zIndex: '2',
+                        bottom: '0px',
+                        right: '0px'
+                    }}>
+                        <div style={{
+                            position: 'fixed',
+                            top: '0px',
+                            right: '0px',
+                            bottom: '0px',
+                            left: '0px',
+                        }} onClick={() => {
+                            set_displayColorPicker(false);
+                            set_isInInput(false);
+                        }}/>
+
+                        <ChromePicker
+                            color={customColor}
+                            onChange={(e: ColorResult) => {
+                                const newColor: string = e.hex
+
+                                set_customColor(newColor)
+                            }}
+                            disableAlpha={true}
+                        />
+                    </div> : null}
                 </div>
             </div>
             <div className={'cords'}>
