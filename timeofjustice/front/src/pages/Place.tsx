@@ -48,6 +48,8 @@ export default function Place() {
     return canvas
 
     function onClickEnter() {
+        if (isLocalhost) set_canvas(<Field size={1000}/>)
+
         captchaRef.current!.execute()
     }
 

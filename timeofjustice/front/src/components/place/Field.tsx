@@ -136,15 +136,12 @@ export default function Field({size}: { size: number }) {
             set_drawTimeout(t => t - 1)
         }, 1000)
 
-        document.addEventListener('keydown', (e) => {
-            if (isInInputRef.current) return;
-
-            handleHotkey(e)
-        })
+        document.addEventListener('keydown', handleHotkey)
 
         return () => {
             clearInterval(intervalId)
             clearInterval(timeOutInterval)
+            document.removeEventListener('keydown', handleHotkey)
         }
     }, [])
 
@@ -473,6 +470,8 @@ export default function Field({size}: { size: number }) {
     }
 
     function handleHotkey(e: KeyboardEvent) {
+        if (isInInputRef.current) return;
+
         const key = e.key.toString().toUpperCase()
 
         if (key === 'ARROWLEFT') {

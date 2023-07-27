@@ -1,12 +1,62 @@
 import datetime
 import os
 import PIL.Image
+import numpy as np
 from django.db import models
 import numpy
 from PIL import Image as PILImage
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from scipy.spatial import cKDTree
+
+
+def hex_to_rgb(hex_code):
+    # Hex-Code in RGB-Tupel umwandeln
+    hex_code = hex_code.lstrip("#")
+    return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def find_nearest_color(color_array, target_color):
+    tree = cKDTree(color_array)
+    _, index = tree.query(target_color[:3])
+    return color_array[index]
+
+
+hex_color_palette = [
+    '#6D001A',
+    '#FF4500',
+    '#FFD635',
+    '#00A368',
+    '#7EED56',
+    '#009EAA',
+    '#2450A4',
+    '#51E9F4',
+    '#6A5CFF',
+    '#811E9F',
+    '#E4ABFF',
+    '#FF3881',
+    '#6D482F',
+    '#FFB470',
+    '#515252',
+    '#D4D7D9',
+    '#BE0039',
+    '#FFA800',
+    '#FFF8B8',
+    '#00CC78',
+    '#00756F',
+    '#00CCC0',
+    '#3690EA',
+    '#493AC1',
+    '#94B3FF',
+    '#B44AC0',
+    '#DE107F',
+    '#FF99AA',
+    '#9C6926',
+    '#000000',
+    '#898D90',
+    '#FFFFFF'
+]
 
 
 class Tag(models.Model):
@@ -202,6 +252,7 @@ class OverlayImage(models.Model):
     width = models.IntegerField(default=50)
     height = models.IntegerField(default=50)
     overlay = models.ForeignKey(Overlay, on_delete=models.CASCADE, default=None)
+    convert = models.BooleanField(default=False)
 
     def image_name(self):
         return f"{self.image.name.split('/')[-1]}"
@@ -227,6 +278,17 @@ class OverlayImage(models.Model):
 
         imageLay = PIL.Image.new('RGBA', (new_width * 3, new_height * 3), (255, 255, 255, 0))
         data = numpy.array(imageLay)
+
+        if self.convert:
+            color_array = np.array([hex_to_rgb(hex_code) for hex_code in hex_color_palette])
+
+            for y in range(new_height):
+                for x in range(new_width):
+                    pixel = image.getpixel((x, y))
+
+                    if pixel[3] != 0:
+                        nearest_color = find_nearest_color(color_array, pixel)
+                        im_matrix[y][x] = [nearest_color[0], nearest_color[1], nearest_color[2], 255]
 
         for i in range(0, new_width):
             for j in range(0, new_height):
