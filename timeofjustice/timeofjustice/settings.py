@@ -120,15 +120,8 @@ CONFIG_PARSER.read(CONFIG_FILE)
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': CONFIG_PARSER["DEFAULT"]["SQL_DB"],
-        'USER': CONFIG_PARSER["DEFAULT"]["SQL_USER"],
-        'PASSWORD': CONFIG_PARSER["DEFAULT"]["SQL_PASS"],
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'sql_mode': 'STRICT_ALL_TABLES',
-        },
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
