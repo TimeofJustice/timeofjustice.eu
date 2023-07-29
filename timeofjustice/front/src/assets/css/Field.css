@@ -48,6 +48,11 @@ html.dark .place-field {
     position: relative;
 }
 
+.cords .cell-color:hover {
+    font-weight: bold;
+    cursor: pointer;
+}
+
 .cords .cell-color div {
     width: 10px;
     height: 10px;
@@ -88,6 +93,11 @@ html.dark .place-field {
 
 .overlay-input .overlay-colors div {
     padding: 2px;
+}
+
+.overlay-input .overlay-colors div:hover {
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .overlay-input .overlay-colors div div {

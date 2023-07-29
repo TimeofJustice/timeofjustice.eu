@@ -295,7 +295,13 @@ export default function Field({size}: { size: number }) {
                                      overlayColorsRef.current!.innerHTML = ""
 
                                      overlayImages[i]['colors'].forEach(color => {
-                                         overlayColorsRef.current!.innerHTML += `<div>${color.toUpperCase()}<div style="background-color: ${color}"></div></div>`
+                                         const newDiv = document.createElement("div")
+                                         newDiv.innerHTML = `${color.toUpperCase()}<div style="background-color: ${color}"></div>`
+                                         newDiv.onclick = () => {
+                                             set_customColor(color)
+                                         }
+
+                                         overlayColorsRef.current!.append(newDiv)
                                      })
                                  }}
                                  onMouseDownCapture={mouseDownCapture}
@@ -476,7 +482,12 @@ export default function Field({size}: { size: number }) {
                 <span>x: {activeCell ? activeCell[0] : 0}, </span>
                 <span>y: {activeCell ? activeCell[1] : 0}</span><br/>
                 {cellColor ?
-                    <div className={"cell-color"}>{cellColor.color}
+                    <div
+                        className={"cell-color"}
+                        onClick={() => {
+                            set_customColor(cellColor.color)
+                        }}
+                    >{cellColor.color}
                         <div style={{
                             backgroundColor: cellColor.color
                         }}></div>
