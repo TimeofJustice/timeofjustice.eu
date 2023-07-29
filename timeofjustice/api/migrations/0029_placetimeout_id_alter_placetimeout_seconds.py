@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
+        migrations.AlterField(
             model_name='placetimeout',
             name='id',
             field=models.IntegerField(auto_created=True, default=0, primary_key=True, serialize=False),

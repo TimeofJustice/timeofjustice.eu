@@ -1,103 +1,23 @@
+import configparser
 import datetime
 import json
 import os
-from django.forms.models import model_to_dict
-from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
+import re
+
+import numpy
+import requests
+from PIL import Image
+from django.conf import settings
+
+from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
-from . import models
-import requests
-import configparser
-from PIL import Image
-import numpy
+
+from .. import models
 
 
-def get_json():
-    json_projects = []
-    projects = models.Project.objects.all()
-
-    for project in projects:
-        serialized_obj = model_to_dict(project)
-
-        serialized_obj["status_id"] = project.status.id
-        serialized_obj["status"] = project.status.name
-
-        serialized_obj["languages"] = []
-
-        for language in project.languages.all():
-            serialized_obj["languages"].append(language.name)
-
-        serialized_obj["images"] = []
-
-        for image in project.image_set.all():
-            image_elements = image.image.url.split("/")[6::]
-            preview_elements = image.preview.url.split("/")[6::]
-            serialized_obj["images"].append([["/".join(image_elements), "/".join(preview_elements)], image.alt])
-
-        json_projects.append(serialized_obj)
-
-    json_projects = sorted(json_projects, key=lambda k: k["status_id"])
-    json_projects.reverse()
-
-    return json_projects
-
-
-def set_session_cookie(request):
-    import uuid
-
-    if request.COOKIES.get("session") is None:
-        return uuid.uuid4()
-    else:
-        return request.COOKIES.get("session")
-
-
-@ensure_csrf_cookie
-def get_project(request, project_id):
-    projects = get_json()
-
-    if len(projects) < project_id:
-        return JsonResponse({"error": "ProjectData not found."}, status=404)
-
-    return JsonResponse(projects[project_id], safe=False)
-
-
-@ensure_csrf_cookie
-def projects_list(request):
-    projects = get_json()
-
-    return JsonResponse(projects, safe=False)
-
-
-@ensure_csrf_cookie
-def index(request):
-    session = set_session_cookie(request)
-
-    context = {
-        "mode": "dark"
-    }
-
-    if request.COOKIES.get("mode") is not None:
-        context["mode"] = request.COOKIES.get("mode")
-
-    response = render(request, "index.html", context)
-    response.set_cookie("session", session)
-    return response
-
-
-def handler404(request, *args, **kwargs):
-    return HttpResponseRedirect('/')
-
-
-def robot(request):
-    lines = [
-        "User-agent: *",
-        "Disallow: /api/",
-        "Disallow: /admin/",
-        "Allow: /"
-    ]
-
-    return HttpResponse("\n".join(lines), content_type="text/plain")
+def rgb_to_hex(rgb):
+    return '#{0:02x}{1:02x}{2:02x}'.format(rgb[0], rgb[1], rgb[2])
 
 
 def get_time_out(request):
@@ -114,7 +34,6 @@ def get_last_placed(request):
         session.save()
         return JsonResponse({"seconds": timeout_in_seconds}, safe=False)
 
-    # check if session id exists
     sessions = models.LastPlaced.objects.filter(id=session_id)
 
     if len(sessions) == 0:
@@ -187,27 +106,73 @@ def place_set(request):
 
 
 def gen(request, from_x, from_y):
-    destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
-
-    if os.name == 'nt':
-        destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
-
-    from PIL import Image
-
     if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
         return HttpResponse("Wrong coordinates")
 
-    file_name = destination + f"{from_x}_{from_y}.png"
+    file_name = settings.FILE_DESTINATION + f"{from_x}_{from_y}.png"
 
     if os.path.isfile(file_name):
         try:
             with open(file_name, "rb") as f:
-                return HttpResponse(f.read(), content_type="image/png")
+                image = Image.open(f)
+
+                white_background = Image.new("RGB", image.size, (255, 255, 255))
+                white_background.paste(image, (0, 0), image)
+
+                response = HttpResponse(content_type="image/png")
+                white_background.save(response, "PNG")
+
+                return response
         except IOError:
             print("Error reading")
     else:
-        # Create a new image of the size required with transparent background
         image = Image.new('RGBA', (250, 250), (255, 255, 255, 255))
+
+    response = HttpResponse(content_type="image/png")
+    image.save(response, "PNG")
+
+    return response
+
+
+def changes(request, from_x, from_y):
+    if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
+        return HttpResponse("Wrong coordinates")
+
+    file_name = settings.FILE_DESTINATION + f"{from_x}_{from_y}.png"
+
+    if os.path.isfile(file_name):
+        try:
+            with open(file_name, "rb") as f:
+                image = Image.new("RGBA", (250, 250))
+                data = numpy.array(image)
+
+                date = datetime.datetime.fromtimestamp(int(request.GET.get("t")) / 1000)
+                date = date - datetime.timedelta(hours=2, seconds=5)
+                date = timezone.make_aware(date)
+
+                cells = models.Cell.objects.filter(
+                    x__gte=from_x,
+                    x__lte=from_x + 249,
+                    y__gte=from_y,
+                    y__lte=from_y + 249,
+                    last_modified__gte=date
+                )
+
+                if len(cells) != 0:
+                    for cell in cells:
+                        data[cell.y - from_y][cell.x - from_x] = [int(cell.color[1:][i:i + 2], 16) for i in
+                                                                  (0, 2, 4)] + [255]
+
+                    image = Image.fromarray(data)
+
+                response = HttpResponse(content_type="image/png")
+                image.save(response, "PNG")
+
+                return response
+        except IOError:
+            print("Error reading")
+    else:
+        image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
 
     response = HttpResponse(content_type="image/png")
     image.save(response, "PNG")
@@ -258,14 +223,6 @@ def get_client_ip(request):
 
 def validate_captcha(request):
     if request.method == "POST":
-        config_path = '/home/jonas/timeofjustice.eu/timeofjustice/data/config.ini'
-
-        if os.name == 'nt':
-            config_path = 'C:/Users/ogtim/Documents/GitHub/timeofjustice.eu/timeofjustice/data/config.ini'
-
-        config = configparser.ConfigParser()
-        config.read(config_path)
-
         response = {}
         body_unicode = request.body.decode('utf-8')
         body = json.loads(body_unicode)
@@ -274,7 +231,7 @@ def validate_captcha(request):
         url = "https://www.google.com/recaptcha/api/siteverify"
 
         params = {
-            'secret': config["DEFAULT"]["SECRET_KEY"],
+            'secret': settings.CONFIG_PARSER["DEFAULT"]["SECRET_KEY"],
             'response': captcha_rs,
             'remoteip': get_client_ip(request)
         }
@@ -300,12 +257,58 @@ def get_overlay(request, overlay_name):
     for image in images:
         image_name = os.path.basename(image.image.path)
 
+        img = Image.open(image.image.path)
+        arr = numpy.array(img)
+        reshaped = arr.reshape(-1, arr.shape[-1])
+        colors = numpy.unique(reshaped, axis=0)
+
+        colors = [rgb_to_hex(color) for color in colors]
+
         json_images.append({
             "url": f"/images/{image_name}",
             "x": image.x,
             "y": image.y,
             "width": image.width,
-            "height": image.height
+            "height": image.height,
+            "colors": colors
         })
 
     return JsonResponse(json_images, safe=False)
+
+
+def discover(request):
+    last_update = int(request.GET.get("t")) / 1000
+
+    neue_dateien = []
+
+    for dateiname in os.listdir(settings.FILE_DESTINATION):
+        dateipfad = os.path.join(settings.FILE_DESTINATION, dateiname)
+        datei_zeitstempel = os.path.getmtime(dateipfad)
+
+        pattern = r"\d+_\d+\.png$"
+        if re.match(pattern, dateiname):
+            if datei_zeitstempel > last_update:
+                name = dateiname.split(".")[0]
+                x = name.split("_")[0]
+                y = name.split("_")[1]
+
+                neue_dateien.append(
+                    {
+                        "x": int(x),
+                        "y": int(y),
+                        "src": f"/images/{dateiname}"
+                    }
+                )
+
+    return JsonResponse(neue_dateien, safe=False)
+
+
+def get_color(request, x, y):
+    cells = models.Cell.objects.filter(x=x, y=y)
+
+    if len(cells) != 0:
+        cell = cells[0]
+
+        return JsonResponse({"color": cell.color}, safe=False)
+    else:
+        return JsonResponse({"color": "#FFFFFF"}, safe=False)

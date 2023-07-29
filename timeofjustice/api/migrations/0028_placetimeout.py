@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PlaceTimeOut',
             fields=[
-                ('seconds', models.IntegerField(default=0, primary_key=True, serialize=False)),
+                ('seconds', models.IntegerField(default=0, serialize=False)),
             ],
         ),
     ]

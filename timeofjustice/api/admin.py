@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.utils import timezone
+
 from . import models
 
 
@@ -40,11 +42,17 @@ class LastPlacedAdmin(admin.ModelAdmin):
     search_fields = ['id']
 
 
+@admin.action(description="Censor the selected pixels")
+def censor(modeladmin, request, queryset):
+    queryset.update(color="#FFFFFF", last_modified=timezone.now())
+
+
 @admin.register(models.Cell)
 class CellAdmin(admin.ModelAdmin):
     list_display = ('x', 'y', 'color', 'last_modified', 'placed_by')
     search_fields = ['x', 'y']
     list_filter = ('x', 'y', 'color', 'last_modified')
+    actions = [censor]
 
 
 @admin.register(models.Overlay)

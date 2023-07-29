@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import configparser
+import json
 import os
 from pathlib import Path
 
@@ -60,6 +62,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api',
     'corsheaders',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -100,13 +103,34 @@ WSGI_APPLICATION = 'timeofjustice.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
+FILE_DESTINATION = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+
+if os.name == 'nt':
+    FILE_DESTINATION = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
+
+
+CONFIG_FILE = '/home/jonas/timeofjustice.eu/timeofjustice/data/config.ini'
+
+if os.name == 'nt':
+    CONFIG_FILE = 'C:/Users/ogtim/Documents/GitHub/timeofjustice.eu/timeofjustice/data/config.ini'
+
+CONFIG_PARSER = configparser.ConfigParser()
+CONFIG_PARSER.read(CONFIG_FILE)
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': CONFIG_PARSER["DEFAULT"]["SQL_DB"],
+        'USER': CONFIG_PARSER["DEFAULT"]["SQL_USER"],
+        'PASSWORD': CONFIG_PARSER["DEFAULT"]["SQL_PASS"],
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'sql_mode': 'STRICT_ALL_TABLES',
+        },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

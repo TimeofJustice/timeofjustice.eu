@@ -20,7 +20,18 @@ interface OverlayImage {
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    colors: string[]
+}
+
+interface TileImage {
+    x: number,
+    y: number,
+    src: string
+}
+
+interface CellData {
+    color: string
 }
 
 export default function Field({size}: { size: number }) {
@@ -70,7 +81,7 @@ export default function Field({size}: { size: number }) {
     const initialScale = queryParameters.get('x') || queryParameters.get('y') ? 2 : 0.08
 
     const initOverlay = queryParameters.get('overlay') ? queryParameters.get('overlay')! : ''
-    const [activeOverlay] = useState<string>(initOverlay)
+    const [activeOverlay, set_activeOverlay] = useState<string>(initOverlay)
 
     const [currentTimeout, set_currentTimeout] = useState(0)
     const currentTimeoutRef = useRef(currentTimeout)
@@ -94,9 +105,15 @@ export default function Field({size}: { size: number }) {
     const isInInputRef = useRef(isInInput)
     isInInputRef.current = isInInput
 
+    const [cellColor, set_cellColor] = useState<CellData | null>({color: "#252525"})
+
     const canvasRef2 = useRef<HTMLCanvasElement>(null)
     const cursorRef = useRef<HTMLDivElement>(null)
     const wrapperRef = useRef<ReactZoomPanPinchRef>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
+    const overlayColorsRef = useRef<HTMLDivElement>(null)
+
+    const lastUpdated = useRef(Date.now())
 
     const cellSize = 10
 
@@ -106,14 +123,6 @@ export default function Field({size}: { size: number }) {
         ).then(
             (data: TimeoutResponse) => set_currentTimeout(data['seconds'])
         )
-
-        if (activeOverlay != '') {
-            fetch('/api/place/overlay/' + activeOverlay).then(
-                res => res.json()
-            ).then(
-                (data: OverlayImage[]) => set_overlayImages(data)
-            )
-        }
 
         fetch('/api/place/lastplaced').then(
             res => res.json()
@@ -130,7 +139,17 @@ export default function Field({size}: { size: number }) {
         drawImages();
 
         const intervalId = setInterval(() => {
-            drawImages();
+            fetch('/api/place/discover?t=' + lastUpdated.current).then(
+                res => res.json()
+            ).then(
+                (data: TileImage[]) => {
+                    data.forEach(tile => {
+                        drawImage(tile.x, tile.y, "changes");
+                    })
+
+                    lastUpdated.current = Date.now()
+                }
+            )
         }, 2000)
 
         return () => {
@@ -150,7 +169,31 @@ export default function Field({size}: { size: number }) {
         queries.set('x', activeCell[0].toString())
         queries.set('y', activeCell[1].toString())
         window.history.replaceState({}, '', window.location.pathname + '?' + queries.toString())
+
+        fetch(`/api/place/color/${activeCell[0]}/${activeCell[1]}`).then(
+            res => res.json()
+        ).then(
+            (data: CellData) => set_cellColor(data)
+        )
     }, [activeCell])
+
+    useEffect(() => {
+        const queries = new URLSearchParams(window.location.search)
+
+        if (activeOverlay != "") {
+            queries.set('overlay', activeOverlay)
+
+            fetch('/api/place/overlay/' + activeOverlay).then(
+                res => res.json()
+            ).then(
+                (data: OverlayImage[]) => set_overlayImages(data)
+            )
+        } else {
+            queries.delete('overlay')
+        }
+
+        window.history.replaceState({}, '', window.location.pathname + '?' + queries.toString())
+    }, [activeOverlay]);
 
     const drawImages = () => {
         for (let j = 0; j < 4; j++) {
@@ -160,9 +203,9 @@ export default function Field({size}: { size: number }) {
         }
     }
 
-    const drawImage = (x: number, y: number) => {
+    const drawImage = (x: number, y: number, method: string = "generate") => {
         const image = new Image(250, 250);
-        image.src = `/api/place/generate/${x}/${y}?${(new Date()).getTime()}`;
+        image.src = `/api/place/${method}/${x}/${y}?t=${lastUpdated.current}`;
 
         image.onload = () => {
             const canvas = canvasRef2.current!
@@ -175,12 +218,12 @@ export default function Field({size}: { size: number }) {
     let mouseDownX = 0;
     let mouseDownY = 0;
 
-    const mouseDownCapture = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const mouseDownCapture = (e: React.MouseEvent<any>) => {
         mouseDownX = e.clientX;
         mouseDownY = e.clientY;
     };
 
-    const handleClickCapture = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleClickCapture = (e: React.MouseEvent<any>) => {
         if (
             Math.abs(mouseDownX - e.clientX) >= 30 ||
             Math.abs(mouseDownY - e.clientY) >= 30
@@ -225,7 +268,6 @@ export default function Field({size}: { size: number }) {
                                     minWidth: size * cellSize + 'px',
                                     minHeight: size * cellSize + 'px'
                                 }}>
-
                         </canvas>
 
                         {Array.from({length: overlayImages.length}, (_, i) =>
@@ -236,7 +278,29 @@ export default function Field({size}: { size: number }) {
                                 left: overlayImages[i]['x'] * cellSize + 'px',
                                 width: overlayImages[i]['width'] * cellSize + 'px',
                                 height: overlayImages[i]['height'] * cellSize + 'px',
-                            }}/>
+                                pointerEvents: "auto"
+                            }}
+                                 onClick={(e) => {
+                                     const bounds = (e.target as HTMLImageElement).getBoundingClientRect()
+
+                                     const x = Math.floor((e.clientX - bounds.left) / cellSize / currentScaleRef.current) + overlayImages[i]['x']
+                                     const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current) + overlayImages[i]['y']
+
+                                     if (x < 0 || x > 999 || y < 0 || y > 999) return
+
+                                     inputRef.current!.blur()
+
+                                     set_activeCell([x, y])
+
+                                     overlayColorsRef.current!.innerHTML = ""
+
+                                     overlayImages[i]['colors'].forEach(color => {
+                                         overlayColorsRef.current!.innerHTML += `<div>${color.toUpperCase()}<div style="background-color: ${color}"></div></div>`
+                                     })
+                                 }}
+                                 onMouseDownCapture={mouseDownCapture}
+                                 onClickCapture={handleClickCapture}
+                            />
                         )}
 
                         <div className={'active-cell'}
@@ -327,9 +391,12 @@ export default function Field({size}: { size: number }) {
 
             <div className={'reset-transform'}
                  onClick={() => {
-                     wrapperRef.current!.resetTransform()
+                     wrapperRef.current!.zoomToElement(
+                         cursorRef.current!,
+                         currentScaleRef.current,
+                     )
                  }}>
-                <i className="fa-solid fa-rotate-left"></i>
+                <i className="fa-solid fa-arrows-to-dot"></i>
             </div>
 
             <div className={
@@ -372,7 +439,7 @@ export default function Field({size}: { size: number }) {
                             set_isInInput(!isInInput);
                         }}
                         >
-                            <i className={'fa-solid fa-eye-dropper'}></i>
+                            <i className="fa-solid fa-palette"></i>
                         </div>
                     </div>
 
@@ -407,7 +474,27 @@ export default function Field({size}: { size: number }) {
             </div>
             <div className={'cords'}>
                 <span>x: {activeCell ? activeCell[0] : 0}, </span>
-                <span>y: {activeCell ? activeCell[1] : 0}</span>
+                <span>y: {activeCell ? activeCell[1] : 0}</span><br/>
+                {cellColor ?
+                    <div className={"cell-color"}>{cellColor.color}
+                        <div style={{
+                            backgroundColor: cellColor.color
+                        }}></div>
+                    </div> : ""}
+            </div>
+
+            <div className={'overlay-input'}>
+                <input type={"text"}
+                       onFocus={() => set_isInInput(true)}
+                       onBlur={() => set_isInInput(false)}
+                       value={activeOverlay}
+                       onChange={(e) => {
+                           set_activeOverlay(e.target.value)
+                       }}
+                       ref={inputRef}
+                />
+                <div className={"overlay-colors"} ref={overlayColorsRef}>
+                </div>
             </div>
             <div className={'timer'} style={
                 {display: drawTimeout > 0 ? 'block' : 'none'}
@@ -425,7 +512,11 @@ export default function Field({size}: { size: number }) {
 
         if (x < 0 || x > 999 || y < 0 || y > 999) return
 
+        inputRef.current!.blur()
+
         set_activeCell([x, y])
+
+        overlayColorsRef.current!.innerHTML = ""
     }
 
     function drawCell(color: string) {
