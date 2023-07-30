@@ -76,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+TIME_ZONE = 'Europe/Berlin'
 
 ROOT_URLCONF = 'timeofjustice.urls'
 
