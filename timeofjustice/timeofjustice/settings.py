@@ -66,6 +66,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'api.middleware.reverse_proxy',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',

@@ -539,12 +539,6 @@ export default function Field({size}: { size: number }) {
 
         set_drawTimeout(currentTimeoutRef.current)
 
-        const canvas = canvasRef2.current!
-        const ctx = canvas.getContext("2d")!
-
-        ctx.fillStyle = color
-        ctx.fillRect(x, y, 1, 1)
-
         fetch(
             '/api/place/set',
             {
@@ -563,6 +557,12 @@ export default function Field({size}: { size: number }) {
                 set_drawTimeout(0)
                 return
             }
+
+            const canvas = canvasRef2.current!
+            const ctx = canvas.getContext("2d")!
+
+            ctx.fillStyle = color
+            ctx.fillRect(x, y, 1, 1)
         })
     }
 
