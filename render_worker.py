@@ -100,7 +100,7 @@ def render_tile(x, y):
                      .select().where((Api_Tiles.x == x) &
                                      (Api_Tiles.y == y)))
 
-            date = tiles[0].last_updated
+            date = tiles[0].last_updated - datetime.timedelta(seconds=2)
 
             cells = (Api_Cell
                      .select()

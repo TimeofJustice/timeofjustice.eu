@@ -161,7 +161,7 @@ def changes(request, from_x, from_y):
                 data = numpy.array(image)
 
                 date = datetime.datetime.fromtimestamp(int(request.GET.get("t")) / 1000)
-                date = date - datetime.timedelta(hours=2, seconds=5)
+                date = date - datetime.timedelta(seconds=1)
                 date = timezone.make_aware(date)
 
                 cells = models.Cell.objects.filter(
@@ -292,7 +292,7 @@ def discover(request):
     tiles_with_update = []
 
     for tile in tiles:
-        tile_update = tile.last_updated.timestamp()
+        tile_update = tile.last_updated.replace(tzinfo=timezone.utc).timestamp()
 
         if tile_update > last_update:
             tiles_with_update.append(

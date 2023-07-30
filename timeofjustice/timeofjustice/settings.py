@@ -29,7 +29,7 @@ DEBUG = False
 # Show error messages in production
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = 'UTC'
 USE_TZ = True
 
 ALLOWED_HOSTS = [
