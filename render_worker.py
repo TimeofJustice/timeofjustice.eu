@@ -79,42 +79,45 @@ def render_tile(x, y):
 
     pending[x][y] = True
 
-    file_name = destination + f"{x}_{y}.png"
+    try:
+        file_name = destination + f"{x}_{y}.png"
 
-    if os.path.isfile(file_name):
-        image = Image.open(file_name)
-        image = image.convert("RGBA")
-        image = image.resize((250, 250), Image.LANCZOS)
-        data = numpy.array(image)
+        if os.path.isfile(file_name):
+            image = Image.open(file_name)
+            image = image.convert("RGBA")
+            image = image.resize((250, 250), Image.LANCZOS)
+            data = numpy.array(image)
 
-        date = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
-        date = date - datetime.timedelta(hours=2)
+            date = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
+            date = date - datetime.timedelta(hours=2)
 
-        cells = (Api_Cell
-                 .select()
-                 .where((Api_Cell.x >= x) &
-                        (Api_Cell.x <= x + 249) &
-                        (Api_Cell.y >= y) &
-                        (Api_Cell.y <= y + 249) &
-                        (Api_Cell.last_modified >= date)))
-    else:
-        image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
-        data = numpy.array(image)
+            cells = (Api_Cell
+                     .select()
+                     .where((Api_Cell.x >= x) &
+                            (Api_Cell.x <= x + 249) &
+                            (Api_Cell.y >= y) &
+                            (Api_Cell.y <= y + 249) &
+                            (Api_Cell.last_modified >= date)))
+        else:
+            image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
+            data = numpy.array(image)
 
-        cells = (Api_Cell
-                 .select()
-                 .where((Api_Cell.x >= x) &
-                        (Api_Cell.x <= x + 249) &
-                        (Api_Cell.y >= y) &
-                        (Api_Cell.y <= y + 249)))
+            cells = (Api_Cell
+                     .select()
+                     .where((Api_Cell.x >= x) &
+                            (Api_Cell.x <= x + 249) &
+                            (Api_Cell.y >= y) &
+                            (Api_Cell.y <= y + 249)))
 
-    if len(cells) != 0:
-        for cell in cells:
-            data[cell.y - y][cell.x - x] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)] + [255]
+        if len(cells) != 0:
+            for cell in cells:
+                data[cell.y - y][cell.x - x] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)] + [255]
 
-        image = Image.fromarray(data)
+            image = Image.fromarray(data)
 
-        image.save(file_name)
+            image.save(file_name)
+    except Exception as e:
+        print(f"Error in Thread-{x}-{y}: {e}")
 
     pending[x][y] = False
 
