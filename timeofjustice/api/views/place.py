@@ -17,17 +17,26 @@ from django_ratelimit.decorators import ratelimit
 from .. import models
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
 def rgb_to_hex(rgb):
     return '#{0:02x}{1:02x}{2:02x}'.format(rgb[0], rgb[1], rgb[2])
 
 
-@ratelimit(key='ip', rate='60/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='60/m')
 def get_time_out(request):
     time_out = models.PlaceTimeOut.objects.all()[0].seconds
     return JsonResponse({"seconds": time_out}, safe=False)
 
 
-@ratelimit(key='ip', rate='60/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='60/m')
 def get_last_placed(request):
     timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
     session_id = request.COOKIES.get("session")
@@ -53,7 +62,7 @@ def get_last_placed(request):
         return JsonResponse({"seconds": seconds}, safe=False)
 
 
-@ratelimit(key='ip', rate='300/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='120/m')
 @ensure_csrf_cookie
 def place_set(request):
     session_id = request.COOKIES.get("session")
@@ -109,7 +118,7 @@ def place_set(request):
     return JsonResponse({"x": cell.x, "y": cell.y, "color": cell.color}, safe=False)
 
 
-@ratelimit(key='ip', rate='160/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='160/m')
 def gen(request, from_x, from_y):
     if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
         return HttpResponse("Wrong coordinates")
@@ -185,7 +194,7 @@ def changes(request, from_x, from_y):
     return response
 
 
-@ratelimit(key='ip', rate='30/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='30/m')
 def export(request, from_x, from_y, to_x, to_y, factor=1):
     if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
         return HttpResponse("Wrong coordinates")
@@ -218,16 +227,7 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
     return response
 
 
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-
-@ratelimit(key='ip', rate='60/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='60/m')
 def validate_captcha(request):
     if request.method == "POST":
         response = {}
@@ -250,7 +250,7 @@ def validate_captcha(request):
         return JsonResponse(response, safe=False)
 
 
-@ratelimit(key='ip', rate='50/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='50/m')
 def get_overlay(request, overlay_name):
     json_images = []
     overlays = models.Overlay.objects.filter(name=overlay_name)
@@ -311,7 +311,7 @@ def discover(request):
     return JsonResponse(neue_dateien, safe=False)
 
 
-@ratelimit(key='ip', rate='600/m')
+@ratelimit(key='header:HTTP_X_FORWARDED_FOR', rate='600/m')
 def get_color(request, x, y):
     cells = models.Cell.objects.filter(x=x, y=y)
 
