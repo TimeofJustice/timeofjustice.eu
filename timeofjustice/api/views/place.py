@@ -287,28 +287,23 @@ def get_overlay(request, overlay_name):
 def discover(request):
     last_update = int(request.GET.get("t")) / 1000
 
-    neue_dateien = []
+    tiles = models.Tiles.objects.all()
 
-    for dateiname in os.listdir(settings.FILE_DESTINATION):
-        dateipfad = os.path.join(settings.FILE_DESTINATION, dateiname)
-        datei_zeitstempel = os.path.getmtime(dateipfad)
+    tiles_with_update = []
 
-        pattern = r"\d+_\d+\.png$"
-        if re.match(pattern, dateiname):
-            if datei_zeitstempel > last_update:
-                name = dateiname.split(".")[0]
-                x = name.split("_")[0]
-                y = name.split("_")[1]
+    for tile in tiles:
+        tile_update = tile.last_updated.timestamp()
 
-                neue_dateien.append(
-                    {
-                        "x": int(x),
-                        "y": int(y),
-                        "src": f"/images/{dateiname}"
-                    }
-                )
+        if tile_update > last_update:
+            tiles_with_update.append(
+                {
+                    "x": tile.x,
+                    "y": tile.y,
+                    "src": f"/images/{tile.x}_{tile.y}.png"
+                }
+            )
 
-    return JsonResponse(neue_dateien, safe=False)
+    return JsonResponse(tiles_with_update, safe=False)
 
 
 @ratelimit(key='ip', rate='600/m')

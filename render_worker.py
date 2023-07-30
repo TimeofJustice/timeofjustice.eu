@@ -8,7 +8,6 @@ import schedule
 from PIL import Image
 from peewee import *
 
-
 destination = '/home/jonas/timeofjustice.eu/timeofjustice/data/images/'
 
 if os.name == 'nt':
@@ -24,7 +23,6 @@ CONFIG_PARSER.read(CONFIG_FILE)
 
 db = MySQLDatabase(CONFIG_PARSER["DEFAULT"]["SQL_DB"], host='localhost', user=CONFIG_PARSER["DEFAULT"]["SQL_USER"],
                    password=CONFIG_PARSER["DEFAULT"]["SQL_PASS"])
-
 
 pending = {
     0: {
@@ -66,8 +64,18 @@ class Api_Cell(Model):
         database = db
 
 
+class Api_Tiles(Model):
+    id = PrimaryKeyField()
+    x = IntegerField(default=0)
+    y = IntegerField(default=0)
+    last_updated = DateTimeField()
+
+    class Meta:
+        database = db
+
+
 def run_threaded_job(job_func, x, y):
-    job_thread = threading.Thread(target=job_func, args=(x,y))
+    job_thread = threading.Thread(target=job_func, args=(x, y))
     job_thread.start()
 
 
@@ -88,8 +96,11 @@ def render_tile(x, y):
             image = image.resize((250, 250), Image.LANCZOS)
             data = numpy.array(image)
 
-            date = datetime.datetime.fromtimestamp(os.path.getmtime(file_name))
-            date = date - datetime.timedelta(hours=2)
+            tiles = (Api_Tiles
+                     .select().where((Api_Tiles.x == x) &
+                                     (Api_Tiles.y == y)))
+
+            date = tiles[0].last_updated
 
             cells = (Api_Cell
                      .select()
@@ -98,7 +109,19 @@ def render_tile(x, y):
                             (Api_Cell.y >= y) &
                             (Api_Cell.y <= y + 249) &
                             (Api_Cell.last_modified >= date)))
+
+            if len(cells) != 0:
+                tiles[0].last_updated = datetime.datetime.now(datetime.timezone.utc)
+                tiles[0].save()
         else:
+            tiles = (Api_Tiles
+                     .select().where((Api_Tiles.x == x) &
+                                     (Api_Tiles.y == y)))
+
+            if len(tiles) == 0:
+                new_tile = Api_Tiles.create(x=x, y=y, last_updated=datetime.datetime.now(datetime.timezone.utc))
+                new_tile.save()
+
             image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
             data = numpy.array(image)
 

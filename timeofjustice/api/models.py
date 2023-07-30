@@ -1,4 +1,3 @@
-import datetime
 import os
 import PIL.Image
 from django.conf import settings
@@ -291,3 +290,13 @@ class OverlayImage(models.Model):
         self.image = png_path
 
         super().save(*args, **kwargs)
+
+
+class Tiles(models.Model):
+    id = models.AutoField(primary_key=True, auto_created=True, )
+    x = models.IntegerField()
+    y = models.IntegerField()
+    last_updated = models.DateTimeField()
+
+    class Meta:
+        unique_together = ('x', 'y')
