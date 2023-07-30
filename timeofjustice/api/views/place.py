@@ -62,11 +62,10 @@ def get_last_placed(request):
         return JsonResponse({"seconds": seconds}, safe=False)
 
 
-@ratelimit(key='ip', rate='120/m')
+@ratelimit(key='ip', rate='300/m')
 @ensure_csrf_cookie
 def place_set(request):
     session_id = request.COOKIES.get("session")
-    print(request.META['REMOTE_ADDR'])
 
     if session_id is None:
         return JsonResponse({"error": "Missing session id"}, status=400)
