@@ -9,7 +9,7 @@ from PIL import Image
 from peewee import *
 
 
-destination = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
+destination = '/home/jonas/timeofjustice.eu/timeofjustice/data/images/'
 
 if os.name == 'nt':
     destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
