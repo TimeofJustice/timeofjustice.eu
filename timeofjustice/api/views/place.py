@@ -66,7 +66,7 @@ def get_last_placed(request):
 @ensure_csrf_cookie
 def place_set(request):
     session_id = request.COOKIES.get("session")
-    print(request.META.get["REMOTE_ADDR"])
+    print(request.META['REMOTE_ADDR'])
 
     if session_id is None:
         return JsonResponse({"error": "Missing session id"}, status=400)
