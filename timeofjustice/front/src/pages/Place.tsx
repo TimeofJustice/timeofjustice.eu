@@ -2,14 +2,12 @@ import Field from "../components/place/Field.tsx";
 import "../assets/css/Field.css";
 import {useRef, useState} from "react";
 import ReCAPTCHA from "react-google-recaptcha";
-import {isLocalhost} from "../helper/Localhost.tsx";
 import {getCookie} from "../helper/Cookie.tsx";
 
 export default function Place() {
     document.title = "Place - TimeofJustice";
 
-    const apiSiteKey = isLocalhost ?
-        "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" : "6LdDGVwnAAAAAHBjqXk7HEr-UkIHzNKyPKK_tnl7"
+    const apiSiteKey = "6LdDGVwnAAAAAHBjqXk7HEr-UkIHzNKyPKK_tnl7"
     const captchaRef = useRef<ReCAPTCHA>(null)
 
     const [canvas, set_canvas] = useState(
@@ -48,8 +46,6 @@ export default function Place() {
     return canvas
 
     function onClickEnter() {
-        if (isLocalhost) set_canvas(<Field size={1000}/>)
-
         captchaRef.current!.execute()
     }
 

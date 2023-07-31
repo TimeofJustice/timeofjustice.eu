@@ -1,8 +1,7 @@
-import configparser
 import datetime
 import json
 import os
-import re
+import uuid
 
 import numpy
 import requests
@@ -15,19 +14,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django_ratelimit.decorators import ratelimit
 
 from .. import models
-
-
-def get_client_ip(request):
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-
-def rgb_to_hex(rgb):
-    return '#{0:02x}{1:02x}{2:02x}'.format(rgb[0], rgb[1], rgb[2])
+from ..helpers import rgb_to_hex
 
 
 @ratelimit(key='ip', rate='60/m')
@@ -36,56 +23,81 @@ def get_time_out(request):
     return JsonResponse({"seconds": time_out}, safe=False)
 
 
-@ratelimit(key='ip', rate='60/m')
-def get_last_placed(request):
-    timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
-    session_id = request.COOKIES.get("session")
-
+def is_session_valid(session_id: str) -> bool:
     if session_id is None:
-        session = models.LastPlaced(id=session_id, timestamp=timezone.now())
-        session.save()
-        return JsonResponse({"seconds": timeout_in_seconds}, safe=False)
+        return False
 
-    sessions = models.LastPlaced.objects.filter(id=session_id)
+    sessions = models.Session.objects.filter(
+        id=session_id,
+        valid_until__gte=timezone.now()
+    )
 
     if len(sessions) == 0:
-        session = models.LastPlaced(id=session_id, timestamp=timezone.now())
-        session.save()
-        return JsonResponse({"seconds": timeout_in_seconds}, safe=False)
+        return False
+
+    return True
+
+
+def get_current_timeout():
+    return models.PlaceTimeOut.objects.all()[0].seconds
+
+
+def get_session(session_id: str) -> models.Session:
+    return models.Session.objects.filter(
+        id=session_id,
+        valid_until__gte=timezone.now()
+    )[0]
+
+
+@ratelimit(key='ip', rate='60/m')
+def get_last_placed(request):
+    timeout_in_seconds = get_current_timeout()
+    session_id = request.COOKIES.get("session")
+
+    if not is_session_valid(session_id):
+        return JsonResponse({"error": "No valid session"}, status=403)
+
+    session = get_session(session_id)
 
     time = timezone.now()
+    time_delta = datetime.timedelta(seconds=timeout_in_seconds)
+    last_time_placed = session.last_placed
 
-    if sessions[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
+    if last_time_placed < time - time_delta:
         return JsonResponse({"seconds": 0}, safe=False)
     else:
-        seconds = (sessions[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
+        seconds = (last_time_placed - time + time_delta).total_seconds()
         return JsonResponse({"seconds": seconds}, safe=False)
+
+
+class BodyContent:
+    def __init__(self, request):
+        body_unicode = request.body.decode('utf-8')
+
+        self.body = json.loads(body_unicode)
+
+    def get(self, key):
+        return self.body.get(key)
 
 
 @ratelimit(key='ip', rate='300/m')
 @ensure_csrf_cookie
 def place_set(request):
+    timeout_in_seconds = get_current_timeout()
     session_id = request.COOKIES.get("session")
 
-    if session_id is None:
-        return JsonResponse({"error": "Missing session id"}, status=400)
+    if not is_session_valid(session_id):
+        return JsonResponse({"error": "No valid session"}, status=403)
 
-    sessions = models.LastPlaced.objects.filter(id=session_id)
-    timeout_in_seconds = models.PlaceTimeOut.objects.all()[0].seconds
+    session = get_session(session_id)
+    time = timezone.now()
 
-    if len(sessions) != 0:
-        time = timezone.now()
+    if not session.last_placed < time - datetime.timedelta(seconds=timeout_in_seconds):
+        seconds = (session.last_placed - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
 
-        if not sessions[0].timestamp < time - datetime.timedelta(seconds=timeout_in_seconds):
-            seconds = (sessions[0].timestamp - time + datetime.timedelta(seconds=timeout_in_seconds)).total_seconds()
+        return JsonResponse({"error": "You have cooldown", "seconds": seconds}, status=400)
 
-            return JsonResponse({"error": "You have cooldown", "seconds": seconds}, status=400)
-    else:
-        return JsonResponse({"error": "You have cooldown", "seconds": timeout_in_seconds}, status=400)
-
-    body_unicode = request.body.decode('utf-8')
-    body = json.loads(body_unicode)
-    content = body
+    content = BodyContent(request)
 
     color = content.get("color")
     x = content.get("x")
@@ -96,23 +108,23 @@ def place_set(request):
     elif x < 0 or y < 0 or x > 1000 or y > 1000:
         return JsonResponse({"error": "Wrong coordinates"}, status=400)
 
-    cell = models.Cell.objects.filter(x=x, y=y)
+    cells = models.Cell.objects.filter(x=x, y=y)
 
-    if len(cell) == 0:
+    if len(cells) == 0:
         cell = models.Cell(x=x, y=y, color=f"#{color}", placed_by=session_id)
     else:
-        cell = cell[0]
-        cell.color = f"#{color}"
+        cell = cells[0]
+        color_code = f"#{color}"
+
+        if cell.color == color_code:
+            return JsonResponse({"error": "Pixel has already that color"}, status=400)
+
+        cell.color = color_code
         cell.placed_by = session_id
 
+    session.last_placed = time
+
     cell.save()
-
-    if len(sessions) == 0:
-        session = models.LastPlaced(id=session_id, timestamp=timezone.now())
-    else:
-        session = sessions[0]
-        session.timestamp = timezone.now()
-
     session.save()
 
     return JsonResponse({"x": cell.x, "y": cell.y, "color": cell.color}, safe=False)
@@ -121,75 +133,60 @@ def place_set(request):
 @ratelimit(key='ip', rate='160/m')
 def gen(request, from_x, from_y):
     if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
-        return HttpResponse("Wrong coordinates")
+        return JsonResponse({"error": "Wrong coordinates"}, status=403)
 
-    file_name = settings.FILE_DESTINATION + f"{from_x}_{from_y}.png"
+    file_name = settings.FILE_DESTINATION + f"tiles/{from_x}_{from_y}.png"
+    response = HttpResponse(content_type="image/png")
 
     if os.path.isfile(file_name):
-        try:
-            with open(file_name, "rb") as f:
-                image = Image.open(f)
+        with open(file_name, "rb") as f:
+            tile_image = Image.open(f)
 
-                white_background = Image.new("RGB", image.size, (255, 255, 255))
-                white_background.paste(image, (0, 0), image)
-
-                response = HttpResponse(content_type="image/png")
-                white_background.save(response, "PNG")
-
-                return response
-        except IOError:
-            print("Error reading")
+            image = Image.new("RGB", tile_image.size, (255, 255, 255))
+            image.paste(tile_image, (0, 0), tile_image)
     else:
-        image = Image.new('RGBA', (250, 250), (255, 255, 255, 255))
+        image = Image.new('RGB', (250, 250), (255, 255, 255))
 
-    response = HttpResponse(content_type="image/png")
     image.save(response, "PNG")
 
     return response
 
 
+@ratelimit(key='ip', rate='1000/m')
 def changes(request, from_x, from_y):
     if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
         return HttpResponse("Wrong coordinates")
 
-    file_name = settings.FILE_DESTINATION + f"{from_x}_{from_y}.png"
+    file_name = settings.FILE_DESTINATION + f"tiles/{from_x}_{from_y}.png"
 
     if os.path.isfile(file_name):
-        try:
-            with open(file_name, "rb") as f:
-                image = Image.new("RGBA", (250, 250))
-                data = numpy.array(image)
+        with open(file_name, "rb") as f:
+            tile_image = Image.new("RGBA", (250, 250))
+            data = numpy.array(tile_image)
 
-                date = datetime.datetime.fromtimestamp(int(request.GET.get("t")) / 1000)
-                date = date - datetime.timedelta(seconds=1)
-                date = timezone.make_aware(date)
+            date = datetime.datetime.utcfromtimestamp(int(request.GET.get("t")) / 1000)
+            date = date - datetime.timedelta(seconds=1)
+            date = timezone.make_aware(date)
 
-                cells = models.Cell.objects.filter(
-                    x__gte=from_x,
-                    x__lte=from_x + 249,
-                    y__gte=from_y,
-                    y__lte=from_y + 249,
-                    last_modified__gte=date
-                )
+            cells = models.Cell.objects.filter(
+                x__gte=from_x,
+                x__lte=from_x + 249,
+                y__gte=from_y,
+                y__lte=from_y + 249,
+                last_modified__gte=date
+            )
 
-                if len(cells) != 0:
-                    for cell in cells:
-                        data[cell.y - from_y][cell.x - from_x] = [int(cell.color[1:][i:i + 2], 16) for i in
-                                                                  (0, 2, 4)] + [255]
+            if len(cells) != 0:
+                for cell in cells:
+                    data[cell.y - from_y][cell.x - from_x] = [int(cell.color[1:][i:i + 2], 16) for i in
+                                                              (0, 2, 4)] + [255]
 
-                    image = Image.fromarray(data)
-
-                response = HttpResponse(content_type="image/png")
-                image.save(response, "PNG")
-
-                return response
-        except IOError:
-            print("Error reading")
+                tile_image = Image.fromarray(data)
     else:
-        image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
+        tile_image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
 
     response = HttpResponse(content_type="image/png")
-    image.save(response, "PNG")
+    tile_image.save(response, "PNG")
 
     return response
 
@@ -221,8 +218,8 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
 
     image = image.resize(scaled_size, Image.NEAREST)
 
-    response = HttpResponse(content_type="image/png")
-    image.save(response, "PNG")
+    response = HttpResponse(content_type="image/jpeg")
+    image.save(response, "JPEG")
 
     return response
 
@@ -230,29 +227,48 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
 @ratelimit(key='ip', rate='60/m')
 def validate_captcha(request):
     if request.method == "POST":
-        response = {}
-        body_unicode = request.body.decode('utf-8')
-        body = json.loads(body_unicode)
-        data = body
-        captcha_rs = data.get('token')
+        response_json = {}
+
+        content = BodyContent(request)
+
+        captcha_rs = content.get('token')
         url = "https://www.google.com/recaptcha/api/siteverify"
 
         params = {
             'secret': settings.CONFIG_PARSER["DEFAULT"]["SECRET_KEY"],
             'response': captcha_rs,
-            'remoteip': get_client_ip(request)
+            'remoteip': request.META['REMOTE_ADDR']
         }
+
         verify_rs = requests.get(url, params=params, verify=True)
         verify_rs = verify_rs.json()
-        response["status"] = verify_rs.get("success", False)
-        response['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
 
-        return JsonResponse(response, safe=False)
+        response_json["status"] = verify_rs.get("success", False)
+        response_json['message'] = verify_rs.get('error-codes', None) or "Unspecified error."
+
+        response = JsonResponse(response_json, safe=False)
+
+        if response_json["status"]:
+            if not is_session_valid(request.COOKIES.get("session")):
+                create_session(response)
+        else:
+            response.set_cookie("session", "None", expires=timezone.now())
+
+        return response
+
+
+def create_session(response):
+    session = uuid.uuid4()
+    response.set_cookie("session", session, expires=timezone.now() + datetime.timedelta(hours=6))
+    session = models.Session(id=session, last_placed=timezone.now(),
+                              valid_until=timezone.now() + datetime.timedelta(hours=6))
+    session.save()
 
 
 @ratelimit(key='ip', rate='50/m')
 def get_overlay(request, overlay_name):
     json_images = []
+
     overlays = models.Overlay.objects.filter(name=overlay_name)
 
     if len(overlays) == 0:
@@ -262,32 +278,35 @@ def get_overlay(request, overlay_name):
 
     images = models.OverlayImage.objects.filter(overlay=overlay)
 
-    for image in images:
-        image_name = os.path.basename(image.image.path)
+    for image_entry in images:
+        image_name = os.path.basename(image_entry.layout.path)
+        image_path = settings.FILE_DESTINATION + f"layouts/pixels/{image_name}"
 
-        img = Image.open(image.image.path)
-        arr = numpy.array(img)
+        image = Image.open(image_path)
+
+        arr = numpy.array(image)
         reshaped = arr.reshape(-1, arr.shape[-1])
-        colors = numpy.unique(reshaped, axis=0)
 
+        colors = numpy.unique(reshaped, axis=0)
         colors = [rgb_to_hex(color) for color in colors]
 
         json_images.append({
-            "url": f"/images/{image_name}",
-            "x": image.x,
-            "y": image.y,
-            "width": image.width,
-            "height": image.height,
+            "url": f"/images/layouts/pixels/{image_name}?t={timezone.now().timestamp()}",
+            "x": image_entry.x,
+            "y": image_entry.y,
+            "width": image_entry.width,
+            "height": image_entry.height,
             "colors": colors
         })
 
     return JsonResponse(json_images, safe=False)
 
 
+@ratelimit(key='ip', rate='90/m')
 def discover(request):
     last_update = int(request.GET.get("t")) / 1000
 
-    tiles = models.Tiles.objects.all()
+    tiles = models.Tile.objects.all()
 
     tiles_with_update = []
 

@@ -8,11 +8,6 @@ import schedule
 from PIL import Image
 from peewee import *
 
-destination = '/home/jonas/timeofjustice.eu/timeofjustice/data/images/'
-
-if os.name == 'nt':
-    destination = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
-
 CONFIG_FILE = '/home/jonas/timeofjustice.eu/timeofjustice/data/config.ini'
 
 if os.name == 'nt':
@@ -20,6 +15,8 @@ if os.name == 'nt':
 
 CONFIG_PARSER = configparser.ConfigParser()
 CONFIG_PARSER.read(CONFIG_FILE)
+
+destination = CONFIG_PARSER["DEFAULT"]["IMAGE_DEST"]
 
 db = MySQLDatabase(CONFIG_PARSER["DEFAULT"]["SQL_DB"], host='localhost', user=CONFIG_PARSER["DEFAULT"]["SQL_USER"],
                    password=CONFIG_PARSER["DEFAULT"]["SQL_PASS"])
@@ -64,7 +61,7 @@ class Api_Cell(Model):
         database = db
 
 
-class Api_Tiles(Model):
+class Api_Tile(Model):
     id = PrimaryKeyField()
     x = IntegerField(default=0)
     y = IntegerField(default=0)
@@ -88,7 +85,7 @@ def render_tile(x, y):
     pending[x][y] = True
 
     try:
-        file_name = destination + f"{x}_{y}.png"
+        file_name = destination + f"tiles/{x}_{y}.png"
 
         if os.path.isfile(file_name):
             image = Image.open(file_name)
@@ -96,9 +93,9 @@ def render_tile(x, y):
             image = image.resize((250, 250), Image.LANCZOS)
             data = numpy.array(image)
 
-            tiles = (Api_Tiles
-                     .select().where((Api_Tiles.x == x) &
-                                     (Api_Tiles.y == y)))
+            tiles = (Api_Tile
+                     .select().where((Api_Tile.x == x) &
+                                     (Api_Tile.y == y)))
 
             date = tiles[0].last_updated - datetime.timedelta(seconds=2)
 
@@ -114,12 +111,12 @@ def render_tile(x, y):
                 tiles[0].last_updated = datetime.datetime.now(datetime.timezone.utc)
                 tiles[0].save()
         else:
-            tiles = (Api_Tiles
-                     .select().where((Api_Tiles.x == x) &
-                                     (Api_Tiles.y == y)))
+            tiles = (Api_Tile
+                     .select().where((Api_Tile.x == x) &
+                                     (Api_Tile.y == y)))
 
             if len(tiles) == 0:
-                new_tile = Api_Tiles.create(x=x, y=y, last_updated=datetime.datetime.now(datetime.timezone.utc))
+                new_tile = Api_Tile.create(x=x, y=y, last_updated=datetime.datetime.now(datetime.timezone.utc))
                 new_tile.save()
 
             image = Image.new('RGBA', (250, 250), (255, 255, 255, 0))
@@ -145,25 +142,28 @@ def render_tile(x, y):
     pending[x][y] = False
 
 
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 0, 0)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 250, 0)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 500, 0)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 750, 0)
+interval = 1
 
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 0, 250)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 250, 250)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 500, 250)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 750, 250)
 
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 0, 500)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 250, 500)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 500, 500)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 750, 500)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 0, 0)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 250, 0)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 500, 0)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 750, 0)
 
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 0, 750)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 250, 750)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 500, 750)
-schedule.every(1).seconds.do(run_threaded_job, render_tile, 750, 750)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 0, 250)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 250, 250)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 500, 250)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 750, 250)
+
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 0, 500)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 250, 500)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 500, 500)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 750, 500)
+
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 0, 750)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 250, 750)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 500, 750)
+schedule.every(interval).seconds.do(run_threaded_job, render_tile, 750, 750)
 
 while True:
     schedule.run_pending()

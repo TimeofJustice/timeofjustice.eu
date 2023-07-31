@@ -4,24 +4,10 @@ from django.conf import settings
 from django.db import models
 import numpy
 from PIL import Image as PILImage
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
 from django.utils import timezone
-from scipy.spatial import cKDTree
 from sklearn.cluster import KMeans
 
-
-def hex_to_rgb(hex_code):
-    # Hex-Code in RGB-Tupel umwandeln
-    hex_code = hex_code.lstrip("#")
-    return tuple(int(hex_code[i:i + 2], 16) for i in (0, 2, 4))
-
-
-def find_nearest_color(color_array, target_color):
-    tree = cKDTree(color_array)
-    _, index = tree.query(target_color[:3])
-    return color_array[index]
-
+from .helpers import hex_to_rgb, find_nearest_color
 
 hex_color_palette = [
     '#6D001A',
@@ -64,11 +50,12 @@ class Tag(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} ({self.id})"
 
     class Meta:
         ordering = ('name', )
-        verbose_name_plural = "1.0 Tags"
+        verbose_name = " Tag"
+        verbose_name_plural = " Tags"
 
 
 class Status(models.Model):
@@ -80,29 +67,37 @@ class Status(models.Model):
 
     class Meta:
         ordering = ('id', )
-        verbose_name_plural = "1.1 Status"
+        verbose_name = " Status"
+        verbose_name_plural = " Status"
 
 
 class Project(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True)
     name = models.CharField(max_length=100)
     status = models.ForeignKey(Status, on_delete=models.CASCADE)
-    languages = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag)
     git = models.URLField(null=True, blank=True)
     description = models.TextField()
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name} ({self.id})"
+
+    def tags_list(self):
+        tags = [str(tag) for tag in self.tags.all()]
+
+        return tags
+    tags_list.short_description = 'Tags'
 
     class Meta:
         ordering = ('-name', )
-        verbose_name_plural = "1.2 Projects"
+        verbose_name = " Project"
+        verbose_name_plural = " Projects"
 
 
 class Image(models.Model):
     id = models.AutoField(auto_created=True, primary_key=True)
-    image = models.ImageField(upload_to=settings.FILE_DESTINATION)
-    preview = models.ImageField(upload_to=settings.FILE_DESTINATION)
+    image = models.ImageField(upload_to=settings.FILE_DESTINATION + "projects/", max_length=255)
+    preview = models.ImageField(editable=False, null=True, max_length=255)
     alt = models.CharField(max_length=100)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     index = models.IntegerField(default=0)
@@ -114,77 +109,63 @@ class Image(models.Model):
         return f"{self.image.name.split('/')[-1]}"
     image_name.short_description = 'Image'
 
-    def preview_name(self):
-        return f"{self.preview.name.split('/')[-1]}"
-    preview_name.short_description = 'Preview'
-
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        img = PIL.Image.open(self.preview)
+        img = PIL.Image.open(self.image)
+
+        image_name = os.path.basename(self.image.path)
+        image_path = settings.FILE_DESTINATION + f"projects/previews/{image_name}"
+
         width, height = img.size
         target_width = 20
         h_coefficient = width/20
         target_height = height/h_coefficient
+
         img = img.resize((int(target_width), int(target_height)), PIL.Image.ANTIALIAS)
-        img.save(self.preview.path, quality=100)
+        img.save(image_path, quality=100)
         img.close()
-        self.preview.close()
+
+        self.preview = image_path
+        super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ('index', )
-        verbose_name_plural = "1.3 Images"
+        ordering = ('project', 'index', )
+        verbose_name = " Image"
+        verbose_name_plural = " Images"
+
+
+class Session(models.Model):
+    id = models.CharField(primary_key=True, max_length=255)
+    last_placed = models.DateTimeField(default=timezone.now)
+    valid_until = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ('-last_placed', )
+        verbose_name = "  Session"
+        verbose_name_plural = "  Sessions"
+
+    def __str__(self):
+        return f"{self.id} ({self.valid_until})"
 
 
 class Cell(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
-    color = models.CharField(max_length=100)
+    color = models.CharField(max_length=7)
     last_modified = models.DateTimeField(editable=False)
     placed_by = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        ordering = ('x', 'y')
-        verbose_name_plural = "2.0 Cells"
+        ordering = ('-last_modified', 'x', 'y')
+        verbose_name = "  Cell"
+        verbose_name_plural = "  Cells"
 
     def __str__(self):
-        return f"{self.x} {self.y} {self.color} {self.last_modified}"
+        return f"{self.color} ({self.x}, {self.y})"
 
     def save(self, *args, **kwargs):
         self.last_modified = timezone.now()
         super().save(*args, **kwargs)
-
-
-@receiver(post_delete, sender=Cell)
-def delete_hook(sender, instance, using, **kwargs):
-    x = instance.x - (instance.x % 250)
-    y = instance.y - (instance.y % 250)
-    file_name = settings.FILE_DESTINATION + f"{x}_{y}.png"
-
-    image = PILImage.new('RGBA', (250, 250), (255, 255, 255, 255))
-    data = numpy.array(image)
-
-    cells = Cell.objects.filter(
-        x__gte=x,
-        x__lte=x + 249,
-        y__gte=y,
-        y__lte=y + 249
-    )
-
-    for cell in cells:
-        data[cell.y - y][cell.x - x] = [int(cell.color[1:][i:i + 2], 16) for i in (0, 2, 4)] + [255]
-
-    image = PILImage.fromarray(data)
-
-    image.save(file_name)
-
-
-class LastPlaced(models.Model):
-    id = models.CharField(primary_key=True, max_length=255)
-    timestamp = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        verbose_name_plural = "2.1 Last Placed"
 
 
 class PlaceTimeOut(models.Model):
@@ -192,20 +173,29 @@ class PlaceTimeOut(models.Model):
     seconds = models.IntegerField(default=0)
 
     class Meta:
-        verbose_name_plural = "2.2 Time-outs"
+        verbose_name = "  Time-out"
+        verbose_name_plural = "  Time-outs"
+
+    def __str__(self):
+        return f"{self.seconds} ({self.id})"
 
 
 class Overlay(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=10)
 
     class Meta:
-        verbose_name_plural = "2.3 Overlays"
+        verbose_name = "  Overlay"
+        verbose_name_plural = "  Overlays"
+
+    def __str__(self):
+        return f"{self.name} ({self.id})"
 
 
 class OverlayImage(models.Model):
-    id = models.AutoField(primary_key=True, auto_created=True, )
-    image = models.ImageField(upload_to=settings.FILE_DESTINATION)
+    id = models.AutoField(primary_key=True, auto_created=True)
+    image = models.ImageField(upload_to=settings.FILE_DESTINATION + "layouts/originals", max_length=255)
+    layout = models.ImageField(editable=False, null=True, max_length=255)
     x = models.IntegerField(default=0)
     y = models.IntegerField(default=0)
     width = models.IntegerField(default=50)
@@ -215,15 +205,18 @@ class OverlayImage(models.Model):
     max_colors = models.IntegerField(default=None, null=True)
 
     class Meta:
-        verbose_name_plural = "2.4 Images"
+        ordering = ("overlay", "id")
+        verbose_name = "  Overlay-Image"
+        verbose_name_plural = "  Overlay-Images"
 
     def image_name(self):
         return f"{self.image.name.split('/')[-1]}"
     image_name.short_description = 'Image'
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.image_name()} ({self.id})"
 
+    def save(self, *args, **kwargs):
         img = PIL.Image.open(self.image)
         img = img.convert("RGBA")
 
@@ -239,19 +232,11 @@ class OverlayImage(models.Model):
         image = img.resize((new_width, new_height), PIL.Image.BICUBIC)
 
         if self.max_colors is not None:
-            image_np = numpy.array(image)
-            reshaped_image = numpy.reshape(image_np, (-1, image_np.shape[2]))
-
-            model = KMeans(n_clusters=self.max_colors)
-            labels = model.fit_predict(reshaped_image)
-            palette = model.cluster_centers_
-
-            quantized_raster = numpy.reshape(palette[labels], image_np.shape).astype(int)
-            image = PILImage.fromarray(quantized_raster.astype('uint8'))
+            image = self.__limit_colors(image)
 
         name = "".join(os.path.basename(self.image.name).split(".")[0:-1])
-        png_name = f'{name}_norm.png'
-        png_path = settings.FILE_DESTINATION + png_name
+        png_name = f'{name}.png'
+        png_path = settings.FILE_DESTINATION + "layouts/scaled/" + png_name
         image.save(png_path)
 
         im_matrix = numpy.array(image)
@@ -260,16 +245,24 @@ class OverlayImage(models.Model):
         data = numpy.array(image_lay)
 
         if self.convert:
-            color_array = numpy.array([hex_to_rgb(hex_code) for hex_code in hex_color_palette])
+            self.__convert_colors(im_matrix, image, new_height, new_width)
 
-            for y in range(new_height):
-                for x in range(new_width):
-                    pixel = image.getpixel((x, y))
+        self.__fill_image(data, im_matrix, new_height, new_width)
 
-                    if pixel[3] != 0:
-                        nearest_color = find_nearest_color(color_array, pixel)
-                        im_matrix[y][x] = [nearest_color[0], nearest_color[1], nearest_color[2], 255]
+        fin_image = PIL.Image.fromarray(data)
+        img.close()
 
+        name = "".join(os.path.basename(self.image.name).split(".")[0:-1])
+
+        png_name = f'{name}.png'
+        png_path = settings.FILE_DESTINATION + "layouts/pixels/" + png_name
+        fin_image.save(png_path, quality=100)
+
+        self.layout = png_path
+
+        super().save(*args, **kwargs)
+
+    def __fill_image(self, data, im_matrix, new_height, new_width):
         for i in range(0, new_width):
             for j in range(0, new_height):
                 data[j * 3 + 1][i * 3 + 1] = im_matrix[j][i]
@@ -277,22 +270,28 @@ class OverlayImage(models.Model):
                 if im_matrix[j][i][3] != 0:
                     data[j * 3 + 1][i * 3 + 1][3] = 255
 
-        fin_image = PIL.Image.fromarray(data)
-        img.close()
-        self.image.close()
+    def __convert_colors(self, im_matrix, image, new_height, new_width):
+        color_array = numpy.array([hex_to_rgb(hex_code) for hex_code in hex_color_palette])
+        for y in range(new_height):
+            for x in range(new_width):
+                pixel = image.getpixel((x, y))
 
-        name = "".join(os.path.basename(self.image.name).split(".")[0:-1])
+                if pixel[3] != 0:
+                    nearest_color = find_nearest_color(color_array, pixel)
+                    im_matrix[y][x] = [nearest_color[0], nearest_color[1], nearest_color[2], 255]
 
-        png_name = f'{name}.png'
-        png_path = settings.FILE_DESTINATION + png_name
-        fin_image.save(png_path, quality=100)
+    def __limit_colors(self, image):
+        image_np = numpy.array(image)
+        reshaped_image = numpy.reshape(image_np, (-1, image_np.shape[2]))
+        model = KMeans(n_clusters=self.max_colors)
+        labels = model.fit_predict(reshaped_image)
+        palette = model.cluster_centers_
+        quantized_raster = numpy.reshape(palette[labels], image_np.shape).astype(int)
+        image = PILImage.fromarray(quantized_raster.astype('uint8'))
+        return image
 
-        self.image = png_path
 
-        super().save(*args, **kwargs)
-
-
-class Tiles(models.Model):
+class Tile(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True, )
     x = models.IntegerField()
     y = models.IntegerField()
@@ -300,3 +299,6 @@ class Tiles(models.Model):
 
     class Meta:
         unique_together = ('x', 'y')
+        ordering = ('x', 'y')
+        verbose_name = "  Tile"
+        verbose_name_plural = "  Tiles"

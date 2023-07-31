@@ -14,6 +14,8 @@ import json
 import os
 from pathlib import Path
 
+from django_ratelimit.decorators import ratelimit
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -61,11 +63,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'api',
+    'main',
     'corsheaders',
 ]
 
 MIDDLEWARE = [
-    'api.middleware.reverse_proxy',
+    'main.middleware.reverse_proxy',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -74,7 +77,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_ratelimit.middleware.RatelimitMiddleware'
 ]
+
+RATELIMIT_VIEW = 'main.views.ratelimited_error'
 
 ROOT_URLCONF = 'timeofjustice.urls'
 
@@ -103,12 +109,6 @@ WSGI_APPLICATION = 'timeofjustice.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-FILE_DESTINATION = 'home/jonas/timeofjustice.eu/timeofjustice/data/images/'
-
-if os.name == 'nt':
-    FILE_DESTINATION = 'C:/xampp/htdocs/timeofjustice.eu/timeofjustice/static/data/images/'
-
-
 CONFIG_FILE = '/home/jonas/timeofjustice.eu/timeofjustice/data/config.ini'
 
 if os.name == 'nt':
@@ -116,6 +116,8 @@ if os.name == 'nt':
 
 CONFIG_PARSER = configparser.ConfigParser()
 CONFIG_PARSER.read(CONFIG_FILE)
+
+FILE_DESTINATION = CONFIG_PARSER["DEFAULT"]["IMAGE_DEST"]
 
 DATABASES = {
     'default': {
