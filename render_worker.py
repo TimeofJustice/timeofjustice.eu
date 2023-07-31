@@ -16,7 +16,7 @@ if os.name == 'nt':
 CONFIG_PARSER = configparser.ConfigParser()
 CONFIG_PARSER.read(CONFIG_FILE)
 
-destination = CONFIG_PARSER["DEFAULT"]["IMAGE_DEST"]
+destination = CONFIG_PARSER["DEFAULT"]["IMAGE_DEST_WORKER"]
 
 db = MySQLDatabase(CONFIG_PARSER["DEFAULT"]["SQL_DB"], host='localhost', user=CONFIG_PARSER["DEFAULT"]["SQL_USER"],
                    password=CONFIG_PARSER["DEFAULT"]["SQL_PASS"])
