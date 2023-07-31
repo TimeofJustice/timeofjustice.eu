@@ -1,8 +1,8 @@
 export interface ProjectData {
+    id: number
     name: string;
     status: string;
-    status_id: number;
-    languages: string[];
+    tags: string[];
     images: string[][];
     description: string;
     git: string;

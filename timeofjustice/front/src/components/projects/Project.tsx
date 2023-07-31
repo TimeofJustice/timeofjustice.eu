@@ -12,8 +12,8 @@ export const Project = ({data}: {data: ProjectData}) => {
             <div className="status">{data.status}</div>
             <div className="title">{data.name}</div>
             <div className="languages">
-                {0 < data.languages.length ? (
-                    data.languages.map((language: string, index: number, arr: Array<String>) =>
+                {0 < data.tags.length ? (
+                    data.tags.map((language: string, index: number, arr: Array<String>) =>
                         <span key={language}>
                                     <span>
                                         {language}
