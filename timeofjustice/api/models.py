@@ -229,7 +229,7 @@ class OverlayImage(models.Model):
         self.width = new_width
         self.height = new_height
 
-        image = img.resize((new_width, new_height), PIL.Image.BICUBIC)
+        image = img.resize((new_width, new_height), PIL.Image.NEAREST)
 
         if self.max_colors is not None:
             image = self.__limit_colors(image)
