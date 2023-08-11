@@ -1,38 +1,28 @@
 import React, {useEffect, useRef, useState} from 'react'
-import {ReactZoomPanPinchRef, TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch'
+import {
+    ReactZoomPanPinchRef,
+    TransformComponent,
+    TransformWrapper
+} from 'react-zoom-pan-pinch'
 import {getCookie} from '../../helper/Cookie.tsx'
-import {ChromePicker, ColorResult} from 'react-color';
+import {ColorResult} from 'react-color'
+import {Cursor} from "./components/Cursor.tsx"
+import ResetButton from "./components/ResetButton.tsx"
+import {Colors} from "../../data/Colors.tsx"
+import {TimeoutResponse} from "../../data/TimeoutResponse.tsx"
+import {LastPlacedResponse} from "../../data/LastPlacedResponse.tsx"
+import {OverlayImage} from "../../data/OverlayImage.tsx"
+import {CellData} from "../../data/CellData.tsx"
+import {TileImage} from "../../data/TileImage.tsx"
+import Coordinates from "./components/Coordinates.tsx"
+import Timer from "./components/Timer.tsx"
+import {LayoutOverlay} from "./components/LayoutOverlay.tsx"
+import Loading from "./components/Loading.tsx"
+import CustomColor from "./components/CustomColor.tsx"
+import PaintColors from "./components/PaintColors.tsx"
+import LayoutImg from "./components/LayoutImg.tsx"
+import {handleClickCapture, mouseDownCapture} from "../../helper/MouseHelper.tsx"
 
-interface Colors {
-    [key: string]: string
-}
-
-interface TimeoutResponse {
-    seconds: number
-}
-
-interface LastPlacedResponse {
-    seconds: number
-}
-
-interface OverlayImage {
-    url: string,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    colors: string[]
-}
-
-interface TileImage {
-    x: number,
-    y: number,
-    src: string
-}
-
-interface CellData {
-    color: string
-}
 
 export default function Field({size}: { size: number }) {
     const colors: Colors = {
@@ -105,19 +95,154 @@ export default function Field({size}: { size: number }) {
     const isInInputRef = useRef(isInInput)
     isInInputRef.current = isInInput
 
-    const [cellColor, set_cellColor] = useState<CellData | null>({color: "#252525"})
+    const [cellColor, set_cellColor] = useState<CellData | null>()
 
-    const canvasRef2 = useRef<HTMLCanvasElement>(null)
+    const canvasRef = useRef<HTMLCanvasElement>(null)
     const cursorRef = useRef<HTMLDivElement>(null)
     const wrapperRef = useRef<ReactZoomPanPinchRef>(null)
     const inputRef = useRef<HTMLInputElement>(null)
-    const overlayColorsRef = useRef<HTMLDivElement>(null)
+
+    const [overlayColors, set_overlayColors] = useState<string[]>([])
+    const [selectedLayout, set_selectedLayout] = useState<number | null>()
+    const selectedLayoutRef = useRef(selectedLayout)
+    selectedLayoutRef.current = selectedLayout
 
     const lastUpdated = useRef(Date.now())
 
     const cellSize = 10
 
+    const [displayColorPicker, set_displayColorPicker] = useState(false)
+
+    const [loadedTiles, set_loadedTiles] = useState(0)
+    const [isLoaded, set_isLoaded] = useState(false)
+    const isLoadedRef = useRef(isLoaded)
+    isLoadedRef.current = isLoaded
+
     useEffect(() => {
+        if (!isLoaded) {
+            drawImages()
+        } else {
+            fetchTimeoutData()
+
+            const intervalId = setInterval(() => {
+                fetch('/api/place/discover?t=' + lastUpdated.current).then(
+                    res => res.json()
+                ).then(
+                    (data: TileImage[]) => {
+                        data.forEach(tile => {
+                            drawImage(tile.x, tile.y, "changes")
+                        })
+
+                        lastUpdated.current = Date.now()
+                    }
+                )
+            }, 2000)
+
+            const timeOutInterval = setInterval(() => {
+                set_drawTimeout(t => t - 1)
+            }, 1000)
+
+            document.addEventListener('keydown', onKeyPressed)
+
+            return () => {
+                clearInterval(intervalId)
+                clearInterval(timeOutInterval)
+                document.removeEventListener('keydown', onKeyPressed)
+            }
+        }
+    }, [isLoaded])
+
+    useEffect(() => {
+        onActiveCellUpdate(activeCell)
+    }, [activeCell])
+
+    useEffect(() => {
+        onActiveOverlayUpdate(activeOverlay)
+    }, [activeOverlay])
+
+    useEffect(() => {
+        if (16 <= loadedTiles) set_isLoaded(true)
+    }, [loadedTiles])
+
+    return <div className={'place-field'}>
+            <Loading isLoading={!isLoaded}></Loading>
+
+            <div className={'place-content'}>
+                <TransformWrapper ref={wrapperRef}
+                                  onZoom={(e) => set_wrapperScale(e.state.scale)}
+                                  limitToBounds={false}
+                                  doubleClick={{disabled: true}}
+                                  minScale={0.05}
+                                  maxScale={10}
+                                  initialScale={currentScaleRef.current}
+                >
+                    <TransformComponent
+                        wrapperClass={"wrapper"}
+                    >
+                        <canvas className={'field'}
+                                ref={canvasRef}
+                                width={size} height={size}
+                                onClick={onCanvasClick}
+                                onMouseDownCapture={mouseDownCapture}
+                                onClickCapture={handleClickCapture}
+                                style={{
+                                    minWidth: size * cellSize + 'px',
+                                    minHeight: size * cellSize + 'px'
+                                }}
+                                onContextMenu={(e) => e.preventDefault()}>
+                        </canvas>
+
+                        {Array.from({length: overlayImages.length}, (_, i) => {
+                                return <LayoutImg
+                                    overlayImages={overlayImages}
+                                    i={i}
+                                    cellSize={cellSize}
+                                    onImageClick={(e) => onOverlayImageClick(e, i)}/>
+                            }
+                        )}
+
+                        <Cursor activeCell={activeCell} cellSize={cellSize} ref={cursorRef}/>
+                    </TransformComponent>
+                </TransformWrapper>
+            </div>
+
+            <ResetButton onClick={() => {
+                wrapperRef.current!.zoomToElement(
+                    cursorRef.current!,
+                    currentScaleRef.current,
+                )
+            }}/>
+
+            <div className={
+                'colors-container' + (drawTimeout > 0 ? '' : ' ready')
+            }>
+                <PaintColors colors={colors} onColorClick={drawCell}/>
+
+                <CustomColor customColor={customColor}
+                             customColorKey={customColorKey}
+                             displayColorPicker={displayColorPicker}
+                             onCustomColorClick={onCustomColorClick}
+                             onCustomColorPickerClick={onCustomColorPickerClick}
+                             onPickerChange={(e: ColorResult) => set_customColor(e.hex)}/>
+            </div>
+
+            <Coordinates activeCell={activeCell} cellColor={cellColor!}
+                         onClick={() => set_customColor(cellColor!.color)}/>
+
+            <LayoutOverlay
+                onFocus={() => set_isInInput(true)}
+                onBlur={() => set_isInInput(false)}
+                onClick={(color: string) => onLayoutOverlayClick(color)}
+                onChange={(e) => set_activeOverlay(e.target.value)}
+                activeOverlay={activeOverlay}
+                colors={overlayColors}
+                ref={inputRef}
+            />
+
+            <Timer drawTimeout={drawTimeout}/>
+        </div>
+
+    function fetchTimeoutData() {
         fetch('/api/place/timeout').then(
             res => res.json()
         ).then(
@@ -129,409 +254,79 @@ export default function Field({size}: { size: number }) {
         ).then(
             (data: LastPlacedResponse) => set_drawTimeout(Math.ceil(data['seconds']))
         )
+    }
 
-        const timeOutInterval = setInterval(() => {
-            set_drawTimeout(t => t - 1)
-        }, 1000)
-
-        document.addEventListener('keydown', handleHotkey)
-
-        drawImages();
-
-        const intervalId = setInterval(() => {
-            fetch('/api/place/discover?t=' + lastUpdated.current).then(
-                res => res.json()
-            ).then(
-                (data: TileImage[]) => {
-                    data.forEach(tile => {
-                        drawImage(tile.x, tile.y, "changes");
-                    })
-
-                    lastUpdated.current = Date.now()
-                }
-            )
-        }, 2000)
-
-        return () => {
-            clearInterval(intervalId)
-            clearInterval(timeOutInterval)
-            document.removeEventListener('keydown', handleHotkey)
-        }
-    }, [])
-
-    useEffect(() => {
+    function onActiveCellUpdate(currentValue: number[]) {
         wrapperRef.current!.zoomToElement(
             cursorRef.current!,
             currentScaleRef.current,
         )
 
         const queries = new URLSearchParams(window.location.search)
-        queries.set('x', activeCell[0].toString())
-        queries.set('y', activeCell[1].toString())
+        queries.set('x', currentValue[0].toString())
+        queries.set('y', currentValue[1].toString())
         window.history.replaceState({}, '', window.location.pathname + '?' + queries.toString())
 
-        fetch(`/api/place/color/${activeCell[0]}/${activeCell[1]}`).then(
-            res => res.json()
-        ).then(
-            (data: CellData) => set_cellColor(data)
-        )
-    }, [activeCell])
+        set_cellColor(null)
 
-    useEffect(() => {
+        setTimeout(() => {
+            if (currentValue === activeCellRef.current) {
+                fetch(`/api/place/color/${currentValue[0]}/${currentValue[1]}`).then(
+                    res => res.json()
+                ).then(
+                    (data: CellData) => set_cellColor(data)
+                )
+            }
+        }, 1000)
+    }
+
+    function onActiveOverlayUpdate(currentValue: string) {
         const queries = new URLSearchParams(window.location.search)
 
-        if (activeOverlay != "") {
-            queries.set('overlay', activeOverlay)
+        if (currentValue != "") {
+            setTimeout(() => {
+                if (currentValue === inputRef.current!.value) {
+                    fetch('/api/place/overlay/' + currentValue).then(
+                        res => res.json()
+                    ).then(
+                        (data: OverlayImage[]) => set_overlayImages(data)
+                    )
+                }
+            }, 1000)
 
-            fetch('/api/place/overlay/' + activeOverlay).then(
-                res => res.json()
-            ).then(
-                (data: OverlayImage[]) => set_overlayImages(data)
-            )
+            queries.set('overlay', currentValue)
         } else {
             queries.delete('overlay')
         }
 
+        set_overlayImages([])
         window.history.replaceState({}, '', window.location.pathname + '?' + queries.toString())
-    }, [activeOverlay]);
+    }
 
-    const drawImages = () => {
+    function drawImages() {
         for (let j = 0; j < 4; j++) {
             for (let i = 0; i < 4; i++) {
-                drawImage(250 * i, 250 * j);
+                drawImage(250 * i, 250 * j)
             }
         }
     }
 
-    const drawImage = (x: number, y: number, method: string = "generate") => {
-        const image = new Image(250, 250);
-        image.src = `/api/place/${method}/${x}/${y}?t=${lastUpdated.current}`;
+    function drawImage(x: number, y: number, method: string = "generate") {
+        const image = new Image(250, 250)
+        image.src = `/api/place/${method}/${x}/${y}?t=${lastUpdated.current}`
 
         image.onload = () => {
-            const canvas = canvasRef2.current!
+            const canvas = canvasRef.current!
             const ctx = canvas.getContext("2d")!
 
-            ctx.drawImage(image, x, y, 250, 250);
+            ctx.drawImage(image, x, y, 250, 250)
+
+            if (method == "generate") set_loadedTiles(current => current + 1)
         }
-    }
-
-    let mouseDownX = 0;
-    let mouseDownY = 0;
-
-    const mouseDownCapture = (e: React.MouseEvent<any>) => {
-        mouseDownX = e.clientX;
-        mouseDownY = e.clientY;
-    };
-
-    const handleClickCapture = (e: React.MouseEvent<any>) => {
-        if (
-            Math.abs(mouseDownX - e.clientX) >= 30 ||
-            Math.abs(mouseDownY - e.clientY) >= 30
-        ) {
-            e.stopPropagation();
-        }
-    };
-
-    const [displayColorPicker, set_displayColorPicker] = useState(false)
-
-    return <>
-        <div className={'place-field'}>
-            <div className={'place-content'}>
-                <TransformWrapper ref={wrapperRef}
-                                  onZoom={(e) => {
-                                      set_wrapperScale(e.state.scale)
-                                  }}
-                                  limitToBounds={false}
-                                  doubleClick={{disabled: true}}
-                                  minScale={0.05}
-                                  maxScale={10}
-                                  initialScale={currentScaleRef.current}
-                >
-                    <TransformComponent
-                        wrapperStyle={{
-                            width: '100%',
-                            height: '100%',
-                        }}
-                        contentStyle={{
-                            width: '100%',
-                            height: '100%',
-                        }}
-                        wrapperClass={'field-wrapper'}
-                    >
-                        <canvas className={'field'}
-                                ref={canvasRef2}
-                                width={size} height={size}
-                                onClick={canvasClick}
-                                onMouseDownCapture={mouseDownCapture}
-                                onClickCapture={handleClickCapture}
-                                style={{
-                                    minWidth: size * cellSize + 'px',
-                                    minHeight: size * cellSize + 'px'
-                                }}>
-                        </canvas>
-
-                        {Array.from({length: overlayImages.length}, (_, i) =>
-                            <img src={overlayImages[i]['url']} style={{
-                                imageRendering: 'pixelated',
-                                position: 'absolute',
-                                top: overlayImages[i]['y'] * cellSize + 'px',
-                                left: overlayImages[i]['x'] * cellSize + 'px',
-                                width: overlayImages[i]['width'] * cellSize + 'px',
-                                height: overlayImages[i]['height'] * cellSize + 'px',
-                                pointerEvents: "auto"
-                            }}
-                                 onClick={(e) => {
-                                     const bounds = (e.target as HTMLImageElement).getBoundingClientRect()
-
-                                     const x = Math.floor((e.clientX - bounds.left) / cellSize / currentScaleRef.current) + overlayImages[i]['x']
-                                     const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current) + overlayImages[i]['y']
-
-                                     if (x < 0 || x > 999 || y < 0 || y > 999) return
-
-                                     inputRef.current!.blur()
-
-                                     set_activeCell([x, y])
-
-                                     overlayColorsRef.current!.innerHTML = ""
-
-                                     overlayImages[i]['colors'].forEach(color => {
-                                         const newDiv = document.createElement("div")
-                                         newDiv.innerHTML = `${color.toUpperCase()}<div style="background-color: ${color}"></div>`
-                                         newDiv.onclick = () => {
-                                             set_customColor(color)
-                                         }
-
-                                         overlayColorsRef.current!.append(newDiv)
-                                     })
-                                 }}
-                                 onMouseDownCapture={mouseDownCapture}
-                                 onClickCapture={handleClickCapture}
-                            />
-                        )}
-
-                        <div className={'active-cell'}
-                             ref={cursorRef}
-                             style={{
-                                 position: 'absolute',
-                                 left: activeCell[0] * cellSize - 1 + 'px',
-                                 top: activeCell[1] * cellSize - 1 + 'px',
-                                 width: cellSize + 2 + 'px',
-                                 height: cellSize + 2 + 'px',
-                             }}>
-                            <div style={{
-                                position: 'absolute',
-                                borderLeft: '1px solid #FFF',
-                                borderTop: '1px solid #FFF',
-                                width: cellSize / 2 + 'px',
-                                height: cellSize / 2 + 'px',
-                                left: 0 + 'px',
-                                top: 0 + 'px',
-                            }}></div>
-                            <div style={{
-                                position: 'absolute',
-                                borderRight: '1px solid #FFF',
-                                borderTop: '1px solid #FFF',
-                                width: cellSize / 2 + 'px',
-                                height: cellSize / 2 + 'px',
-                                right: 0 + 'px',
-                                top: 0 + 'px',
-                            }}></div>
-                            <div style={{
-                                position: 'absolute',
-                                borderLeft: '1px solid #FFF',
-                                borderBottom: '1px solid #FFF',
-                                width: cellSize / 2 + 'px',
-                                height: cellSize / 2 + 'px',
-                                left: 0 + 'px',
-                                bottom: 0 + 'px',
-                            }}></div>
-                            <div style={{
-                                position: 'absolute',
-                                borderRight: '1px solid #FFF',
-                                borderBottom: '1px solid #FFF',
-                                width: cellSize / 2 + 'px',
-                                height: cellSize / 2 + 'px',
-                                right: 0 + 'px',
-                                bottom: 0 + 'px',
-                            }}></div>
-                            <div style={{
-                                position: 'absolute',
-                                borderLeft: '1px solid #000',
-                                borderTop: '1px solid #000',
-                                width: cellSize / 2 - 2 + 'px',
-                                height: cellSize / 2 - 2 + 'px',
-                                left: 1 + 'px',
-                                top: 1 + 'px',
-                            }}></div>
-                            <div style={{
-                                position: 'absolute',
-                                borderRight: '1px solid #000',
-                                borderTop: '1px solid #000',
-                                width: cellSize / 2 - 2 + 'px',
-                                height: cellSize / 2 - 2 + 'px',
-                                right: 1 + 'px',
-                                top: 1 + 'px',
-                            }}></div>
-                            <div style={{
-                                position: 'absolute',
-                                borderLeft: '1px solid #000',
-                                borderBottom: '1px solid #000',
-                                width: cellSize / 2 - 2 + 'px',
-                                height: cellSize / 2 - 2 + 'px',
-                                left: 1 + 'px',
-                                bottom: 1 + 'px',
-                            }}></div>
-                            <div style={{
-                                position: 'absolute',
-                                borderRight: '1px solid #000',
-                                borderBottom: '1px solid #000',
-                                width: cellSize / 2 - 2 + 'px',
-                                height: cellSize / 2 - 2 + 'px',
-                                right: 1 + 'px',
-                                bottom: 1 + 'px',
-                            }}></div>
-                        </div>
-                    </TransformComponent>
-                </TransformWrapper>
-            </div>
-
-            <div className={'reset-transform'}
-                 onClick={() => {
-                     wrapperRef.current!.zoomToElement(
-                         cursorRef.current!,
-                         currentScaleRef.current,
-                     )
-                 }}>
-                <i className="fa-solid fa-arrows-to-dot"></i>
-            </div>
-
-            <div className={
-                'colors-container' + (drawTimeout > 0 ? '' : ' ready')
-            }>
-                <div className={'colors'}>
-                    {Object.keys(colors).map((key) => {
-                        return <div
-                            className={'color'}
-                            style={{backgroundColor: colors[key]}}
-                            key={key}
-                            onClick={() => {
-                                drawCell(colors[key])
-                            }}
-                        >
-                            <div>
-                                {key}
-                            </div>
-                        </div>
-                    })}
-                </div>
-
-                <div className={'color-picker-container'}>
-                    <div className={'color-picker'}
-                         style={{backgroundColor: customColor}}
-                         onClick={(e) => {
-                             const element = e.target as Element
-
-                             if (element.id == 'color_picker')
-                                 drawCell(customColor)
-                         }}
-                         id={'color_picker'}
-                    >
-                        <div className={'hotkey'}>
-                            {customColorKey}
-                        </div>
-
-                        <div className={'color-picker-button'} onClick={() => {
-                            set_displayColorPicker(!displayColorPicker);
-                            set_isInInput(!isInInput);
-                        }}
-                        >
-                            <i className="fa-solid fa-palette"></i>
-                        </div>
-                    </div>
-
-                    {displayColorPicker ? <div style={{
-                        position: 'absolute',
-                        zIndex: '2',
-                        bottom: '0px',
-                        right: '0px'
-                    }}>
-                        <div style={{
-                            position: 'fixed',
-                            top: '0px',
-                            right: '0px',
-                            bottom: '0px',
-                            left: '0px',
-                        }} onClick={() => {
-                            set_displayColorPicker(false);
-                            set_isInInput(false);
-                        }}/>
-
-                        <ChromePicker
-                            color={customColor}
-                            onChange={(e: ColorResult) => {
-                                const newColor: string = e.hex
-
-                                set_customColor(newColor)
-                            }}
-                            disableAlpha={true}
-                        />
-                    </div> : null}
-                </div>
-            </div>
-            <div className={'cords'}>
-                <span>x: {activeCell ? activeCell[0] : 0}, </span>
-                <span>y: {activeCell ? activeCell[1] : 0}</span><br/>
-                {cellColor ?
-                    <div
-                        className={"cell-color"}
-                        onClick={() => {
-                            set_customColor(cellColor.color)
-                        }}
-                    >{cellColor.color}
-                        <div style={{
-                            backgroundColor: cellColor.color
-                        }}></div>
-                    </div> : ""}
-            </div>
-
-            <div className={'overlay-input'}>
-                <input type={"text"}
-                       onFocus={() => set_isInInput(true)}
-                       onBlur={() => set_isInInput(false)}
-                       value={activeOverlay}
-                       onChange={(e) => {
-                           set_activeOverlay(e.target.value)
-                       }}
-                       ref={inputRef}
-                />
-                <div className={"overlay-colors"} ref={overlayColorsRef}>
-                </div>
-            </div>
-            <div className={'timer'} style={
-                {display: drawTimeout > 0 ? 'block' : 'none'}
-            }>
-                {drawTimeout > 0 ? drawTimeout + ' seconds' : ''}
-            </div>
-        </div>
-    </>
-
-    function canvasClick(e: React.MouseEvent<HTMLCanvasElement>) {
-        const bounds = (e.target as HTMLCanvasElement).getBoundingClientRect()
-
-        const x = Math.floor((e.clientX - bounds.left) / cellSize / currentScaleRef.current)
-        const y = Math.floor((e.clientY - bounds.top) / cellSize / currentScaleRef.current)
-
-        if (x < 0 || x > 999 || y < 0 || y > 999) return
-
-        inputRef.current!.blur()
-
-        set_activeCell([x, y])
-
-        overlayColorsRef.current!.innerHTML = ""
     }
 
     function drawCell(color: string) {
-        if (drawTimeoutRef.current > 0)
+        if (drawTimeoutRef.current > 0 || !isLoadedRef.current)
             return
 
         const x = activeCellRef.current[0]
@@ -558,7 +353,7 @@ export default function Field({size}: { size: number }) {
                 return
             }
 
-            const canvas = canvasRef2.current!
+            const canvas = canvasRef.current!
             const ctx = canvas.getContext("2d")!
 
             ctx.fillStyle = color
@@ -566,44 +361,112 @@ export default function Field({size}: { size: number }) {
         })
     }
 
-    function handleHotkey(e: KeyboardEvent) {
-        if (isInInputRef.current) return;
+    function calculateClickPos(event: React.MouseEvent, bounds: DOMRect) {
+        return {
+            x: Math.floor((event.clientX - bounds.left) / cellSize / currentScaleRef.current),
+            y: Math.floor((event.clientY - bounds.top) / cellSize / currentScaleRef.current)
+        }
+    }
+
+    function moveActiveCell(dX = 0, dY = 0) {
+        const x = activeCellRef.current[0] + dX
+        const y = activeCellRef.current[1] + dY
+
+        if (x < 0 || x > 999 || y < 0 || y > 999) return
+
+        set_activeCell([x, y])
+    }
+
+    function onCanvasClick(e: React.MouseEvent<HTMLCanvasElement>) {
+        const bounds = (e.target as HTMLCanvasElement).getBoundingClientRect()
+        const pos = calculateClickPos(e, bounds)
+
+        const x = pos.x
+        const y = pos.y
+
+        if (x < 0 || x > 999 || y < 0 || y > 999) return
+
+        inputRef.current!.blur()
+
+        set_activeCell([x, y])
+        set_overlayColors([])
+
+        if (selectedLayoutRef.current != null) {
+            const layoutImg =
+                document.getElementById(`overlayImg_${selectedLayout}`) as HTMLImageElement
+            layoutImg!.src = overlayImages[selectedLayoutRef.current].url
+
+            set_selectedLayout(null)
+        }
+    }
+
+    function onKeyPressed(e: KeyboardEvent) {
+        if (isInInputRef.current || !isLoadedRef.current) return
 
         const key = e.key.toString().toUpperCase()
 
         if (key === 'ARROWLEFT') {
-            const x = activeCellRef.current[0] - 1
-            const y = activeCellRef.current[1]
-
-            if (x < 0 || x > 999 || y < 0 || y > 999) return
-
-            set_activeCell([x, y])
+            e.preventDefault()
+            moveActiveCell(-1)
         } else if (key === 'ARROWRIGHT') {
-            const x = activeCellRef.current[0] + 1
-            const y = activeCellRef.current[1]
-
-            if (x < 0 || x > 999 || y < 0 || y > 999) return
-
-            set_activeCell([x, y])
+            e.preventDefault()
+            moveActiveCell(1)
         } else if (key === 'ARROWUP') {
-            const x = activeCellRef.current[0]
-            const y = activeCellRef.current[1] - 1
-
-            if (x < 0 || x > 999 || y < 0 || y > 999) return
-
-            set_activeCell([x, y])
+            e.preventDefault()
+            moveActiveCell(0, -1)
         } else if (key === 'ARROWDOWN') {
-            const x = activeCellRef.current[0]
-            const y = activeCellRef.current[1] + 1
-
-            if (x < 0 || x > 999 || y < 0 || y > 999) return
-
-            set_activeCell([x, y])
+            e.preventDefault()
+            moveActiveCell(0, 1)
         }
+
+        if (e.repeat) return
 
         if (colors[key])
             drawCell(colors[key])
         else if (key === customColorKey)
             drawCell(customColorRef.current)
+    }
+
+    function onLayoutOverlayClick(color: string) {
+        set_customColor(color)
+
+        const layoutImg =
+            document.getElementById(`overlayImg_${selectedLayout}`) as HTMLImageElement
+        layoutImg!.src =
+            `/api/place/overlay/${activeOverlay}/${selectedLayout}/${color.replace("#", "")}`
+    }
+
+    function onCustomColorPickerClick() {
+        set_displayColorPicker(c => !c)
+        set_isInInput(c => !c)
+    }
+
+    function onCustomColorClick(e: React.MouseEvent<HTMLDivElement>) {
+        const element = e.target as Element
+
+        if (element.id == 'color_picker')
+            drawCell(customColor)
+    }
+
+    function onOverlayImageClick(e: React.MouseEvent<HTMLImageElement>, i: number) {
+        const bounds = (e.target as HTMLImageElement).getBoundingClientRect()
+        const pos = calculateClickPos(e, bounds)
+        const x = pos.x + overlayImages[i]['x']
+        const y = pos.y + overlayImages[i]['y']
+
+        if (x < 0 || x > 999 || y < 0 || y > 999) return
+
+        inputRef.current!.blur()
+
+        set_activeCell([x, y])
+        set_overlayColors(overlayImages[i]['colors'])
+
+        if (selectedLayoutRef.current != null && selectedLayoutRef.current != i) {
+            const layoutImg =
+                document.getElementById(`overlayImg_${selectedLayout}`) as HTMLImageElement
+            layoutImg!.src = overlayImages[selectedLayoutRef.current].url
+        }
+
+        set_selectedLayout(i)
     }
 }

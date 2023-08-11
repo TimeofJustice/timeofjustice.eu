@@ -15,6 +15,7 @@ urlpatterns = [
     path("place/set", place.place_set),
     path("validate", place.validate_captcha),
     path("place/overlay/<str:overlay_name>", place.get_overlay),
+    path("place/overlay/<str:overlay_name>/<int:index>/<str:color>", place.get_overlay_color),
     path("place/color/<int:x>/<int:y>", place.get_color),
     path("place/generate/<int:from_x>/<int:from_y>", place.gen),
     path("place/changes/<int:from_x>/<int:from_y>", place.changes),

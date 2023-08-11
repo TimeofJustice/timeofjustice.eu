@@ -7,7 +7,7 @@ import {getCookie} from "../helper/Cookie.tsx";
 export default function Place() {
     document.title = "Place - TimeofJustice";
 
-    const apiSiteKey = "6LdDGVwnAAAAAHBjqXk7HEr-UkIHzNKyPKK_tnl7"
+    const apiSiteKey = false ? "6LdDGVwnAAAAAHBjqXk7HEr-UkIHzNKyPKK_tnl7" : "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
     const captchaRef = useRef<ReCAPTCHA>(null)
 
     const [canvas, set_canvas] = useState(

@@ -14,7 +14,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django_ratelimit.decorators import ratelimit
 
 from .. import models
-from ..helpers import rgb_to_hex
+from ..helpers import rgb_to_hex, hex_to_rgb
 
 
 @ratelimit(key='ip', rate='60/m')
@@ -287,7 +287,7 @@ def get_overlay(request, overlay_name):
         arr = numpy.array(image)
         reshaped = arr.reshape(-1, arr.shape[-1])
 
-        colors = numpy.unique(reshaped, axis=0)
+        colors = numpy.unique(reshaped[(reshaped[:, 3] == 255)], axis=0)
         colors = [rgb_to_hex(color) for color in colors]
 
         json_images.append({
@@ -300,6 +300,47 @@ def get_overlay(request, overlay_name):
         })
 
     return JsonResponse(json_images, safe=False)
+
+
+@ratelimit(key='ip', rate='15/m')
+def get_overlay_color(request, overlay_name, index, color):
+    json_images = []
+
+    overlays = models.Overlay.objects.filter(name=overlay_name)
+
+    if len(overlays) == 0:
+        return JsonResponse({"error": "No valid overlay"}, safe=False)
+    else:
+        overlay = overlays[0]
+
+    images = models.OverlayImage.objects.filter(overlay=overlay)
+
+    if len(images) < index:
+        return JsonResponse({"error": "No valid index"}, safe=False)
+
+    with open(images[index].layout.path, "rb") as f:
+        overlay_image = Image.open(f)
+
+        rgb_color = hex_to_rgb(f"#{color}")
+
+        filtered_image = Image.new("RGBA", overlay_image.size)
+
+        for x in range(overlay_image.width):
+            for y in range(overlay_image.height):
+                r, g, b, a = overlay_image.getpixel((x, y))
+
+                if (r, g, b) == rgb_color and a == 255:
+                    # Setze die Farbwerte des Pixels im neuen Bild
+                    filtered_image.putpixel((x, y), (r, g, b, a))
+                else:
+                    # Setze den Alpha-Kanal des Pixels auf 0, um ihn transparent zu machen
+                    filtered_image.putpixel((x, y), (r, g, b, 0))
+
+        response = HttpResponse(content_type="image/png")
+
+        filtered_image.save(response, "PNG")
+
+        return response
 
 
 @ratelimit(key='ip', rate='90/m')
