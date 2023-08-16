@@ -165,7 +165,7 @@ export default function Field({size}: { size: number }) {
     }, [loadedTiles])
 
     return <div className={'place-field'}>
-            <Loading isLoading={!isLoaded}></Loading>
+            <Loading isLoading={!isLoaded} progress={(100 / 16) * loadedTiles}></Loading>
 
             <div className={'place-content'}>
                 <TransformWrapper ref={wrapperRef}

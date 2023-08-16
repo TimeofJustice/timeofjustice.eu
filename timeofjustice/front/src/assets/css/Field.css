@@ -432,6 +432,35 @@ html.dark .place-field {
     margin-bottom: 10px;
 }
 
+.loading > .loading-bar {
+    margin-top: 10px;
+    background: #0a0a0a;
+    width: 100%;
+    max-width: 200px;
+    height: 5px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.loading-bar .bar {
+    height: 100%;
+    width: 50%;
+    background-color: #3a3a3a;
+    animation: pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        background-color: rgba(58, 58, 58, .75);
+    }
+    50% {
+        background-color: rgba(58, 58, 58, 1);
+    }
+    100% {
+        background-color: rgba(58, 58, 58, .75);
+    }
+}
+
 .custom-color-picker {
     position: absolute;
     z-index: 2;
