@@ -326,7 +326,7 @@ html.dark ::-webkit-scrollbar-track {
 }
 
 html.dark ::-webkit-scrollbar-thumb {
-    background: #383838;
+    background: #676767;
     border-radius: 5px;
 }
 
