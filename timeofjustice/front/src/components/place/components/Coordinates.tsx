@@ -5,17 +5,18 @@ export default function Coordinates({activeCell, cellColor, onClick}: {
     cellColor: CellData,
     onClick: () => void
 }) {
-    return <div className={'cords'}>
-        <span>x: {activeCell ? activeCell[0] : 0}, </span>
-        <span>y: {activeCell ? activeCell[1] : 0}</span><br/>
+    return <div className={"pixel-stats"}>
+        <span>X: {activeCell ? activeCell[0] : 0}, Y: {activeCell ? activeCell[1] : 0}</span>
         {cellColor ?
             <div
                 className={"cell-color"}
                 onClick={onClick}
-            >{cellColor.color}
+            >
                 <div style={{
                     backgroundColor: cellColor.color
                 }}></div>
+                {cellColor.color.toUpperCase()}
+                <i className="fa-solid fa-eye-dropper"></i>
             </div> : <div>Loading...</div>}
     </div>
 }

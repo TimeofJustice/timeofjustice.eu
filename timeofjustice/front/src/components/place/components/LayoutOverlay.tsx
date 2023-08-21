@@ -12,16 +12,23 @@ export const LayoutOverlay = forwardRef(function Cursor(props: {
 }, ref: React.ForwardedRef<HTMLInputElement>) {
     const {onFocus, onBlur, activeOverlay, onChange, colors, onClick} = props;
 
-    return <div className={'overlay-input'}>
-        <input type={"text"}
-               onFocus={onFocus}
-               onBlur={onBlur}
-               value={activeOverlay}
-               onChange={onChange}
-               placeholder={"Overlay..."}
-               ref={ref}
-        />
+    return <div className={"layout-container"}>
+        {colors.length != 0 ?
+            <div className={"layout-colors"}>
+                <LayoutColors colors={colors} onClick={onClick}/>
+            </div> :
+            <></>
+        }
 
-        <LayoutColors colors={colors} onClick={onClick}/>
+        <div className={"layout-input"}>
+            <input type={"text"}
+                   onFocus={onFocus}
+                   onBlur={onBlur}
+                   value={activeOverlay}
+                   onChange={onChange}
+                   placeholder={"Overlay..."}
+                   ref={ref}
+            />
+        </div>
     </div>
 });

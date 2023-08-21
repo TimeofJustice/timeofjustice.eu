@@ -22,6 +22,9 @@ import CustomColor from "./components/CustomColor.tsx"
 import PaintColors from "./components/PaintColors.tsx"
 import LayoutImg from "./components/LayoutImg.tsx"
 import {handleClickCapture, mouseDownCapture} from "../../helper/MouseHelper.tsx"
+import ErrorMessage from "./components/ErrorMessage.tsx";
+import StartButton from "./components/StartButton.tsx";
+import CloseButton from "./components/CloseButton.tsx";
 
 
 export default function Field({size}: { size: number }) {
@@ -118,6 +121,10 @@ export default function Field({size}: { size: number }) {
     const isLoadedRef = useRef(isLoaded)
     isLoadedRef.current = isLoaded
 
+    const [isStarted, set_isStarted] = useState(false)
+    const isStartedRef = useRef(isStarted)
+    isStartedRef.current = isStarted
+
     useEffect(() => {
         if (!isLoaded) {
             drawImages()
@@ -165,82 +172,103 @@ export default function Field({size}: { size: number }) {
     }, [loadedTiles])
 
     return <div className={'place-field'}>
-            <Loading isLoading={!isLoaded} progress={(100 / 16) * loadedTiles}></Loading>
+        <Loading isLoading={!isLoaded} progress={(100 / 16) * loadedTiles}></Loading>
 
-            <div className={'place-content'}>
-                <TransformWrapper ref={wrapperRef}
-                                  onZoom={(e) => set_wrapperScale(e.state.scale)}
-                                  limitToBounds={false}
-                                  doubleClick={{disabled: true}}
-                                  minScale={0.05}
-                                  maxScale={10}
-                                  initialScale={currentScaleRef.current}
+        <div className={'place-content'}>
+            <TransformWrapper ref={wrapperRef}
+                              onZoom={(e) => set_wrapperScale(e.state.scale)}
+                              limitToBounds={false}
+                              doubleClick={{disabled: true}}
+                              minScale={0.05}
+                              maxScale={10}
+                              initialScale={currentScaleRef.current}
+            >
+                <TransformComponent
+                    wrapperClass={"wrapper"}
                 >
-                    <TransformComponent
-                        wrapperClass={"wrapper"}
-                    >
-                        <canvas className={'field'}
-                                ref={canvasRef}
-                                width={size} height={size}
-                                onClick={onCanvasClick}
-                                onMouseDownCapture={mouseDownCapture}
-                                onClickCapture={handleClickCapture}
-                                style={{
-                                    minWidth: size * cellSize + 'px',
-                                    minHeight: size * cellSize + 'px'
-                                }}
-                                onContextMenu={(e) => e.preventDefault()}>
-                        </canvas>
+                    <canvas className={'field'}
+                            ref={canvasRef}
+                            width={size} height={size}
+                            onClick={onCanvasClick}
+                            onMouseDownCapture={mouseDownCapture}
+                            onClickCapture={handleClickCapture}
+                            style={{
+                                minWidth: size * cellSize + 'px',
+                                minHeight: size * cellSize + 'px'
+                            }}
+                            onContextMenu={(e) => e.preventDefault()}>
+                    </canvas>
 
-                        {Array.from({length: overlayImages.length}, (_, i) => {
-                                return <LayoutImg
-                                    overlayImages={overlayImages}
-                                    i={i}
-                                    cellSize={cellSize}
-                                    onImageClick={(e) => onOverlayImageClick(e, i)}/>
-                            }
-                        )}
+                    {isStarted ?
+                        <>{Array.from({length: overlayImages.length}, (_, i) => {
+                                    return <LayoutImg
+                                        overlayImages={overlayImages}
+                                        i={i}
+                                        cellSize={cellSize}
+                                        onImageClick={(e) => onOverlayImageClick(e, i)}/>
+                                }
+                            )}</>
+                        : <></>
+                    }
 
+                    <div style={!isStarted ? {opacity: "0"}:{}}>
                         <Cursor activeCell={activeCell} cellSize={cellSize} ref={cursorRef}/>
-                    </TransformComponent>
-                </TransformWrapper>
-            </div>
+                    </div>
+                </TransformComponent>
+            </TransformWrapper>
+        </div>
 
-            <ResetButton onClick={() => {
-                wrapperRef.current!.zoomToElement(
-                    cursorRef.current!,
-                    currentScaleRef.current,
-                )
+        <div className={isStarted ? "controls started" : "controls"}>
+            <StartButton onClick={() => {
+                set_isStarted(true)
             }}/>
 
-            <div className={
-                'colors-container' + (drawTimeout > 0 ? '' : ' ready')
-            }>
-                <PaintColors colors={colors} onColorClick={drawCell}/>
+            <ErrorMessage/>
 
-                <CustomColor customColor={customColor}
-                             customColorKey={customColorKey}
-                             displayColorPicker={displayColorPicker}
-                             onCustomColorClick={onCustomColorClick}
-                             onCustomColorPickerClick={onCustomColorPickerClick}
-                             onPickerChange={(e: ColorResult) => set_customColor(e.hex)}/>
+            <div className={"top"}>
+                <div className={"control-container"}>
+                    <ResetButton onClick={() => {
+                        wrapperRef.current!.zoomToElement(
+                            cursorRef.current!,
+                            currentScaleRef.current,
+                        )
+                    }}/>
+
+                    <Timer drawTimeout={drawTimeout}/>
+
+                    <Coordinates activeCell={activeCell} cellColor={cellColor!}
+                                 onClick={() => set_customColor(cellColor!.color)}/>
+
+                    <CloseButton onClick={() => {
+                        set_isStarted(false)
+                    }}/>
+                </div>
+
+                <LayoutOverlay
+                    onFocus={() => set_isInInput(true)}
+                    onBlur={() => set_isInInput(false)}
+                    onClick={(color: string) => onLayoutOverlayClick(color)}
+                    onChange={(e) => set_activeOverlay(e.target.value)}
+                    activeOverlay={activeOverlay}
+                    colors={overlayColors}
+                    ref={inputRef}
+                />
             </div>
 
-            <Coordinates activeCell={activeCell} cellColor={cellColor!}
-                         onClick={() => set_customColor(cellColor!.color)}/>
+            <div className={"colors-container" + (drawTimeout > 0 ? "" : " ready")}>
+                <div>
+                    <PaintColors colors={colors} onColorClick={drawCell}/>
 
-            <LayoutOverlay
-                onFocus={() => set_isInInput(true)}
-                onBlur={() => set_isInInput(false)}
-                onClick={(color: string) => onLayoutOverlayClick(color)}
-                onChange={(e) => set_activeOverlay(e.target.value)}
-                activeOverlay={activeOverlay}
-                colors={overlayColors}
-                ref={inputRef}
-            />
-
-            <Timer drawTimeout={drawTimeout}/>
+                    <CustomColor customColor={customColor}
+                                 customColorKey={customColorKey}
+                                 displayColorPicker={displayColorPicker}
+                                 onCustomColorClick={onCustomColorClick}
+                                 onCustomColorPickerClick={onCustomColorPickerClick}
+                                 onPickerChange={(e: ColorResult) => set_customColor(e.hex)}/>
+                </div>
+            </div>
         </div>
+    </div>
 
     function fetchTimeoutData() {
         fetch('/api/place/timeout').then(
@@ -326,7 +354,7 @@ export default function Field({size}: { size: number }) {
     }
 
     function drawCell(color: string) {
-        if (drawTimeoutRef.current > 0 || !isLoadedRef.current)
+        if (drawTimeoutRef.current > 0 || !isLoadedRef.current || !isStartedRef.current)
             return
 
         const x = activeCellRef.current[0]
@@ -378,6 +406,8 @@ export default function Field({size}: { size: number }) {
     }
 
     function onCanvasClick(e: React.MouseEvent<HTMLCanvasElement>) {
+        if (!isStartedRef.current) return;
+
         const bounds = (e.target as HTMLCanvasElement).getBoundingClientRect()
         const pos = calculateClickPos(e, bounds)
 
@@ -401,7 +431,7 @@ export default function Field({size}: { size: number }) {
     }
 
     function onKeyPressed(e: KeyboardEvent) {
-        if (isInInputRef.current || !isLoadedRef.current) return
+        if (isInInputRef.current || !isLoadedRef.current || !isStartedRef.current) return
 
         const key = e.key.toString().toUpperCase()
 
@@ -449,6 +479,8 @@ export default function Field({size}: { size: number }) {
     }
 
     function onOverlayImageClick(e: React.MouseEvent<HTMLImageElement>, i: number) {
+        if (!isStartedRef.current) return;
+
         const bounds = (e.target as HTMLImageElement).getBoundingClientRect()
         const pos = calculateClickPos(e, bounds)
         const x = pos.x + overlayImages[i]['x']
