@@ -195,11 +195,13 @@ def changes(request, from_x, from_y):
 def export(request, from_x, from_y, to_x, to_y, factor=1):
     if from_x < 0 or from_y < 0 or from_x > 1000 or from_y > 1000:
         return HttpResponse("Wrong coordinates")
+    elif 10 < factor:
+        return HttpResponse("Invalid scale-factor")
 
     size = (to_x - from_x + 1), (to_y - from_y + 1)
 
     image = Image.new('RGB', size, (255, 255, 255))
-    image = image.resize(size, Image.ANTIALIAS)
+    image = image.resize(size, Image.NEAREST)
     data = numpy.array(image)
 
     cells = models.Cell.objects.filter(
@@ -218,8 +220,8 @@ def export(request, from_x, from_y, to_x, to_y, factor=1):
 
     image = image.resize(scaled_size, Image.NEAREST)
 
-    response = HttpResponse(content_type="image/jpeg")
-    image.save(response, "JPEG")
+    response = HttpResponse(content_type="image/png")
+    image.save(response, "png", quality=100)
 
     return response
 
