@@ -6,7 +6,7 @@ import {
 } from 'react-zoom-pan-pinch'
 import {getCookie} from '../../helper/Cookie.tsx'
 import {ColorResult} from 'react-color'
-import {Cursor} from "./components/Cursor.tsx"
+import {Cursor, ExportField} from "./components/Cursor.tsx"
 import ResetButton from "./components/ResetButton.tsx"
 import {Colors} from "../../data/Colors.tsx"
 import {TimeoutResponse} from "../../data/TimeoutResponse.tsx"
@@ -84,6 +84,14 @@ export default function Field({size}: { size: number }) {
     const activeCellRef = useRef(activeCell)
     activeCellRef.current = activeCell
 
+    const [exportCornerLeft, set_exportCornerLeft] = useState<number[]>([])
+    const exportCornerLeftRef = useRef(exportCornerLeft)
+    exportCornerLeftRef.current = exportCornerLeft
+
+    const [exportCornerRight, set_exportCornerRight] = useState<number[]>([])
+    const exportCornerRightRef = useRef(exportCornerRight)
+    exportCornerRightRef.current = exportCornerRight
+
     const [wrapperScale, set_wrapperScale] = useState(initialScale)
     const currentScaleRef = useRef(wrapperScale)
     currentScaleRef.current = wrapperScale
@@ -101,7 +109,7 @@ export default function Field({size}: { size: number }) {
     const [cellColor, set_cellColor] = useState<CellData | null>()
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const cursorRef = useRef<HTMLDivElement>(null)
+    const cursorRef = useRef<HTMLImageElement>(null)
     const wrapperRef = useRef<ReactZoomPanPinchRef>(null)
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -196,7 +204,7 @@ export default function Field({size}: { size: number }) {
                                 minWidth: size * cellSize + 'px',
                                 minHeight: size * cellSize + 'px'
                             }}
-                            onContextMenu={(e) => e.preventDefault()}>
+                            onContextMenu={onCanvasContextMenu}>
                     </canvas>
 
                     {isStarted ?
@@ -205,7 +213,8 @@ export default function Field({size}: { size: number }) {
                                         overlayImages={overlayImages}
                                         i={i}
                                         cellSize={cellSize}
-                                        onImageClick={(e) => onOverlayImageClick(e, i)}/>
+                                        onImageClick={(e) => onOverlayImageClick(e, i)}
+                                    />
                                 }
                             )}</>
                         : <></>
@@ -213,6 +222,10 @@ export default function Field({size}: { size: number }) {
 
                     <div style={!isStarted ? {opacity: "0"}:{}}>
                         <Cursor activeCell={activeCell} cellSize={cellSize} ref={cursorRef}/>
+                    </div>
+
+                    <div style={isStarted ? {display: "none"}:{}}>
+                        <ExportField exportCorners={[exportCornerLeft, exportCornerRight]} cellSize={cellSize}/>
                     </div>
                 </TransformComponent>
             </TransformWrapper>
@@ -428,6 +441,55 @@ export default function Field({size}: { size: number }) {
 
             set_selectedLayout(null)
         }
+    }
+
+    function onCanvasContextMenu(e: React.MouseEvent<HTMLCanvasElement>) {
+        e.preventDefault()
+
+        if (isStartedRef.current) return;
+
+        const bounds = (e.target as HTMLCanvasElement).getBoundingClientRect()
+        const pos = calculateClickPos(e, bounds)
+
+        const x = pos.x
+        const y = pos.y
+
+        if (x < 0 || x > 999 || y < 0 || y > 999) return
+
+        const exportCorner_ = [exportCornerLeftRef.current, exportCornerRightRef.current];
+
+        if (exportCorner_[0].length == 0) {
+            exportCorner_[0] = [x, y]
+        } else if (exportCorner_[1].length == 0) {
+            exportCorner_[1] = [x, y]
+
+            const min_x = Math.min.apply(null, [
+                exportCorner_[0][0],
+                exportCorner_[1][0]
+            ].filter(function(n) { return !isNaN(n); }))
+            const min_y = Math.min.apply(null, [
+                exportCorner_[0][1],
+                exportCorner_[1][1]
+            ].filter(function(n) { return !isNaN(n); }))
+
+            const max_x = Math.max.apply(null, [
+                exportCorner_[0][0],
+                exportCorner_[1][0]
+            ].filter(function(n) { return !isNaN(n); }))
+            const max_y = Math.max.apply(null, [
+                exportCorner_[0][1],
+                exportCorner_[1][1]
+            ].filter(function(n) { return !isNaN(n); }))
+
+            exportCorner_[0] = [min_x, min_y]
+            exportCorner_[1] = [max_x, max_y]
+        } else {
+            exportCorner_[0] = [x, y]
+            exportCorner_[1] = []
+        }
+
+        set_exportCornerLeft(exportCorner_[0])
+        set_exportCornerRight(exportCorner_[1])
     }
 
     function onKeyPressed(e: KeyboardEvent) {
