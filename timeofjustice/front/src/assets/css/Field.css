@@ -739,6 +739,10 @@ html.dark .place-field {
 }
 
 @media screen and (max-width: 930px) {
+    .colors-container {
+        overflow: hidden;
+    }
+
     .controls.started .colors-container.ready {
         max-height: 175px;
     }

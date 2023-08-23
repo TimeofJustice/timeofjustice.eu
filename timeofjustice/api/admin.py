@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils import timezone
+from rangefilter.filters import NumericRangeFilterBuilder
 
 from . import models
 
@@ -46,7 +47,11 @@ def censor(modeladmin, request, queryset):
 class CellAdmin(admin.ModelAdmin):
     list_display = ('id', 'x', 'y', 'color', 'last_modified', 'placed_by')
     search_fields = ['placed_by']
-    list_filter = ('x', 'y', 'color', 'last_modified', 'placed_by')
+    list_filter = (
+        ('x', NumericRangeFilterBuilder()),
+        ('y', NumericRangeFilterBuilder()),
+        'last_modified', 'placed_by'
+    )
     actions = [censor]
 
 

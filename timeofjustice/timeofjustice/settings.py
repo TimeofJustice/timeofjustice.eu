@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'api',
     'main',
     'corsheaders',
+    'rangefilter',
 ]
 
 MIDDLEWARE = [
