@@ -2,10 +2,13 @@ import {useEffect, useState} from "react";
 import {ProjectData} from "../../data/ProjectData.tsx";
 import {Project} from "./Project.tsx";
 
-export const ProjectList = ({onProjectSelect}: { onProjectSelect: (projectIndex: number) => void }) => {
+export const ProjectList = ({onProjectSelect, index}: {
+    onProjectSelect: (projectIndex: number) => void,
+    index: number
+}) => {
 
     const [data, setData] = useState<ProjectData[]>([]);
-    const [selected, setSelected] = useState<number>(0);
+    const [selected, setSelected] = useState<number>(index);
 
     useEffect(() => {
         fetch('/api/projects').then(
