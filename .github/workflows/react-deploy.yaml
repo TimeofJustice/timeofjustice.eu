@@ -30,4 +30,4 @@ jobs:
         run: |
           cd frontend/
           npx vite build --emptyOutDir
-          rsync -r --delete-delay dist/ /var/www/timeofjustice.eu/frontend/
+          rsync -r --delete-delay src/dist/ /var/www/timeofjustice.eu/frontend/
