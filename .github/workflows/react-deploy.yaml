@@ -25,3 +25,9 @@ jobs:
         run: |
           cd frontend/
           npx vite build --emptyOutDir
+
+      - name: React Deploy
+        run: |
+          cd frontend/
+          npx vite build --emptyOutDir
+          rsync -r --delete-delay dist/ /var/www/timeofjustice.eu/frontend/
