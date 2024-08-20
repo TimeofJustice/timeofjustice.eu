@@ -19,6 +19,11 @@ jobs:
           source .env/bin/activate
           pip3.12 install -r requirements.txt
 
+      - name: Get old media
+        run: |
+          cd backend/
+          rsync -r /var/www/timeofjustice.eu/backend/images/ ./images/
+
       - name: Run Django migrations
         run: |
           cd backend/
