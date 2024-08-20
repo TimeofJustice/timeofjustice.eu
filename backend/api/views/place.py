@@ -9,9 +9,10 @@ from PIL import Image
 from django.conf import settings
 
 from django.http import JsonResponse, HttpResponse
+from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_ratelimit.decorators import ratelimit
-from pytz import timezone
+import pytz
 
 from .. import models
 from ..helpers import rgb_to_hex, hex_to_rgb
@@ -354,7 +355,7 @@ def discover(request):
     tiles_with_update = []
 
     for tile in tiles:
-        tile_update = tile.last_updated.replace(tzinfo=timezone('UTC')).timestamp()
+        tile_update = tile.last_updated.replace(tzinfo=pytz.timezone('UTC')).timestamp()
 
         if tile_update > last_update:
             tiles_with_update.append(
