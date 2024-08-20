@@ -37,4 +37,4 @@ jobs:
 
       - name: Restart Django
         run: |
-          touch /var/www/timeofjustice.eu/backend/backend/wsgi.py
+          touch /var/www/timeofjustice.eu/backend/timeofjustice/wsgi.py
