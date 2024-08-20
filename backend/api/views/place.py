@@ -354,7 +354,7 @@ def discover(request):
     tiles_with_update = []
 
     for tile in tiles:
-        tile_update = tile.last_updated.replace(tzinfo=timezone.now).timestamp()
+        tile_update = tile.last_updated.replace(tzinfo=timezone.now()).timestamp()
 
         if tile_update > last_update:
             tiles_with_update.append(
