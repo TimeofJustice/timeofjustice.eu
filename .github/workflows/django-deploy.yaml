@@ -1,7 +1,6 @@
 name: Django Deployment
 
-on: 
-  push
+on: push
 
 jobs:
   deploy:
@@ -43,3 +42,10 @@ jobs:
       - name: Restart Django
         run: |
           touch /var/www/timeofjustice.eu/backend/timeofjustice/wsgi.py
+
+      - name: Restart Renderer
+        run: |
+          /usr/bin/screen -S renderer -X quit
+          cd /var/www/timeofjustice.eu/backend
+          . .env/bin/activate
+          /usr/bin/screen -dmL -Logfile /var/www/timeofjustice.eu/logs/renderer.log -S renderer python3.12 render_worker.py
