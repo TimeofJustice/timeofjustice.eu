@@ -49,5 +49,5 @@ jobs:
           cd /var/www/timeofjustice.eu/backend/
           source .env/bin/activate
           
-          /usr/bin/screen -S renderer -X quit >/dev/null
+          /usr/bin/screen -S renderer -X quit || true
           /usr/bin/screen -dmL -Logfile /var/www/timeofjustice.eu/logs/renderer/{now}".log -S renderer python3.12 render_worker.py
