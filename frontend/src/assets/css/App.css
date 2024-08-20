@@ -1,0 +1,388 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    font-family: "Century Gothic", CenturyGothic, Geneva, AppleGothic, sans-serif;
+
+    background: radial-gradient(331.49% 141.42% at 100% 0%, #f5f5f5 0%, #ffffff 100%);
+    color: #000000;
+}
+
+html.dark {
+    background: radial-gradient(331.49% 141.42% at 100% 0%, #070141 0%, #000000 100%);
+    color: #ffffff;
+}
+
+body {
+    height: 100%;
+    overflow: hidden;
+}
+
+#root {
+    padding: 20px 40px 40px 40px;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 40px calc(100% - 65px);
+    grid-gap: 25px;
+}
+
+a {
+    text-decoration: none;
+    transition: color 0.25s ease-in-out, padding-bottom 0.25s ease-in-out;
+
+    color: #000000;
+}
+
+html.dark a {
+    color: #ffffff;
+}
+
+a:hover {
+    padding-bottom: 5px;
+
+    color: #959595;
+}
+
+html.dark a:hover {
+    color: #545454;
+}
+
+#modeButton:hover {
+    color: #959595;
+}
+
+html.dark #modeButton:hover {
+    color: #545454;
+}
+
+.header-container, .content-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.header {
+    flex: 0 0 40px;
+    width: 100%;
+    max-width: 1200px;
+    height: 40px;
+    display: flex;
+    padding: 0 10px 0 10px;
+
+    border-bottom: 1px solid #e0e0e0;
+}
+
+html.dark .header {
+    border-bottom: 1px solid #383838;
+}
+
+.header .active {
+    font-weight: bold !important;
+}
+
+.header .legal-link {
+    display: none !important;
+}
+
+.header > .left-side {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.header > .left-side > span, .header > .left-side > i {
+    transition: color 0.25s ease-in-out;
+}
+
+.header > .left-side > span::after {
+    content: "";
+    margin-left: 10px;
+    margin-right: 10px;
+
+    border-right: 1px solid #e0e0e0;
+}
+
+html.dark .header > .left-side > span::after {
+    border-right:1px solid #383838;
+}
+
+.header > .left-side > a {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    transition: color 0.25s ease-in-out, padding-bottom 0.25s ease-in-out;
+}
+
+.header > .left-side > a:hover {
+    cursor: pointer;
+    padding-bottom: 5px;
+}
+
+.header > .left-side > i {
+    margin-right: 5px;
+}
+
+.header > .left-side > div:hover {
+    color: #959595;
+}
+
+html.dark .header > .left-side > div:hover {
+    color: #545454;
+}
+
+.header > .right-side {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+}
+
+.header > .right-side > div {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    font-size: 1.25rem;
+    letter-spacing: 8px;
+}
+
+.header > .right-side > .socials {
+    margin-right: 8px;
+}
+
+.socials::after {
+    content: "";
+    padding: 10px 0;
+
+    border-right: 1px solid #e0e0e0;
+}
+
+html.dark .socials::after {
+    border-right:1px solid #383838;
+}
+
+.switch {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    border-radius: 15px;
+    padding: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: border 0.25s ease-in-out;
+
+    border: 2px solid #000000;
+}
+
+html.dark .switch {
+    border: 2px solid white;
+}
+
+
+.switch:hover {
+    cursor: pointer;
+}
+
+.switch > .handle {
+    border-radius: 360px;
+    position: absolute;
+    height: calc(100% - 4px);
+    aspect-ratio: 1 / 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 8px;
+    transition: color 0.25s ease-in-out, left 0.25s ease-in-out;
+
+    background: #000000;
+    color: #e0e0e0;
+    left: 22px;
+}
+
+html.dark .switch > .handle {
+    background: white;
+    color: #333333;
+    left: 2px;
+}
+
+.switch:hover > .handle {
+    background: #959595;
+    color: #000000;
+}
+
+html.dark .switch:hover > .handle {
+    background: #333333;
+    color: white;
+}
+
+.switch > .handle > i {
+    width: fit-content;
+    letter-spacing: normal;
+}
+
+.content {
+    display: flex;
+    max-width: 1200px;
+    height: 100%;
+    flex: 1 1 100%;
+    width: 100%;
+    padding: 0 50px 0 50px;
+}
+
+.cookie-banner {
+    position: fixed;
+    bottom: -200px;
+    left: 10px;
+    border-radius: 15px;
+    padding: 15px;
+    max-width: 255px;
+    transition: bottom 0.5s ease-in-out;
+
+    background: #e0e0e0;
+    box-shadow: #656565 0 0 10px 0;
+}
+
+html.dark .cookie-banner {
+    background: #383838;
+    box-shadow: #0a0a0a 0 0 10px 0;
+}
+
+.cookie-banner a {
+    text-decoration: underline;
+    font-weight: bold;
+
+    color: #000000;
+}
+
+html.dark .cookie-banner a {
+    color: #ffffff;
+}
+
+.cookie-banner a:hover {
+    cursor: pointer;
+
+    color: #959595;
+}
+
+html.dark .cookie-banner a:hover {
+    color: #545454;
+}
+
+.cookie-banner > .text {
+    margin-bottom: 5px;
+}
+
+.cookie-banner > .buttons {
+    margin-top: 10px;
+    display: flex;
+}
+
+.cookie-banner > .buttons > div {
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    margin-right: 5px;
+    transition: color 0.25s ease-in-out, background 0.25s ease-in-out;
+
+    border: #747474 2px solid;
+}
+
+html.dark .cookie-banner > .buttons > div {
+    border: #a2a2a2 2px solid;
+}
+
+.cookie-banner > .buttons > div:hover {
+    cursor: pointer;
+
+    background: #747474;
+}
+
+html.dark .cookie-banner > .buttons > div:hover {
+    background: #a2a2a2;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+}
+
+html.dark ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c7c6c6;
+    border-radius: 5px;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+    background: #676767;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: lightgrey;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+    background: lightgrey;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+@media screen and (max-width: 1280px) {
+    .content {
+        flex-direction: column;
+        max-width: calc(100vw - 100px);
+    }
+}
+
+@media screen and (max-width: 750px) {
+    #root {
+        padding: 10px;
+    }
+
+    .content {
+        max-width: calc(100vw - 20px);
+    }
+
+    .header {
+        padding: 0;
+    }
+
+    .header > .left-side > a,
+    .header > .left-side > span,
+    .header > .left-side > i {
+        font-size: 0.8rem;
+    }
+
+    .header > .right-side > div {
+        font-size: 1rem;
+        letter-spacing: 4px;
+    }
+
+    .content {
+        padding: 0;
+    }
+
+    .cookie-banner {
+        max-width: 200px;
+    }
+
+    .header .socials {
+        display: none !important;
+    }
+}
