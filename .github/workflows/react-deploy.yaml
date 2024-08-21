@@ -1,6 +1,6 @@
 name: React Deployment
 
-on:
+on: 
   push:
     branches: [release]
 
