@@ -29,7 +29,7 @@ export default function Place() {
 
             <div className={"captcha-container"}>
                 <ReCAPTCHA
-                    sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
                     size="invisible"
                     ref={captchaRef}
                     onChange={onCaptchaChange}
