@@ -2,7 +2,8 @@ name: Django Deployment
 
 on: 
   push:
-    branches: [release]
+    paths:
+      - backend/**
 
 jobs:
   deploy:

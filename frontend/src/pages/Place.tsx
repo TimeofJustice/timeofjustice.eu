@@ -7,7 +7,6 @@ import {getCookie} from "../helper/Cookie.tsx";
 export default function Place() {
     document.title = "Place - TimeofJustice";
 
-    const apiSiteKey = "6LdDGVwnAAAAAHBjqXk7HEr-UkIHzNKyPKK_tnl7"
     const captchaRef = useRef<ReCAPTCHA>(null)
 
     const [canvas, set_canvas] = useState(
@@ -30,7 +29,7 @@ export default function Place() {
 
             <div className={"captcha-container"}>
                 <ReCAPTCHA
-                    sitekey={apiSiteKey}
+                    sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
                     size="invisible"
                     ref={captchaRef}
                     onChange={onCaptchaChange}

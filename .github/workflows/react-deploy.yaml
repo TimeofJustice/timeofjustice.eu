@@ -2,7 +2,8 @@ name: React Deployment
 
 on: 
   push:
-    branches: [release]
+    paths:
+      - frontend/**
 
 jobs:
   deploy:
@@ -21,6 +22,11 @@ jobs:
         run: |
           cd frontend/
           npm install
+
+      - name: Get .env file
+        run: |
+          cd frontend/src/
+          rsync -r /var/www/timeofjustice.eu/files/.env .env
 
       - name: Build frontend
         run: |
