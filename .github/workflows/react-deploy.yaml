@@ -1,8 +1,7 @@
 name: React Deployment
 
 on:
-  push:
-    branches: [release]
+  push
 
 jobs:
   deploy:

@@ -1,8 +1,7 @@
 name: Django Deployment
 
 on:
-  push:
-    branches: [release]
+  push
 
 jobs:
   deploy:
