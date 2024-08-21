@@ -7,8 +7,8 @@ import {getCookie} from "../helper/Cookie.tsx";
 export default function Place() {
     document.title = "Place - TimeofJustice";
 
-    const apiSiteKey = "6LdDGVwnAAAAAHBjqXk7HEr-UkIHzNKyPKK_tnl7"
     const captchaRef = useRef<ReCAPTCHA>(null)
+    const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '';
 
     const [canvas, set_canvas] = useState(
         <div className={"place-field"} style={
@@ -30,7 +30,7 @@ export default function Place() {
 
             <div className={"captcha-container"}>
                 <ReCAPTCHA
-                    sitekey={apiSiteKey}
+                    sitekey={recaptchaSiteKey}
                     size="invisible"
                     ref={captchaRef}
                     onChange={onCaptchaChange}

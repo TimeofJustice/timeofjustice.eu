@@ -1,8 +1,10 @@
 name: React Deployment
 
-on: 
+on:
   push:
     branches: [release]
+    paths:
+      - frontend/**
 
 jobs:
   deploy:
@@ -22,6 +24,11 @@ jobs:
           cd frontend/
           npm install
 
+      - name: Get .env file
+        run: |
+          cd frontend/src/
+          rsync -r /var/www/timeofjustice.eu/files/.env .env
+
       - name: Build frontend
         run: |
           cd frontend/
@@ -32,3 +39,7 @@ jobs:
           cd frontend/
           npx vite build --emptyOutDir
           rsync -r --delete-delay src/dist/ /var/www/timeofjustice.eu/frontend/
+
+      - name: Restart Django
+        run: |
+          touch /var/www/timeofjustice.eu/backend/timeofjustice/wsgi.py
