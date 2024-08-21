@@ -8,6 +8,7 @@ export default function Place() {
     document.title = "Place - TimeofJustice";
 
     const captchaRef = useRef<ReCAPTCHA>(null)
+    const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '';
 
     const [canvas, set_canvas] = useState(
         <div className={"place-field"} style={
@@ -29,7 +30,7 @@ export default function Place() {
 
             <div className={"captcha-container"}>
                 <ReCAPTCHA
-                    sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+                    sitekey={recaptchaSiteKey}
                     size="invisible"
                     ref={captchaRef}
                     onChange={onCaptchaChange}
