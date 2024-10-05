@@ -1,2 +1,4 @@
 
 /frontend/src/dist
+.idea/
+.vscode/

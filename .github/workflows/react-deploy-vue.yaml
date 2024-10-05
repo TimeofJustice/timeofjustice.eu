@@ -1,0 +1,45 @@
+name: React Deployment (Vue)
+
+on:
+  push:
+    branches: [issue-12-vue]
+    paths:
+      - frontend/**
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    permissions:
+      contents: read
+    steps:
+      - name: Check out current repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          cd frontend/
+          npm install
+
+      - name: Get .env file
+        run: |
+          cd frontend/src/
+          rsync -r /var/www/vue.timeofjustice.eu/files/.env .env
+
+      - name: Build frontend
+        run: |
+          cd frontend/
+          npx vite build --emptyOutDir
+
+      - name: React Deploy
+        run: |
+          cd frontend/
+          npx vite build --emptyOutDir
+          rsync -r --delete-delay dist/ /var/www/vue.timeofjustice.eu/frontend/
+
+      - name: Restart Django
+        run: |
+          touch /var/www/vue.timeofjustice.eu/backend/timeofjustice/wsgi.py
