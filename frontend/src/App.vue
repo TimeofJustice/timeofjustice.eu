@@ -1,18 +1,28 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCode, faHouse } from "@fortawesome/free-solid-svg-icons";
+import { faDiscord, faGithub, faInstagram, faLinkedin, faTwitter } from "@fortawesome/free-brands-svg-icons";
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <header class="d-flex justify-content-center p-0">
+    <div class="container-xxl pt-3 nav-container">
+      <nav class="nav m-0 text-white p-0 d-flex align-items-center justify-content-between">
+        <section class="d-flex flex-row gap-2 justify-center align-items-center">
+          <FontAwesomeIcon :icon="faCode"/>
+          <span class="seperator-end">TimeofJustice</span>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+          <RouterLink to="/projects">/Projects</RouterLink>
+          <RouterLink to="/">/Place</RouterLink>
+        </section>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+        <section class="d-flex flex-row gap-2 justify-center align-items-center fs-5">
+          <a><FontAwesomeIcon :icon="faGithub"/></a>
+          <a><FontAwesomeIcon :icon="faInstagram"/></a>
+          <a><FontAwesomeIcon :icon="faLinkedin"/></a>
+          <a><FontAwesomeIcon :icon="faTwitter"/></a>
+        </section>
       </nav>
     </div>
   </header>
@@ -21,65 +31,5 @@ import HelloWorld from './components/HelloWorld.vue'
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
 </style>

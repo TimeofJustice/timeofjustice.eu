@@ -1,4 +1,4 @@
-name: React Deployment (Vue)
+name: Frontend Deployment (Vue)
 
 on:
   push:

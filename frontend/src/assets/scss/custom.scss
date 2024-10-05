@@ -1,0 +1,31 @@
+.seperator {
+  &-end::after {
+    content: "";
+    margin-left: 10px;
+    border-right: 1px solid #e0e0e0;
+  }
+}
+
+body {
+  background: radial-gradient(331.49% 141.42% at 100% 0%, #070141 0%, #000000 100%);
+}
+
+.nav {
+  height: 40px;
+
+  a {
+    color: white;
+    display: flex !important;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #545454 !important;
+    padding-bottom: 5px;
+    transition: color .25s ease-in-out, padding-bottom .25s ease-in-out;
+  }
+
+  &-container {
+    border-bottom: 1px solid #383838;
+  }
+}

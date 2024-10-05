@@ -1,8 +1,8 @@
-name: Django Deployment
+name: Backend Deployment (Vue)
 
 on:
   push:
-    branches: [release]
+    branches: [issue-12-vue]
     paths:
       - backend/**
 
@@ -36,8 +36,8 @@ jobs:
 
       - name: Django Deploy
         run: |
-          rsync -r --delete-delay backend/ /var/www/timeofjustice.eu/backend/
+          rsync -r --delete-delay backend/ /var/www/vue.timeofjustice.eu/backend/
 
       - name: Restart Django
         run: |
-          touch /var/www/timeofjustice.eu/backend/timeofjustice/wsgi.py
+          touch /var/www/vue.timeofjustice.eu/backend/timeofjustice/wsgi.py
