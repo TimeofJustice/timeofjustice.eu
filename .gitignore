@@ -1,4 +1,6 @@
-
-/frontend/src/dist
 .idea/
 .vscode/
+.env/
+
+# Config-File
+config.ini

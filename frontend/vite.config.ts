@@ -1,20 +1,20 @@
-import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueJsx from '@vitejs/plugin-vue-jsx'
-import vueDevTools from 'vite-plugin-vue-devtools'
+import { resolve } from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    vueJsx(),
-    vueDevTools(),
-  ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+  plugins: [vue()],
+  root: resolve("./src"),
+  base: "/static/",
+  build: {
+    outDir: resolve("./dist"),
+    assetsDir: "",
+    manifest: true,
+    emptyOutDir: true,
+    rollupOptions: {
+      // Overwrite default .html entry to main.ts in the static directory
+      input: resolve("./src/main.ts"),
+    },
   }
 })

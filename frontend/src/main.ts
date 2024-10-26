@@ -1,16 +1,18 @@
-import './assets/main.css'
+import "vite/modulepreload-polyfill";
+import { createApp, h } from "vue";
+import { createInertiaApp } from "@inertiajs/vue3";
+import { MotionPlugin } from '@vueuse/motion'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
-import './assets/scss/variables.scss'
-import './assets/scss/custom.scss'
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
-
-const app = createApp(App)
-
-app.use(router)
-
-app.mount('#app')
+createInertiaApp({
+    title: title => `${title} - timeofjustice.eu`,
+    resolve: (name) => import(`./pages/${name}.vue`),
+    setup({ el, App, props, plugin }) {
+        createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .use(MotionPlugin)
+            .mount(el);
+    },
+});
