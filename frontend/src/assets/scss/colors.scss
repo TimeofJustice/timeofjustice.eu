@@ -1,0 +1,21 @@
+$custom-colors: (
+    'grey-100': #252525,
+    'grey-200': #3b3b3b,
+    'space-blue': #071c39,
+);
+
+.bg {
+  @each $color, $value in $custom-colors {
+    &-#{$color} {
+        background-color: $value;
+    }
+  }
+}
+
+.text {
+  @each $color, $value in $custom-colors {
+    &-#{$color} {
+      background-color: $value;
+    }
+  }
+}

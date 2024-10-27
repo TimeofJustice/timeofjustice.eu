@@ -1,0 +1,13 @@
+@import "../../../node_modules/bootstrap/scss/functions";
+
+$nav-link-color: #ffffff;
+$nav-link-hover-color: #6c6c6c;
+
+:root {
+  --bs-nav-link-color: #{$nav-link-color};
+  --bs-nav-link-hover-color: #{$nav-link-hover-color};
+}
+
+// Required
+@import "../../../node_modules/bootstrap/scss/variables";
+@import "../../../node_modules/bootstrap/scss/mixins";
