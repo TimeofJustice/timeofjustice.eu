@@ -13,5 +13,6 @@ declare module 'vue' {
     BDropdownItem: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownItem']
     BDropdownItemButton: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownItemButton']
     BImg: typeof import('bootstrap-vue-next/components/BImg')['BImg']
+    BOffcanvas: typeof import('bootstrap-vue-next/components/BOffcanvas')['BOffcanvas']
   }
 }

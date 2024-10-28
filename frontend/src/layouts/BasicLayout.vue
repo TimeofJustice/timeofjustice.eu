@@ -36,7 +36,7 @@ const open = ref(false);
               <FontAwesomeIcon :icon="faHome"/>
               <span class="ms-1">{{ $t('nav.projects') }}</span>
             </Link>
-            <Link class="nav-item nav-link p-0" href="/about" :class="{ 'active': $page.component === 'About' }">
+            <Link class="nav-item nav-link p-0" href="/project/1" :class="{ 'active': $page.component === 'Project' }">
               <FontAwesomeIcon :icon="faPaintBrush"/>
               <span class="ms-1">{{ $t('nav.place') }}</span>
             </Link>
@@ -48,6 +48,8 @@ const open = ref(false);
     </div>
 
     <div class="w-100 p-4 overflow-y-auto overflow-x-hidden z-0">
+      <BAlert variant="info" :model-value="true" class="container" v-html="$t('index.wip_alert')">
+      </BAlert>
       <slot></slot>
     </div>
   </div>

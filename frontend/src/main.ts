@@ -15,6 +15,13 @@ import de from "@assets/locales/de.json";
 import en from "@assets/locales/en.json";
 import yoda from "@assets/locales/yoda.json";
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faGithub, faInstagram, faLinkedin, faTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+
+library.add(faGithub, faInstagram, faLinkedin, faTwitter, faArrowRight);
+
 const i18n = createI18n({
     legacy: false,
     locale: (localStorage.getItem("lang") || "en"),
@@ -22,13 +29,21 @@ const i18n = createI18n({
     messages: { de, en, yoda },
 });
 
+import BasicLayout from "@layouts/BasicLayout.vue";
+
 createInertiaApp({
     title: title => `${title} - timeofjustice.eu`,
-    resolve: (name) => import(`@pages/${name}.vue`),
+    resolve: name => {
+        const pages = import.meta.glob('./pages/**/*.vue', { eager: true })
+        let page = pages[`./pages/${name}.vue`]
+        page.default.layout = page.default.layout || BasicLayout
+        return page
+    },
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(createBootstrap())
+            .component('font-awesome-icon', FontAwesomeIcon)
             .use(MotionPlugin)
             .use(i18n)
             .mount(el);

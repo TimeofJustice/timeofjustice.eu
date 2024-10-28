@@ -33,3 +33,12 @@
 a {
   transition: color 0.15s ease-in-out;
 }
+
+.stretched-link-translate {
+  transition: transform 0.15s ease-in-out;
+
+  &-right:hover * {
+    @extend .stretched-link-translate;
+    transform: translate(5px);
+  }
+}

@@ -4,10 +4,16 @@
     "place": "r/Place"
   },
   "index": {
-    "wip_alert": "Diese Seite ist noch in Arbeit. Bitte schau später wieder vorbei.",
+    "wip_alert": "Diese Seite ist noch in Arbeit. Bitte schau später wieder vorbei. Die aktuelle Version findest du unter: <a class='link-info' href='https://timeofjustice.eu'>timeofjustice.eu</a>",
     "profile": {
       "current_position": "Student der Informatik",
       "based_in": "Wohnhaft in Deutschland"
     }
+  },
+  "socials": {
+    "github": "TimeofJustice auf GitHub",
+    "linkedin": "TimeofJustice auf LinkedIn",
+    "twitter": "TimeofJustice auf Twitter",
+    "instagram": "TimeofJustice auf Instagram"
   }
 }
