@@ -1,0 +1,14 @@
+{
+  "description": "This is the english translation, but spoken in Yoda's voice",
+  "nav": {
+    "projects": "Projects",
+    "place": "r/Place"
+  },
+  "index": {
+    "wip_alert": "Still in work, this page is. Check back later, you must.",
+    "profile": {
+      "current_position": "Student of Computer Science, I am",
+      "based_in": "Based in Germany, I am"
+    }
+  }
+}

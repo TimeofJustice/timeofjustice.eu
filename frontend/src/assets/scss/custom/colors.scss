@@ -2,12 +2,13 @@ $custom-colors: (
     'grey-100': #252525,
     'grey-200': #3b3b3b,
     'space-blue': #071c39,
+    'grey-10': #adadad,
 );
 
 .bg {
   @each $color, $value in $custom-colors {
     &-#{$color} {
-        background-color: $value;
+        background-color: rgba($value, var(--bs-bg-opacity));
     }
   }
 }
@@ -15,7 +16,7 @@ $custom-colors: (
 .text {
   @each $color, $value in $custom-colors {
     &-#{$color} {
-      background-color: $value;
+      color: $value;
     }
   }
 }

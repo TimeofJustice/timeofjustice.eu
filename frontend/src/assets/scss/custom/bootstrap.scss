@@ -1,0 +1,35 @@
+@media (max-width: 992px) {
+  .collapse:not(.show) {
+    display: block !important;
+    max-height: 0;
+    transition: max-height 0.15s ease-out;
+  }
+
+  .collapse {
+    max-height: 500px;
+    transition: max-height 0.25s ease-in;
+    overflow: hidden;
+  }
+}
+
+.dropdown-ghost .btn {
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-hover-bg: transparent;
+  --bs-btn-hover-color: #6c6c6c;
+  --bs-btn-focus-bg: transparent;
+  --bs-btn-focus-color: #6c6c6c;
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-active-bg: transparent;
+  --bs-btn-active-color: #6c6c6c;
+  --bs-btn-active-border-color: transparent;
+}
+
+.nav-item.active {
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+a {
+  transition: color 0.15s ease-in-out;
+}

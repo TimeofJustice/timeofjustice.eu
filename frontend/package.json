@@ -18,12 +18,17 @@
     "@popperjs/core": "^2.11.8",
     "@vueuse/motion": "^2.2.6",
     "bootstrap": "^5.3.3",
-    "vue": "^3.3.4"
+    "bootstrap-vue-next": "^0.25.10",
+    "flag-icons": "^7.2.3",
+    "vite-plugin-require": "^1.2.14",
+    "vue": "^3.3.4",
+    "vue-i18n": "^9.14.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
     "sass": "^1.80.4",
     "typescript": "^5.0.2",
+    "unplugin-vue-components": "^0.27.4",
     "vite": "^4.4.0",
     "vue-tsc": "^2.1.8"
   }
