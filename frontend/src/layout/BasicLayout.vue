@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
+import { Link, Head } from '@inertiajs/vue3'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {faBars, faHome, faPaintBrush} from "@fortawesome/free-solid-svg-icons";
 import {ref} from "vue";
@@ -9,6 +9,10 @@ const open = ref(false);
 </script>
 
 <template>
+  <Head>
+    <link rel="icon" :href="require('@assets/images/favicon.png')" />
+  </Head>
+
   <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column overflow-hidden">
     <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-space-blue">
       <div class="gradient"></div>
