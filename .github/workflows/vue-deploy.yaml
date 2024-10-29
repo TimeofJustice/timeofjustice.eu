@@ -26,7 +26,7 @@ jobs:
       - name: Get .env file
         run: |
           cd frontend/src/
-          rsync -r /var/www/vue.timeofjustice.eu/files/.env .env
+          rsync -r /var/www/vue.timeofjustice.eu/.env .env
 
       - name: Vue Deploy
         run: |

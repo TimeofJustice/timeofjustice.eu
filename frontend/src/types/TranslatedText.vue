@@ -1,0 +1,7 @@
+<script lang="ts">
+  default export interface TranslatedText {
+    de: string;
+    en: string;
+    yoda: string;
+  }
+</script>

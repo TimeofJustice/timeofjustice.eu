@@ -171,6 +171,8 @@ STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
 # Inertia settings
 INERTIA_LAYOUT = BASE_DIR / "core" / "templates" / "index.html"
 
+FILE_DESTINATION = CONFIG_PARSER["DEFAULT"]["FILE_DESTINATION"]
+
 if LOCAL_PRODUCTION:
     # Vite generates files with 8 hash digits
     # http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST

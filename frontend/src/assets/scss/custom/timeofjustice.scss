@@ -8,30 +8,18 @@
 }
 
 .gradient {
-  --size: 750px;
-  --speed: 50s;
-  --easing: cubic-bezier(0.8, 0.2, 0.2, 0.8);
+  --size: 50rem;
+  --speed: 60s;
+  --easing: linear;
 
   width: var(--size);
   height: var(--size);
   filter: blur(calc(var(--size) / 5));
   background-image: linear-gradient(hsl(222, 84, 60, 100%), hsl(164, 79, 71));
-  animation: rotate var(--speed) var(--easing) alternate infinite;
+  animation: rotate var(--speed) var(--easing) infinite;
   border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-}
-
-@media (min-width: 720px) {
-  .gradient {
-    --size: 50rem;
-  }
 }
 
 body {
   background-color: #071c39;
-  position: absolute;
-  inset: 0;
-  display: flex;
-  place-content: center;
-  align-items: center;
-  overflow: hidden;
 }

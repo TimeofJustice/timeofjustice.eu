@@ -48,8 +48,10 @@ const open = ref(false);
     </div>
 
     <div class="w-100 p-4 overflow-y-auto overflow-x-hidden z-0">
-      <BAlert variant="info" :model-value="true" class="container" v-html="$t('index.wip_alert')">
-      </BAlert>
+      <div class="container">
+        <BAlert variant="info" :model-value="true" v-html="$t('index.wip_alert')">
+        </BAlert>
+      </div>
       <slot></slot>
     </div>
   </div>

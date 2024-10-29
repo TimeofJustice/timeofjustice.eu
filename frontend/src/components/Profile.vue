@@ -44,7 +44,7 @@ withDefaults(defineProps<Props>(), {
 
   <div class="card bg-grey-100 text-white bg-opacity-75" v-else>
     <div class="row g-0">
-      <div class="col-4 p-3">
+      <div class="col-4 ps-3 pt-3 pb-3">
         <img class="img-fluid rounded" :src="require('@assets/images/TimeofJustice.jpg')" alt="TimeofJustice">
       </div>
       <div class="col-8">
