@@ -20,14 +20,28 @@ const project = ref<Project | null>(null);
 const showOffcanvas = ref(false);
 
 const loadProject = async (id: number) => {
-  const response = await fetch(`/api/project/${id}`);
+  project.value = null;
+  showOffcanvas.value = true;
 
+  const response = await fetch(`/api/project/${id}`);
   if (!response.ok) {
     throw new Error("Failed to load project");
   }
 
-  showOffcanvas.value = true;
   project.value = await response.json();
+};
+
+const imgSize = ref(250);
+const imgButton = ref('fa-maximize');
+
+const handleResize = () => {
+  if (imgSize.value === 500) {
+    imgSize.value = 250;
+    imgButton.value = 'fa-maximize';
+  } else {
+    imgSize.value = 500;
+    imgButton.value = 'fa-minimize';
+  }
 };
 </script>
 
@@ -60,7 +74,7 @@ const loadProject = async (id: number) => {
               </div>
 
               <div class="align-content-center text-white">
-                <a class="stretched-link stretched-link-translate-right" @click="loadProject(1)">
+                <a class="stretched-link stretched-link-translate-right" @click="loadProject(i)">
                   <font-awesome-icon icon="fa-solid fa-arrow-right" />
                 </a>
               </div>
@@ -73,18 +87,29 @@ const loadProject = async (id: number) => {
 
   <BOffcanvas v-model="showOffcanvas" placement="end">
     <template #header>
-      <slot name="offcanvas-header"></slot>
-      <button type="button" class="btn-close" @click="showOffcanvas = false"></button>
+        <h5 class="mb-0">{{ project?.title }} ({{ project?.id }})</h5>
+        <button type="button" class="btn-close" @click="showOffcanvas = false">
+          <font-awesome-icon icon="fa-solid fa-times" />
+        </button>
     </template>
 
     <slot name="offcanvas-body">
-      <div class="card bg-grey-100 text-white position-sticky bg-opacity-75">
-        <div class="card-header">
-          <h5 class="mb-0">{{ project?.title }}</h5>
-        </div>
+      <div class="position-relative button-on-hover" v-if="project">
+        <BCarousel controls indicators ride="carousel" interval="2500" :img-height="imgSize" class="resizeable">
+          <BCarouselSlide img-src="https://picsum.photos/1024/480/?image=1" class="img-fluid" />
+          <BCarouselSlide img-src="https://picsum.photos/1024/480/?image=2" class="img-fluid" />
+          <BCarouselSlide img-src="https://picsum.photos/1024/480/?image=3" class="img-fluid"  />
+          <BCarouselSlide :img-src="require('@assets/images/TimeofJustice.jpg')" class="img-fluid" />
+        </BCarousel>
 
-        <div class="card-body">
-          <p>{{ project?.title }}</p>
+        <div class="position-absolute top-0 end-0 m-2 btn btn-primary z-3" @click="handleResize">
+          <font-awesome-icon :icon="['fa-solid', imgButton]" />
+        </div>
+      </div>
+
+      <div class="w-100 h-100 d-flex justify-content-center align-items-center" v-else>
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
       </div>
     </slot>

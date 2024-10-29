@@ -18,9 +18,9 @@ import yoda from "@assets/locales/yoda.json";
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faGithub, faInstagram, faLinkedin, faTwitter } from "@fortawesome/free-brands-svg-icons";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faMaximize, faMinimize, faTimes } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faGithub, faInstagram, faLinkedin, faTwitter, faArrowRight);
+library.add(faGithub, faInstagram, faLinkedin, faTwitter, faArrowRight, faTimes, faMaximize, faMinimize);
 
 const i18n = createI18n({
     legacy: false,

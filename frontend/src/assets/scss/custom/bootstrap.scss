@@ -1,3 +1,5 @@
+@import 'colors';
+
 @media (max-width: 992px) {
   .collapse:not(.show) {
     display: block !important;
@@ -41,4 +43,50 @@ a {
     @extend .stretched-link-translate;
     transform: translate(5px);
   }
+}
+
+.img-fluid * {
+  object-fit: cover;
+}
+
+.btn-primary {
+  --bs-btn-bg: #{$gray-500};
+  --bs-btn-color: #{$white};
+  --bs-btn-border-color: #{$gray-500};
+
+  --bs-btn-hover-color: #{map-get($custom-colors, "grey-200")};
+  --bs-btn-hover-border-color: #{$gray-600};
+  --bs-btn-hover-bg: #{$gray-600};
+  --bs-btn-active-bg: #{map-get($custom-colors, "grey-100")};
+
+  --bs-btn-active-color: #{$gray-500};
+  --bs-btn-active-border-color: #{$gray-500};
+}
+
+.offcanvas {
+  --bs-offcanvas-width: 800px;
+  --bs-body-bg: #{map-get($custom-colors, "grey-100")};
+  --bs-offcanvas-color: #ffffff;
+}
+
+.btn-close {
+  --bs-btn-close-color: #fff;
+  --bs-btn-close-bg: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.resizeable img {
+  transition: height .35s ease;
+}
+
+.button-on-hover .btn {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.button-on-hover:hover .btn {
+  opacity: 1;
 }
