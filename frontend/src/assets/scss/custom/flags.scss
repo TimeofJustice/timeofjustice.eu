@@ -1,3 +1,10 @@
 .fi-yoda {
   background-image: url('@assets/images/baby-yoda.svg');
 }
+
+.fi-x-wing {
+  background-image: url('@assets/images/x-wing.svg');
+  transform: rotate(-90-30deg);
+  width: 2.333333em;
+  height: 2.333333em;
+}

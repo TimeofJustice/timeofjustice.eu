@@ -16,6 +16,9 @@ const open = ref(false);
   <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column overflow-hidden">
     <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-space-blue">
       <div class="gradient"></div>
+      <div class="x-wing" v-for="i in 5" :key="i" v-if="$i18n.locale === 'yoda'">
+        <i class="fi fi-x-wing"></i>
+      </div>
     </div>
 
     <div class="navbar navbar-expand-lg position-sticky top-0 z-1">
