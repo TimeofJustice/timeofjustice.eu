@@ -1,6 +1,6 @@
 from PIL import Image
 from django.conf import settings
-from django.http import HttpRequest, JsonResponse, HttpResponse
+from django.http import HttpRequest, JsonResponse, HttpResponse, HttpResponseRedirect
 from inertia import render
 
 from . import models
@@ -38,8 +38,10 @@ def index(request):
         "projects": [project.json() for project in models.Project.objects.all()]
     })
 
+
 def project(request, id):
     return JsonResponse(models.Project.objects.get(id=id).json())
+
 
 def project_details(request, id):
     project = get_or_none(models.Project, id=id)
@@ -49,6 +51,7 @@ def project_details(request, id):
 
     return render(request, "Project", props={"project": project.json()})
 
+
 def project_images(request, name):
     response = HttpResponse(content_type="image/png")
 
@@ -57,3 +60,14 @@ def project_images(request, name):
         image.save(response, "PNG")
 
     return response
+
+
+def robot(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /api/",
+        "Disallow: /admin/",
+        "Allow: /"
+    ]
+
+    return HttpResponse("\n".join(lines), content_type="text/plain")
