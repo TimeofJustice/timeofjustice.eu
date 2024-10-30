@@ -4,6 +4,7 @@ from django.http import HttpRequest, JsonResponse, HttpResponse
 from inertia import render
 
 from . import models
+from .models import get_or_none
 
 
 def error(request, status_code):
@@ -39,6 +40,14 @@ def index(request):
 
 def project(request, id):
     return JsonResponse(models.Project.objects.get(id=id).json())
+
+def project_details(request, id):
+    project = get_or_none(models.Project, id=id)
+
+    if not project:
+        return error(request, 404)
+
+    return render(request, "Project", props={"project": project.json()})
 
 def project_images(request, name):
     response = HttpResponse(content_type="image/png")

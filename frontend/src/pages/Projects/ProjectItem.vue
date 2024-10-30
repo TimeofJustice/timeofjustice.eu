@@ -15,12 +15,12 @@ const leftover = props.project.technologies.length - technologies.length;
 
 <template>
   <div class="d-flex gap-2 overflow-hidden" v-motion-slide-visible-once-right>
-    <img class="img-fluid rounded" :src="project.title_image" style="width: 7rem; height: 7rem; object-fit: cover;">
+    <img class="img-fluid rounded" :src="project.title_image ? project.title_image : require('@assets/images/MissingTexture.svg')" style="width: 7rem; height: 7rem; object-fit: cover;">
 
     <div class="d-flex w-100 justify-content-between overflow-hidden gap-1">
       <div class="align-content-center d-flex flex-column justify-content-center overflow-hidden">
         <h5 class="text-white mb-0">{{ project.title }}</h5>
-        <p class="text-grey-100 fw-bold mb-0 text-truncate">{{ project.short_description[$i18n.locale] }} {{ project.short_description[$i18n.locale] }}</p>
+        <p class="text-grey-100 fw-bold mb-0 text-truncate">{{ project.short_description[$i18n.locale] }}</p>
         <div class="d-flex gap-1 flex-wrap">
           <BBadge v-for="technology in technologies" :key="technology">
             <font-awesome-icon :icon="technology.icon" />
@@ -33,7 +33,7 @@ const leftover = props.project.technologies.length - technologies.length;
       </div>
 
       <div class="align-content-center text-white">
-        <a class="stretched-link stretched-link-translate-right" @click="callback(project.id)">
+        <a class="stretched-link stretched-link-translate-right" href="#" @click="callback(project.id)">
           <font-awesome-icon icon="fa-solid fa-arrow-right" />
         </a>
       </div>

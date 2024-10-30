@@ -23,16 +23,45 @@ const handleResize = () => {
 </script>
 
 <template>
-  <div class="position-relative button-on-hover" v-if="project">
-    <BCarousel controls indicators ride="carousel" interval="2500" :img-height="imgSize" class="resizeable">
-      <BCarouselSlide img-src="https://picsum.photos/1024/480/?image=1" class="img-fluid" />
-      <BCarouselSlide img-src="https://picsum.photos/1024/480/?image=2" class="img-fluid" />
-      <BCarouselSlide img-src="https://picsum.photos/1024/480/?image=3" class="img-fluid" />
-      <BCarouselSlide :img-src="require('@assets/images/TimeofJustice.jpg')" class="img-fluid" />
-    </BCarousel>
+  <div class="d-flex flex-column gap-2" v-if="project">
+    <h1 class="mb-0"> {{ project.title }} </h1>
 
-    <div class="position-absolute top-0 end-0 m-2 btn btn-primary z-3" @click="handleResize">
-      <font-awesome-icon :icon="['fa-solid', imgButton]" />
+    <div class="position-relative button-on-hover">
+      <BCarousel
+        :controls="1 < project.images.length"
+        :indicators="1 < project.images.length"
+        ride="carousel" interval="2500" :img-height="imgSize"
+        class="resizeable"
+        v-if="0 < project.images.length">
+        <BCarouselSlide :img-src="image.image" class="img-fluid" v-for="(image, i) in project.images" :key="i" :alt="image.alt[$i18n.locale]" />
+      </BCarousel>
+
+      <div class="position-absolute top-0 end-0 m-2 btn btn-primary z-3" @click="handleResize">
+        <font-awesome-icon :icon="['fa-solid', imgButton]" />
+      </div>
+    </div>
+
+    <div class="d-flex gap-1 flex-wrap">
+      <BBadge v-for="technology in project.technologies" :key="technology">
+        <font-awesome-icon :icon="technology.icon" />
+        {{ technology.name }}
+      </BBadge>
+    </div>
+
+    <div>{{ project.description[$i18n.locale] }}</div>
+    <div>{{ project.description[$i18n.locale] }}</div>
+
+    <div class="d-flex gap-2">
+      <a :href="project.github" class="btn btn-primary d-flex gap-2 align-items-center" target="_blank" v-if="project.github">
+        <font-awesome-icon icon="fa-brands fa-github" />
+        Github
+        <font-awesome-icon icon="fa-solid fa-external-link-alt" />
+      </a>
+      <a :href="project.website" class="btn btn-primary d-flex gap-2 align-items-center" target="_blank" v-if="project.website">
+        <font-awesome-icon icon="fa-solid fa-globe" />
+        Website
+        <font-awesome-icon icon="fa-solid fa-external-link-alt" />
+      </a>
     </div>
   </div>
 
@@ -42,7 +71,3 @@ const handleResize = () => {
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-
-</style>

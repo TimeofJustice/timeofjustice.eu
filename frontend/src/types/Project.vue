@@ -1,6 +1,7 @@
 <script lang="ts">
 import { TranslatedText } from "./TranslatedText.vue";
 import { Technology } from "./Technology.vue";
+import { ProjectImage } from "./ProjectImage.vue";
 
 default export interface Project {
     id: number;
@@ -8,7 +9,7 @@ default export interface Project {
     short_description: TranslatedText,
     description: TranslatedText,
     title_image: string,
-    images: string[],
+    images: ProjectImage[],
     technologies: Technology[],
     github: string,
     website: string,

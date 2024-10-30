@@ -5,6 +5,13 @@ from django.db import models
 from django.conf import settings
 
 
+def get_or_none(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        return None
+
+
 class Technology(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
@@ -34,7 +41,7 @@ class Project(models.Model):
 
     technology = models.ManyToManyField('Technology', blank=True)
 
-    title_image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/')
+    title_image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', null=True, blank=True)
     alt_german = models.TextField(max_length=100, null=True, blank=True)
     alt_english = models.TextField(max_length=100, null=True, blank=True)
     alt_yoda = models.TextField(max_length=100, null=True, blank=True)
@@ -60,14 +67,15 @@ class Project(models.Model):
                 'yoda': self.description_yoda
             },
             'technologies': [tech.json() for tech in self.technology.all()],
-            'title_image': f"/files/images/project/{os.path.basename(self.title_image.file.name)}",
+            'title_image': f"/files/images/project/{os.path.basename(self.title_image.file.name)}" if self.title_image else None,
             'alt': {
                 'de': self.alt_german,
                 'en': self.alt_english,
                 'yoda': self.alt_yoda
             },
             'github': self.github,
-            'webpage': self.webpage
+            'webpage': self.webpage,
+            'images': [image.json() for image in Image.objects.filter(project=self)]
         }
 
 

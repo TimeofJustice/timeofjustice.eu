@@ -5,7 +5,7 @@ import Profile from "@pages/Projects/Profile.vue";
 import ProjectDetails from "@pages/Projects/ProjectDetails.vue";
 import { Social } from "@types/Social.vue";
 import { Project } from "@types/Project.vue";
-import ProjectItem from "@pages/Projects/Project.vue";
+import ProjectItem from "@pages/Projects/ProjectItem.vue";
 
 interface Props {
   socials: Social[];
@@ -64,10 +64,14 @@ const loadProject = async (id: number) => {
 
   <BOffcanvas v-model="showOffcanvas" placement="end">
     <template #header>
-      <h5 class="mb-0">Project Details</h5>
-      <button type="button" class="btn-close" @click="showOffcanvas = false">
-        <font-awesome-icon icon="fa-solid fa-times" />
-      </button>
+      <div class="d-flex gap-2">
+        <a type="button" class="btn btn-primary" @click="showOffcanvas = false">
+          <font-awesome-icon icon="fa-solid fa-times" />
+        </a>
+        <a type="button" class="btn btn-primary" :href="`/project/${project?.id}`">
+          <font-awesome-icon icon="fa-solid fa-external-link-alt" />
+        </a>
+      </div>
     </template>
 
     <slot name="offcanvas-body">

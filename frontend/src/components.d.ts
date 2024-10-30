@@ -8,14 +8,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BAlert: typeof import('bootstrap-vue-next/components/BAlert')['BAlert']
-    BAvatar: typeof import('bootstrap-vue-next/components/BAvatar')['BAvatar']
     BBadge: typeof import('bootstrap-vue-next/components/BBadge')['BBadge']
     BCarousel: typeof import('bootstrap-vue-next/components/BCarousel')['BCarousel']
     BCarouselSlide: typeof import('bootstrap-vue-next/components/BCarousel')['BCarouselSlide']
     BDropdown: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdown']
-    BDropdownItem: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownItem']
     BDropdownItemButton: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownItemButton']
-    BImg: typeof import('bootstrap-vue-next/components/BImg')['BImg']
     BOffcanvas: typeof import('bootstrap-vue-next/components/BOffcanvas')['BOffcanvas']
   }
 }
