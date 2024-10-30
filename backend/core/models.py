@@ -27,9 +27,36 @@ class Technology(models.Model):
         }
 
 
+class Status(models.Model):
+    id = models.AutoField(primary_key=True)
+    name_german = models.CharField(max_length=20)
+    name_english = models.CharField(max_length=20)
+    name_yoda = models.CharField(max_length=20)
+    color = models.CharField(max_length=20, null=True, blank=True)
+    order = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name_german
+
+    def json(self):
+        return {
+            'name': {
+                'de': self.name_german,
+                'en': self.name_english,
+                'yoda': self.name_yoda
+            },
+            'color': self.color
+        }
+
+
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
+
+    status = models.ForeignKey('Status', on_delete=models.CASCADE, null=True, blank=True)
 
     short_description_german = models.TextField(max_length=100, null=True, blank=True)
     short_description_english = models.TextField(max_length=100, null=True, blank=True)
@@ -49,6 +76,9 @@ class Project(models.Model):
     github = models.URLField(max_length=100, null=True, blank=True)
     webpage = models.URLField(max_length=100, null=True, blank=True)
 
+    class Meta:
+        ordering = ['status']
+
     def __str__(self):
         return self.title
 
@@ -56,6 +86,7 @@ class Project(models.Model):
         return {
             'id': self.id,
             'title': self.title,
+            'status': self.status.json() if self.status else None,
             'short_description': {
                 'de': self.short_description_german,
                 'en': self.short_description_english,

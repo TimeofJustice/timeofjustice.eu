@@ -19,7 +19,11 @@ const leftover = props.project.technologies.length - technologies.length;
 
     <div class="d-flex w-100 justify-content-between overflow-hidden gap-1">
       <div class="align-content-center d-flex flex-column justify-content-center overflow-hidden">
-        <h5 class="text-white mb-0">{{ project.title }}</h5>
+        <div class="d-flex flex-row gap-2 align-items-center">
+          <BBadge class="d-flex align-items-center" :class="project.status.color ? 'bg-' + project.status.color : ''"
+                  v-if="project.status">{{ project.status.name[$i18n.locale] }}</BBadge>
+          <h5 class="text-white mb-0 text-truncate">{{ project.title }}</h5>
+        </div>
         <p class="text-grey-100 fw-bold mb-0 text-truncate">{{ project.short_description[$i18n.locale] }}</p>
         <div class="d-flex gap-1 flex-wrap">
           <BBadge v-for="technology in technologies" :key="technology">

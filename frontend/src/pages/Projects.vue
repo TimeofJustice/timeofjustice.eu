@@ -35,7 +35,7 @@ const loadProject = async (id: number) => {
   <Head title="Projects" />
 
   <div class="d-flex container gap-4 flex-column flex-lg-row">
-    <div class="col-md-4 flex-grow-1 justify-content-start align-items-end d-none d-lg-flex flex-column">
+    <div class="col-md-4 flex-grow-0 justify-content-start align-items-end d-none d-lg-flex flex-column">
       <!-- If you found this, keep this our dirty little secret -->
       <h1 class="display-1 fw-bold text-white invisible" style="line-height: 50px;">
         Past
@@ -48,7 +48,7 @@ const loadProject = async (id: number) => {
       <Profile :socials="socials" variant="small" />
     </div>
 
-    <div class="d-flex flex-column h-100 w-100 gap-2">
+    <div class="d-flex flex-column h-100 flex-grow-1 flex-shrink-1 gap-2" style="min-width: 0">
       <section v-motion-slide-visible-once-top v-if="true">
         <h1 class="display-1 fw-bold text-white" style="line-height: 50px">
           Past
