@@ -1,5 +1,9 @@
 {
   "description": "This is the english translation, but spoken in Yoda's voice",
+  "general": {
+    "back": "Back, you must",
+    "error": "Error, there is"
+  },
   "nav": {
     "projects": "Projects",
     "place": "r/Place"

@@ -1,4 +1,8 @@
 {
+  "general": {
+    "back": "Zurück",
+    "error": "Fehler"
+  },
   "nav": {
     "projects": "Projekte",
     "place": "r/Place"
