@@ -36,6 +36,7 @@ export default defineConfig({
             '@layouts': fileURLToPath(new URL('./src/layouts', import.meta.url)),
             '@node_modules': fileURLToPath(new URL('./node_modules', import.meta.url)),
             '@types': fileURLToPath(new URL('./src/types', import.meta.url)),
+            '@configurations': fileURLToPath(new URL('./src/configurations', import.meta.url)),
         }
     },
     server: {

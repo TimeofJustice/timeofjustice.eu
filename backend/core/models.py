@@ -59,7 +59,7 @@ class Project(models.Model):
                 'en': self.description_english,
                 'yoda': self.description_yoda
             },
-            'technology': [tech.json() for tech in self.technology.all()],
+            'technologies': [tech.json() for tech in self.technology.all()],
             'title_image': f"/files/images/project/{os.path.basename(self.title_image.file.name)}",
             'alt': {
                 'de': self.alt_german,
