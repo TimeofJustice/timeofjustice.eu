@@ -47,6 +47,7 @@ class Project(models.Model):
 
     def json(self):
         return {
+            'id': self.id,
             'title': self.title,
             'short_description': {
                 'de': self.short_description_german,

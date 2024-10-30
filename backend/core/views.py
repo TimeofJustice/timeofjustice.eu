@@ -38,11 +38,7 @@ def index(request):
     })
 
 def project(request, id):
-    return JsonResponse({
-        "id": id,
-        "title": "Project Name",
-        "description": "Project Description",
-    })
+    return JsonResponse(models.Project.objects.get(id=id).json())
 
 def project_images(request, name):
     response = HttpResponse(content_type="image/png")
