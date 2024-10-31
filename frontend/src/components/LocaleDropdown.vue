@@ -1,8 +1,8 @@
 <script setup lang="ts">
 const langs = [
-  { code: "en", text: "English", flag: "<i class=\"fi fi-us\"></i>" },
-  { code: "de", text: "Deutsch", flag: "<i class=\"fi fi-de\"></i>" },
-  {code: "yoda", text: "Yoda", flag: "<i class=\"fi fi-yoda\"></i>"},
+  { code: "en", text: "English", flag: "fi fi-us" },
+  { code: "de", text: "Deutsch", flag: "fi fi-de" },
+  {code: "yoda", text: "Yoda", flag: "fi fi-yoda"},
 ];
 
 const changeLocale = (lang: string) => {
@@ -13,11 +13,11 @@ const changeLocale = (lang: string) => {
 <template>
   <BDropdown class="dropdown-ghost">
     <template #button-content>
-      <i v-html="langs.find(lang => lang.code === $i18n.locale)?.flag"></i>
+      <i :class="langs.find(lang => lang.code === $i18n.locale)?.flag"></i>
     </template>
 
     <BDropdownItemButton v-for="lang in langs" :key="lang.code" @click="$i18n.locale = lang.code; changeLocale(lang.code)">
-      <i v-html="lang.flag"></i> {{ lang.text }}
+      <i :class="lang.flag"></i> {{ lang.text }}
     </BDropdownItemButton>
   </BDropdown>
 </template>

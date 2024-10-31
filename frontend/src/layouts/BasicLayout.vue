@@ -30,7 +30,7 @@ const open = ref(false);
         <div class="navbar-brand d-flex">
           <LocaleDropdown class="d-block d-lg-none"/>
 
-          <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.jpg')" style="width: 2.3rem;">
+          <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.svg')" style="width: 2.3rem;">
         </div>
 
         <div class="collapse navbar-collapse d-flex justify-content-between" :class="{show: open}">

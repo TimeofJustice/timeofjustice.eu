@@ -22,7 +22,7 @@ withDefaults(defineProps<Props>(), {
     </div>
 
     <div class="card-body d-flex flex-column align-items-center gap-3" style="max-width: 18rem">
-      <img class="img-fluid rounded" :src="require('@assets/images/TimeofJustice.jpg')" alt="TimeofJustice">
+      <img class="img-fluid rounded" :src="require('@assets/images/TimeofJustice.svg')" alt="TimeofJustice">
       <h5 class="fw-bold text-center mb-0">
         {{ $t("index.profile.current_position") }}
       </h5>
@@ -45,7 +45,7 @@ withDefaults(defineProps<Props>(), {
   <div class="card bg-grey-100 text-white bg-opacity-75" v-else>
     <div class="row g-0">
       <div class="col-4 ps-3 pt-3 pb-3">
-        <img class="img-fluid rounded" :src="require('@assets/images/TimeofJustice.jpg')" alt="TimeofJustice">
+        <img class="img-fluid rounded" :src="require('@assets/images/TimeofJustice.svg')" alt="TimeofJustice">
       </div>
       <div class="col-8">
         <div class="card-body d-flex flex-column gap-2 h-100">

@@ -5,7 +5,6 @@ import { MotionPlugin } from '@vueuse/motion'
 import { createI18n } from "vue-i18n";
 import {createBootstrap} from 'bootstrap-vue-next'
 
-import "@node_modules/flag-icons/css/flag-icons.min.css";
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 

@@ -1,4 +1,5 @@
 {% load django_vite %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,11 +9,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     {% vite_hmr_client %}
-    {% vite_asset 'main.ts' %}
+    {% vite_asset 'main.ts' defer="true" %}
+
+    <style>
+        .vue-loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #071c39;
+            z-index: -1;
+            color: white;
+        }
+
+        .vue-loading .spinner-border {
+            border: 0.25em solid currentcolor;
+            border-right-color: transparent;
+        }
+
+        .vue-loading .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            vertical-align: -0.125em;
+            border-radius: 50%;
+            animation: 0.75s linear infinite loading;
+        }
+
+        @keyframes loading {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
-{% block inertia %}{% endblock %}
+{% block inertia %} {% endblock %}
+
+<div class="vue-loading">
+    <div class="spinner-border" role="status"> </div>
+</div>
 </body>
 
 </html>
