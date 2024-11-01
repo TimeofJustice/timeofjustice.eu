@@ -78,6 +78,16 @@ def project_images(request, name):
     return response
 
 
+def project_images_lazy(request, name):
+    response = HttpResponse(content_type="image/png")
+
+    with open(f"{settings.FILE_DESTINATION}/images/lazy/project/{name}", "rb") as f:
+        image = Image.open(f)
+        image.save(response, "PNG")
+
+    return response
+
+
 def robot(request):
     lines = [
         "User-agent: *",

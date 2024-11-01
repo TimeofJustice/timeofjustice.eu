@@ -1,4 +1,5 @@
 import os
+import PIL.Image
 
 from django.db import models
 
@@ -10,6 +11,52 @@ def get_or_none(model, **kwargs):
         return model.objects.get(**kwargs)
     except model.DoesNotExist:
         return None
+
+
+def generate_lazy_image(image, directory):
+    img = PIL.Image.open(image)
+
+    image_name = os.path.basename(image.path)
+    image_path = settings.FILE_DESTINATION + f'images/lazy/{directory}/{image_name}'
+
+    if not os.path.exists(os.path.dirname(image_path)):
+        os.makedirs(os.path.dirname(image_path))
+
+    width, height = img.size
+    target_width = 100
+    h_coefficient = width/100
+    target_height = height/h_coefficient
+
+    img = img.resize((int(target_width), int(target_height)), PIL.Image.LANCZOS)
+    img.save(image_path, quality=100)
+    img.close()
+
+    return image_path
+
+
+def compress(image, directory, size=480, quality=50):
+    img = PIL.Image.open(image)
+
+    image_name = os.path.basename(image.path)
+    image_path = settings.FILE_DESTINATION + f'images/{directory}/{image_name}'
+
+    width, height = img.size
+
+    if width > size or height > size:
+        h_coefficient = width/size
+        target_height = height/h_coefficient
+
+        img = img.resize((size, int(target_height)), PIL.Image.LANCZOS)
+
+    img.save(image_path, quality=quality, optimize=True)
+    img.close()
+
+
+def lazy_image_to_json(image, base_url):
+    return {
+        'lazy': f"/files/images/lazy/{base_url}/{os.path.basename(image.file.name)}",
+        'original': f"/files/images/{base_url}/{os.path.basename(image.file.name)}"
+    }
 
 
 class Technology(models.Model):
@@ -76,6 +123,13 @@ class Project(models.Model):
     github = models.URLField(max_length=100, null=True, blank=True)
     webpage = models.URLField(max_length=100, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.title_image:
+            generate_lazy_image(self.title_image, 'project')
+            compress(self.title_image, 'project')
+
     class Meta:
         ordering = ['status']
 
@@ -98,7 +152,7 @@ class Project(models.Model):
                 'yoda': self.description_yoda
             },
             'technologies': [tech.json() for tech in self.technology.all()],
-            'title_image': f"/files/images/project/{os.path.basename(self.title_image.file.name)}" if self.title_image else None,
+            'title_image': lazy_image_to_json(self.title_image, 'project') if self.title_image else None,
             'alt': {
                 'de': self.alt_german,
                 'en': self.alt_english,
@@ -118,9 +172,16 @@ class Image(models.Model):
     alt_english = models.TextField(max_length=100, null=True, blank=True)
     alt_yoda = models.TextField(max_length=100, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.image:
+            generate_lazy_image(self.image, 'project')
+            compress(self.image, 'project', size=1080, quality=80)
+
     def json(self):
         return {
-            'image': f"/files/images/project/{os.path.basename(self.image.file.name)}",
+            'image': lazy_image_to_json(self.image, 'project'),
             'alt': {
                 'de': self.alt_german,
                 'en': self.alt_english,

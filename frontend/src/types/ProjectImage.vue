@@ -1,8 +1,9 @@
 <script lang="ts">
 import { TranslatedText } from "./TranslatedText.vue";
+import { LazyImage } from "./LazyImage.vue";
 
-default export interface ProjectImage {
-    image: string;
+  export interface ProjectImage {
+    image: LazyImage;
     alt: TranslatedText;
   }
 </script>

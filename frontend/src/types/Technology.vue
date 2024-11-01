@@ -1,5 +1,5 @@
 <script lang="ts">
-default export interface Technology {
+  export interface Technology {
     name: string;
     icon: string;
   }

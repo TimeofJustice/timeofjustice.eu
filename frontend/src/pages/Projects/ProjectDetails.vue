@@ -33,7 +33,7 @@ const handleResize = () => {
         ride="carousel" interval="2500" :img-height="imgSize"
         class="resizeable"
         v-if="0 < project.images.length">
-        <BCarouselSlide :img-src="image.image" class="img-fluid" v-for="(image, i) in project.images" :key="i" :alt="image.alt[$i18n.locale]" />
+        <BCarouselSlide :img-src="image.image.original" class="img-fluid" v-for="(image, i) in project.images" :key="i" :alt="image.alt[$i18n.locale]" />
       </BCarousel>
 
       <div class="position-absolute top-0 end-0 m-2 btn btn-primary z-3" @click="handleResize">
@@ -48,7 +48,6 @@ const handleResize = () => {
       </BBadge>
     </div>
 
-    <div>{{ project.description[$i18n.locale] }}</div>
     <div>{{ project.description[$i18n.locale] }}</div>
 
     <div class="d-flex gap-2">

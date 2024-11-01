@@ -15,7 +15,9 @@ const leftover = props.project.technologies.length - technologies.length;
 
 <template>
   <div class="d-flex gap-2 overflow-hidden" v-motion-slide-visible-once-right>
-    <img class="img-fluid rounded" :src="project.title_image ? project.title_image : require('@assets/images/MissingTexture.svg')" style="width: 7rem; height: 7rem; object-fit: cover;">
+    <v-lazy-image class="img-fluid rounded" style="width: 7rem; height: 7rem; object-fit: cover;"
+                  :src="project.title_image ? project.title_image.original : require('@assets/images/MissingTexture.svg')"
+                  :src-placeholder="project.title_image ? project.title_image.lazy : ''" />
 
     <div class="d-flex w-100 justify-content-between overflow-hidden gap-1">
       <div class="align-content-center d-flex flex-column justify-content-center overflow-hidden">

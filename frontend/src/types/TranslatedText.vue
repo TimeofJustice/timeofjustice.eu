@@ -1,5 +1,5 @@
 <script lang="ts">
-  default export interface TranslatedText {
+  export interface TranslatedText {
     de: string;
     en: string;
     yoda: string;

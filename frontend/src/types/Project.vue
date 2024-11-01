@@ -2,19 +2,20 @@
 import { TranslatedText } from "./TranslatedText.vue";
 import { Technology } from "./Technology.vue";
 import { ProjectImage } from "./ProjectImage.vue";
+import { LazyImage } from "./LazyImage.vue";
 
 interface Status {
   name: TranslatedText;
   color: string;
 }
 
-default export interface Project {
+export interface Project {
     id: number;
     title: string;
     status: TranslatedText;
     short_description: TranslatedText,
     description: TranslatedText,
-    title_image: string,
+    title_image: LazyImage,
     images: ProjectImage[],
     technologies: Technology[],
     github: string,

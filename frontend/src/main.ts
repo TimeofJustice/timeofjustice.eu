@@ -4,6 +4,7 @@ import { createInertiaApp } from "@inertiajs/vue3";
 import { MotionPlugin } from '@vueuse/motion'
 import { createI18n } from "vue-i18n";
 import {createBootstrap} from 'bootstrap-vue-next'
+import VLazyImage from "v-lazy-image";
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
@@ -39,6 +40,7 @@ createInertiaApp({
             .use(plugin)
             .use(createBootstrap())
             .component('font-awesome-icon', FontAwesomeIcon)
+            .component('v-lazy-image', VLazyImage)
             .use(MotionPlugin)
             .use(i18n)
             .mount(el);
