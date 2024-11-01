@@ -1,7 +1,7 @@
 import {defineConfig} from 'vite'
 import vue from '@vitejs/plugin-vue'
 import {resolve} from "path";
-import {fileURLToPath, URL} from 'node:url'
+import { fileURLToPath, URL } from 'url';
 import Components from 'unplugin-vue-components/vite'
 import {BootstrapVueNextResolver} from 'bootstrap-vue-next'
 import vitePluginRequire from "vite-plugin-require";
@@ -25,6 +25,18 @@ export default defineConfig({
         rollupOptions: {
             // Overwrite default .html entry to main.ts in the static directory
             input: resolve("./src/main.ts"),
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules/@fortawesome')) {
+                        // Split dependencies into individual chunks by their package name
+                        return id.toString().split('node_modules/@fortawesome/')[1].split('/')[0].toString();
+                    }
+                    else if (id.includes('node_modules')) {
+                        // Split dependencies into individual chunks by their package name
+                        return id.toString().split('node_modules/')[1].split('/')[0].toString();
+                    }
+                }
+            }
         },
     },
     resolve: {

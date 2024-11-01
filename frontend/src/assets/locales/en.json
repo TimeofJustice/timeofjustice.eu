@@ -8,7 +8,7 @@
     "place": "r/Place"
   },
   "index": {
-    "wip_alert": "This page is still in work. Please check back later. The current version can be found at: <a class='link-info' href='https://timeofjustice.eu'>timeofjustice.eu</a>",
+    "wip_alert": "This page is still in work. Please check back later. The current version can be found at: timeofjustice.eu",
     "profile": {
       "current_position": "Student of Computer Science",
       "based_in": "Based in Germany"

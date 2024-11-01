@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import Project from "./ProjectDetails.vue";
+import { Project } from "@/types/Project.vue";
 import { ref } from "vue";
+import { TranslatedText } from "@/types/TranslatedText.vue";
 
 interface Props {
-  project: Project;
+  project: Project | null;
 }
 
 defineProps<Props>();
 
-const imgSize = ref(250);
+const imgSize = ref("250");
 const imgButton = ref("fa-maximize");
 
 const handleResize = () => {
-  if (imgSize.value === 500) {
-    imgSize.value = 250;
+  if (imgSize.value === "500") {
+    imgSize.value = "250";
     imgButton.value = "fa-maximize";
   } else {
-    imgSize.value = 500;
+    imgSize.value = "500";
     imgButton.value = "fa-minimize";
   }
 };
@@ -30,10 +31,13 @@ const handleResize = () => {
       <BCarousel
         :controls="1 < project.images.length"
         :indicators="1 < project.images.length"
-        ride="carousel" interval="2500" :img-height="imgSize"
+        ride="carousel"
+        :interval="5000"
+        :img-height="imgSize"
         class="resizeable"
         v-if="0 < project.images.length">
-        <BCarouselSlide :img-src="image.image.original" class="img-fluid" v-for="(image, i) in project.images" :key="i" :alt="image.alt[$i18n.locale]" />
+        <BCarouselSlide :img-src="image.image.original" class="img-fluid" v-for="(image, i) in project.images" :key="i"
+                        :alt="image.alt[$i18n.locale as keyof TranslatedText]" />
       </BCarousel>
 
       <div class="position-absolute top-0 end-0 m-2 btn btn-primary z-3" @click="handleResize">
@@ -42,13 +46,15 @@ const handleResize = () => {
     </div>
 
     <div class="d-flex gap-1 flex-wrap">
-      <BBadge v-for="technology in project.technologies" :key="technology">
+      <BBadge v-for="technology in project.technologies" :key="technology.name">
         <font-awesome-icon :icon="technology.icon" />
         {{ technology.name }}
       </BBadge>
     </div>
 
-    <div>{{ project.description[$i18n.locale] }}</div>
+    <vue-markdown :source="project.description[$i18n.locale as keyof TranslatedText]" :options="{
+      linkify: true
+    }" />
 
     <div class="d-flex gap-2">
       <a :href="project.github" class="btn btn-primary d-flex gap-2 align-items-center" target="_blank" v-if="project.github">

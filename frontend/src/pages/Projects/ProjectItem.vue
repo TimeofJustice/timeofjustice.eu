@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Project } from "@types/Project.vue";
+import { Project } from "@/types/Project.vue";
+import { TranslatedText } from "@/types/TranslatedText.vue";
 
 interface Props {
   project: Project;
@@ -23,12 +24,12 @@ const leftover = props.project.technologies.length - technologies.length;
       <div class="align-content-center d-flex flex-column justify-content-center overflow-hidden">
         <div class="d-flex flex-row gap-2 align-items-center">
           <BBadge class="d-flex align-items-center" :class="project.status.color ? 'bg-' + project.status.color : ''"
-                  v-if="project.status">{{ project.status.name[$i18n.locale] }}</BBadge>
+                  v-if="project.status">{{ project.status.name[$i18n.locale as keyof TranslatedText] }}</BBadge>
           <h5 class="text-white mb-0 text-truncate">{{ project.title }}</h5>
         </div>
-        <p class="text-grey-100 fw-bold mb-0 text-truncate">{{ project.short_description[$i18n.locale] }}</p>
+        <p class="text-grey-100 fw-bold mb-0 text-truncate">{{ project.short_description[$i18n.locale as keyof TranslatedText] }}</p>
         <div class="d-flex gap-1 flex-wrap">
-          <BBadge v-for="technology in technologies" :key="technology">
+          <BBadge v-for="technology in technologies" :key="technology.name">
             <font-awesome-icon :icon="technology.icon" />
             {{ technology.name }}
           </BBadge>

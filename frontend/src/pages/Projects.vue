@@ -3,8 +3,8 @@ import { Head } from "@inertiajs/vue3";
 import { ref } from "vue";
 import Profile from "@pages/Projects/Profile.vue";
 import ProjectDetails from "@pages/Projects/ProjectDetails.vue";
-import { Social } from "@types/Social.vue";
-import { Project } from "@types/Project.vue";
+import { Social } from "@/types/Social.vue";
+import { Project } from "@/types/Project.vue";
 import ProjectItem from "@pages/Projects/ProjectItem.vue";
 
 interface Props {

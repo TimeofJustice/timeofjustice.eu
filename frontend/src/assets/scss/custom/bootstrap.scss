@@ -1,4 +1,5 @@
 @import 'colors';
+@import "@node_modules/bootstrap/scss/bootstrap.scss";
 
 @media (max-width: 992px) {
   .collapse:not(.show) {
@@ -93,4 +94,12 @@ a {
 
 .button-on-hover:hover .btn {
   opacity: 1;
+}
+
+.alert p {
+  margin: 0;
+}
+
+.alert a {
+  @extend .link-info
 }

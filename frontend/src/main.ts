@@ -1,10 +1,10 @@
-import "vite/modulepreload-polyfill";
 import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { MotionPlugin } from '@vueuse/motion'
 import { createI18n } from "vue-i18n";
 import {createBootstrap} from 'bootstrap-vue-next'
 import VLazyImage from "v-lazy-image";
+import VueMarkdown from 'vue-markdown-render'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
@@ -29,9 +29,9 @@ import BasicLayout from "@layouts/BasicLayout.vue";
 
 createInertiaApp({
     title: title => `${title} - timeofjustice.eu`,
-    resolve: name => {
+    resolve: (name) => {
         const pages = import.meta.glob('./pages/**/*.vue', { eager: true })
-        let page = pages[`./pages/${name}.vue`]
+        let page: any = pages[`./pages/${name}.vue`]
         page.default.layout = page.default.layout || BasicLayout
         return page
     },
@@ -41,6 +41,7 @@ createInertiaApp({
             .use(createBootstrap())
             .component('font-awesome-icon', FontAwesomeIcon)
             .component('v-lazy-image', VLazyImage)
+            .component('vue-markdown', VueMarkdown)
             .use(MotionPlugin)
             .use(i18n)
             .mount(el);

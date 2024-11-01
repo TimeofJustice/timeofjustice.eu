@@ -12,7 +12,7 @@ interface Status {
 export interface Project {
     id: number;
     title: string;
-    status: TranslatedText;
+    status: Status;
     short_description: TranslatedText,
     description: TranslatedText,
     title_image: LazyImage,

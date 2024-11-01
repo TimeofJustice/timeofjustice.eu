@@ -52,7 +52,10 @@ const open = ref(false);
 
     <div class="w-100 p-4 overflow-y-auto overflow-x-hidden z-0">
       <div class="container">
-        <BAlert variant="info" :model-value="true" v-html="$t('index.wip_alert')">
+        <BAlert variant="info" :model-value="true">
+          <vue-markdown :source="$t('index.wip_alert')" :options="{
+            linkify: true
+          }" />
         </BAlert>
       </div>
       <slot></slot>

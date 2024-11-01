@@ -31,7 +31,7 @@ jobs:
       - name: Vue Deploy
         run: |
           cd frontend/
-          npx vite build --emptyOutDir
+          npm run build
     
   deploy:
     needs: build
