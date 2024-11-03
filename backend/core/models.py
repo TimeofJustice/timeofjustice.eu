@@ -159,7 +159,7 @@ class Project(models.Model):
                 'yoda': self.alt_yoda
             },
             'github': self.github,
-            'webpage': self.webpage,
+            'website': self.webpage,
             'images': [image.json() for image in Image.objects.filter(project=self)]
         }
 

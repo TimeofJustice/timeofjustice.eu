@@ -39,10 +39,10 @@ const open = ref(false);
               <FontAwesomeIcon :icon="faHome"/>
               <span class="ms-1">{{ $t('nav.projects') }}</span>
             </Link>
-            <Link class="nav-item nav-link p-0" href="/project/1" :class="{ 'active': $page.component === 'Project' }">
+            <a class="nav-item nav-link p-0" href="https://legacy.timeofjustice.eu/place">
               <FontAwesomeIcon :icon="faPaintBrush"/>
               <span class="ms-1">{{ $t('nav.place') }}</span>
-            </Link>
+            </a>
           </div>
 
           <LocaleDropdown class="d-none d-lg-block"/>

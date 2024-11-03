@@ -40,7 +40,7 @@ PROPAGATE_EXCEPTIONS = True
 
 ALLOWED_HOSTS = ['127.0.0.1',
                  'localhost',
-                 'vue.timeofjustice.eu',]
+                 'timeofjustice.eu',]
 
 
 # Application definition
