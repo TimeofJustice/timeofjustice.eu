@@ -49,19 +49,19 @@ USE_TZ = True
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
-    'timeofjustice.eu',
+    'legacy.timeofjustice.eu',
 ]
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:3000',
     'http://localhost:3000',
     'http://127.0.0.1',
     'http://localhost',
-    'https://timeofjustice.eu'
+    'https://legacy.timeofjustice.eu'
 ]
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1',
     'http://localhost',
-    'https://timeofjustice.eu'
+    'https://legacy.timeofjustice.eu'
 ]
 
 
