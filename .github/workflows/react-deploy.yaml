@@ -2,7 +2,7 @@ name: React Deployment
 
 on:
   push:
-    branches: [release]
+    branches: [legacy]
     paths:
       - frontend/**
 

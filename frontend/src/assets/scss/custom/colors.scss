@@ -1,0 +1,32 @@
+$custom-colors: (
+    'grey-100': #252525,
+    'grey-200': #3b3b3b,
+    'space-blue': #071c39,
+    'grey-10': #adadad,
+    'aquamarin': #6097b7,
+    'blue-grey': #587db6,
+    'brown': #766a5f,
+    'dark-green': #298363,
+    'dark-red': #7d4154,
+);
+
+$gray-500: #1a1a1a;
+$gray-600: #101010;
+$black: #000000;
+$white: #ffffff;
+
+.bg {
+  @each $color, $value in $custom-colors {
+    &-#{$color} {
+        background-color: rgba($value, var(--bs-bg-opacity))!important;
+    }
+  }
+}
+
+.text {
+  @each $color, $value in $custom-colors {
+    &-#{$color} {
+      color: $value!important;
+    }
+  }
+}

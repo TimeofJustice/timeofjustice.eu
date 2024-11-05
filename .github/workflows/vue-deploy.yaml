@@ -1,20 +1,48 @@
-name: Django Deployment
+name: Vue Deployment
 
 on:
   push:
-    branches: [legacy]
+    branches: [release]
     paths:
+      - frontend/**
       - backend/**
 
 jobs:
-  deploy:
+  build:
     runs-on: self-hosted
     permissions:
       contents: read
+
     steps:
       - name: Check out current repository
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          cd frontend/
+          npm install
+
+      - name: Get .env file
+        run: |
+          cd frontend/src/
+          rsync -r /var/www/vue.timeofjustice.eu/.env .env
+
+      - name: Vue Deploy
+        run: |
+          cd frontend/
+          npm run build
+    
+  deploy:
+    needs: build
+    runs-on: self-hosted
+    permissions:
+      contents: read
+
+    steps:
       - name: Create virtual environment
         run: |
           cd backend/
@@ -34,10 +62,10 @@ jobs:
           source .env/bin/activate
           python3.12 manage.py collectstatic --noinput
 
-      - name: Django Deploy
+      - name: Deploy
         run: |
-          rsync -r --delete-delay backend/ /var/www/timeofjustice.eu/backend/
+          rsync -r --delete-delay backend/ /var/www/vue.timeofjustice.eu/backend/
 
       - name: Restart Django
         run: |
-          touch /var/www/timeofjustice.eu/backend/timeofjustice/wsgi.py
+          touch /var/www/vue.timeofjustice.eu/backend/backend/wsgi.py

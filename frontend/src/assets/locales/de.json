@@ -1,0 +1,23 @@
+{
+  "general": {
+    "back": "Zurück",
+    "error": "Fehler"
+  },
+  "nav": {
+    "projects": "Projekte",
+    "place": "r/Place"
+  },
+  "index": {
+    "wip_alert": "Diese Seite ist noch in Arbeit. Bitte schau später wieder vorbei. Die aktuelle Version findest du unter: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
+    "profile": {
+      "current_position": "Student der Informatik",
+      "based_in": "Wohnhaft in Deutschland"
+    }
+  },
+  "socials": {
+    "github": "TimeofJustice auf GitHub",
+    "linkedin": "TimeofJustice auf LinkedIn",
+    "twitter": "TimeofJustice auf Twitter",
+    "instagram": "TimeofJustice auf Instagram"
+  }
+}

@@ -1,0 +1,33 @@
+.fi {
+  position: relative;
+  display: inline-block;
+  width: 1.333333em;
+  height: 1em;
+  line-height: 1em;
+  vertical-align: -2px;
+}
+
+.fib, .fi {
+  background-size: contain;
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+
+.fi-de {
+  background-image: url(@assets/images/flags/de.svg);
+}
+
+.fi-us {
+  background-image: url(@assets/images/flags/us.svg);
+}
+
+.fi-yoda {
+  background-image: url('@assets/images/flags/baby-yoda.svg');
+}
+
+.fi-x-wing {
+  background-image: url('@assets/images/x-wing.svg');
+  transform: rotate(-90-30deg);
+  width: 2.333333em;
+  height: 2.333333em;
+}
