@@ -1,14 +1,17 @@
 asgiref==3.8.1
 certifi==2024.8.30
 charset-normalizer==3.4.0
+colorama==0.4.6
 Django==5.1.2
 django-cleanup==9.0.0
+django-otp==1.5.4
 django-vite==3.0.5
 idna==3.10
 inertia-django==0.6.0
 pillow==11.0.0
 psycopg==3.2.3
 psycopg2==2.9.10
+qrcode==8.0
 requests==2.32.3
 sqlparse==0.5.1
 typing_extensions==4.12.2

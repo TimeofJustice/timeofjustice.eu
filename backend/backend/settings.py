@@ -32,6 +32,7 @@ CONFIG_PARSER.read(CONFIG_FILE)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = CONFIG_PARSER["DEFAULT"]["DJANGO_SECRET_KEY"]
+ADMIN_URL = CONFIG_PARSER["DEFAULT"]["ADMIN_URL"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = CONFIG_PARSER["DEFAULT"].getboolean("DEBUG")
@@ -55,6 +56,9 @@ INSTALLED_APPS = [
     "django_vite",
     "inertia",
     'django_cleanup.apps.CleanupConfig',
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_static',
     'core',
 ]
 
@@ -64,6 +68,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "inertia.middleware.InertiaMiddleware",
