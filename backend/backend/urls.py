@@ -27,7 +27,7 @@ urlpatterns = [
     path("", include("core.urls")),
 ]
 
-handler404 = "core.views.page_not_found"
-handler500 = "core.views.server_error"
-handler403 = "core.views.permission_denied"
-handler400 = "core.views.bad_request"
+handler404 = "core.views.errors.page_not_found"
+handler500 = "core.views.errors.server_error"
+handler403 = "core.views.errors.permission_denied"
+handler400 = "core.views.errors.bad_request"
