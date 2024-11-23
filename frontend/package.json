@@ -18,13 +18,15 @@
     "@inertiajs/vue3": "^1.2.0",
     "@popperjs/core": "^2.11.8",
     "@vueuse/motion": "^2.2.6",
+    "apexcharts": "^4.0.0",
     "bootstrap": "^5.3.3",
     "bootstrap-vue-next": "^0.25.10",
     "v-lazy-image": "^2.1.1",
     "vite-plugin-require": "^1.2.14",
     "vue": "^3.3.4",
     "vue-i18n": "^9.14.1",
-    "vue-markdown-render": "^2.2.1"
+    "vue-markdown-render": "^2.2.1",
+    "vue3-apexcharts": "^1.8.0"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {faBars, faHome, faPaintBrush} from "@fortawesome/free-solid-svg-icons";
 import {ref} from "vue";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
-import { Social } from "@types/Social.vue";
 
 interface IBasicLayout {
   isProduction: boolean;

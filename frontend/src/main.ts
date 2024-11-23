@@ -27,6 +27,7 @@ const i18n = createI18n({
 
 import BasicLayout from "@layouts/BasicLayout.vue";
 import { wip } from "@/directives/wip.ts";
+import VueApexCharts from "@node_modules/vue3-apexcharts";
 
 createInertiaApp({
     title: title => `${title} - timeofjustice.eu`,
@@ -46,6 +47,7 @@ createInertiaApp({
             .component('vue-markdown', VueMarkdown)
             .use(MotionPlugin)
             .use(i18n)
+            .use(VueApexCharts)
             .directive('wip', wip)
             .mount(el);
     },

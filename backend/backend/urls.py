@@ -17,14 +17,17 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django_otp.admin import OTPAdminSite
+from django.conf import settings
 
-admin.site.__class__ = OTPAdminSite
+if not settings.DEBUG:
+    admin.site.__class__ = OTPAdminSite
 
 from . import settings
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("", include("core.urls")),
+    path("farming-stats/", include("farmingStats.urls")),
 ]
 
 handler404 = "core.views.errors.page_not_found"
