@@ -21,8 +21,9 @@ class Crop(models.Model):
     name_eng = models.CharField(max_length=50, default='Crop')
     name_de = models.CharField(max_length=50, default='Crop')
     harvest_month = models.CharField(max_length=50, choices=months, default='january')
+    harvest_interval = models.IntegerField(default=0)
     planting_month = models.CharField(max_length=50, choices=months, default='january')
-    interval = models.IntegerField(default=0)
+    planting_interval = models.IntegerField(default=0)
     price_jan = models.FloatField(default=0)
     price_feb = models.FloatField(default=0)
     price_mar = models.FloatField(default=0)
@@ -35,6 +36,9 @@ class Crop(models.Model):
     price_oct = models.FloatField(default=0)
     price_nov = models.FloatField(default=0)
     price_dec = models.FloatField(default=0)
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.name_eng
@@ -60,8 +64,8 @@ class Crop(models.Model):
 
         start_harvest_month = list(prices.keys()).index(self.harvest_month)
         start_planting_month = list(prices.keys()).index(self.planting_month)
-        end_harvest_month = (start_harvest_month + self.interval) % 12
-        end_planting_month = (start_planting_month + self.interval) % 12
+        end_harvest_month = (start_harvest_month + self.harvest_interval) % 12
+        end_planting_month = (start_planting_month + self.planting_interval) % 12
 
         return {
             'name': {

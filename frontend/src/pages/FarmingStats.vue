@@ -69,7 +69,7 @@ const options = ref({
       {
         x: i18n.t('farming_stats.month.' + selectedCrop.value.harvest_month.start),
         x2: i18n.t('farming_stats.month.' + selectedCrop.value.harvest_month.end),
-        fillColor: '#B3F7CA',
+        fillColor: '#c1470d',
         label: {
           text: i18n.t('farming_stats.harvest_season'),
         }
@@ -77,7 +77,7 @@ const options = ref({
       {
         x: i18n.t('farming_stats.month.' + selectedCrop.value.planting_month.start),
         x2: i18n.t('farming_stats.month.' + selectedCrop.value.planting_month.end),
-        fillColor: '#FAE3E3',
+        fillColor: '#82ab0d',
         opacity: 0.4,
         label: {
           text: i18n.t('farming_stats.planting_season'),
@@ -93,7 +93,7 @@ const options = ref({
             size: 8,
           },
           label: {
-            borderColor: '#FF4560',
+            borderColor: '#82ab0d',
             text: i18n.t('farming_stats.best_selling_price'),
           }
         },
@@ -104,7 +104,7 @@ const options = ref({
             size: 8,
           },
           label: {
-            borderColor: '#FF4560',
+            borderColor: '#0d4cab',
             text: i18n.t('farming_stats.best_buying_price'),
           }
         }
@@ -136,7 +136,7 @@ const updateGraph = (crop: Crop) => {
         {
           x: i18n.t('farming_stats.month.' + crop.harvest_month.start),
           x2: i18n.t('farming_stats.month.' + crop.harvest_month.end),
-          fillColor: '#B3F7CA',
+          fillColor: '#c1470d',
           label: {
             text: i18n.t('farming_stats.harvest_season'),
           }
@@ -144,7 +144,7 @@ const updateGraph = (crop: Crop) => {
         {
           x: i18n.t('farming_stats.month.' + crop.planting_month.start),
           x2: i18n.t('farming_stats.month.' + crop.planting_month.end),
-          fillColor: '#FAE3E3',
+          fillColor: '#82ab0d',
           opacity: 0.4,
           label: {
             text: i18n.t('farming_stats.planting_season'),
@@ -160,7 +160,7 @@ const updateGraph = (crop: Crop) => {
               size: 8,
             },
             label: {
-              borderColor: '#FF4560',
+              borderColor: '#82ab0d',
               text: i18n.t('farming_stats.best_selling_price'),
             }
           },
@@ -171,7 +171,7 @@ const updateGraph = (crop: Crop) => {
               size: 8,
             },
             label: {
-              borderColor: '#FF4560',
+              borderColor: '#0d4cab',
               text: i18n.t('farming_stats.best_buying_price'),
             }
           }
@@ -183,8 +183,8 @@ const updateGraph = (crop: Crop) => {
 </script>
 
 <template>
-  <div class="d-flex gap-2 container">
-    <div class="col-3">
+  <div class="d-flex flex-column-reverse flex-lg-row gap-2 container">
+    <div class="col-lg-3">
       <ul class="nav nav-pills flex-column gap-2">
         <li class="nav-item" v-for="crop in crops" :key="crop.name.en" @click="selectedCrop = crop">
           <a class="w-100 btn btn-primary" role="button" :class="{ active: selectedCrop === crop }" @click="updateGraph(crop)">
