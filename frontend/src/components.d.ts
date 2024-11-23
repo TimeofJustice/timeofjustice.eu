@@ -12,7 +12,10 @@ declare module 'vue' {
     BCarousel: typeof import('bootstrap-vue-next/components/BCarousel')['BCarousel']
     BCarouselSlide: typeof import('bootstrap-vue-next/components/BCarousel')['BCarouselSlide']
     BDropdown: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdown']
+    BDropdownDivider: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownDivider']
+    BDropdownItem: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownItem']
     BDropdownItemButton: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdownItemButton']
+    BNavItemDropdown: typeof import('bootstrap-vue-next/components/BNav')['BNavItemDropdown']
     BOffcanvas: typeof import('bootstrap-vue-next/components/BOffcanvas')['BOffcanvas']
   }
 }

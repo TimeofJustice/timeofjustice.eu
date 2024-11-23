@@ -26,6 +26,7 @@ const i18n = createI18n({
 });
 
 import BasicLayout from "@layouts/BasicLayout.vue";
+import { wip } from "@/directives/wip.ts";
 
 createInertiaApp({
     title: title => `${title} - timeofjustice.eu`,
@@ -45,6 +46,7 @@ createInertiaApp({
             .component('vue-markdown', VueMarkdown)
             .use(MotionPlugin)
             .use(i18n)
+            .directive('wip', wip)
             .mount(el);
     },
 });

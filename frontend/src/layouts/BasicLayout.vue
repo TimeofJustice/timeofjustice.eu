@@ -4,6 +4,13 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {faBars, faHome, faPaintBrush} from "@fortawesome/free-solid-svg-icons";
 import {ref} from "vue";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
+import { Social } from "@types/Social.vue";
+
+interface IBasicLayout {
+  isProduction: boolean;
+}
+
+defineProps<IBasicLayout>();
 
 const open = ref(false);
 </script>
@@ -43,6 +50,17 @@ const open = ref(false);
               <FontAwesomeIcon :icon="faPaintBrush"/>
               <span class="ms-1">{{ $t('nav.place') }}</span>
             </a>
+            <BNavItemDropdown class="nav-link" :v-wip="isProduction">
+              <template #button-content>
+                <span>{{ $t('nav.actions') }}</span>
+              </template>
+              <BDropdownItem>First Action</BDropdownItem>
+              <BDropdownItem>Second Action</BDropdownItem>
+              <BDropdownItem>Third Action</BDropdownItem>
+              <BDropdownDivider />
+              <BDropdownItem active>Active action</BDropdownItem>
+              <BDropdownItem disabled>Disabled action</BDropdownItem>
+            </BNavItemDropdown>
           </div>
 
           <LocaleDropdown class="d-none d-lg-block"/>
