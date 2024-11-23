@@ -19,5 +19,26 @@
         "linkedin": "TimeofJustice on LinkedIn",
         "twitter": "TimeofJustice on Twitter",
         "instagram": "TimeofJustice on Instagram"
-    }
+    },
+  "farming_stats": {
+    "month": {
+      "january": "Jan",
+      "february": "Feb",
+      "march": "Mar",
+      "april": "Apr",
+      "may": "May",
+      "june": "Jun",
+      "july": "Jul",
+      "august": "Aug",
+      "september": "Sep",
+      "october": "Oct",
+      "november": "Nov",
+      "december": "Dec"
+    },
+    "price": "Price",
+    "harvest_season": "Harvest Season",
+    "planting_season": "Seed Season",
+    "best_selling_price": "Best Selling Price",
+    "best_buying_price": "Best Buying Price"
+  }
 }
