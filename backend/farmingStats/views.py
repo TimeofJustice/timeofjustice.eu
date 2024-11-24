@@ -22,7 +22,10 @@ def error(request, status_code):
 # Create your views here.
 def index(request):
     page_props = {
-        'crops': [crop.json() for crop in models.Crop.objects.all()]
+        'farmItems': {
+            'crops': [crop.json() for crop in models.Crop.objects.all()],
+            'commodities': [commodity.json() for commodity in models.Commodity.objects.all()]
+        }
     }
 
     return render(request, "FarmingStats", props=props(page_props))

@@ -1,201 +1,239 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import { ref } from 'vue'
-import { Crop } from '@/types/Crop.vue'
+import { FarmItems } from '@/types/FarmItem.vue'
 import { TranslatedText } from "../types/TranslatedText.vue";
+import { ApexOptions } from "apexcharts";
+import { Head } from "@inertiajs/vue3";
 
 interface Props {
-  crops: Crop[]
+  farmItems: FarmItems
 }
 
 const i18n = useI18n();
 
-const { crops } = defineProps<Props>()
+const { farmItems } = defineProps<Props>()
+const selectedIndex = ref<number>(0)
 
-const selectedCrop = ref<Crop>(crops[0])
+const pages = {
+  crops: i18n.t('farming_stats.pages.crops'),
+  commodities: i18n.t('farming_stats.pages.commodities')
+}
+const currentPage = ref(pages.crops)
 
-const options = ref({
-  chart: {
-    type: 'line'
-  },
-  plotOptions: {
-    bar: {
-      horizontal: false,
-      columnWidth: '55%',
-      endingShape: 'rounded'
+const getOptions = (index: number) => {
+  let newOptions: ApexOptions = {
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '55%',
+      },
     },
-  },
-  dataLabels: {
-    enabled: false
-  },
-  stroke: {
-    show: true,
-    width: 2,
-    colors: ['black'],
-  },
-  xaxis: {
-    categories: [
-      i18n.t('farming_stats.month.january'),
-      i18n.t('farming_stats.month.february'),
-      i18n.t('farming_stats.month.march'),
-      i18n.t('farming_stats.month.april'),
-      i18n.t('farming_stats.month.may'),
-      i18n.t('farming_stats.month.june'),
-      i18n.t('farming_stats.month.july'),
-      i18n.t('farming_stats.month.august'),
-      i18n.t('farming_stats.month.september'),
-      i18n.t('farming_stats.month.october'),
-      i18n.t('farming_stats.month.november'),
-      i18n.t('farming_stats.month.december')
-    ]
-  },
-  yaxis: {
-    title: {
-      text: i18n.t('farming_stats.price')
-    }
-  },
-  fill: {
-    opacity: 1,
-  },
-  tooltip: {
-    y: {
-      formatter: function (val: string) {
-        return "$ " + val + " thousands"
-      }
-    }
-  },
-  annotations: {
-    xaxis: [
-      {
-        x: i18n.t('farming_stats.month.' + selectedCrop.value.harvest_month.start),
-        x2: i18n.t('farming_stats.month.' + selectedCrop.value.harvest_month.end),
-        fillColor: '#c1470d',
-        label: {
-          text: i18n.t('farming_stats.harvest_season'),
-        }
-      },
-      {
-        x: i18n.t('farming_stats.month.' + selectedCrop.value.planting_month.start),
-        x2: i18n.t('farming_stats.month.' + selectedCrop.value.planting_month.end),
-        fillColor: '#82ab0d',
-        opacity: 0.4,
-        label: {
-          text: i18n.t('farming_stats.planting_season'),
-        }
-      },
-    ],
-    points:
-      [
-        {
-          x: i18n.t('farming_stats.month.' + selectedCrop.value.best_selling_month.month),
-          y: selectedCrop.value.best_selling_month.price,
-          marker: {
-            size: 8,
-          },
-          label: {
-            borderColor: '#82ab0d',
-            text: i18n.t('farming_stats.best_selling_price'),
-          }
-        },
-        {
-          x: i18n.t('farming_stats.month.' + selectedCrop.value.best_buying_month.month),
-          y: selectedCrop.value.best_buying_month.price,
-          marker: {
-            size: 8,
-          },
-          label: {
-            borderColor: '#0d4cab',
-            text: i18n.t('farming_stats.best_buying_price'),
-          }
-        }
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      show: true,
+      width: 2,
+      colors: ['black'],
+      curve: 'stepline',
+    },
+    xaxis: {
+      categories: [
+        i18n.t('farming_stats.month.january'),
+        i18n.t('farming_stats.month.february'),
+        i18n.t('farming_stats.month.march'),
+        i18n.t('farming_stats.month.april'),
+        i18n.t('farming_stats.month.may'),
+        i18n.t('farming_stats.month.june'),
+        i18n.t('farming_stats.month.july'),
+        i18n.t('farming_stats.month.august'),
+        i18n.t('farming_stats.month.september'),
+        i18n.t('farming_stats.month.october'),
+        i18n.t('farming_stats.month.november'),
+        i18n.t('farming_stats.month.december'),
+        i18n.t('farming_stats.month.end_of_december'),
       ]
-  }
-})
-
-const series = ref([
-  {
-    type: 'line',
-    name: i18n.t('farming_stats.price'),
-    data: selectedCrop.value.prices
-  }
-])
-
-const updateGraph = (crop: Crop) => {
-  selectedCrop.value = crop
-  series.value = [
-    {
-      type: 'line',
-      name: i18n.t('farming_stats.price'),
-      data: crop.prices
-    }
-  ]
-  options.value = {
-    ...options.value,
+    },
+    yaxis: {
+      title: {
+        text: i18n.t('farming_stats.price')
+      }
+    },
+    fill: {
+      opacity: 1,
+    },
     annotations: {
-      xaxis: [
-        {
-          x: i18n.t('farming_stats.month.' + crop.harvest_month.start),
-          x2: i18n.t('farming_stats.month.' + crop.harvest_month.end),
-          fillColor: '#c1470d',
-          label: {
-            text: i18n.t('farming_stats.harvest_season'),
-          }
-        },
-        {
-          x: i18n.t('farming_stats.month.' + crop.planting_month.start),
-          x2: i18n.t('farming_stats.month.' + crop.planting_month.end),
-          fillColor: '#82ab0d',
-          opacity: 0.4,
-          label: {
-            text: i18n.t('farming_stats.planting_season'),
-          }
-        },
-      ],
-      points:
-        [
-          {
-            x: i18n.t('farming_stats.month.' + crop.best_selling_month.month),
-            y: crop.best_selling_month.price,
-            marker: {
-              size: 8,
-            },
-            label: {
-              borderColor: '#82ab0d',
-              text: i18n.t('farming_stats.best_selling_price'),
-            }
-          },
-          {
-            x: i18n.t('farming_stats.month.' + crop.best_buying_month.month),
-            y: crop.best_buying_month.price,
-            marker: {
-              size: 8,
-            },
-            label: {
-              borderColor: '#0d4cab',
-              text: i18n.t('farming_stats.best_buying_price'),
-            }
-          }
-        ]
+      xaxis: [],
+      points: []
     }
   }
+
+  switch(currentPage.value) {
+    case pages.crops:
+      const crop = farmItems.crops[index]
+
+      newOptions = {
+        ...newOptions,
+        annotations: {
+          xaxis: [
+            {
+              x: i18n.t('farming_stats.month.' + crop.harvest_month.start),
+              x2: i18n.t('farming_stats.month.' + crop.harvest_month.end),
+              fillColor: '#c1470d',
+              label: {
+                text: i18n.t('farming_stats.harvest_season'),
+              }
+            },
+            {
+              x: i18n.t('farming_stats.month.' + crop.planting_month.start),
+              x2: i18n.t('farming_stats.month.' + crop.planting_month.end),
+              fillColor: '#82ab0d',
+              opacity: 0.4,
+              label: {
+                text: i18n.t('farming_stats.planting_season'),
+              }
+            }
+          ],
+          points: [
+            {
+              x: i18n.t('farming_stats.month.' + crop.best_selling_month.month),
+              y: crop.best_selling_month.price,
+              marker: {
+                size: 8,
+              },
+              label: {
+                borderColor: '#82ab0d',
+                text: i18n.t('farming_stats.best_selling_price'),
+              }
+            },
+            {
+              x: i18n.t('farming_stats.month.' + crop.best_buying_month.month),
+              y: crop.best_buying_month.price,
+              marker: {
+                size: 8,
+              },
+              label: {
+                borderColor: '#0d4cab',
+                text: i18n.t('farming_stats.best_buying_price'),
+              }
+            }
+          ]
+        }
+      }
+      break;
+    case pages.commodities:
+      const commodity = farmItems.commodities[index]
+
+      newOptions = {
+        ...newOptions,
+        annotations: {
+          xaxis: [],
+          points: [
+            {
+              x: i18n.t('farming_stats.month.' + commodity.best_selling_month.month),
+              y: commodity.best_selling_month.price,
+              marker: {
+                size: 8,
+              },
+              label: {
+                borderColor: '#82ab0d',
+                text: i18n.t('farming_stats.best_selling_price'),
+              }
+            },
+            {
+              x: i18n.t('farming_stats.month.' + commodity.best_buying_month.month),
+              y: commodity.best_buying_month.price,
+              marker: {
+                size: 8,
+              },
+              label: {
+                borderColor: '#0d4cab',
+                text: i18n.t('farming_stats.best_buying_price'),
+              }
+            }
+          ]
+        }
+      }
+      break;
+  }
+
+  return newOptions
+}
+const getSeries = (index: number) => {
+  const newSeries = []
+
+  switch(currentPage.value) {
+    case pages.crops:
+      const crop = farmItems.crops[index]
+
+      newSeries.push({
+        type: 'line',
+        name: i18n.t('farming_stats.price'),
+        data: crop.prices
+      })
+      break;
+    case pages.commodities:
+      const commodity = farmItems.commodities[index]
+
+      newSeries.push({
+        type: 'line',
+        name: i18n.t('farming_stats.price'),
+        data: commodity.prices
+      })
+      break;
+  }
+
+  return newSeries
 }
 
+const options = ref(getOptions(selectedIndex.value))
+const series = ref(getSeries(selectedIndex.value))
+
+const changeIndex = (index: number) => {
+  selectedIndex.value = index
+  options.value = getOptions(index)
+  series.value = getSeries(index)
+}
+const changePage = (page: string) => {
+  currentPage.value = page
+  selectedIndex.value = 0
+  options.value = getOptions(0)
+  series.value = getSeries(0)
+}
 </script>
 
 <template>
-  <div class="d-flex flex-column-reverse flex-lg-row gap-2 container">
-    <div class="col-lg-3">
-      <ul class="nav nav-pills flex-column gap-2">
-        <li class="nav-item" v-for="crop in crops" :key="crop.name.en" @click="selectedCrop = crop">
-          <a class="w-100 btn btn-primary" role="button" :class="{ active: selectedCrop === crop }" @click="updateGraph(crop)">
-            {{ crop.name[$i18n.locale as keyof TranslatedText] }}
-          </a>
-        </li>
-      </ul>
-    </div>
-    <div class="d-flex w-100 h-100 justify-content-center position-sticky top-0">
-      <div class="card w-100">
-        <apexchart width="100%" type="line" :options="options" :series="series"></apexchart>
+  <Head :title="i18n.t('farming_stats.title')" />
+
+  <div class="container d-flex flex-column gap-2">
+    <ul class="nav nav-tabs">
+      <li class="nav-item" v-for="(page, key) in pages" :key="key">
+        <a class="nav-link" :class="{ active: currentPage === page }" @click="changePage(page)">
+          {{ page }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="d-flex flex-column-reverse flex-lg-row gap-2">
+      <div class="col-lg-3">
+        <ul class="nav nav-pills flex-column gap-2">
+          <li class="nav-item" v-for="(crop, index) in farmItems.crops" :key="crop.name.en" v-if="currentPage === pages.crops">
+            <a class="w-100 btn btn-primary" role="button" :class="{ active: selectedIndex === index }" @click="changeIndex(index)">
+              {{ crop.name[$i18n.locale as keyof TranslatedText] }}
+            </a>
+          </li>
+          <li class="nav-item" v-for="(commodity, index) in farmItems.commodities" :key="commodity.name.en" v-if="currentPage === pages.commodities">
+            <a class="w-100 btn btn-primary" role="button" :class="{ active: selectedIndex === index }" @click="changeIndex(index)">
+              {{ commodity.name[$i18n.locale as keyof TranslatedText] }}
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="d-flex w-100 h-100 justify-content-center position-sticky top-0">
+        <div class="card w-100">
+          <apexchart width="100%" type="line" :options="options" :series="series"></apexchart>
+        </div>
       </div>
     </div>
   </div>

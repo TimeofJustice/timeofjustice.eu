@@ -18,5 +18,17 @@ export interface Crop {
     prices: number[],
     best_selling_month: MonthPrice,
     best_buying_month: MonthPrice
-  }
+}
+
+export interface Commodity {
+    name: TranslatedText,
+    prices: number[],
+    best_selling_month: MonthPrice,
+    best_buying_month: MonthPrice
+}
+
+export interface FarmItems {
+  crops: Crop[],
+  commodities: Commodity[]
+}
 </script>
