@@ -6,7 +6,7 @@ import {ref} from "vue";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 
 interface IBasicLayout {
-  isProduction: boolean;
+  production: boolean;
 }
 
 defineProps<IBasicLayout>();
@@ -49,17 +49,6 @@ const open = ref(false);
               <FontAwesomeIcon :icon="faPaintBrush"/>
               <span class="ms-1">{{ $t('nav.place') }}</span>
             </a>
-            <BNavItemDropdown class="nav-link" :v-wip="isProduction">
-              <template #button-content>
-                <span>{{ $t('nav.actions') }}</span>
-              </template>
-              <BDropdownItem>First Action</BDropdownItem>
-              <BDropdownItem>Second Action</BDropdownItem>
-              <BDropdownItem>Third Action</BDropdownItem>
-              <BDropdownDivider />
-              <BDropdownItem active>Active action</BDropdownItem>
-              <BDropdownItem disabled>Disabled action</BDropdownItem>
-            </BNavItemDropdown>
           </div>
 
           <LocaleDropdown class="d-none d-lg-block"/>

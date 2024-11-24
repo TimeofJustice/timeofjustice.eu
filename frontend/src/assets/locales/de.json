@@ -21,6 +21,7 @@
     "instagram": "TimeofJustice auf Instagram"
   },
   "farming_stats": {
+    "title": "Farming Stats",
     "month": {
       "january": "Jan",
       "february": "Feb",
@@ -33,12 +34,17 @@
       "september": "Sep",
       "october": "Okt",
       "november": "Nov",
-      "december": "Dez"
+      "december": "Dez",
+      "end_of_december": ""
     },
     "price": "Preis",
     "harvest_season": "Erntezeit",
     "planting_season": "Aussaatzeit",
-    "best_selling_price": "Bestverpreis",
-    "best_buying_price": "Bestkaufpreis"
+    "best_selling_price": "Bestverkaufspreis",
+    "best_buying_price": "Bestkaufpreis",
+    "pages": {
+      "crops": "Pflanzen",
+        "commodities": "Waren"
+    }
   }
 }
