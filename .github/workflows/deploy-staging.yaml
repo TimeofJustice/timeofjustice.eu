@@ -1,11 +1,8 @@
-name: Vue Deployment
+name: Staging Deployment
 
 on:
-  push:
-    branches: [release]
-    paths:
-      - frontend/**
-      - backend/**
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:
@@ -29,7 +26,7 @@ jobs:
       - name: Get .env file
         run: |
           cd frontend/src/
-          rsync -r /var/www/vue.timeofjustice.eu/.env .env
+          rsync -r /var/www/staging.timeofjustice.eu/.env .env
 
       - name: Vue Deploy
         run: |
@@ -43,6 +40,10 @@ jobs:
       contents: read
 
     steps:
+      - name: Copy config.ini
+        run: |
+          rsync -r /var/www/staging.timeofjustice.eu/config.ini config.ini
+
       - name: Create virtual environment
         run: |
           cd backend/
@@ -64,8 +65,8 @@ jobs:
 
       - name: Deploy
         run: |
-          rsync -r --delete-delay backend/ /var/www/vue.timeofjustice.eu/backend/
+          rsync -r --delete-delay backend/ /var/www/staging.timeofjustice.eu/backend/
 
       - name: Restart Django
         run: |
-          touch /var/www/vue.timeofjustice.eu/backend/backend/wsgi.py
+          touch /var/www/staging.timeofjustice.eu/backend/backend/wsgi.py
