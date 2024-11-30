@@ -17,12 +17,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-if os.name == 'nt':
-    ROOT = '../'
-else:
-    ROOT = "/var/www/vue.timeofjustice.eu/"
-
-CONFIG_FILE = ROOT + 'config.ini'
+CONFIG_FILE = BASE_DIR / ".." / 'config.ini'
 
 CONFIG_PARSER = configparser.ConfigParser(interpolation=None)
 CONFIG_PARSER.read(CONFIG_FILE)
@@ -42,7 +37,8 @@ PROPAGATE_EXCEPTIONS = True
 
 ALLOWED_HOSTS = ['127.0.0.1',
                  'localhost',
-                 'timeofjustice.eu',]
+                 'timeofjustice.eu',
+                 'staging.timeofjustice.eu',]
 
 
 # Application definition
