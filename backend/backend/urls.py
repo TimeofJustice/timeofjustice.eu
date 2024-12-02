@@ -27,7 +27,7 @@ from . import settings
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("", include("core.urls")),
-    path("farming-stats/", include("farmingStats.urls")),
+    path("farming-stats/", include("farming_stats.urls")),
 ]
 
 handler404 = "core.views.errors.page_not_found"

@@ -51,6 +51,16 @@ jobs:
           source .env/bin/activate
           pip3.12 install -r requirements.txt
 
+      - name: Copy files
+        run: |
+          rsync -r /var/www/vue.timeofjustice.eu/files /var/www/staging.timeofjustice.eu/
+
+      - name: Copy database
+        run: |
+          cd backend/
+          source .env/bin/activate
+          python3.12 setup_staging.py
+
       - name: Run Django migrations
         run: |
           cd backend/

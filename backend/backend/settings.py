@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_totp',
     'django_otp.plugins.otp_static',
     'core',
-    'farmingStats',
+    'farming_stats',
 ]
 
 MIDDLEWARE = [
