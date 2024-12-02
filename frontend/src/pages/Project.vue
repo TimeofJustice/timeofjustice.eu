@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Project } from "../types/Project.vue";
+import { Project } from "../types/Project.ts";
 import ProjectDetails from "./Projects/ProjectDetails.vue";
 import { Head } from "@inertiajs/vue3";
 

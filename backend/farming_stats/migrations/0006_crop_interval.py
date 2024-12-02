@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('farmingStats', '0005_remove_crop_name_yoda'),
+        ('farming_stats', '0005_remove_crop_name_yoda'),
     ]
 
     operations = [

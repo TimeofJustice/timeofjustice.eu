@@ -1,4 +1,4 @@
-name: Release Deployment
+name: Deploy in production
 
 on:
   push:
@@ -21,17 +21,17 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
+      - name: Install node dependencies
         run: |
           cd frontend/
           npm install
 
-      - name: Get .env file
+      - name: Get .env file from production
         run: |
           cd frontend/src/
           rsync -r /var/www/vue.timeofjustice.eu/.env .env
 
-      - name: Vue Deploy
+      - name: Build frontend
         run: |
           cd frontend/
           npm run build
@@ -43,11 +43,11 @@ jobs:
       contents: read
 
     steps:
-      - name: Copy config.ini
+      - name: Copy config.ini from production
         run: |
           rsync -r /var/www/vue.timeofjustice.eu/config.ini config.ini
 
-      - name: Create virtual environment
+      - name: Create virtual environment and install dependencies
         run: |
           cd backend/
           python3.12 -m venv .env
@@ -66,10 +66,10 @@ jobs:
           source .env/bin/activate
           python3.12 manage.py collectstatic --noinput
 
-      - name: Deploy
+      - name: Copy frontend files to production
         run: |
           rsync -r --delete-delay backend/ /var/www/vue.timeofjustice.eu/backend/
 
-      - name: Restart Django
+      - name: Trigger Apache to reload
         run: |
           touch /var/www/vue.timeofjustice.eu/backend/backend/wsgi.py

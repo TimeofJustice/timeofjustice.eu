@@ -115,7 +115,7 @@ class Project(models.Model):
 
     technology = models.ManyToManyField('Technology', blank=True)
 
-    title_image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', null=True, blank=True)
+    title_image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', null=True, blank=True, max_length=1000)
     alt_german = models.TextField(max_length=100, null=True, blank=True)
     alt_english = models.TextField(max_length=100, null=True, blank=True)
     alt_yoda = models.TextField(max_length=100, null=True, blank=True)
@@ -167,7 +167,7 @@ class Project(models.Model):
 class Image(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/')
+    image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', max_length=1000)
     alt_german = models.TextField(max_length=100, null=True, blank=True)
     alt_english = models.TextField(max_length=100, null=True, blank=True)
     alt_yoda = models.TextField(max_length=100, null=True, blank=True)

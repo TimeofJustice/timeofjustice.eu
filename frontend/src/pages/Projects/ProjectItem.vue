@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Project } from "@/types/Project.vue";
-import { TranslatedText } from "@/types/TranslatedText.vue";
+import { Project } from "@/types/Project.ts";
+import { TranslatedText } from "@/types/TranslatedText.ts";
 
 interface Props {
   project: Project;
@@ -16,14 +16,14 @@ const leftover = props.project.technologies.length - technologies.length;
 
 <template>
   <div class="d-flex gap-2 overflow-hidden" v-motion-slide-visible-once-right>
-    <v-lazy-image class="img-fluid rounded" style="width: 7rem; height: 7rem; object-fit: cover;"
+    <v-lazy-image class="img-fluid object-fit-cover rounded" style="min-width: 7rem; max-width: 7rem; min-height: 7rem; max-height: 7rem;"
                   :src="project.title_image ? project.title_image.original : require('@assets/images/MissingTexture.svg')"
                   :src-placeholder="project.title_image ? project.title_image.lazy : ''" />
 
     <div class="d-flex w-100 justify-content-between overflow-hidden gap-1">
       <div class="align-content-center d-flex flex-column justify-content-center overflow-hidden">
         <div class="d-flex flex-row gap-2 align-items-center">
-          <BBadge class="d-flex align-items-center" :class="project.status.color ? 'bg-' + project.status.color : ''"
+          <BBadge class="d-flex align-items-center" :variant="project.status.color"
                   v-if="project.status">{{ project.status.name[$i18n.locale as keyof TranslatedText] }}</BBadge>
           <h5 class="text-white mb-0 text-truncate">{{ project.title }}</h5>
         </div>

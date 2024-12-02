@@ -1,0 +1,9 @@
+.offcanvas {
+   --bs-offcanvas-width: 800px;
+   --bs-body-bg: #{map-get($custom-colors, "grey-100")};
+   --bs-offcanvas-color: #ffffff;
+}
+
+.offcanvas-small {
+   --bs-offcanvas-width: 300px;
+}
