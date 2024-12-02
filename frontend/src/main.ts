@@ -2,14 +2,12 @@ import { createApp, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { MotionPlugin } from '@vueuse/motion'
 import { createI18n } from "vue-i18n";
-import {createBootstrap} from 'bootstrap-vue-next'
+import { createBootstrap } from 'bootstrap-vue-next'
 import VLazyImage from "v-lazy-image";
 import VueMarkdown from 'vue-markdown-render'
 
-import "bootstrap/dist/css/bootstrap.min.css"
-import "bootstrap"
-
-import "@assets/scss/index.scss";
+import "@assets/scss/_index.scss";
+import 'bootstrap';
 
 import de from "@assets/locales/de.json";
 import en from "@assets/locales/en.json";
@@ -17,6 +15,7 @@ import yoda from "@assets/locales/yoda.json";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import "@configurations/FontAwesome";
+import bootstrapVueNextConfig from '@configurations/bootstrapVueNext';
 
 const i18n = createI18n({
     legacy: false,
@@ -41,7 +40,7 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(createBootstrap())
+            .use(createBootstrap(bootstrapVueNextConfig))
             .component('font-awesome-icon', FontAwesomeIcon)
             .component('v-lazy-image', VLazyImage)
             .component('vue-markdown', VueMarkdown)

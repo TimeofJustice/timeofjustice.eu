@@ -3,8 +3,8 @@ import { Head } from "@inertiajs/vue3";
 import { ref } from "vue";
 import Profile from "@pages/Projects/Profile.vue";
 import ProjectDetails from "@pages/Projects/ProjectDetails.vue";
-import { Social } from "@/types/Social.vue";
-import { Project } from "@/types/Project.vue";
+import { Social } from "@/types/Social.ts";
+import { Project } from "@/types/Project.ts";
 import ProjectItem from "@pages/Projects/ProjectItem.vue";
 
 interface Props {
@@ -34,7 +34,7 @@ const loadProject = async (id: number) => {
 <template>
   <Head title="Projects" />
 
-  <div class="d-flex container gap-4 flex-column flex-lg-row">
+  <div class="d-flex container-xxl gap-4 flex-column flex-lg-row">
     <div class="col-md-4 flex-grow-0 justify-content-start align-items-end d-none d-lg-flex flex-column">
       <!-- If you found this, keep this our dirty little secret -->
       <h1 class="display-1 fw-bold text-white invisible" style="line-height: 50px;">
@@ -44,7 +44,7 @@ const loadProject = async (id: number) => {
       </h1>
       <Profile :socials="socials" class="position-sticky" style="top: 1rem;" />
     </div>
-    <div class="d-flex flex-grow-1 justify-content-end align-items-start d-block d-lg-none">
+    <div class="d-flex flex-grow-1 justify-content-center d-block d-lg-none">
       <Profile :socials="socials" variant="small" />
     </div>
 

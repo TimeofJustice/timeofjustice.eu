@@ -1,20 +1,20 @@
-@import "@node_modules/bootstrap/scss/functions";
+$navbar-light-color: #fff;
+$navbar-light-hover-color: #6c6c6c;
+$navbar-light-active-color: #fff;
 
-$nav-link-color: #ffffff;
-$nav-link-hover-color: #6c6c6c;
+$link-color: #ffffff;
+$link-hover-color: #6c6c6c;
+
+$dropdown-bg: #fff;
+
+$container-max-widths: (
+    sm: 1320px,
+    md: 1320px,
+    lg: 1320px,
+    xl: 1320px,
+    xxl: 1320px
+);
 
 :root {
-  --bs-nav-link-color: #{$nav-link-color};
-  --bs-nav-link-hover-color: #{$nav-link-hover-color};
   --bs-bg-opacity: 1;
-  --bs-link-color-rgb: 255, 255, 255;
-  --bs-link-color: #ffffff;
-  --bs-link-hover-color: #6c6c6c;
-  --bs-link-hover-color-rgb: 108, 108, 108;
-  --bs-offcanvas-width: 800px;
-  --bs-btn-close-color: #ffffff;
 }
-
-// Required
-@import "@node_modules/bootstrap/scss/variables";
-@import "@node_modules/bootstrap/scss/mixins";

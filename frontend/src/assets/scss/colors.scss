@@ -28,5 +28,9 @@ $white: #ffffff;
     &-#{$color} {
       color: $value!important;
     }
+
+    &-bg-#{$color} {
+      background-color: $value!important;
+    }
   }
 }
