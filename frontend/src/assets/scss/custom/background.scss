@@ -55,12 +55,3 @@ body {
     transform: translate3d(-30em, 10em, 0);
   }
 }
-
-.v-lazy-image {
-  filter: blur(2px);
-  transition: filter 0.7s;
-}
-
-.v-lazy-image-loaded {
-  filter: blur(0);
-}

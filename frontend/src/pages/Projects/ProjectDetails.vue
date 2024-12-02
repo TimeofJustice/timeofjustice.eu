@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Project } from "@/types/Project.vue";
+import { Project } from "@/types/Project.ts";
 import { ref } from "vue";
-import { TranslatedText } from "@/types/TranslatedText.vue";
+import { TranslatedText } from "@/types/TranslatedText.ts";
 
 interface Props {
   project: Project | null;
@@ -36,7 +36,7 @@ const handleResize = () => {
         :img-height="imgSize"
         class="resizeable"
         v-if="0 < project.images.length">
-        <BCarouselSlide :img-src="image.image.original" class="img-fluid" v-for="(image, i) in project.images" :key="i"
+        <BCarouselSlide :img-src="image.image.original" class="img-fluid object-fit-cover" v-for="(image, i) in project.images" :key="i"
                         :alt="image.alt[$i18n.locale as keyof TranslatedText]" />
       </BCarousel>
 

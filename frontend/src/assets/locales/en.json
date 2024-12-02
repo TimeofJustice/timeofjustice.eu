@@ -5,7 +5,8 @@
   },
   "nav": {
     "projects": "Projects",
-    "place": "r/Place"
+    "place": "r/Place",
+    "farming_stats": "Farming Stats"
   },
   "index": {
     "wip_alert": "This page is still in work. Please check back later. The current version can be found at: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
