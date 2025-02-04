@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import { ref } from 'vue'
-import { FarmItems } from '@/types/FarmItem.vue'
-import { TranslatedText } from "../types/TranslatedText.vue";
+import { FarmItems } from '@/types/FarmItem.ts'
+import { TranslatedText } from "@/types/TranslatedText.ts";
 import { ApexOptions } from "apexcharts";
 import { Head } from "@inertiajs/vue3";
 

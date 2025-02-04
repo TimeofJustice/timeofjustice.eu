@@ -1,0 +1,10 @@
+// Import variables
+@import 'colors';
+@import 'variables';
+
+// Import Bootstrap
+@import "bootstrap/scss/bootstrap";
+@import 'bootstrap-custom';
+
+// Import custom styles
+@import 'custom';

@@ -1,0 +1,7 @@
+.alert p {
+  margin: 0;
+}
+
+.alert a {
+  @extend .link-info
+}

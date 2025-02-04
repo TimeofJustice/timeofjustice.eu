@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Social } from "@/types/Social.vue";
+import { Social } from "@/types/Social.ts";
 
 interface Props {
   socials: Social[];
