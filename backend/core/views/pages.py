@@ -38,11 +38,6 @@ def index(request):
                 "url": "https://linkedin.com/in/jonas-oelschner-2569441b3",
                 "icon": "fa-brands fa-linkedin"
             },
-            {
-                "type": "twitter",
-                "url": "https://twitter.com/timeofjustice_",
-                "icon": "fa-brands fa-twitter"
-            },
         ],
         "projects": [project.json() for project in models.Project.objects.all()]
     }

@@ -7,8 +7,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    BAlert: typeof import('bootstrap-vue-next/components/BAlert')['BAlert']
     BBadge: typeof import('bootstrap-vue-next/components/BBadge')['BBadge']
+    BButton: typeof import('bootstrap-vue-next/components/BButton')['BButton']
     BCarousel: typeof import('bootstrap-vue-next/components/BCarousel')['BCarousel']
     BCarouselSlide: typeof import('bootstrap-vue-next/components/BCarousel')['BCarouselSlide']
     BDropdown: typeof import('bootstrap-vue-next/components/BDropdown')['BDropdown']

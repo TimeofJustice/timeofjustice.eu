@@ -6,6 +6,7 @@ $link-color: #ffffff;
 $link-hover-color: #6c6c6c;
 
 $dropdown-bg: #fff;
+$dropdown-link-hover-bg: color-mix(in srgb, currentColor 20%, transparent);
 
 $container-max-widths: (
     sm: 1320px,
@@ -14,6 +15,8 @@ $container-max-widths: (
     xl: 1320px,
     xxl: 1320px
 );
+
+$navbar-toggler-focus-width: unset;
 
 :root {
   --bs-bg-opacity: 1;

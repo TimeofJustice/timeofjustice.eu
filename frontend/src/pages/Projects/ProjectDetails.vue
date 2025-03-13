@@ -32,7 +32,7 @@ const handleResize = () => {
         :controls="1 < project.images.length"
         :indicators="1 < project.images.length"
         ride="carousel"
-        :interval="5000"
+        :interval="500000"
         :img-height="imgSize"
         class="resizeable"
         v-if="0 < project.images.length">
@@ -40,9 +40,9 @@ const handleResize = () => {
                         :alt="image.alt[$i18n.locale as keyof TranslatedText]" />
       </BCarousel>
 
-      <div class="position-absolute top-0 end-0 m-2 btn btn-primary z-3" @click="handleResize">
+      <BButton variant="primary" class="position-absolute top-0 end-0 m-2 btn-square z-3" @click="handleResize">
         <font-awesome-icon :icon="['fa-solid', imgButton]" />
-      </div>
+      </BButton>
     </div>
 
     <div class="d-flex gap-1 flex-wrap">

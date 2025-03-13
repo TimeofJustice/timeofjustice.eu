@@ -8,17 +8,27 @@
 }
 
 .btn-primary {
-  --bs-btn-bg: #{$gray-500};
-  --bs-btn-color: #{$white};
-  --bs-btn-border-color: #{$gray-500};
+  @include button-variant($gray-500, transparent, $hover-background: $gray-200, $active-background: $black);
+}
 
-  --bs-btn-hover-color: #{map-get($custom-colors, "grey-200")};
-  --bs-btn-hover-border-color: #{$gray-600};
-  --bs-btn-hover-bg: #{$gray-600};
-  --bs-btn-active-bg: #{map-get($custom-colors, "grey-100")};
+.btn-secondary {
 
-  --bs-btn-active-color: #{$gray-500};
-  --bs-btn-active-border-color: #{$gray-500};
+}
+
+.btn-tertiary {
+  --bs-btn-bg: unset;
+  --bs-btn-color: inherit;
+  --bs-btn-border-color: transparent;
+
+  --bs-btn-hover-color: var(--bs-btn-color);
+  --bs-btn-hover-bg: color-mix(in srgb, currentColor 12%, transparent);
+
+  --bs-btn-active-bg: color-mix(in srgb, currentColor 20%, transparent);
+  --bs-btn-active-color: var(--bs-btn-hover-color);
+  --bs-btn-active-border-color: var(--bs-btn-border-color);
+
+  --bs-btn-disabled-bg: var(--bs-btn-bg);
+  --bs-btn-disabled-border-color: var(--bs-btn-border-color);
 }
 
 .button-on-hover .btn {
@@ -28,4 +38,16 @@
 
 .button-on-hover:hover .btn {
   opacity: 1;
+}
+
+.btn-square {
+  min-width: 36px;
+  max-width: 36px;
+  min-height: 36px;
+  max-height: 36px;
+
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
