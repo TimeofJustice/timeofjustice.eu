@@ -27,7 +27,7 @@ const leftover = props.project.technologies.length - technologies.length;
                   v-if="project.status">{{ project.status.name[$i18n.locale as keyof TranslatedText] }}</BBadge>
           <h5 class="text-white mb-0 text-truncate">{{ project.title }}</h5>
         </div>
-        <p class="text-grey-100 fw-bold mb-0 text-truncate">{{ project.short_description[$i18n.locale as keyof TranslatedText] }}</p>
+        <p class="text-lightgray fw-semibold mb-0 text-truncate">{{ project.short_description[$i18n.locale as keyof TranslatedText] }}</p>
         <div class="d-flex gap-1 flex-wrap">
           <BBadge v-for="technology in technologies" :key="technology.name">
             <font-awesome-icon :icon="technology.icon" />
@@ -40,9 +40,9 @@ const leftover = props.project.technologies.length - technologies.length;
       </div>
 
       <div class="align-content-center text-white">
-        <a class="stretched-link stretched-link-translate-right" href="#" @click="callback(project.id)">
+        <BButton variant="tertiary" class="btn-square stretched-link" @click="callback(project.id)">
           <font-awesome-icon icon="fa-solid fa-arrow-right" />
-        </a>
+        </BButton>
       </div>
     </div>
   </div>

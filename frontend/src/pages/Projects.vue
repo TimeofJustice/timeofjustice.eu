@@ -6,6 +6,7 @@ import ProjectDetails from "@pages/Projects/ProjectDetails.vue";
 import { Social } from "@/types/Social.ts";
 import { Project } from "@/types/Project.ts";
 import ProjectItem from "@pages/Projects/ProjectItem.vue";
+import { Link } from "@node_modules/@inertiajs/vue3";
 
 interface Props {
   socials: Social[];
@@ -55,7 +56,7 @@ const loadProject = async (id: number) => {
           <br>
           <span class="display-1 fw-bold text-grey-100">Projects</span>
         </h1>
-        <div class="d-flex flex-column gap-3">
+        <div class="d-flex flex-column gap-3 mb-3">
           <ProjectItem :project="project" v-for="(project, i) in projects" :callback="loadProject" :key="i" />
         </div>
       </section>
@@ -65,12 +66,12 @@ const loadProject = async (id: number) => {
   <BOffcanvas v-model="showOffcanvas" placement="end">
     <template #header>
       <div class="d-flex gap-2">
-        <a type="button" class="btn btn-primary" @click="showOffcanvas = false">
+        <BButton variant="tertiary" class="btn-square" @click="showOffcanvas = false">
           <font-awesome-icon icon="fa-solid fa-times" />
-        </a>
-        <a type="button" class="btn btn-primary" :href="`/project/${project?.id}`">
+        </BButton>
+        <Link type="button" class="btn btn-tertiary btn-square" :href="`/project/${project?.id}`">
           <font-awesome-icon icon="fa-solid fa-external-link-alt" />
-        </a>
+        </Link>
       </div>
     </template>
 
