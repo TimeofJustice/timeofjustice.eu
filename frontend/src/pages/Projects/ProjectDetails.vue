@@ -32,7 +32,7 @@ const handleResize = () => {
         :controls="1 < project.images.length"
         :indicators="1 < project.images.length"
         ride="carousel"
-        :interval="500000"
+        :interval="5000"
         :img-height="imgSize"
         class="resizeable"
         v-if="0 < project.images.length">
