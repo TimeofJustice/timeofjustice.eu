@@ -65,11 +65,12 @@ const loadProject = async (id: number) => {
 
   <BOffcanvas v-model="showOffcanvas" placement="end">
     <template #header>
-      <div class="d-flex gap-2">
+      <div class="d-flex w-100 gap-2 justify-content-between">
         <BButton variant="tertiary" class="btn-square" @click="showOffcanvas = false">
           <font-awesome-icon icon="fa-solid fa-times" />
         </BButton>
-        <Link type="button" class="btn btn-tertiary btn-square" :href="`/project/${project?.id}`">
+        <Link class="btn btn-secondary" :href="`/project/${project?.id}`">
+          More
           <font-awesome-icon icon="fa-solid fa-external-link-alt" />
         </Link>
       </div>
