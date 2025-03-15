@@ -13,11 +13,11 @@ const changeLocale = (lang: string) => {
 <template>
   <BDropdown class="dropdown-ghost">
     <template #button-content>
-      <i :class="langs.find(lang => lang.code === $i18n.locale)?.flag"></i>
+      <i :class="langs.find(lang => lang.code === $i18n.locale)?.flag" class="rounded-1"></i>
     </template>
 
     <BDropdownItemButton v-for="lang in langs" :key="lang.code" @click="$i18n.locale = lang.code; changeLocale(lang.code)">
-      <i :class="lang.flag"></i> {{ lang.text }}
+      <i :class="lang.flag" class="rounded-1"></i> {{ lang.text }}
     </BDropdownItemButton>
   </BDropdown>
 </template>

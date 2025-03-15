@@ -11,16 +11,18 @@
   "index": {
     "wip_alert": "This page is still in work. Please check back later. The current version can be found at: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
     "profile": {
-      "current_position": "Student of Computer Science",
-      "based_in": "Based in Germany"
+      "description": "I'm currently a student of Applied Computer Science and work as a web developer on the side. In my free time I like to play video games, watch series and movies or read a good book.",
+      "description_short": "Student of Applied Computer Science and Web Developer",
+      "based_in": "Based in Germany",
+      "working_on": "Currently working on"
     }
   },
-    "socials": {
-        "github": "TimeofJustice on GitHub",
-        "linkedin": "TimeofJustice on LinkedIn",
-        "twitter": "TimeofJustice on Twitter",
-        "instagram": "TimeofJustice on Instagram"
-    },
+  "socials": {
+    "github": "TimeofJustice on GitHub",
+    "linkedin": "TimeofJustice on LinkedIn",
+    "twitter": "TimeofJustice on Twitter",
+    "instagram": "TimeofJustice on Instagram"
+  },
   "farming_stats": {
     "title": "Farming Stats",
     "month": {
