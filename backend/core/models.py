@@ -59,6 +59,69 @@ def lazy_image_to_json(image, base_url):
     }
 
 
+class Translation(models.Model):
+    name = models.CharField(max_length=100)
+    language = models.CharField(max_length=4)
+    text = models.TextField()
+
+    def __str__(self):
+        return self.text
+
+    class Meta:
+        unique_together = ('name', 'language')
+        ordering = ('name',)
+
+
+def get_translation(name):
+    de = get_or_none(Translation, name=name, language='de')
+    en = get_or_none(Translation, name=name, language='en')
+    yoda = get_or_none(Translation, name=name, language='yoda')
+
+    fallback = en.text if en is not None else (name if name is not None else "")
+
+    return {
+        'de': de.text if de is not None else fallback,
+        'en': en.text if en is not None else fallback,
+        'yoda': yoda.text if yoda is not None else fallback
+    }
+
+
+class Profile(models.Model):
+    id = models.AutoField(primary_key=True)
+    picture = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/profile/', max_length=1000, null=True, blank=True)
+    description = models.CharField(max_length=100, null=True, blank=True)
+    short_description = models.CharField(max_length=100, null=True, blank=True)
+    repo = models.URLField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return self.short_description
+
+    def json(self):
+        return {
+            'picture': f"/files/images/profile/{os.path.basename(self.picture.file.name)}" if self.picture else None,
+            'description': get_translation(self.description),
+            'short_description': get_translation(self.short_description),
+            'repo': self.repo if self.repo else None
+        }
+
+
+class Tool(models.Model):
+    id = models.AutoField(primary_key=True)
+    icon = models.FileField(upload_to=settings.FILE_DESTINATION + 'images/tool/', max_length=1000)
+    alt = models.CharField(max_length=20, null=True, blank=True)
+    url = models.URLField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.alt
+
+    def json(self):
+        return {
+            'icon': f"/files/images/tool/{os.path.basename(self.icon.file.name)}" if self.icon else None,
+            'alt': self.alt,
+            'url': self.url
+        }
+
+
 class Technology(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
@@ -79,6 +142,7 @@ class Status(models.Model):
     name_german = models.CharField(max_length=20)
     name_english = models.CharField(max_length=20)
     name_yoda = models.CharField(max_length=20)
+    name = models.CharField(max_length=100, null=True, blank=True)
     color = models.CharField(max_length=20, null=True, blank=True)
     order = models.IntegerField(null=True, blank=True)
 
@@ -86,15 +150,11 @@ class Status(models.Model):
         ordering = ['order']
 
     def __str__(self):
-        return self.name_german
+        return self.name if self.name else ""
 
     def json(self):
         return {
-            'name': {
-                'de': self.name_german,
-                'en': self.name_english,
-                'yoda': self.name_yoda
-            },
+            'name': get_translation(self.name),
             'color': self.color
         }
 
@@ -109,9 +169,13 @@ class Project(models.Model):
     short_description_english = models.TextField(max_length=100, null=True, blank=True)
     short_description_yoda = models.TextField(max_length=100, null=True, blank=True)
 
+    short_description = models.CharField(max_length=100, null=True, blank=True)
+
     description_german = models.TextField(null=True, blank=True)
     description_english = models.TextField(null=True, blank=True)
     description_yoda = models.TextField(null=True, blank=True)
+
+    description = models.CharField(max_length=100, null=True, blank=True)
 
     technology = models.ManyToManyField('Technology', blank=True)
 
@@ -119,6 +183,8 @@ class Project(models.Model):
     alt_german = models.TextField(max_length=100, null=True, blank=True)
     alt_english = models.TextField(max_length=100, null=True, blank=True)
     alt_yoda = models.TextField(max_length=100, null=True, blank=True)
+
+    alt = models.CharField(max_length=100, null=True, blank=True)
 
     github = models.URLField(max_length=100, null=True, blank=True)
     webpage = models.URLField(max_length=100, null=True, blank=True)
@@ -141,23 +207,11 @@ class Project(models.Model):
             'id': self.id,
             'title': self.title,
             'status': self.status.json() if self.status else None,
-            'short_description': {
-                'de': self.short_description_german,
-                'en': self.short_description_english,
-                'yoda': self.short_description_yoda
-            },
-            'description': {
-                'de': self.description_german,
-                'en': self.description_english,
-                'yoda': self.description_yoda
-            },
+            'short_description': get_translation(self.short_description),
+            'description': get_translation(self.description),
             'technologies': [tech.json() for tech in self.technology.all()],
             'title_image': lazy_image_to_json(self.title_image, 'project') if self.title_image else None,
-            'alt': {
-                'de': self.alt_german,
-                'en': self.alt_english,
-                'yoda': self.alt_yoda
-            },
+            'alt': get_translation(self.alt),
             'github': self.github,
             'website': self.webpage,
             'images': [image.json() for image in Image.objects.filter(project=self)]
@@ -172,6 +226,11 @@ class Image(models.Model):
     alt_english = models.TextField(max_length=100, null=True, blank=True)
     alt_yoda = models.TextField(max_length=100, null=True, blank=True)
 
+    alt = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.alt if self.alt else ""
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
@@ -182,9 +241,5 @@ class Image(models.Model):
     def json(self):
         return {
             'image': lazy_image_to_json(self.image, 'project'),
-            'alt': {
-                'de': self.alt_german,
-                'en': self.alt_english,
-                'yoda': self.alt_yoda
-            }
+            'alt': get_translation(self.alt)
         }

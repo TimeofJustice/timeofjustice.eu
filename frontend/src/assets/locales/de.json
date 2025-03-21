@@ -1,7 +1,8 @@
 {
   "general": {
     "back": "Zurück",
-    "error": "Fehler"
+    "error": "Fehler",
+    "more": "Mehr"
   },
   "nav": {
     "projects": "Projekte",
@@ -10,9 +11,11 @@
   },
   "index": {
     "wip_alert": "Diese Seite ist noch in Arbeit. Bitte schau später wieder vorbei. Die aktuelle Version findest du unter: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
+    "title": {
+      "top": "Alle",
+      "bottom": "Projekte"
+    },
     "profile": {
-      "description": "Ich bin aktuell Student der Angewandten Informatik und arbeite nebenbei als Webentwickler. In meiner Freizeit spiele ich gerne Videospiele, schaue Serien und Filme oder lese ein gutes Buch.",
-      "description_short": "Student der Angewandten Informatik und Webentwickler",
       "based_in": "Wohnhaft in Deutschland",
       "working_on": "Aktuell arbeite ich an"
     }

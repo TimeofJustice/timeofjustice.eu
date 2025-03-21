@@ -1,26 +1,23 @@
 from PIL import Image
 from django.conf import settings
 from django.http import HttpResponse
+from django.http.response import FileResponse
 
 
 def project_images(request, name):
-    response = HttpResponse(content_type="image/png")
-
-    with open(f"{settings.FILE_DESTINATION}/images/project/{name}", "rb") as f:
-        image = Image.open(f)
-        image.save(response, "PNG")
-
-    return response
+    return FileResponse(open(f"{settings.FILE_DESTINATION}/images/project/{name}", 'rb'))
 
 
 def project_images_lazy(request, name):
-    response = HttpResponse(content_type="image/png")
+    return FileResponse(open(f"{settings.FILE_DESTINATION}/images/lazy/project/{name}", 'rb'))
 
-    with open(f"{settings.FILE_DESTINATION}/images/lazy/project/{name}", "rb") as f:
-        image = Image.open(f)
-        image.save(response, "PNG")
 
-    return response
+def tool_images(request, name):
+    return FileResponse(open(f"{settings.FILE_DESTINATION}/images/tool/{name}", 'rb'))
+
+
+def profile_images(request, name):
+    return FileResponse(open(f"{settings.FILE_DESTINATION}/images/profile/{name}", 'rb'))
 
 
 def robot(request):

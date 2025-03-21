@@ -13,7 +13,7 @@ $custom-colors: (
         'grey-200': $gray-200,
         'space-blue': #071c39,
         'grey-10': $gray-10,
-        'aquamarin': #6097b7,
+        'aquamarin': #4795c3,
         'blue-grey': #587db6,
         'brown': #766a5f,
         'dark-green': #298363,
@@ -24,7 +24,7 @@ $custom-colors: (
 .bg {
   @each $color, $value in $custom-colors {
     &-#{$color} {
-        background-color: rgba($value, var(--bs-bg-opacity))!important;
+      background-color: rgba($value, var(--bs-bg-opacity)) !important;
     }
   }
 }
@@ -32,19 +32,19 @@ $custom-colors: (
 .text {
   @each $color, $value in $custom-colors {
     &-#{$color} {
-      color: $value!important;
+      color: $value !important;
     }
 
     &-bg-#{$color} {
-      background-color: $value!important;
+      background-color: rgba($value, var(--bs-bg-opacity, 1)) !important;
     }
   }
 }
 
 .border {
   @each $color, $value in $custom-colors {
-      &-#{$color} {
-        --bs-border-color: #{$value}!important;
-      }
+    &-#{$color} {
+      --bs-border-color: #{$value} !important;
+    }
   }
 }
