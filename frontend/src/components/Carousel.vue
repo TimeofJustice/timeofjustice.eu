@@ -4,7 +4,7 @@ import { Carousel, Slide } from 'vue3-carousel'
 import { TranslatedText } from "@/types/TranslatedText.ts";
 import { ProjectImage } from "@/types/ProjectImage.ts";
 import { ref } from "vue";
-import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faPlayCircle } from "@fortawesome/free-solid-svg-icons";
 
 interface CarouselProps {
   items: ProjectImage[];
@@ -14,12 +14,13 @@ defineProps<CarouselProps>()
 
 const currentSlide = ref(0)
 const mouseOver = ref(false)
+const videoPlaying = ref(false)
 
 const slideTo = (nextSlide: number) => (currentSlide.value = nextSlide)
 
 // Simulates the autoplay feature to reduce the jumping effect from the thumbnails
 setInterval(() => {
-  if (!mouseOver.value) slideTo((currentSlide.value + 1))
+  if (!mouseOver.value && !videoPlaying.value) slideTo((currentSlide.value + 1))
 }, 5000);
 
 const galleryConfig = {
@@ -44,7 +45,10 @@ const thumbnailsConfig = {
   <div v-if="items.length" @mouseover="mouseOver = true" @mouseleave="mouseOver = false">
     <Carousel v-bind="galleryConfig" v-model="currentSlide" class="mb-2">
       <Slide v-for="(image, i) in items" :key="i">
-        <v-lazy-image class="gallery-image" :src="image.image.original" :src-placeholder="image.image.lazy" :alt="image.alt[$i18n.locale as keyof TranslatedText]" />
+        <v-lazy-image class="gallery-image" :src="image.image.original" :src-placeholder="image.image.lazy" :alt="image.alt[$i18n.locale as keyof TranslatedText]" v-if="!image.video" />
+        <div class="gallery-image position-relative" v-else>
+          <video :src="image.video" muted controls autoplay playsinline @play="videoPlaying = true" @pause="videoPlaying = false" />
+        </div>
       </Slide>
     </Carousel>
 
@@ -53,9 +57,13 @@ const thumbnailsConfig = {
         <template #default="{ currentIndex, isActive, isClone }">
           <div
             :class="['thumbnail', { 'is-active': isActive && !isClone }]"
+            class="position-relative"
             @click="slideTo(currentIndex)"
             :id="currentIndex"
           >
+            <div class="position-absolute z-1 w-100 h-100 d-flex justify-content-center align-items-center fs-2 text-dark" v-if="image.video">
+              <font-awesome-icon :icon="faPlayCircle"></font-awesome-icon>
+            </div>
             <v-lazy-image class="thumbnail-image" :src="image.image.original" :src-placeholder="image.image.lazy" :alt="image.alt[$i18n.locale as keyof TranslatedText]" />
           </div>
         </template>
@@ -92,6 +100,16 @@ img {
 
 .gallery-image {
   border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-image > video {
+  border-radius: 16px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .thumbnail {

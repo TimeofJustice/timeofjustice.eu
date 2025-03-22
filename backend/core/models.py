@@ -200,7 +200,8 @@ class Project(models.Model):
 class Image(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', max_length=1000)
+    image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', max_length=1000, null=True, blank=True)
+    video = models.FileField(upload_to=settings.FILE_DESTINATION + 'video/project/', max_length=1000, null=True, blank=True)
     alt = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
@@ -215,6 +216,7 @@ class Image(models.Model):
 
     def json(self):
         return {
-            'image': lazy_image_to_json(self.image, 'project'),
+            'image': lazy_image_to_json(self.image, 'project') if self.image else None,
+            'video': f"/files/video/project/{os.path.basename(self.video.file.name)}" if self.video else None,
             'alt': get_translation(self.alt)
         }
