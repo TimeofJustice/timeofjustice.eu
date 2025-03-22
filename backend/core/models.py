@@ -139,9 +139,6 @@ class Technology(models.Model):
 
 class Status(models.Model):
     id = models.AutoField(primary_key=True)
-    name_german = models.CharField(max_length=20)
-    name_english = models.CharField(max_length=20)
-    name_yoda = models.CharField(max_length=20)
     name = models.CharField(max_length=100, null=True, blank=True)
     color = models.CharField(max_length=20, null=True, blank=True)
     order = models.IntegerField(null=True, blank=True)
@@ -162,30 +159,12 @@ class Status(models.Model):
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
-
     status = models.ForeignKey('Status', on_delete=models.CASCADE, null=True, blank=True)
-
-    short_description_german = models.TextField(max_length=100, null=True, blank=True)
-    short_description_english = models.TextField(max_length=100, null=True, blank=True)
-    short_description_yoda = models.TextField(max_length=100, null=True, blank=True)
-
     short_description = models.CharField(max_length=100, null=True, blank=True)
-
-    description_german = models.TextField(null=True, blank=True)
-    description_english = models.TextField(null=True, blank=True)
-    description_yoda = models.TextField(null=True, blank=True)
-
     description = models.CharField(max_length=100, null=True, blank=True)
-
     technology = models.ManyToManyField('Technology', blank=True)
-
     title_image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', null=True, blank=True, max_length=1000)
-    alt_german = models.TextField(max_length=100, null=True, blank=True)
-    alt_english = models.TextField(max_length=100, null=True, blank=True)
-    alt_yoda = models.TextField(max_length=100, null=True, blank=True)
-
     alt = models.CharField(max_length=100, null=True, blank=True)
-
     github = models.URLField(max_length=100, null=True, blank=True)
     webpage = models.URLField(max_length=100, null=True, blank=True)
 
@@ -222,10 +201,6 @@ class Image(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
     image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', max_length=1000)
-    alt_german = models.TextField(max_length=100, null=True, blank=True)
-    alt_english = models.TextField(max_length=100, null=True, blank=True)
-    alt_yoda = models.TextField(max_length=100, null=True, blank=True)
-
     alt = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
