@@ -23,17 +23,17 @@ const leftover = props.project.technologies.length - technologies.length;
     <div class="d-flex w-100 justify-content-between overflow-hidden gap-1">
       <div class="align-content-center d-flex flex-column justify-content-center overflow-hidden">
         <div class="d-flex flex-row gap-2 align-items-center">
-          <BBadge class="d-flex align-items-center" :variant="project.status.color"
+          <BBadge class="d-flex align-items-center bg-opacity-50" :variant="project.status.color"
                   v-if="project.status">{{ project.status.name[$i18n.locale as keyof TranslatedText] }}</BBadge>
           <h5 class="text-white mb-0 text-truncate">{{ project.title }}</h5>
         </div>
         <p class="text-lightgray fw-semibold mb-0 text-truncate">{{ project.short_description[$i18n.locale as keyof TranslatedText] }}</p>
         <div class="d-flex gap-1 flex-wrap">
-          <BBadge v-for="technology in technologies" :key="technology.name">
-            <font-awesome-icon :icon="technology.icon" />
+          <BBadge v-for="technology in technologies" :key="technology.name" class="bg-opacity-50">
+            <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
             {{ technology.name }}
           </BBadge>
-          <BBadge v-if="leftover > 0">
+          <BBadge v-if="leftover > 0" class="bg-opacity-50">
             +{{ leftover }}
           </BBadge>
         </div>

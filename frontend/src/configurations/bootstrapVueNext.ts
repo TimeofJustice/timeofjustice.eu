@@ -6,4 +6,16 @@
 
 export default {
   // Future configuration options will be added here
+  components: {
+    // Configurations for using our link-component as default
+    BLink: {
+      routerComponentName: "Link"
+    },
+    BDropdownItem: {
+      routerComponentName: "Link"
+    },
+    BButton: {
+      routerComponentName: "Link"
+    }
+  }
 };

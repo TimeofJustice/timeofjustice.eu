@@ -2,7 +2,8 @@
   "description": "This is the english translation, but spoken in Yoda's voice",
   "general": {
     "back": "Back, you must",
-    "error": "Error, there is"
+    "error": "Error, there is",
+    "more": "More, there is"
   },
   "nav": {
     "projects": "Projects",
@@ -11,9 +12,11 @@
   },
   "index": {
     "wip_alert": "Still in work, this page is. Check back later, you must. Found at, the current version can be: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
+    "title": {
+      "top": "All",
+      "bottom": "Projects"
+    },
     "profile": {
-      "description": "Student of Applied Computer Science, I am. Web developer on the side, I work. In my free time, video games, I like to play. Series and movies, I like to watch. A good book, I like to read.",
-      "description_short": "Student of Applied Computer Science and Web Developer, I am",
       "based_in": "Based in Germany, I am",
       "working_on": "Currently working on, I am"
     }

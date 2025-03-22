@@ -2,7 +2,7 @@ from django.conf import settings
 from inertia import render
 
 from .. import models
-from ..models import get_or_none
+from ..models import get_or_none, Profile
 
 
 def props(props):
@@ -21,7 +21,10 @@ def error(request, status_code):
 
 
 def index(request):
+    profile = get_or_none(Profile, id=1)
+
     page_props = {
+        "profile": profile.json() if profile else None,
         "socials": [
             {
                 "type": "github",
@@ -39,7 +42,8 @@ def index(request):
                 "icon": "fa-brands fa-linkedin"
             },
         ],
-        "projects": [project.json() for project in models.Project.objects.all()]
+        "projects": [project.json() for project in models.Project.objects.all()],
+        "tools": [tool.json() for tool in models.Tool.objects.all()],
     }
 
     return render(request, "Projects", props=props(page_props))

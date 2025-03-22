@@ -26,7 +26,9 @@
     "vue": "^3.3.4",
     "vue-i18n": "^9.14.1",
     "vue-markdown-render": "^2.2.1",
-    "vue3-apexcharts": "^1.8.0"
+    "vue3-apexcharts": "^1.8.0",
+    "vue3-carousel": "^0.15.0",
+    "vue3-marquee": "^4.2.2"
   },
   "devDependencies": {
     "@types/markdown-it": "^14.1.2",

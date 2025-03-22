@@ -1,7 +1,8 @@
 {
   "general": {
     "back": "Back",
-    "error": "Error"
+    "error": "Error",
+    "more": "More"
   },
   "nav": {
     "projects": "Projects",
@@ -10,9 +11,11 @@
   },
   "index": {
     "wip_alert": "This page is still in work. Please check back later. The current version can be found at: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
+    "title": {
+      "top": "All",
+      "bottom": "Projects"
+    },
     "profile": {
-      "description": "I'm currently a student of Applied Computer Science and work as a web developer on the side. In my free time I like to play video games, watch series and movies or read a good book.",
-      "description_short": "Student of Applied Computer Science and Web Developer",
       "based_in": "Based in Germany",
       "working_on": "Currently working on"
     }

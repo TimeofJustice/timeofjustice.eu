@@ -11,6 +11,8 @@ urlpatterns = [
 
     path("files/images/project/<str:name>", helpers.project_images, name="project_images"),
     path("files/images/lazy/project/<str:name>", helpers.project_images_lazy, name="project_images"),
+    path("files/images/tool/<str:name>", helpers.tool_images, name="tool_images"),
+    path("files/images/profile/<str:name>", helpers.profile_images, name="profile_images"),
 
     path("robots.txt", helpers.robot),
 ]

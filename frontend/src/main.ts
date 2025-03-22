@@ -5,6 +5,8 @@ import { createI18n } from "vue-i18n";
 import { createBootstrap } from 'bootstrap-vue-next'
 import VLazyImage from "v-lazy-image";
 import VueMarkdown from 'vue-markdown-render'
+import Vue3Marquee from 'vue3-marquee'
+import Link from "@components/Link.vue";
 
 import "@assets/scss/_index.scss";
 import 'bootstrap';
@@ -47,7 +49,10 @@ createInertiaApp({
             .use(MotionPlugin)
             .use(i18n)
             .use(VueApexCharts)
+            .use(Vue3Marquee)
             .directive('wip', wip)
+            .component('Link', Link)
+            .provide('$router', 'fake')
             .mount(el);
     },
 });

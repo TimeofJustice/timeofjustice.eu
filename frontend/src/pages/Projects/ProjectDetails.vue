@@ -1,53 +1,28 @@
 <script setup lang="ts">
 import { Project } from "@/types/Project.ts";
-import { ref } from "vue";
 import { TranslatedText } from "@/types/TranslatedText.ts";
+import Carousel from "@components/Carousel.vue";
 
 interface Props {
   project: Project | null;
 }
 
 defineProps<Props>();
-
-const imgSize = ref("250");
-const imgButton = ref("fa-maximize");
-
-const handleResize = () => {
-  if (imgSize.value === "500") {
-    imgSize.value = "250";
-    imgButton.value = "fa-maximize";
-  } else {
-    imgSize.value = "500";
-    imgButton.value = "fa-minimize";
-  }
-};
 </script>
 
 <template>
   <div class="d-flex flex-column gap-2" v-if="project">
-    <h1 class="mb-0"> {{ project.title }} </h1>
-
-    <div class="position-relative button-on-hover">
-      <BCarousel
-        :controls="1 < project.images.length"
-        :indicators="1 < project.images.length"
-        ride="carousel"
-        :interval="5000"
-        :img-height="imgSize"
-        class="resizeable"
-        v-if="0 < project.images.length">
-        <BCarouselSlide :img-src="image.image.original" class="img-fluid object-fit-cover" v-for="(image, i) in project.images" :key="i"
-                        :alt="image.alt[$i18n.locale as keyof TranslatedText]" />
-      </BCarousel>
-
-      <BButton variant="primary" class="position-absolute top-0 end-0 m-2 btn-square z-3" @click="handleResize">
-        <font-awesome-icon :icon="['fa-solid', imgButton]" />
-      </BButton>
+    <div class="d-flex gap-2 align-items-center justify-content-between">
+      <h1 class="mb-0 text-truncate"> {{ project.title }} </h1>
+      <BBadge class="d-flex align-items-center bg-opacity-50" :variant="project.status.color"
+              v-if="project.status">{{ project.status.name[$i18n.locale as keyof TranslatedText] }}</BBadge>
     </div>
 
+    <Carousel :items="project.images" />
+
     <div class="d-flex gap-1 flex-wrap">
-      <BBadge v-for="technology in project.technologies" :key="technology.name">
-        <font-awesome-icon :icon="technology.icon" />
+      <BBadge v-for="technology in project.technologies" :key="technology.name" class="bg-opacity-50">
+        <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
         {{ technology.name }}
       </BBadge>
     </div>
@@ -57,16 +32,16 @@ const handleResize = () => {
     }" />
 
     <div class="d-flex gap-2">
-      <a :href="project.github" class="btn btn-primary d-flex gap-2 align-items-center" target="_blank" v-if="project.github">
+      <BLink :to="project.github" external class="btn btn-primary d-flex gap-2 align-items-center" target="_blank" v-if="project.github">
         <font-awesome-icon icon="fa-brands fa-github" />
         Github
         <font-awesome-icon icon="fa-solid fa-external-link-alt" />
-      </a>
-      <a :href="project.website" class="btn btn-primary d-flex gap-2 align-items-center" target="_blank" v-if="project.website">
+      </BLink>
+      <BLink :to="project.website" external class="btn btn-primary d-flex gap-2 align-items-center" target="_blank" v-if="project.website">
         <font-awesome-icon icon="fa-solid fa-globe" />
         Website
         <font-awesome-icon icon="fa-solid fa-external-link-alt" />
-      </a>
+      </BLink>
     </div>
   </div>
 
