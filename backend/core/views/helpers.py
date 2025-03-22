@@ -8,6 +8,10 @@ def project_images(request, name):
     return FileResponse(open(f"{settings.FILE_DESTINATION}/images/project/{name}", 'rb'))
 
 
+def project_video(request, name):
+    return FileResponse(open(f"{settings.FILE_DESTINATION}/video/project/{name}", 'rb'))
+
+
 def project_images_lazy(request, name):
     return FileResponse(open(f"{settings.FILE_DESTINATION}/images/lazy/project/{name}", 'rb'))
 
