@@ -19,6 +19,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import "@configurations/FontAwesome";
 import bootstrapVueNextConfig from '@configurations/bootstrapVueNext';
 
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
+
 const i18n = createI18n({
     legacy: false,
     locale: (localStorage.getItem("lang") || "en"),

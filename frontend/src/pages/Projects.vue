@@ -74,7 +74,7 @@ const loadProject = async (id: number) => {
     </div>
   </div>
 
-  <BOffcanvas v-model="showOffcanvas" placement="end">
+  <BOffcanvas data-bs-theme="dark" v-model="showOffcanvas" placement="end">
     <template #header>
       <div class="d-flex w-100 gap-2">
         <BButton variant="tertiary" class="btn-square" @click="showOffcanvas = false">
