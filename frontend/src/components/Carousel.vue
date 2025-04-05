@@ -72,6 +72,8 @@ const closeFullscreen = () => {
   const video = document.getElementById("modal-player") as HTMLVideoElement;
 
   stopVideo(video);
+
+  isFullscreenOpen.value = false;
 };
 
 const forceSlideUpdate = (index: number) => {
@@ -128,7 +130,7 @@ const forceSlideUpdate = (index: number) => {
   </div>
 
   <BModal data-bs-theme="dark" v-model="isFullscreenOpen" header-class="justify-content-end" body-class="overflow-hidden d-flex justify-content-center"
-          :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="xl" centered @close="closeFullscreen()">
+          :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="xl" centered>
     <div class="rounded d-flex">
       <v-lazy-image class="img-fluid rounded" :src="currentItem?.image.original" :src-placeholder="currentItem?.image.lazy"
                     :alt="currentItem?.alt[$i18n.locale as keyof TranslatedText]" v-if="!currentItem?.video" />
@@ -136,7 +138,7 @@ const forceSlideUpdate = (index: number) => {
     </div>
 
     <template #header>
-      <BButton variant="tertiary" class="btn-square text-light" @click="isFullscreenOpen = false">
+      <BButton variant="tertiary" class="btn-square text-light" @click="closeFullscreen()">
         <font-awesome-icon :icon="faClose" />
       </BButton>
     </template>
