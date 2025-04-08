@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { faBars, faClose, faHome, faPaintBrush } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faBars, faClose, faDice, faHome, faPaintBrush } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/vue-fontawesome";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
-import { Link } from "@node_modules/@inertiajs/vue3";
 </script>
 
 <template>
@@ -26,14 +25,18 @@ import { Link } from "@node_modules/@inertiajs/vue3";
         </div>
 
         <div class="offcanvas-body d-flex flex-column flex-lg-row gap-3 align-items-lg-center ps-3 ps-lg-0 pt-2 pt-lg-0">
-          <Link class="nav-item nav-link p-0" href="/" :class="{ 'active': $page.component === 'Projects' }">
+          <BLink class="nav-item nav-link p-0" to="/" :class="{ 'active': $page.component === 'Projects' }">
             <FontAwesomeIcon :icon="faHome"/>
             <span class="ms-1">{{ $t('nav.projects') }}</span>
-          </Link>
-          <a class="nav-item nav-link p-0" href="https://legacy.timeofjustice.eu/place">
+          </BLink>
+          <BLink class="nav-item nav-link p-0" to="/casino/" :class="{ 'active': $page.component === 'Casino/Main' }">
+            <FontAwesomeIcon :icon="faDice"/>
+            <span class="ms-1">{{ $t('nav.casino') }}</span>
+          </BLink>
+          <BLink class="nav-item nav-link p-0" to="https://legacy.timeofjustice.eu/place" external>
             <FontAwesomeIcon :icon="faPaintBrush"/>
             <span class="ms-1">{{ $t('nav.place') }}</span>
-          </a>
+          </BLink>
         </div>
 
         <LocaleDropdown class="d-none d-lg-block"/>

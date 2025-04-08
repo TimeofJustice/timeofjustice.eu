@@ -7,7 +7,8 @@
   "nav": {
     "projects": "Projects",
     "place": "r/Place",
-    "farming_stats": "Farming Stats"
+    "farming_stats": "Farming Stats",
+    "casino": "Casino"
   },
   "index": {
     "wip_alert": "This page is still in work. Please check back later. The current version can be found at: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
@@ -82,6 +83,7 @@
     "not_enough_tokens": "You don't have enough tokens.",
     "game": {
       "higher_lower": {
+        "title": "Higher or Lower",
         "bet": "Bet",
         "actions": {
           "start": "Start",
@@ -94,7 +96,14 @@
         "outcomes": {
           "won": "You won!",
           "lost": "You lost!"
-        }
+        },
+        "errors": {
+          "session_expired": "Session expired",
+          "invalid_round": "You have to play at least one round",
+          "deck_empty": "Deck is empty",
+          "invalid_bet": "Invalid bet"
+        },
+        "rules": "### \uD83D\uDCDC Rules\n\n#### \uD83C\uDFAE Objective:\nGuess whether the **next card** in the deck will be **higher**, **lower**, or **equal** in rank compared to the current one.\n\n---\n\n#### \uD83D\uDD79\uFE0F How to Play:\n\n1. **Start with one card and a base bet** (e.g., 10).\n2. Choose between **\"Higher\"**, **\"Lower\"**, or **\"Draw\"** for the next card.\n3. If your guess is correct:\n    - Your total stake increases by a multiplier:\n        - **Higher / Lower** → **2×** (1:1 payout)\n        - **Draw** → **9×** (8:1 payout)\n4. After each win, you can either:\n    - **Continue playing** (risking the full amount for the next guess)\n    - Or **cash out** (secure your current total winnings)\n\n---\n\n#### \uD83E\uDDEE Example:\n- Start with **10**\n- 1 correct guess → 20\n- 2 correct → 40\n- ...\n- After 5 correct guesses: **320**\n- If you guess \"Draw\" correctly: 10 × 9 = **90**\n\n---\n\n#### \uD83C\uDFC6 Perfect Run (52 Correct Guesses):\n- If you successfully guess **all 51 following cards** correctly, you earn a **special reward**:\n    - **Special reward** -> **1000×** your base bet (999:1 payout)\n\n---\n\n#### ❗ Important Notes:\n- **One wrong guess** → You **lose your entire current stack**\n- If you choose \"Higher\" or \"Lower\" and the next card is exactly the same → **wrong**\n- No take-backs – every decision matters!\n\n---\n\n#### \uD83D\uDCA1 Tip:\n- Small streaks are worth it too: 5–10 correct guesses can already lead to big wins."
       }
     }
   }

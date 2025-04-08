@@ -102,7 +102,7 @@ def create_session(id=None, deck=None, card=None, bet=None, initial_bet=None, se
 def session_json(session):
     return {
         "session_id": session["session_id"],
-        "cards_left": len(session["deck"]),
+        "cards_left": len(session["deck"]) if session["deck"] else 0,
         "card": session["card"],
         "bet": session["bet"],
         "initial_bet": session["initial_bet"],
@@ -117,10 +117,10 @@ def start(request, bet):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return JsonResponse({"error": "Session expired"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
 
     if bet <= 0 or bet > wallet.balance or 100 < bet:
-        return JsonResponse({"error": "Invalid bet"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.invalid_bet"}, status=400)
 
     update_wallet(wallet, -bet)
 
@@ -129,12 +129,12 @@ def start(request, bet):
 
     result = draw_card(left_over_cards)
     if result is None:
-        return JsonResponse({"error": "No more cards in the deck"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
     card, left_over_cards = result
 
     request.session['higher_lower_session'] = create_session(uuid.uuid4().hex, left_over_cards, card, bet, bet)
 
-    return JsonResponse(request.session['higher_lower_session'])
+    return JsonResponse(session_json(request.session['higher_lower_session']))
 
 
 @wallet_required
@@ -142,11 +142,11 @@ def higher(request, session_id):
     session = request.session.get('higher_lower_session', None)
 
     if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "Session expired"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
 
     result = draw_card(session['deck'])
     if result is None:
-        return JsonResponse({"error": "No more cards in the deck"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
     card, left_over_cards = result
 
     bet = session['bet'] * 2 if compare_cards(session['card'], card) == "higher" else 0
@@ -164,11 +164,11 @@ def lower(request, session_id):
     session = request.session.get('higher_lower_session', None)
 
     if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "Session expired"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
 
     result = draw_card(session['deck'])
     if result is None:
-        return JsonResponse({"error": "No more cards in the deck"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
     card, left_over_cards = result
 
     bet = session['bet'] * 2 if compare_cards(session['card'], card) == "lower" else 0
@@ -186,11 +186,11 @@ def draw(request, session_id):
     session = request.session.get('higher_lower_session', None)
 
     if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "Session expired"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
 
     result = draw_card(session['deck'])
     if result is None:
-        return JsonResponse({"error": "No more cards in the deck"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
     card, left_over_cards = result
 
     bet = session['bet'] * 9 if compare_cards(session['card'], card) == "draw" else 0
@@ -208,10 +208,10 @@ def leave(request, session_id):
     session = request.session.get('higher_lower_session', None)
 
     if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "Session expired"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
 
     if session['bet'] == session['initial_bet']:
-        return JsonResponse({"error": "You have to play at least one round"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.invalid_round"}, status=400)
 
     return end(request)
 
@@ -221,10 +221,10 @@ def end(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not session:
-        return JsonResponse({"error": "Session expired"}, status=400)
+        return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
 
     if session['bet'] > 0:
-        update_wallet(wallet, session['bet'])
+        update_wallet(wallet, session['bet'] if len(session['deck']) > 0 else session['bet'] * 1000)
 
     del request.session['higher_lower_session']
 

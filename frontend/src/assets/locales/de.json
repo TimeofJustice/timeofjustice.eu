@@ -7,7 +7,8 @@
   "nav": {
     "projects": "Projekte",
     "place": "r/Place",
-    "farming_stats": "Farming Stats"
+    "farming_stats": "Farming Stats",
+    "casino": "Casino"
   },
   "index": {
     "wip_alert": "Diese Seite ist noch in Arbeit. Bitte schau später wieder vorbei. Die aktuelle Version findest du unter: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
@@ -52,5 +53,58 @@
       "crops": "Pflanzen",
       "commodities": "Waren"
     }
+  },
+"casino": {
+  "title": "Casino",
+  "entry": {
+    "title": "Willkommen",
+    "warning": "Dieses Casino verwendet nur den TimeofJustice-Token (TJT). Glücksspiel kann dennoch süchtig machen. Bitte spiele verantwortungsvoll.",
+    "enter_with_new_wallet": "Mit einer neuen Wallet betreten",
+    "enter_with_existing_wallet": "Mit einer bestehenden Wallet betreten"
+  },
+  "login": {
+    "title": "Anmeldung",
+    "enter_wallet": "Wallet eingeben",
+    "submit": "Anmelden",
+    "back_to_entry": "Zurück zum Einstieg",
+    "error": {
+      "invalid_wallet": "Ungültige Wallet",
+      "not_valid": "Deine Wallet muss 32 Zeichen lang sein und darf nur Zahlen und Buchstaben von A-F enthalten.",
+      "unknown": "Unbekannter Fehler"
+    }
+  },
+  "main": {
+    "reminder": "Vergiss nicht, deine Wallet-ID zu kopieren. Du wirst sie benötigen, um dich erneut anzumelden.",
+    "wallet": "Wallet",
+    "balance": "Kontostand:",
+    "copy_wallet": "Wallet-ID in die Zwischenablage kopiert",
+    "copy_wallet_error": "Fehler beim Kopieren der Wallet-ID in die Zwischenablage"
+  },
+  "not_enough_tokens": "Du hast nicht genug Token.",
+  "game": {
+    "higher_lower": {
+      "title": "Higher or Lower",
+      "bet": "Einsatz",
+      "actions": {
+        "start": "Start",
+        "higher": "Höher",
+        "lower": "Niedriger",
+        "draw": "Gleichstand",
+        "quit": "Ende",
+        "play_again": "Nochmal spielen"
+      },
+      "outcomes": {
+        "won": "Du hast gewonnen!",
+        "lost": "Du hast verloren!"
+      },
+      "errors": {
+        "session_expired": "Sitzung abgelaufen",
+        "invalid_round": "Du musst mindestens eine Runde spielen",
+        "deck_empty": "Deck ist leer",
+        "invalid_bet": "Ungültiger Einsatz"
+      },
+      "rules": "### \uD83D\uDCDC Regeln\n\n#### \uD83C\uDFAE Ziel:\nErrate, ob die **nächste Karte** im Deck im Rang **höher**, **niedriger** oder **gleich** der aktuellen Karte ist.\n\n---\n\n#### \uD83D\uDD79\uFE0F So wird gespielt:\n\n1. **Beginne mit einer Karte und einem Grundeinsatz** (z. B. 10).\n2. Wähle zwischen **\"Höher\"**, **\"Niedriger\"** oder **\"Gleichstand\"** für die nächste Karte.\n3. Wenn deine Vermutung richtig ist:\n    - Erhöht sich dein Gesamteinsatz um einen Multiplikator:\n        - **Höher / Niedriger** → **2×** (1:1 Auszahlung)\n        - **Gleichstand** → **9×** (8:1 Auszahlung)\n4. Nach jedem Gewinn kannst du entweder:\n    - **Weiter spielen** (das gesamte Guthaben für den nächsten Tipp riskieren)\n    - Oder **auszahlen** (deinen aktuellen Gesamtgewinn sichern)\n\n---\n\n#### \uD83E\uDDEE Beispiel:\n- Starte mit **10**\n- 1 richtiger Tipp → 20\n- 2 richtige → 40\n- ...\n- Nach 5 richtigen Tipps: **320**\n- Wenn du \"Gleichstand\" richtig tippst: 10 × 9 = **90**\n\n---\n\n#### \uD83C\uDFC6 Perfekter Lauf (52 richtige Tipps):\n- Wenn du erfolgreich **alle 51 folgenden Karten** richtig tippst, erhältst du eine **Sonderbelohnung**:\n    - **Sonderbelohnung** -> **1000×** deines Grundeinsatzes (999:1 Auszahlung)\n\n---\n\n#### ❗ Wichtige Hinweise:\n- **Ein falscher Tipp** → Du **verlierst deinen gesamten aktuellen Stapel**\n- Wenn du \"Höher\" oder \"Niedriger\" wählst und die nächste Karte genau gleich ist → **falsch**\n- Keine Rücknahmen – jede Entscheidung zählt!\n\n---\n\n#### \uD83D\uDCA1 Tipp:\n- Kleine Serien lohnen sich auch: 5–10 richtige Tipps können bereits zu großen Gewinnen führen."
+    }
   }
+}
 }

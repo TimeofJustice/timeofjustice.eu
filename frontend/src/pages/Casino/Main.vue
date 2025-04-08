@@ -3,7 +3,7 @@ import { Head } from '@inertiajs/vue3'
 import { faClose, faCopy, faDice, faSignOut, faWallet } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
-import { ref } from "vue";
+import { ref, shallowRef } from "vue";
 import HigherOrLower from "@pages/Casino/Games/HigherOrLower.vue";
 
 const { show } = useToastController()
@@ -44,7 +44,7 @@ const copyToClipboard = () => {
 
 const showCopyReminder = ref(true);
 
-const gameComponent = ref(HigherOrLower);
+const gameComponent = shallowRef(HigherOrLower);
 
 const onTokenWon = (tokens: number) => {
   wallet.balance += tokens;
@@ -83,7 +83,7 @@ const onTokenLost = (tokens: number) => {
             </BButton>
           </template>
 
-          <component :is="gameComponent" :balance="wallet.balance" @tokens_won="onTokenWon" @tokens_lost="onTokenLost" class="p-3" />
+          <component :is="gameComponent" :balance="Number(wallet.balance)" @tokens_won="onTokenWon" @tokens_lost="onTokenLost" class="p-3" />
         </BCard>
       </div>
 
@@ -145,18 +145,6 @@ const onTokenLost = (tokens: number) => {
           </template>
 
           <BButton active>
-            Higher or Lower
-          </BButton>
-          <BButton>
-            Higher or Lower
-          </BButton>
-          <BButton>
-            Higher or Lower
-          </BButton>
-          <BButton>
-            Higher or Lower
-          </BButton>
-          <BButton>
             Higher or Lower
           </BButton>
         </BCard>

@@ -1,20 +1,46 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { faArrowDown, faArrowUp, faMinus } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowUp, faClose, faInfo, faMinus } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { computed } from "@node_modules/vue";
+import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
+import Icon from "@components/Icon.vue";
+import { useI18n } from "@node_modules/vue-i18n";
 
-const gameState = ref<'not_started' | 'first_round' | 'still_playing' | 'won' | 'lost'>('not_started');
-const card = ref('back');
-const bet = ref(10);
-const initialBet = ref(10);
-const leftOverCards = ref(52);
-const sessionId = ref('');
+interface GameSession {
+  sessionId: string;
+  state: 'not_started' | 'first_round' | 'still_playing' | 'won' | 'lost';
+  card: string;
+  bet: number;
+  initialBet: number;
+  leftOverCards: number;
+}
+
+const gameSession = ref<GameSession>({
+  sessionId: '',
+  state: 'not_started',
+  card: 'back',
+  bet: 10,
+  initialBet: 10,
+  leftOverCards: 52,
+});
+const newGameSession = ref<GameSession | undefined>(undefined);
+
+const cardLoaded = () => {
+  gameSession.value = newGameSession.value? newGameSession.value : gameSession.value;
+  waitingForResponse.value = false;
+};
 
 interface HigherLowerProps {
   balance: number;
 }
 
+const { show } = useToastController()
+
 const { balance } = defineProps<HigherLowerProps>();
+
+const i18n = useI18n();
+
+const waitingForResponse = ref(false);
 
 const emit = defineEmits({
   tokens_won: null,
@@ -22,79 +48,152 @@ const emit = defineEmits({
 })
 
 const start = async () => {
-  const response = await fetch(`/casino/api/higher-lower/start/${bet.value}`);
+  waitingForResponse.value = true;
+
+  const response = await fetch(`/casino/api/higher-lower/start/${gameSession.value['bet']}`);
   if (!response.ok) {
-    throw new Error("Failed to load project");
+    const body = await response.json();
+
+    show?.({
+      props: {
+        body: i18n.t(body.error),
+        variant: "danger",
+        interval: 5000,
+        pos: "bottom-start",
+      }
+    });
+
+    waitingForResponse.value = false;
   }
 
   const data = await response.json();
 
   emit('tokens_lost', data["initial_bet"]);
 
-  card.value = data["card"];
-  bet.value = data["bet"];
-  initialBet.value = data["initial_bet"];
-  leftOverCards.value = data["cards_left"];
-  sessionId.value = data["session_id"];
-
-  gameState.value = 'first_round';
+  gameSession.value['card'] = data["card"];
+  newGameSession.value = {
+    sessionId: data["session_id"],
+    state: 'first_round',
+    card: data["card"],
+    bet: data["bet"],
+    initialBet: data["initial_bet"],
+    leftOverCards: data["cards_left"],
+  };
 }
 
 const higher = async () => {
-  const response = await fetch(`/casino/api/higher-lower/higher/${sessionId.value}`);
+  waitingForResponse.value = true;
+
+  const response = await fetch(`/casino/api/higher-lower/higher/${gameSession.value['sessionId']}`);
   if (!response.ok) {
-    throw new Error("Failed to load project");
+    const body = await response.json();
+
+    show?.({
+      props: {
+        body: i18n.t(body.error),
+        variant: "danger",
+        interval: 5000,
+        pos: "bottom-start",
+      }
+    });
+
+    waitingForResponse.value = false;
   }
 
   const data = await response.json();
 
-  card.value = data["card"];
-  bet.value = data["bet"];
-  leftOverCards.value = data["cards_left"];
-  gameState.value = 'still_playing';
-
-  if (data["bet"] <= 0)
-    return game_lost();
+  gameSession.value['card'] = data["card"];
+  newGameSession.value = {
+    sessionId: data["session_id"],
+    state: data["bet"] <= 0 ? 'lost' : 'still_playing',
+    card: data["card"],
+    bet: data["bet"],
+    initialBet: data["initial_bet"],
+    leftOverCards: data["cards_left"],
+  };
 }
 
 const lower = async () => {
-  const response = await fetch(`/casino/api/higher-lower/lower/${sessionId.value}`);
+  waitingForResponse.value = true;
+
+  const response = await fetch(`/casino/api/higher-lower/lower/${gameSession.value['sessionId']}`);
   if (!response.ok) {
-    throw new Error("Failed to load project");
+    const body = await response.json();
+
+    show?.({
+      props: {
+        body: i18n.t(body.error),
+        variant: "danger",
+        interval: 5000,
+        pos: "bottom-start",
+      }
+    });
+
+    waitingForResponse.value = false;
   }
 
   const data = await response.json();
 
-  card.value = data["card"];
-  bet.value = data["bet"];
-  leftOverCards.value = data["cards_left"];
-  gameState.value = 'still_playing';
-
-  if (data["bet"] <= 0)
-    return game_lost();
+  gameSession.value['card'] = data["card"];
+  newGameSession.value = {
+    sessionId: data["session_id"],
+    state: data["bet"] <= 0 ? 'lost' : 'still_playing',
+    card: data["card"],
+    bet: data["bet"],
+    initialBet: data["initial_bet"],
+    leftOverCards: data["cards_left"],
+  };
 }
 
 const draw = async () => {
-  const response = await fetch(`/casino/api/higher-lower/draw/${sessionId.value}`);
+  waitingForResponse.value = true;
+
+  const response = await fetch(`/casino/api/higher-lower/draw/${gameSession.value['sessionId']}`);
   if (!response.ok) {
-    throw new Error("Failed to load project");
+    const body = await response.json();
+
+    show?.({
+      props: {
+        body: i18n.t(body.error),
+        variant: "danger",
+        interval: 5000,
+        pos: "bottom-start",
+      }
+    });
+
+    waitingForResponse.value = false;
   }
 
   const data = await response.json();
 
-  card.value = data["card"];
-  bet.value = data["bet"];
-  leftOverCards.value = data["cards_left"];
-  gameState.value = 'still_playing';
-
-  if (data["bet"] <= 0)
-    return game_lost();
+  gameSession.value['card'] = data["card"];
+  newGameSession.value = {
+    sessionId: data["session_id"],
+    state: data["bet"] <= 0 ? 'lost' : 'still_playing',
+    card: data["card"],
+    bet: data["bet"],
+    initialBet: data["initial_bet"],
+    leftOverCards: data["cards_left"],
+  };
 }
 
 const leave = async () => {
-  const response = await fetch(`/casino/api/higher-lower/leave/${sessionId.value}`);
+  waitingForResponse.value = true;
+
+  const response = await fetch(`/casino/api/higher-lower/leave/${gameSession.value['sessionId']}`);
   if (!response.ok) {
-    throw new Error("Failed to load project");
+    const body = await response.json();
+
+    show?.({
+      props: {
+        body: i18n.t(body.error),
+        variant: "danger",
+        interval: 5000,
+        pos: "bottom-start",
+      }
+    });
+
+    waitingForResponse.value = false;
   }
 
   const data = await response.json();
@@ -105,49 +204,67 @@ const leave = async () => {
 }
 
 const game_won = () => {
-  gameState.value = 'won';
-  sessionId.value = '';
-}
-
-const game_lost = () => {
-  gameState.value = 'lost';
-  sessionId.value = '';
+  gameSession.value['state'] = 'won';
+  gameSession.value['sessionId'] = '';
 }
 
 const game_end = () => {
-  gameState.value = 'not_started';
-  card.value = 'back';
-  bet.value = initialBet.value;
-  leftOverCards.value = 52;
-  sessionId.value = '';
+  gameSession.value = {
+    sessionId: '',
+    state: 'not_started',
+    card: 'back',
+    bet: gameSession.value['initialBet'],
+    initialBet: gameSession.value['initialBet'],
+    leftOverCards: 52,
+  }
+  newGameSession.value = undefined;
 }
 
 const validation = computed(() => {
   const numericBalance = Number(balance);
 
-  return bet.value >= 10 && bet.value <= 100 && bet.value <= numericBalance;
+  return gameSession.value["bet"] >= 10 && gameSession.value["bet"] <= 100 && gameSession.value["bet"] <= numericBalance;
 });
+
+const areRulesOpen = ref(false);
 </script>
 
 <template>
 <div class="w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 position-relative">
-  <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-3" v-if="gameState !== 'first_round' && gameState !== 'still_playing'">
+  <BButton class="btn-circle position-absolute top-0 end-0 m-2 z-3" @click="areRulesOpen = true">
+    <font-awesome-icon :icon="faInfo"/>
+  </BButton>
+
+  <BModal data-bs-theme="dark" v-model="areRulesOpen" header-class="justify-content-between align-items-center"
+          :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="xl" centered>
+    <vue-markdown :source="$t('casino.game.higher_lower.rules')" />
+
+    <template #header>
+      <h2 class="m-0">{{ $t('casino.game.higher_lower.title') }}</h2>
+
+      <BButton variant="tertiary" class="btn-square text-light" @click="areRulesOpen = false">
+        <font-awesome-icon :icon="faClose" />
+      </BButton>
+    </template>
+  </BModal>
+
+  <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2" v-if="gameSession.state !== 'first_round' && gameSession.state !== 'still_playing'">
     <div class="d-flex flex-column col-3 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
-      <h1 class="text-white text-center" v-if="gameState !== 'not_started'">
-        {{ gameState === 'lost' ? $t('casino.game.higher_lower.outcomes.lost') : $t('casino.game.higher_lower.outcomes.won') }}
+      <h1 class="text-white text-center" v-if="gameSession.state !== 'not_started'">
+        {{ gameSession.state === 'lost' ? $t('casino.game.higher_lower.outcomes.lost') : $t('casino.game.higher_lower.outcomes.won') }}
       </h1>
 
       <BFormGroup id="input-group-2" label-for="input-2" v-else>
         <span class="text-white text-center">
-          {{ $t('casino.game.higher_lower.bet') }}: {{ bet }}
+          {{ $t('casino.game.higher_lower.bet') }}: {{ gameSession.bet }}
         </span>
-        <BInput id="input-2" type="range" v-model="bet" min="10" :max="balance < 100 ? balance : 100" :state="validation" />
+        <BInput id="input-2" type="range" v-model="gameSession.bet" min="10" :max="balance < 100 ? balance : 100" :state="validation" />
         <BFormInvalidFeedback :state="validation">
           {{ $t('casino.not_enough_tokens') }}
         </BFormInvalidFeedback>
       </BFormGroup>
 
-      <BButton variant="primary" class="btn-lg" @click.prevent="game_end" v-if="gameState !== 'not_started'">
+      <BButton variant="primary" class="btn-lg" @click.prevent="game_end" v-if="gameSession.state !== 'not_started'">
         {{ $t('casino.game.higher_lower.actions.play_again') }}
       </BButton>
       <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validation">
@@ -158,27 +275,35 @@ const validation = computed(() => {
 
   <div class="d-flex flex-column gap-2">
     <div class="d-flex justify-content-center align-items-center gap-2">
-      <img :src="'/files/images/casino/cards/' + card + '.svg'" :alt="card" class="img-fluid" />
-
-      <div class="d-flex flex-column gap-2">
-        <BButton variant="success" @click.prevent="higher" :disabled="gameState !== 'first_round' && gameState !== 'still_playing'">
+      <div class="d-flex flex-column">
+        <img :src="'/files/images/casino/cards/' + gameSession.card + '.svg'" :alt="gameSession.card" class="img-fluid" @load="cardLoaded" />
+      </div>
+      <div class="d-flex flex-column gap-2 col-3">
+        <BButton variant="success" @click.prevent="higher" :disabled="(gameSession.state !== 'first_round' && gameSession.state !== 'still_playing') || waitingForResponse">
           <font-awesome-icon :icon="faArrowUp"/>
         </BButton>
-        <BButton variant="warning" @click.prevent="draw" :disabled="gameState !== 'first_round' && gameState !== 'still_playing'">
+        <BButton variant="warning" @click.prevent="draw" :disabled="(gameSession.state !== 'first_round' && gameSession.state !== 'still_playing') || waitingForResponse">
           <font-awesome-icon :icon="faMinus"/>
         </BButton>
-        <BButton variant="danger" @click.prevent="lower" :disabled="gameState !== 'first_round' && gameState !== 'still_playing'">
+        <BButton variant="danger" @click.prevent="lower" :disabled="(gameSession.state !== 'first_round' && gameSession.state !== 'still_playing') || waitingForResponse">
           <font-awesome-icon :icon="faArrowDown"/>
         </BButton>
-        <BButton variant="primary" @click.prevent="leave" :disabled="gameState !== 'still_playing'">
+        <BButton variant="primary" @click.prevent="leave" :disabled="(gameSession.state !== 'still_playing') || waitingForResponse">
           {{ $t('casino.game.higher_lower.actions.quit') }}
         </BButton>
       </div>
     </div>
 
-    <h3 class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center">
-      {{ gameState === 'not_started' ? 0 : bet }}
-    </h3>
+    <div class="d-flex gap-2">
+      <h3 class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center">
+        {{ gameSession.state === 'not_started' ? 0 : gameSession.bet }}
+      </h3>
+
+      <h3 class="bg-grey-100 rounded-3 p-2 d-flex text-center align-items-center text-light col-3">
+        <Icon icon="playing-cards"/>
+        {{ gameSession.leftOverCards }}
+      </h3>
+    </div>
   </div>
 </div>
 </template>
