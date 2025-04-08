@@ -18,6 +18,7 @@ import yoda from "@assets/locales/yoda.json";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import "@configurations/FontAwesome";
 import bootstrapVueNextConfig from '@configurations/bootstrapVueNext';
+import axios from 'axios';
 
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
 
@@ -31,6 +32,9 @@ const i18n = createI18n({
 import BasicLayout from "@layouts/BasicLayout.vue";
 import { wip } from "@/directives/wip.ts";
 import VueApexCharts from "@node_modules/vue3-apexcharts";
+
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+axios.defaults.xsrfCookieName = "csrftoken";
 
 createInertiaApp({
     title: title => `${title} - timeofjustice.eu`,
