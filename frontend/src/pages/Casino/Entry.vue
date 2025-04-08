@@ -13,26 +13,25 @@ defineProps<Props>();
   <Head :title="$t('casino.title')" />
 
   <div class="container text-white d-flex flex-column align-items-center justify-content-center">
-    <div>
+    <div class="col-3">
       <BAlert :model-value="true" variant="danger">{{ $t('casino.entry.warning') }}</BAlert>
 
-      <BCard class="bg-grey-100 bg-opacity-50">
-        <BCardHeader>
+      <BCard class="bg-grey-100 bg-opacity-50" body-class="d-flex flex-column align-items-center">
+        <template #header>
           <h1 class="text-center">
             <font-awesome-icon :icon="faDice"/>
-            {{ $t('casino.entry') }}
+            {{ $t('casino.entry.title') }}
           </h1>
-        </BCardHeader>
-        <BCardBody class="d-flex flex-column align-items-center">
-          <div class="d-flex flex-column align-items-center gap-2">
-            <BButton variant="primary" class="w-100" to="/casino/register">
-              {{ $t('casino.entry.new_wallet') }}
-            </BButton>
-            <BButton variant="secondary" class="w-100" to="/casino/login">
-              {{ $t('casino.entry.already_own_wallet') }}
-            </BButton>
-          </div>
-        </BCardBody>
+        </template>
+
+        <div class="d-flex flex-column align-items-center gap-2">
+          <BButton variant="primary" class="w-100" to="/casino/register/">
+            {{ $t('casino.entry.enter_with_new_wallet') }}
+          </BButton>
+          <BButton variant="secondary" class="w-100" to="/casino/login/">
+            {{ $t('casino.entry.enter_with_existing_wallet') }}
+          </BButton>
+        </div>
       </BCard>
     </div>
   </div>

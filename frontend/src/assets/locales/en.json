@@ -52,5 +52,50 @@
       "crops": "Crops",
       "commodities": "Commodities"
     }
+  },
+  "casino": {
+    "title": "Casino",
+    "entry": {
+      "title": "Welcome",
+      "warning": "This casino only uses the TimeofJustice token (TJT). Gambling can still be addictive. Please play responsibly.",
+      "enter_with_new_wallet": "Enter with a new wallet",
+      "enter_with_existing_wallet": "Enter with an existing wallet"
+    },
+    "login": {
+      "title": "Login",
+      "enter_wallet": "Enter wallet",
+      "submit": "Login",
+      "back_to_entry": "Back to entry",
+      "error": {
+        "invalid_wallet": "Invalid wallet",
+        "not_valid": "Your wallet must be 32 characters long and contain only numbers and letters from A-F.",
+        "unknown": "Unknown error"
+      }
+    },
+    "main": {
+      "reminder": "Don't forget to copy your wallet ID. You will need it to log in again.",
+      "wallet": "Wallet",
+      "balance": "Balance:",
+      "copy_wallet": "Wallet ID copied to clipboard",
+      "copy_wallet_error": "Error copying wallet ID to clipboard"
+    },
+    "not_enough_tokens": "You don't have enough tokens.",
+    "game": {
+      "higher_lower": {
+        "bet": "Bet",
+        "actions": {
+          "start": "Start",
+          "higher": "Higher",
+          "lower": "Lower",
+          "draw": "Draw",
+          "quit": "Take it",
+          "play_again": "Play again"
+        },
+        "outcomes": {
+          "won": "You won!",
+          "lost": "You lost!"
+        }
+      }
+    }
   }
 }
