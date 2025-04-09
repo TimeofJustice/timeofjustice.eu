@@ -149,7 +149,7 @@ def higher(request, session_id):
         return JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
     card, left_over_cards = result
 
-    bet = session['bet'] * 2 if compare_cards(session['card'], card) == "higher" else 0
+    bet = session['bet'] + session['initial_bet'] if compare_cards(session['card'], card) == "higher" else 0
 
     request.session['higher_lower_session'] = create_session(deck=left_over_cards, card=card, bet=bet, session=session)
 
@@ -171,7 +171,7 @@ def lower(request, session_id):
         return JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
     card, left_over_cards = result
 
-    bet = session['bet'] * 2 if compare_cards(session['card'], card) == "lower" else 0
+    bet = session['bet'] + session['initial_bet'] if compare_cards(session['card'], card) == "lower" else 0
 
     request.session['higher_lower_session'] = create_session(deck=left_over_cards, card=card, bet=bet, session=session)
 
@@ -193,7 +193,7 @@ def draw(request, session_id):
         return JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
     card, left_over_cards = result
 
-    bet = session['bet'] * 9 if compare_cards(session['card'], card) == "draw" else 0
+    bet = session['bet'] + session['initial_bet'] * 8 if compare_cards(session['card'], card) == "draw" else 0
 
     request.session['higher_lower_session'] = create_session(deck=left_over_cards, card=card, bet=bet, session=session)
 
@@ -224,7 +224,7 @@ def end(request):
         return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
 
     if session['bet'] > 0:
-        update_wallet(wallet, session['bet'] if len(session['deck']) > 0 else session['bet'] * 1000)
+        update_wallet(wallet, session['bet'] if len(session['deck']) > 0 else session['bet'] + session['initial_bet'] * 100000)
 
     del request.session['higher_lower_session']
 
