@@ -29,6 +29,8 @@ CONFIG_PARSER.read(CONFIG_FILE)
 SECRET_KEY = CONFIG_PARSER["DEFAULT"]["DJANGO_SECRET_KEY"]
 # Keep the url a secret, to prevent bots from accessing the admin page
 ADMIN_URL = CONFIG_PARSER["DEFAULT"]["ADMIN_URL"]
+# Indicate if the project is in production or not
+IS_STABLE = CONFIG_PARSER["DEFAULT"].getboolean("IS_STABLE") if "IS_STABLE" in CONFIG_PARSER["DEFAULT"] else False
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = CONFIG_PARSER["DEFAULT"].getboolean("DEBUG")

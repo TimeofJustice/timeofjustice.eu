@@ -32,6 +32,7 @@ class BodyContent:
 def props(props):
     return {
         "production": settings.DEBUG is False,
+        "stable": settings.IS_STABLE,
         **props
     }
 

@@ -3,13 +3,13 @@
     "back": "Zurück",
     "error": "Fehler",
     "more": "Mehr",
-    "save": "Speichern"
-  },
+    "save": "Speichern"},
   "nav": {
     "projects": "Projekte",
     "place": "r/Place",
     "farming_stats": "Farming Stats",
-    "casino": "Casino"
+    "casino": "Casino",
+    "stable_hint": "Du verwendest die Staging-Version. Diese Version ist nicht für den produktiven Einsatz gedacht und kann Fehler oder unvollständige Funktionen enthalten. Bitte nutze die Produktionsversion unter [timeofjustice.eu](https://timeofjustice.eu) für eine stabile Erfahrung."
   },
   "index": {
     "wip_alert": "Diese Seite ist noch in Arbeit. Bitte schau später wieder vorbei. Die aktuelle Version findest du unter: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
