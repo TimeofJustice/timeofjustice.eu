@@ -5,6 +5,7 @@ import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/co
 import { useI18n } from "@node_modules/vue-i18n";
 import { ref, shallowRef } from "vue";
 import HigherOrLower from "@pages/Casino/Games/HigherOrLower.vue";
+import RideTheBus from "@pages/Casino/Games/RideTheBus.vue";
 
 const { show } = useToastController()
 
@@ -44,7 +45,7 @@ const copyToClipboard = () => {
 
 const showCopyReminder = ref(true);
 
-const gameComponent = shallowRef(HigherOrLower);
+const gameComponent = shallowRef<object>(HigherOrLower);
 
 const onTokenWon = (tokens: number) => {
   wallet.balance += tokens;
@@ -71,20 +72,7 @@ const onTokenLost = (tokens: number) => {
   <div class="container-xxl text-white d-flex gap-2 justify-content-center">
     <div class="row w-100 g-2">
       <div class="col-9">
-        <BCard class="bg-grey-100 bg-opacity-50 h-100 overflow-hidden" header-class="d-flex align-items-center justify-content-between" body-class="d-flex flex-column p-0">
-          <template #header>
-            <h4 class="m-0">
-              <font-awesome-icon :icon="faDice"/>
-              Higher or Lower
-            </h4>
-
-            <BButton variant="tertiary" class="btn-square opacity-0">
-              <font-awesome-icon :icon="faCopy" />
-            </BButton>
-          </template>
-
-          <component :is="gameComponent" :balance="Number(wallet.balance)" @tokens_won="onTokenWon" @tokens_lost="onTokenLost" class="p-3" />
-        </BCard>
+        <component :is="gameComponent" :balance="Number(wallet.balance)" @tokens_won="onTokenWon" @tokens_lost="onTokenLost" />
       </div>
 
       <div class="col-3 d-flex flex-column gap-2">
@@ -144,8 +132,11 @@ const onTokenLost = (tokens: number) => {
             </BButton>
           </template>
 
-          <BButton active>
-            Higher or Lower
+          <BButton @click="gameComponent = HigherOrLower" :active="gameComponent === HigherOrLower">
+            {{ $t('casino.game.higher_lower.title') }}
+          </BButton>
+          <BButton @click="gameComponent = RideTheBus" :active="gameComponent === RideTheBus">
+            {{ $t('casino.game.ride_the_bus.title') }}
           </BButton>
         </BCard>
       </div>

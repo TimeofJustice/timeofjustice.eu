@@ -104,6 +104,36 @@
         "invalid_bet": "Ungültiger Einsatz"
       },
       "rules": "### \uD83D\uDCDC Regeln\n\n#### \uD83C\uDFAE Ziel:\nErrate, ob die **nächste Karte** im Deck im Rang **höher**, **niedriger** oder **gleich** der aktuellen Karte ist.\n\n---\n\n#### \uD83D\uDD79\uFE0F So wird gespielt:\n\n1. **Beginne mit einer Karte und einem Grundeinsatz** (z. B. 10).\n2. Wähle zwischen **\"Höher\"**, **\"Niedriger\"** oder **\"Gleichstand\"** für die nächste Karte.\n3. Wenn deine Vermutung richtig ist:\n    - Erhöht sich dein Gesamteinsatz um einen Multiplikator:\n        - **Höher / Niedriger** → **2×** (1:1 Auszahlung)\n        - **Gleichstand** → **9×** (8:1 Auszahlung)\n4. Nach jedem Gewinn kannst du entweder:\n    - **Weiter spielen** (das gesamte Guthaben für den nächsten Tipp riskieren)\n    - Oder **auszahlen** (deinen aktuellen Gesamtgewinn sichern)\n\n---\n\n#### \uD83E\uDDEE Beispiel:\n- Starte mit **10**\n- 1 richtiger Tipp → 20\n- 2 richtige → 40\n- ...\n- Nach 5 richtigen Tipps: **320**\n- Wenn du \"Gleichstand\" richtig tippst: 10 × 9 = **90**\n\n---\n\n#### \uD83C\uDFC6 Perfekter Lauf (52 richtige Tipps):\n- Wenn du erfolgreich **alle 51 folgenden Karten** richtig tippst, erhältst du eine **Sonderbelohnung**:\n    - **Sonderbelohnung** -> **1000×** deines Grundeinsatzes (999:1 Auszahlung)\n\n---\n\n#### ❗ Wichtige Hinweise:\n- **Ein falscher Tipp** → Du **verlierst deinen gesamten aktuellen Stapel**\n- Wenn du \"Höher\" oder \"Niedriger\" wählst und die nächste Karte genau gleich ist → **falsch**\n- Keine Rücknahmen – jede Entscheidung zählt!\n\n---\n\n#### \uD83D\uDCA1 Tipp:\n- Kleine Serien lohnen sich auch: 5–10 richtige Tipps können bereits zu großen Gewinnen führen."
+    },
+    "ride_the_bus": {
+      "title": "Ride the Bus",
+      "bet": "Einsatz",
+      "actions": {
+        "start": "Start",
+        "red": "Rot",
+        "black": "Schwarz",
+        "higher": "Höher",
+        "lower": "Niedriger",
+        "inside": "Innerhalb",
+        "outside": "Außerhalb",
+        "clubs": "Kreuz",
+        "diamonds": "Karo",
+        "hearts": "Herz",
+        "spades": "Pik",
+        "quit": "Nehmen",
+        "play_again": "Nochmal spielen"
+      },
+      "outcomes": {
+        "won": "Du hast gewonnen!",
+        "lost": "Du hast verloren!"
+      },
+      "errors": {
+        "session_expired": "Sitzung abgelaufen",
+        "invalid_round": "Du musst mindestens eine Runde spielen",
+        "deck_empty": "Deck ist leer",
+        "invalid_bet": "Ungültiger Einsatz"
+      },
+      "rules": ""
     }
   }
 }
