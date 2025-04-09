@@ -208,11 +208,9 @@ const save = async () => {
             </BButton>
           </div>
 
-          <div>
-            <span class=" d-flex gap-1 align-items-center">
-              <font-awesome-icon :icon="faCoins"/>
-              <strong>{{ wallet.balance }} TJTs</strong>
-            </span>
+          <div class="d-flex gap-1 align-items-center">
+            <font-awesome-icon :icon="faCoins"/>
+            <strong>{{ wallet.balance }} TJTs</strong>
 
             <Transition>
               <span class="text-success" v-if="showPlus">
