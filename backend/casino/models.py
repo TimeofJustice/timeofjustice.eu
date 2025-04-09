@@ -5,6 +5,7 @@ from django.db import models
 # Create your models here.
 class Wallet(models.Model):
     wallet_id = models.CharField(primary_key=True, default=uuid.uuid4().hex, max_length=32, editable=False)
+    name = models.CharField(max_length=32, default="Anonymous")
     balance = models.DecimalField(max_digits=20, decimal_places=0, default=100)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -14,5 +15,6 @@ class Wallet(models.Model):
     def json(self):
         return {
             "wallet_id": self.wallet_id,
+            "name": self.name,
             "balance": str(self.balance),
         }

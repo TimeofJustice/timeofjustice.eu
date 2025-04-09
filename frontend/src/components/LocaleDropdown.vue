@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const langs = [
-  { code: "en", text: "English", flag: "fi fi-us" },
+  { code: "en", text: "English", flag: "fi fi-uk" },
   { code: "de", text: "Deutsch", flag: "fi fi-de" },
   {code: "yoda", text: "Yoda", flag: "fi fi-yoda"},
 ];
