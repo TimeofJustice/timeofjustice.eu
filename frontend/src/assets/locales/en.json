@@ -2,7 +2,8 @@
   "general": {
     "back": "Back",
     "error": "Error",
-    "more": "More"
+    "more": "More",
+    "save": "Save"
   },
   "nav": {
     "projects": "Projects",
@@ -78,7 +79,17 @@
       "wallet": "Wallet",
       "balance": "Balance:",
       "copy_wallet": "Wallet ID copied to clipboard",
-      "copy_wallet_error": "Error copying wallet ID to clipboard"
+      "copy_wallet_error": "Error copying wallet ID to clipboard",
+      "settings": "Settings",
+      "settings_invalid": "Your name must be between 3 and 32 characters long and can only contain alphanumeric characters.",
+      "settings_success": "Settings saved",
+      "leaderboard": "Leaderboard",
+      "games": "Games",
+      "errors": {
+        "wallet_not_found": "Wallet not found",
+        "name_invalid": "Name invalid",
+        "invalid_request": "Invalid request"
+      }
     },
     "not_enough_tokens": "You don't have enough tokens.",
     "game": {

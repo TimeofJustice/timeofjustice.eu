@@ -2,7 +2,8 @@
   "general": {
     "back": "Zurück",
     "error": "Fehler",
-    "more": "Mehr"
+    "more": "Mehr",
+    "save": "Speichern"
   },
   "nav": {
     "projects": "Projekte",
@@ -78,7 +79,17 @@
     "wallet": "Wallet",
     "balance": "Kontostand:",
     "copy_wallet": "Wallet-ID in die Zwischenablage kopiert",
-    "copy_wallet_error": "Fehler beim Kopieren der Wallet-ID in die Zwischenablage"
+    "copy_wallet_error": "Fehler beim Kopieren der Wallet-ID in die Zwischenablage",
+    "settings": "Einstellungen",
+    "settings_invalid": "Dein Name muss zwischen 3 und 32 Zeichen lang sein und darf nur alphanumerische Zeichen enthalten.",
+    "settings_success": "Einstellungen gespeichert",
+    "leaderboard": "Bestenliste",
+    "games": "Spiele",
+    "errors": {
+      "wallet_not_found": "Wallet nicht gefunden",
+      "name_invalid": "Name ungültig",
+      "invalid_request": "Request ungültig"
+    }
   },
   "not_enough_tokens": "Du hast nicht genug Token.",
   "game": {
