@@ -44,6 +44,7 @@ def error(request, status_code):
     return render(request, "Error", props=props(page_props))
 
 
+@ensure_csrf_cookie
 def index(request):
     wallet = request.session.get('wallet_id', None)
 
@@ -102,12 +103,21 @@ def logout(request):
     return response
 
 
+def wallet_to_leaderboard(wallet):
+    return {
+        "name": wallet.name,
+        "balance": wallet.balance,
+    }
+
+
 @wallet_required
 def main(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     page_props = {
         "wallet": wallet.json(),
+        "leaderboard": [wallet_to_leaderboard(wallet) for wallet in models.Wallet.objects.order_by('-balance')[:5]],
+        "your_position": models.Wallet.objects.filter(balance__gt=wallet.balance).count() + 1,
     }
 
     return render(request, "Casino/Main", props=props(page_props))
