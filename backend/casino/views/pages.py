@@ -24,7 +24,7 @@ def login(request):
     post_data = BodyContent(request)
 
     if post_data:
-        wallet_id = post_data.get('wallet_id')
+        wallet_id = post_data.get('walletId')
         if wallet_id:
             wallet = get_or_none(models.Wallet, wallet_id=wallet_id.lower())
 
@@ -76,10 +76,14 @@ def main(request):
     if not wallet:
         return HttpResponseRedirect('/casino/login/')
 
+    leaderboard = models.Wallet.objects.order_by('-balance')
+    leaderboard = [wallet for wallet in leaderboard]
+    own_index = leaderboard.index(wallet)
+
     page_props = {
         "wallet": wallet.json(),
-        "leaderboard": [wallet.public_json() for wallet in models.Wallet.objects.order_by('-balance')[:5]],
-        "own-position": models.Wallet.objects.filter(balance__gt=wallet.balance).count() + 1,
+        "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
+        "ownPosition": own_index + 1,
     }
 
     return render(request, "Casino/Main", props=props(page_props))

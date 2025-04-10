@@ -38,7 +38,7 @@ function submit() {
 
 const validateWalletId = computed(() => {
   if (form.walletId === null) {
-    return false;
+    return null;
   }
 
   const uuidRegex = /^[0-9a-f]{32}$/i;
@@ -67,7 +67,7 @@ const validateWalletId = computed(() => {
             </BFormInvalidFeedback>
           </BFormGroup>
 
-          <BButton type="submit" variant="primary" class="w-100">{{ $t('casino.login.submit') }}</BButton>
+          <BButton type="submit" variant="primary" class="w-100" :disabled="!validateWalletId">{{ $t('casino.login.submit') }}</BButton>
         </BForm>
 
         <BLink to="/casino/">

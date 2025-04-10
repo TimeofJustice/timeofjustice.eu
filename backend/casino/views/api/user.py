@@ -29,5 +29,15 @@ def update(request):
     return JsonResponse({"name": wallet.name})
 
 
+@wallet_required
 def leaderboard(request):
-    return JsonResponse({"leaderboard": [wallet.public_json() for wallet in models.Wallet.objects.order_by('-balance')[:5]]})
+    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+
+    leaderboard = models.Wallet.objects.order_by('-balance')
+    leaderboard = [wallet for wallet in leaderboard]
+    own_index = leaderboard.index(wallet)
+
+    return JsonResponse({
+        "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
+        "ownPosition": own_index + 1,
+    })

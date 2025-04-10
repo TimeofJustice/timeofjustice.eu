@@ -34,7 +34,7 @@ interface MainProps {
 const i18n = useI18n();
 const { show } = useToastController();
 
-const { wallet, leaderboard } = defineProps<MainProps>();
+const { wallet, leaderboard, ownPosition } = defineProps<MainProps>();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -44,6 +44,7 @@ const gameComponents = new Map<string, object>([
 
 const balanceChange = ref(0);
 const updatedLeaderboard = ref<Player[]>(leaderboard);
+const updatedOwnPosition = ref(ownPosition);
 
 const showCopyReminder = ref(true);
 const showSettings = ref(false);
@@ -115,6 +116,7 @@ const onBalanceChange = (tokens: number) => {
 const leaderBoardFetch = setInterval(() => {
   axios.get("/casino/api/leaderboard/").then(response => {
     updatedLeaderboard.value = response.data.leaderboard;
+    updatedOwnPosition.value = response.data.ownPosition;
   });
 }, 10000)
 
@@ -248,14 +250,14 @@ onBeforeUnmount(() => {
           <BCollapse v-model="showLeaderboard">
             <BCardBody class="d-flex flex-column gap-2">
               <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
-                                   :highlighted="index + 1 === ownPosition" />
+                                   :highlighted="index + 1 === updatedOwnPosition" />
 
-              <template v-if="ownPosition > 5">
+              <template v-if="updatedOwnPosition > 5">
                 <div class="fw-bold text-center">
                   <font-awesome-icon :icon="faEllipsis" />
                 </div>
 
-                <LeaderboardPosition :index="ownPosition" :name="wallet.name" :balance="wallet.balance" highlighted />
+                <LeaderboardPosition :index="updatedOwnPosition" :name="wallet.name" :balance="wallet.balance" highlighted />
               </template>
             </BCardBody>
           </BCollapse>
