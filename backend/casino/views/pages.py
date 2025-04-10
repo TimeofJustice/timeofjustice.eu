@@ -16,7 +16,7 @@ def index(request):
     wallet = request.session.get('wallet_id', None)
 
     if not wallet:
-        return render(request, "Casino/Entry")
+        return render(request, "Casino/Entry", props=props({}))
 
     return main(request)
 
@@ -54,7 +54,7 @@ def register(request):
         wallet_id = uuid.uuid4().hex
         wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
 
-    wallet = models.Wallet.objects.create(wallet_id=wallet_id)
+    wallet = models.Wallet.objects.create(wallet_id=wallet_id, last_visit=timezone.now())
 
     request.session['wallet_id'] = wallet.wallet_id
 
@@ -83,6 +83,9 @@ def main(request):
 
     if wallet.last_visit and 2 <= (timezone.now() - wallet.last_visit).days:
         wallet.days_played = 0
+        wallet.save()
+    elif wallet.last_visit is None:
+        wallet.last_visit = timezone.now()
         wallet.save()
 
     page_props = {
