@@ -18,3 +18,9 @@ class Wallet(models.Model):
             "name": self.name,
             "balance": str(self.balance),
         }
+
+    def public_json(self):
+        return {
+            "name": self.name,
+            "balance": str(self.balance),
+        }

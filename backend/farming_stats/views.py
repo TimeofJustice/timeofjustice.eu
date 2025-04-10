@@ -1,15 +1,8 @@
 from django.conf import settings
 from inertia import render
 
+from core.helpers import props
 from . import models
-
-
-def props(props):
-    return {
-        "production": settings.DEBUG is False,
-        "stable": settings.IS_STABLE,
-        **props
-    }
 
 
 def error(request, status_code):

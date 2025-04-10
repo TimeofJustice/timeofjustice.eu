@@ -28,6 +28,9 @@ const newGameSession = ref<GameSession | undefined>(undefined);
 const cardLoaded = () => {
   gameSession.value = newGameSession.value? newGameSession.value : gameSession.value;
   waitingForResponse.value = false;
+
+  if (gameSession.value.state === 'won')
+    emit('tokens_won', gameSession.value['bet']);
 };
 
 interface HigherLowerProps {
@@ -198,14 +201,26 @@ const leave = async () => {
 
   const data = await response.json();
 
-  emit('tokens_won', data["bet"]);
-
-  return game_won();
-}
-
-const game_won = () => {
-  gameSession.value['state'] = 'won';
-  gameSession.value['sessionId'] = '';
+  if (data["cards_left"] > 0) {
+    gameSession.value['card'] = data["card"];
+    newGameSession.value = {
+      sessionId: '',
+      state: 'won',
+      card: data["card"],
+      bet: data["bet"],
+      initialBet: data["initial_bet"],
+      leftOverCards: data["cards_left"],
+    };
+  } else {
+    gameSession.value = {
+      sessionId: '',
+      state: 'won',
+      card: data["card"],
+      bet: data["bet"],
+      initialBet: data["initial_bet"],
+      leftOverCards: data["cards_left"],
+    };
+  }
 }
 
 const game_end = () => {
