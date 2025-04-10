@@ -3,7 +3,9 @@
     "back": "Zurück",
     "error": "Fehler",
     "more": "Mehr",
-    "save": "Speichern"},
+    "save": "Speichern",
+    "day": "Tag"
+  },
   "nav": {
     "projects": "Projekte",
     "place": "r/Place",
@@ -85,10 +87,14 @@
     "settings_success": "Einstellungen gespeichert",
     "leaderboard": "Bestenliste",
     "games": "Spiele",
+    "daily_bonus": "Täglicher Bonus",
+    "redeem": "Einlösen",
+    "reward_redeemed": "Belohnung eingelöst: {reward}",
     "errors": {
       "wallet_not_found": "Wallet nicht gefunden",
       "name_invalid": "Name ungültig",
-      "invalid_request": "Request ungültig"
+      "invalid_request": "Request ungültig",
+      "already_claimed": "Bereits beansprucht"
     }
   },
   "not_enough_tokens": "Du hast nicht genug Token.",

@@ -1,9 +1,10 @@
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponseRedirect
 
 from casino import models
 from casino.decorators import wallet_required
 from core.helpers import BodyContent
 from core.models import get_or_none
+from django.utils import timezone
 
 
 @wallet_required
@@ -27,6 +28,40 @@ def update(request):
         return JsonResponse({"error": "casino.main.errors.invalid_request"}, status=400)
 
     return JsonResponse({"name": wallet.name})
+
+
+@wallet_required
+def redeem(request):
+    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+
+    if not wallet:
+        return HttpResponseRedirect('/casino/login/')
+
+    if not wallet.last_visit:
+        wallet.last_visit = timezone.now()
+        wallet.save()
+
+    if 2 <= (timezone.now() - wallet.last_visit).days:
+        wallet.days_played = 0
+
+    if (timezone.now() - wallet.last_visit).days >= 1:
+        wallet.days_played += 1
+        wallet.last_visit = timezone.now()
+        reward = 50
+
+        if wallet.days_played == 3:
+            reward = 100
+        elif wallet.days_played == 4:
+            reward = 100
+        elif wallet.days_played > 4:
+            reward = 200
+
+        wallet.balance += reward
+        wallet.save()
+
+        return JsonResponse({"reward": reward})
+
+    return JsonResponse({"error": "casino.main.errors.already_claimed"}, status=400)
 
 
 @wallet_required
