@@ -49,7 +49,7 @@ const cardLoaded = (from_round: GameState) => {
   waitingForResponse.value = false;
 
   if (gameSession.value.state === 'won')
-    emit('tokens_won', gameSession.value['bet']);
+    emit('balanceChange', gameSession.value['bet']);
 };
 
 const validation = computed(() => {
@@ -63,8 +63,7 @@ const areRulesOpen = ref(false);
 const i18n = useI18n();
 
 const emit = defineEmits({
-  tokens_won: null,
-  tokens_lost: null,
+  balanceChange: null,
 })
 
 const start = async () => {
@@ -88,7 +87,7 @@ const start = async () => {
 
   const data = await response.json();
 
-  emit('tokens_lost', data["initial_bet"]);
+  emit('balanceChange', -data["initial_bet"]);
 
   gameSession.value = {
     sessionId: data["session_id"],

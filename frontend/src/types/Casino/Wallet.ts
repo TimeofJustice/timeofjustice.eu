@@ -1,5 +1,5 @@
 interface Wallet {
   name: string;
-  wallet_id: string;
+  walletId: string;
   balance: number;
 }

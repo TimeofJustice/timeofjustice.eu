@@ -14,7 +14,7 @@ class Wallet(models.Model):
 
     def json(self):
         return {
-            "wallet_id": self.wallet_id,
+            "walletId": self.wallet_id,
             "name": self.name,
             "balance": str(self.balance),
         }

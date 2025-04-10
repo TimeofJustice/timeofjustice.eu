@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import { Head } from "@inertiajs/vue3";
 import {
   faChevronUp,
   faClose, faCoins,
@@ -18,121 +18,97 @@ import HigherOrLower from "@pages/Casino/Games/HigherOrLower.vue";
 import RideTheBus from "@pages/Casino/Games/RideTheBus.vue";
 import { computed } from "@node_modules/vue";
 import axios from "axios";
-
-const { show } = useToastController()
+import LeaderboardPosition from "@pages/Casino/components/LeaderboardPosition.vue";
 
 interface Player {
   name: string;
   balance: number;
 }
 
-interface Props {
+interface MainProps {
   wallet: Wallet;
   leaderboard: Player[];
-  your_position: number;
+  ownPosition: number;
 }
 
 const i18n = useI18n();
+const { show } = useToastController();
 
-const { wallet } = defineProps<Props>();
-const showPlus = ref(0);
-const showMinus = ref(0);
-
-const copyToClipboard = () => {
-  navigator.clipboard.writeText(wallet.wallet_id)
-    .then(() => {
-      show?.({
-        props: {
-          body: i18n.t('casino.main.copy_wallet'),
-          variant: "success",
-          interval: 5000,
-          pos: "bottom-start",
-        }
-      });
-    })
-    .catch(_ => {
-      show?.({
-        props: {
-          body: i18n.t('casino.main.copy_wallet_error'),
-          variant: "danger",
-          interval: 5000,
-          pos: "bottom-start",
-        }
-      });
-    });
-};
-
-const showCopyReminder = ref(true);
+const { wallet } = defineProps<MainProps>();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
+const gameComponents = new Map<string, object>([
+  ["higher_lower", HigherOrLower],
+  ["ride_the_bus", RideTheBus]
+]);
 
-const onTokenWon = (tokens: number) => {
-  wallet.balance += tokens;
-  showPlus.value = tokens;
+const balanceChange = ref(0);
 
-  setTimeout(() => {
-    showPlus.value = 0;
-  }, 1000);
-};
-
-const onTokenLost = (tokens: number) => {
-  wallet.balance -= tokens;
-  showMinus.value = tokens;
-
-  setTimeout(() => {
-    showMinus.value = 0;
-  }, 1000);
-};
-
+const showCopyReminder = ref(true);
+const showSettings = ref(false);
 const showGames = ref(true);
 const showLeaderboard = ref(false);
-const showSettings = ref(false);
-
-const form = reactive({
-  name: wallet.name
-});
-
-const validation = computed(() => {
-  if (form.name.trim() === "")
-    return false;
-
-  return /^[a-zA-Z0-9]{3,32}$/.test(form.name);
-});
 
 const waitingForResponse = ref(false);
 
-const save = async () => {
-  if (validation.value) {
+const settingsForm = reactive({
+  name: wallet.name
+});
+
+const validateName = computed(() => {
+  if (settingsForm.name.trim() === "")
+    return false;
+
+  return /^[a-zA-Z0-9]{3,32}$/.test(settingsForm.name);
+});
+
+const showToast = (message: string, variant: "success" | "danger") => {
+  show?.({
+    props: {
+      body: message,
+      variant: variant,
+      interval: 5000,
+      pos: "bottom-start"
+    }
+  });
+};
+
+const saveSettings = async () => {
+  if (validateName.value) {
     waitingForResponse.value = true;
 
-    axios.post('/casino/api/user/change/', {
-      name: form.name,
+    axios.post("/casino/api/user/change/", {
+      name: settingsForm.name
     }).then(response => {
+      showToast(i18n.t("casino.main.settings_success"), "success");
+
       wallet.name = response.data.name;
-
-      show?.({
-        props: {
-          body: i18n.t('casino.main.settings_success'),
-          variant: "success",
-          interval: 5000,
-          pos: "bottom-start",
-        }
-      });
-
       waitingForResponse.value = false;
     }).catch(error => {
-      show?.({
-        props: {
-          body: i18n.t(error.response.data.error),
-          variant: "danger",
-          interval: 5000,
-          pos: "bottom-start",
-        }
-      });
+      showToast(i18n.t(error.response.data.error), "danger");
 
       waitingForResponse.value = false;
     });
   }
+};
+
+const copyToClipboard = () => {
+  navigator.clipboard.writeText(wallet.walletId)
+    .then(() => {
+      showToast(i18n.t("casino.main.copy_wallet"), "success");
+    })
+    .catch(_ => {
+      showToast(i18n.t("casino.main.copy_wallet_error"), "danger");
+    });
+};
+
+const onBalanceChange = (tokens: number) => {
+  wallet.balance = Number(wallet.balance) + tokens;
+  balanceChange.value = tokens;
+
+  setTimeout(() => {
+    balanceChange.value = 0;
+  }, 1000);
 };
 </script>
 
@@ -143,7 +119,7 @@ const save = async () => {
           :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="md" centered>
     <template #header>
       <h2 class="m-0">
-        {{ $t('casino.main.settings') }}
+        {{ $t("casino.main.settings") }}
       </h2>
 
       <BButton variant="tertiary" class="btn-square text-light" @click="showSettings = false">
@@ -151,16 +127,16 @@ const save = async () => {
       </BButton>
     </template>
 
-    <BForm @submit.prevent="save" class="d-flex flex-column gap-2 w-100">
+    <BForm @submit.prevent="saveSettings" class="d-flex flex-column gap-2 w-100">
       <BFormGroup id="input-group-2" label-for="input-2">
-        <BFormInput id="input-2" v-model="form.name" :placeholder="$t('casino.login.enter_wallet')" required :state="validation" />
-        <BFormInvalidFeedback :state="validation">
-          {{ $t('casino.main.settings_invalid') }}
+        <BFormInput id="input-2" v-model="settingsForm.name" :placeholder="$t('casino.login.enter_wallet')" required :state="validateName" />
+        <BFormInvalidFeedback :state="validateName">
+          {{ $t("casino.main.settings_invalid") }}
         </BFormInvalidFeedback>
       </BFormGroup>
 
-      <BButton type="submit" variant="primary" class="w-100" :disabled="!validation || waitingForResponse">
-        {{ $t('general.save') }}
+      <BButton type="submit" variant="primary" class="w-100" :disabled="!validateName || waitingForResponse">
+        {{ $t("general.save") }}
       </BButton>
     </BForm>
   </BModal>
@@ -168,22 +144,22 @@ const save = async () => {
   <div class="container-xxl text-white d-flex gap-2 justify-content-center">
     <div class="row w-100 g-2">
       <div class="col-9">
-        <component :is="gameComponent" :balance="Number(wallet.balance)" @tokens_won="onTokenWon" @tokens_lost="onTokenLost" />
+        <component :is="gameComponent" :balance="Number(wallet.balance)" @balanceChange="onBalanceChange" />
       </div>
 
       <div class="col-3 d-flex flex-column gap-2">
         <BToast :model-value="showCopyReminder" variant="danger" body-class="d-flex align-items-center justify-content-between gap-2">
-          <div>{{ $t('casino.main.reminder') }}</div>
+          <div>{{ $t("casino.main.reminder") }}</div>
 
           <BButton variant="tertiary" class="btn-square" @click="showCopyReminder = false">
-            <font-awesome-icon :icon="faClose"/>
+            <font-awesome-icon :icon="faClose" />
           </BButton>
         </BToast>
 
         <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between" body-class="d-flex flex-column">
           <template #header>
             <h4 class="m-0 text-truncate">
-              <font-awesome-icon :icon="faUser"/>
+              <font-awesome-icon :icon="faUser" />
               {{ wallet.name }}
             </h4>
 
@@ -199,8 +175,8 @@ const save = async () => {
 
           <div class="d-flex align-items-center gap-2 justify-content-between position-relative">
             <span class="text-truncate d-flex gap-1 align-items-center">
-              <font-awesome-icon :icon="faWallet"/>
-              {{ wallet.wallet_id.slice(0, 10) }}...
+              <font-awesome-icon :icon="faWallet" />
+              {{ wallet.walletId.slice(0, 10) }}...
             </span>
 
             <BButton variant="tertiary" class="btn-square stretched-link" @click="copyToClipboard()">
@@ -209,17 +185,17 @@ const save = async () => {
           </div>
 
           <div class="d-flex gap-1 align-items-center">
-            <font-awesome-icon :icon="faCoins"/>
+            <font-awesome-icon :icon="faCoins" />
             <strong>{{ wallet.balance }} TJTs</strong>
 
             <Transition>
-              <span class="text-success" v-if="showPlus">
-                +{{ showPlus }} TJTs
+              <span class="text-success" v-if="balanceChange > 0">
+                +{{ balanceChange }} TJTs
               </span>
             </Transition>
             <Transition>
-              <span class="text-danger" v-if="showMinus">
-                -{{ showMinus }} TJTs
+              <span class="text-danger" v-if="balanceChange < 0">
+                {{ balanceChange }} TJTs
               </span>
             </Transition>
           </div>
@@ -228,8 +204,8 @@ const save = async () => {
         <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
           <template #header>
             <h4 class="m-0">
-              <font-awesome-icon :icon="faDice"/>
-              {{ $t('casino.main.games') }}
+              <font-awesome-icon :icon="faDice" />
+              {{ $t("casino.main.games") }}
             </h4>
 
             <BButton variant="tertiary" class="btn-square stretched-link" @click="showGames = !showGames">
@@ -239,11 +215,8 @@ const save = async () => {
 
           <BCollapse v-model="showGames">
             <BCardBody class="d-flex flex-column gap-2">
-              <BButton @click="gameComponent = HigherOrLower" :active="gameComponent === HigherOrLower">
-                {{ $t('casino.game.higher_lower.title') }}
-              </BButton>
-              <BButton @click="gameComponent = RideTheBus" :active="gameComponent === RideTheBus">
-                {{ $t('casino.game.ride_the_bus.title') }}
+              <BButton @click="gameComponent = Comp" :active="gameComponent === Comp" v-for="([name, Comp], index) in gameComponents" :key="index">
+                {{ $t("casino.game." + name + ".title") }}
               </BButton>
             </BCardBody>
           </BCollapse>
@@ -252,8 +225,8 @@ const save = async () => {
         <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
           <template #header>
             <h4 class="m-0">
-              <font-awesome-icon :icon="faTrophy"/>
-              {{ $t('casino.main.leaderboard') }}
+              <font-awesome-icon :icon="faTrophy" />
+              {{ $t("casino.main.leaderboard") }}
             </h4>
 
             <BButton variant="tertiary" class="btn-square stretched-link" @click="showLeaderboard = !showLeaderboard">
@@ -263,28 +236,15 @@ const save = async () => {
 
           <BCollapse v-model="showLeaderboard">
             <BCardBody class="d-flex flex-column gap-2">
-              <div class="bg-grey-200 bg-opacity-50 px-3 py-2 d-flex align-items-center justify-content-between rounded border border-grey-100" v-for="(player, index) in leaderboard" :key="index">
-                <span class="fw-bold text-truncate">
-                  {{ index + 1 }}. {{ player.name }}
-                </span>
-                <div class="col-4 text-end">
-                  {{ player.balance }} TJTs
-                </div>
-              </div>
+              <LeaderboardPosition v-for="(player, index) in leaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
+                                   :highlighted="index + 1 === ownPosition" />
 
-              <template v-if="your_position > 5">
+              <template v-if="ownPosition > 5">
                 <div class="fw-bold text-center">
-                  <font-awesome-icon :icon="faEllipsis"/>
+                  <font-awesome-icon :icon="faEllipsis" />
                 </div>
 
-                <div class="bg-grey-200 bg-opacity-50 px-3 py-2 d-flex align-items-center justify-content-between rounded border border-grey-100">
-                  <span class="fw-bold text-truncate">
-                    {{ your_position }}. You
-                  </span>
-                  <div class="col-4 text-end">
-                    {{ wallet.balance }} TJTs
-                  </div>
-                </div>
+                <LeaderboardPosition :index="ownPosition" :name="wallet.name" :balance="wallet.balance" highlighted />
               </template>
             </BCardBody>
           </BCollapse>
@@ -297,17 +257,17 @@ const save = async () => {
 </template>
 
 <style scoped lang="scss">
-  .v-enter-active,
-  .v-leave-active {
-    transition: opacity 0.5s ease;
-  }
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
 
-  .v-enter-from,
-  .v-leave-to {
-    opacity: 0;
-  }
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
 
-  .transition-transform {
-    transition: transform 0.3s ease;
-  }
+.transition-transform {
+  transition: transform 0.3s ease;
+}
 </style>
