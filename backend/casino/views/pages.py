@@ -3,6 +3,7 @@ import uuid
 from django.http.response import HttpResponseRedirect
 from django.views.decorators.csrf import ensure_csrf_cookie
 from inertia import render
+from django.utils import timezone
 
 from core.helpers import BodyContent, props
 from core.models import get_or_none
@@ -80,10 +81,23 @@ def main(request):
     leaderboard = [wallet for wallet in leaderboard]
     own_index = leaderboard.index(wallet)
 
+    if 2 <= (timezone.now() - wallet.last_visit).days:
+        wallet.days_played = 0
+        wallet.save()
+
     page_props = {
         "wallet": wallet.json(),
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
         "ownPosition": own_index + 1,
+        "newBonus": wallet.last_visit and (timezone.now() - wallet.last_visit).days >= 1,
+        "dailyBonus": [
+            {"day": 1, "reward": 50, "status": "claimed" if wallet.days_played > 0 else "unlocked" if wallet.days_played == 0 else "locked"},
+            {"day": 2, "reward": 50, "status": "claimed" if wallet.days_played > 1 else "unlocked" if wallet.days_played == 1 else "locked"},
+            {"day": 3, "reward": 100, "status": "claimed" if wallet.days_played > 2 else "unlocked" if wallet.days_played == 2 else "locked"},
+            {"day": 4, "reward": 100, "status": "claimed" if wallet.days_played > 3 else "unlocked" if wallet.days_played == 3 else "locked"},
+            {"day": 5, "reward": 100, "status": "claimed" if wallet.days_played > 4 else "unlocked" if wallet.days_played == 4 else "locked"},
+            {"day": 6, "reward": 200, "status": "unlocked" if wallet.days_played >= 5 else "locked"},
+        ]
     }
 
     return render(request, "Casino/Main", props=props(page_props))

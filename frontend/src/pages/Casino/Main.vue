@@ -19,22 +19,31 @@ import RideTheBus from "@pages/Casino/Games/RideTheBus.vue";
 import { computed, onBeforeUnmount } from "@node_modules/vue";
 import axios from "axios";
 import LeaderboardPosition from "@pages/Casino/components/LeaderboardPosition.vue";
+import DailyReward from "@pages/Casino/components/DailyReward.vue";
 
 interface Player {
   name: string;
   balance: number;
 }
 
+interface DailyBonus {
+  day: number;
+  reward: number;
+  status: "locked" | "unlocked" | "claimed";
+}
+
 interface MainProps {
   wallet: Wallet;
   leaderboard: Player[];
   ownPosition: number;
+  newBonus: boolean;
+  dailyBonus: DailyBonus[];
 }
 
 const i18n = useI18n();
 const { show } = useToastController();
 
-const { wallet, leaderboard, ownPosition } = defineProps<MainProps>();
+const { wallet, leaderboard, ownPosition, newBonus } = defineProps<MainProps>();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -48,6 +57,7 @@ const updatedOwnPosition = ref(ownPosition);
 
 const showCopyReminder = ref(true);
 const showSettings = ref(false);
+const showDailyBonus = ref(newBonus);
 const showGames = ref(true);
 const showLeaderboard = ref(false);
 
@@ -94,6 +104,21 @@ const saveSettings = async () => {
   }
 };
 
+const redeemDailyBonus = () => {
+  waitingForResponse.value = true;
+
+  axios.post("/casino/api/user/redeem/").then(response => {
+    showToast(i18n.t("casino.main.reward_redeemed", {"reward": response.data.reward}), "success");
+
+    onBalanceChange(response.data.reward)
+    waitingForResponse.value = false;
+  }).catch(error => {
+    showToast(i18n.t(error.response.data.error), "danger");
+
+    waitingForResponse.value = false;
+  });
+};
+
 const copyToClipboard = () => {
   navigator.clipboard.writeText(wallet.walletId)
     .then(() => {
@@ -127,6 +152,27 @@ onBeforeUnmount(() => {
 
 <template>
   <Head :title="$t('casino.title')" />
+
+  <BModal data-bs-theme="dark" v-model="showDailyBonus" header-class="justify-content-between align-items-center" body-class="d-flex flex-column gap-2"
+          :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="md" centered>
+    <template #header>
+      <h2 class="m-0">
+        {{ $t('casino.main.daily_bonus') }}
+      </h2>
+
+      <BButton variant="tertiary" class="btn-square text-light" @click="showDailyBonus = false">
+        <font-awesome-icon :icon="faClose" />
+      </BButton>
+    </template>
+
+    <div class="d-flex gap-2 flex-wrap justify-content-between">
+      <DailyReward :day="bonus.day" :reward="bonus.reward" :status="bonus.status" v-for="bonus in dailyBonus" :key="bonus.day" :overflow="bonus.day > 5" />
+    </div>
+
+    <BButton variant="success" class="w-100" @click="redeemDailyBonus" :disabled="waitingForResponse">
+      {{ $t("casino.main.redeem") }}
+    </BButton>
+  </BModal>
 
   <BModal data-bs-theme="dark" v-model="showSettings" header-class="justify-content-between align-items-center"
           :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="md" centered>

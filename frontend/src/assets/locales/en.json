@@ -3,7 +3,8 @@
     "back": "Back",
     "error": "Error",
     "more": "More",
-    "save": "Save"
+    "save": "Save",
+    "day": "Day"
   },
   "nav": {
     "projects": "Projects",
@@ -86,10 +87,14 @@
       "settings_success": "Settings saved",
       "leaderboard": "Leaderboard",
       "games": "Games",
+      "daily_bonus": "Daily Bonus",
+      "redeem": "Redeem",
+      "reward_redeemed": "Reward redeemed: {reward}",
       "errors": {
         "wallet_not_found": "Wallet not found",
         "name_invalid": "Name invalid",
-        "invalid_request": "Invalid request"
+        "invalid_request": "Invalid request",
+        "already_claimed": "Already claimed"
       }
     },
     "not_enough_tokens": "You don't have enough tokens.",
