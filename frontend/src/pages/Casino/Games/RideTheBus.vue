@@ -78,7 +78,7 @@ const start = async () => {
   waitingForResponse.value = true;
 
   axios.post(`/casino/api/ride-the-bus/start/`, {
-    bet: gameSession.value["bet"]
+    bet: Number(gameSession.value["bet"])
   })
     .then(response => {
       const data = response.data;
