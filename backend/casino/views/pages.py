@@ -81,7 +81,7 @@ def main(request):
     leaderboard = [wallet for wallet in leaderboard]
     own_index = leaderboard.index(wallet)
 
-    if 2 <= (timezone.now() - wallet.last_visit).days:
+    if wallet.last_visit and 2 <= (timezone.now() - wallet.last_visit).days:
         wallet.days_played = 0
         wallet.save()
 
