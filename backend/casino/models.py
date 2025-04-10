@@ -16,11 +16,11 @@ class Wallet(models.Model):
         return {
             "walletId": self.wallet_id,
             "name": self.name,
-            "balance": str(self.balance),
+            "balance": int(self.balance),
         }
 
     def public_json(self):
         return {
             "name": self.name,
-            "balance": str(self.balance),
+            "balance": int(self.balance),
         }

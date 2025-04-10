@@ -1,15 +1,18 @@
 import uuid
 from random import shuffle
 from django.http.response import JsonResponse
+
+from core.helpers import BodyContent
 from core.models import get_or_none
 from ..cards import card_to_string, CardDeck, is_higher, is_lower, is_inside, is_outside
 from .... import models
 from ....decorators import wallet_required
 
 
-def create_session(session_id=None, deck=None, cards=None, bet=None, initial_bet=None, session=None):
+def create_session(session_id=None, round_index=None, deck=None, cards=None, bet=None, initial_bet=None, session=None):
     return {
         "session_id": session_id if session_id is not None else session["session_id"],
+        "round": round_index if round_index is not None else session["round"],
         "deck": deck if deck is not None else session["deck"],
         "cards": cards if cards is not None else session["cards"],
         "bet": bet if bet is not None else session["bet"],
@@ -29,11 +32,17 @@ def update_wallet(wallet, bet):
     wallet.save()
 
 @wallet_required
-def start(request, bet):
+def start(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+    post_data = BodyContent(request)
 
     if not wallet:
         return JsonResponse({"error": "casino.game.ride_the_bus.errors.session_expired"}, status=400)
+
+    if not post_data or not post_data.get('bet'):
+        return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_request"}, status=400)
+
+    bet = post_data.get('bet')
 
     if bet <= 0 or bet > wallet.balance or 500 < bet:
         return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_bet"}, status=400)
@@ -42,15 +51,21 @@ def start(request, bet):
 
     deck = CardDeck()
 
-    request.session['ride_the_bus_session'] = create_session(uuid.uuid4().hex, deck.remaining(), [], bet, bet)
+    request.session['ride_the_bus_session'] = create_session(uuid.uuid4().hex, 0, deck.remaining(), [], bet, bet)
 
     return JsonResponse(session_json(request.session['ride_the_bus_session']))
 
 
-def process_turn(request, session_id, multiplier=1, higher_lower_function=None, inside_outside_function=None, suit=None, suits=None):
+def process_turn(request, round_index, multiplier=1, higher_lower_function=None, inside_outside_function=None, suit=None, suits=None):
     session = request.session.get('ride_the_bus_session', None)
+    post_data = BodyContent(request)
 
-    if not session or session['session_id'] != session_id:
+    if not post_data or not post_data.get('session'):
+        return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_request"}, status=400)
+
+    session_id = post_data.get('session')
+
+    if not session or session['session_id'] != session_id or session['round'] != round_index:
         return JsonResponse({"error": "casino.game.ride_the_bus.errors.session_expired"}, status=400)
 
     deck = CardDeck(session['deck'])
@@ -71,7 +86,7 @@ def process_turn(request, session_id, multiplier=1, higher_lower_function=None, 
 
     cards = session['cards'] + [card] if session['cards'] else [card]
 
-    request.session['ride_the_bus_session'] = create_session(deck=deck.remaining(), cards=cards, bet=bet, session=session)
+    request.session['ride_the_bus_session'] = create_session(round_index=round_index + 1,deck=deck.remaining(), cards=cards, bet=bet, session=session)
 
     if bet <= 0:
         return end(request)
@@ -79,57 +94,63 @@ def process_turn(request, session_id, multiplier=1, higher_lower_function=None, 
     return JsonResponse(session_json(request.session['ride_the_bus_session']))
 
 @wallet_required
-def red(request, session_id):
-    return process_turn(request, session_id, multiplier=2, suits=["diamonds", "hearts"])
+def red(request):
+    return process_turn(request, round_index=0, multiplier=2, suits=["diamonds", "hearts"])
 
 
 @wallet_required
-def black(request, session_id):
-    return process_turn(request, session_id, multiplier=2, suits=["clubs", "spades"])
+def black(request):
+    return process_turn(request, round_index=0, multiplier=2, suits=["clubs", "spades"])
 
 @wallet_required
-def higher(request, session_id):
-    return process_turn(request, session_id, multiplier=3, higher_lower_function=is_higher)
-
-
-@wallet_required
-def lower(request, session_id):
-    return process_turn(request, session_id, multiplier=3, higher_lower_function=is_lower)
+def higher(request):
+    return process_turn(request, round_index=1, multiplier=3, higher_lower_function=is_higher)
 
 
 @wallet_required
-def inside(request, session_id):
-    return process_turn(request, session_id, multiplier=4, inside_outside_function=is_inside)
+def lower(request):
+    return process_turn(request, round_index=1, multiplier=3, higher_lower_function=is_lower)
 
 
 @wallet_required
-def outside(request, session_id):
-    return process_turn(request, session_id, multiplier=4, inside_outside_function=is_outside)
+def inside(request):
+    return process_turn(request, round_index=2, multiplier=4, inside_outside_function=is_inside)
 
 
 @wallet_required
-def hearts(request, session_id):
-    return process_turn(request, session_id, multiplier=20, suit="hearts")
+def outside(request):
+    return process_turn(request, round_index=2, multiplier=4, inside_outside_function=is_outside)
 
 
 @wallet_required
-def diamonds(request, session_id):
-    return process_turn(request, session_id, multiplier=20, suit="diamonds")
+def hearts(request):
+    return process_turn(request, round_index=3, multiplier=20, suit="hearts")
 
 
 @wallet_required
-def clubs(request, session_id):
-    return process_turn(request, session_id, multiplier=20, suit="clubs")
+def diamonds(request):
+    return process_turn(request, round_index=3, multiplier=20, suit="diamonds")
 
 
 @wallet_required
-def spades(request, session_id):
-    return process_turn(request, session_id, multiplier=20, suit="spades")
+def clubs(request):
+    return process_turn(request, round_index=3, multiplier=20, suit="clubs")
 
 
 @wallet_required
-def leave(request, session_id):
+def spades(request):
+    return process_turn(request, round_index=3, multiplier=20, suit="spades")
+
+
+@wallet_required
+def leave(request):
     session = request.session.get('ride_the_bus_session', None)
+    post_data = BodyContent(request)
+
+    if not post_data or not post_data.get('session'):
+        return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_request"}, status=400)
+
+    session_id = post_data.get('session')
 
     if not session or session['session_id'] != session_id:
         return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)

@@ -38,7 +38,7 @@ function submit() {
 
 const validateWalletId = computed(() => {
   if (form.walletId === null) {
-    return null;
+    return false;
   }
 
   const uuidRegex = /^[0-9a-f]{32}$/i;

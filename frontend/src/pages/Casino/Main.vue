@@ -16,7 +16,7 @@ import { useI18n } from "@node_modules/vue-i18n";
 import { reactive, ref, shallowRef } from "vue";
 import HigherOrLower from "@pages/Casino/Games/HigherOrLower.vue";
 import RideTheBus from "@pages/Casino/Games/RideTheBus.vue";
-import { computed } from "@node_modules/vue";
+import { computed, onBeforeUnmount } from "@node_modules/vue";
 import axios from "axios";
 import LeaderboardPosition from "@pages/Casino/components/LeaderboardPosition.vue";
 
@@ -34,7 +34,7 @@ interface MainProps {
 const i18n = useI18n();
 const { show } = useToastController();
 
-const { wallet } = defineProps<MainProps>();
+const { wallet, leaderboard } = defineProps<MainProps>();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -43,6 +43,7 @@ const gameComponents = new Map<string, object>([
 ]);
 
 const balanceChange = ref(0);
+const updatedLeaderboard = ref<Player[]>(leaderboard);
 
 const showCopyReminder = ref(true);
 const showSettings = ref(false);
@@ -77,7 +78,7 @@ const saveSettings = async () => {
   if (validateName.value) {
     waitingForResponse.value = true;
 
-    axios.post("/casino/api/user/change/", {
+    axios.post("/casino/api/user/update/", {
       name: settingsForm.name
     }).then(response => {
       showToast(i18n.t("casino.main.settings_success"), "success");
@@ -103,13 +104,23 @@ const copyToClipboard = () => {
 };
 
 const onBalanceChange = (tokens: number) => {
-  wallet.balance = Number(wallet.balance) + tokens;
+  wallet.balance = wallet.balance + tokens;
   balanceChange.value = tokens;
 
   setTimeout(() => {
     balanceChange.value = 0;
   }, 1000);
 };
+
+const leaderBoardFetch = setInterval(() => {
+  axios.get("/casino/api/leaderboard/").then(response => {
+    updatedLeaderboard.value = response.data.leaderboard;
+  });
+}, 10000)
+
+onBeforeUnmount(() => {
+  clearInterval(leaderBoardFetch);
+});
 </script>
 
 <template>
@@ -144,7 +155,7 @@ const onBalanceChange = (tokens: number) => {
   <div class="container-xxl text-white d-flex gap-2 justify-content-center">
     <div class="row w-100 g-2">
       <div class="col-9">
-        <component :is="gameComponent" :balance="Number(wallet.balance)" @balanceChange="onBalanceChange" />
+        <component :is="gameComponent" :balance="wallet.balance" @balanceChange="onBalanceChange" />
       </div>
 
       <div class="col-3 d-flex flex-column gap-2">
@@ -236,7 +247,7 @@ const onBalanceChange = (tokens: number) => {
 
           <BCollapse v-model="showLeaderboard">
             <BCardBody class="d-flex flex-column gap-2">
-              <LeaderboardPosition v-for="(player, index) in leaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
+              <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
                                    :highlighted="index + 1 === ownPosition" />
 
               <template v-if="ownPosition > 5">

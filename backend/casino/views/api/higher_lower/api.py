@@ -1,5 +1,7 @@
 import uuid
 from django.http.response import JsonResponse
+
+from core.helpers import BodyContent
 from core.models import get_or_none
 from ..cards import CardDeck, is_higher, is_lower, is_equal, card_to_string
 from .... import models
@@ -32,11 +34,17 @@ def update_wallet(wallet, bet):
 
 
 @wallet_required
-def start(request, bet):
+def start(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+    post_data = BodyContent(request)
 
     if not wallet:
         return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
+
+    if not post_data or not post_data.get('bet'):
+        return JsonResponse({"error": "casino.game.higher_lower.errors.invalid_request"}, status=400)
+
+    bet = post_data.get('bet')
 
     if bet <= 0 or bet > wallet.balance or 100 < bet:
         return JsonResponse({"error": "casino.game.higher_lower.errors.invalid_bet"}, status=400)
@@ -54,8 +62,14 @@ def start(request, bet):
     return JsonResponse(session_json(request.session['higher_lower_session']))
 
 
-def process_turn(request, session_id, comparison_function, multiplier):
+def process_turn(request, comparison_function, multiplier):
     session = request.session.get('higher_lower_session', None)
+    post_data = BodyContent(request)
+
+    if not post_data or not post_data.get('session'):
+        return JsonResponse({"error": "casino.game.higher_lower.errors.invalid_request"}, status=400)
+
+    session_id = post_data.get('session')
 
     if not session or session['session_id'] != session_id:
         return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
@@ -80,23 +94,29 @@ def process_turn(request, session_id, comparison_function, multiplier):
 
 
 @wallet_required
-def higher(request, session_id):
-    return process_turn(request, session_id, is_higher, 1)
+def higher(request):
+    return process_turn(request, is_higher, 1)
 
 
 @wallet_required
-def lower(request, session_id):
-    return process_turn(request, session_id, is_lower, 1)
+def lower(request):
+    return process_turn(request, is_lower, 1)
 
 
 @wallet_required
-def draw(request, session_id):
-    return process_turn(request, session_id, is_equal, 8)
+def draw(request):
+    return process_turn(request, is_equal, 8)
 
 
 @wallet_required
-def leave(request, session_id):
+def leave(request):
     session = request.session.get('higher_lower_session', None)
+    post_data = BodyContent(request)
+
+    if not post_data or not post_data.get('session'):
+        return JsonResponse({"error": "casino.game.higher_lower.errors.invalid_request"}, status=400)
+
+    session_id = post_data.get('session')
 
     if not session or session['session_id'] != session_id:
         return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)

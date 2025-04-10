@@ -27,3 +27,7 @@ def update(request):
         return JsonResponse({"error": "casino.main.errors.invalid_request"}, status=400)
 
     return JsonResponse({"name": wallet.name})
+
+
+def leaderboard(request):
+    return JsonResponse({"leaderboard": [wallet.public_json() for wallet in models.Wallet.objects.order_by('-balance')[:5]]})
