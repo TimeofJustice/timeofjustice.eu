@@ -27,6 +27,22 @@ def is_outside(card, card1, card2):
     card2_index = ranks.index(card2['rank'])
     return card_index < card1_index and card_index < card2_index or card_index > card1_index and card_index > card2_index
 
+def cards_score(cards):
+    score = 0
+    aces = 0
+    for card in cards:
+        if card['rank'] in ['jack', 'queen', 'king']:
+            score += 10
+        elif card['rank'] == 'ace':
+            score += 11
+            aces += 1
+        else:
+            score += int(card['rank'])
+    while score > 21 and aces > 0:
+        score -= 10
+        aces -= 1
+    return score
+
 def card_to_string(card):
     return f"{card['rank']}_of_{card['suit']}"
 

@@ -151,7 +151,27 @@
         "invalid_bet": "Ungültiger Einsatz"
       },
         "rules": "### \uD83D\uDE8C Ride the Bus – Spielanleitung\n\n#### \uD83C\uDFAF Ziel:\nBestehe **vier aufeinanderfolgende Kartenherausforderungen**, die jeweils schwieriger werden.  \nErhalte steigende Auszahlungen für jede richtige Antwort basierend auf deinem **Einsatz**.\n\n---\n\n#### \uD83C\uDCCF Schritt-für-Schritt-Anleitung:\n\nDu wirst mit **4 Fragen** konfrontiert, eine nach der anderen. Jede richtige Antwort erhöht deine Gesamtauszahlung.  \nEine falsche Antwort beendet das Spiel — du \"crashst den Bus\" \uD83D\uDE8D\uD83D\uDCA5\n\n---\n\n### \uD83D\uDD39 Runde 1: Farbe\n\n**Frage:** Wird die nächste Karte **Rot** oder **Schwarz** sein?\n\n- ♠\uFE0F♣\uFE0F = Schwarz\n- ♥\uFE0F♦\uFE0F = Rot\n\n**Richtige Antwort:**  \n✅ Gewinne **2× deinen Einsatz**\n\n---\n\n### \uD83D\uDD38 Runde 2: Höher oder Niedriger\n\n**Frage:** Wird die **nächste Karte** **höher** oder **niedriger** als die letzte sein?\n\n- Asse sind niedrig\n- Gleicher Wert = **Falsch**\n\n**Richtige Antwort:**  \n✅ Gewinne **3× deinen Einsatz**\n\n---\n\n### \uD83D\uDD3A Runde 3: Innerhalb oder Außerhalb\n\n**Frage:** Wird der **Wert der dritten Karte** **innerhalb** oder **außerhalb** des Bereichs der ersten beiden Karten liegen?\n\n- **Innerhalb** = zwischen den Werten der ersten beiden Karten\n- **Außerhalb** = niedriger als beide oder höher als beide\n- **Gleich einer der Grenzen = Falsch**\n\n**Richtige Antwort:**  \n✅ Gewinne **4× deinen Einsatz**\n\n---\n\n### \uD83D\uDD3B Runde 4: Kartenfarbe\n\n**Frage:** Welche **Farbe** wird die nächste Karte haben? (♠\uFE0F ♥\uFE0F ♦\uFE0F ♣\uFE0F)\n\n- Wähle **1 von 4 Farben**\n\n**Richtige Antwort:**  \n✅ Gewinne **20× deinen Einsatz**\n\n---\n\n#### \uD83D\uDCA5 Verlustbedingung:\n- Eine falsche Antwort in einer Runde = ❌ **Spiel vorbei**\n- Du verlierst deine angesammelten Gewinne, es sei denn, du hast vorher ausgezahlt"
+    },
+    "black_jack": {
+      "title": "Black Jack",
+      "bet": "Einsatz",
+      "actions": {
+        "start": "Start",
+        "hit": "Hit",
+        "stand": "Stand",
+        "play_again": "Nochmal spielen"
+      },
+      "outcomes": {
+        "won": "Du hast gewonnen!",
+        "push": "Unentschieden",
+        "lost": "Du hast verloren!"
+      },
+      "errors": {
+        "session_expired": "Sitzung abgelaufen",
+        "deck_empty": "Deck ist leer",
+        "invalid_bet": "Ungültiger Einsatz"
+      },
+      "rules": "# \uD83C\uDCCF Blackjack Regeln\n\n## \uD83C\uDFAF Ziel des Spiels\n- Erreiche eine **Handsumme so nah wie möglich an 21**, ohne diese zu überschreiten.\n- **Schlage die Hand des Dealers**, indem du:\n    - Eine höhere Summe hast, ohne zu überziehen (über 21), oder\n    - Der Dealer überzieht und du nicht.\n\n---\n\n## \uD83E\uDDEE Kartenwerte\n- **2–10:** Kartenwert entspricht der Zahl\n- **Bube, Dame, König:** 10 Punkte\n- **Ass (A):** 1 **oder** 11 Punkte, je nachdem, was für die Hand günstiger ist\n\n---\n\n## \uD83C\uDFB2 Spielablauf\n\n### 1. Erste Kartenverteilung\n- Spieler: 2 Karten offen\n- Dealer: 1 Karte offen, 1 Karte verdeckt (die \"Hole Card\")\n\n### 2. Spielerzug\nJeder Spieler kann:\n- **Hit** – Eine weitere Karte nehmen\n- **Stand** – Die aktuelle Hand behalten\n\n### 3. Dealerzug\n- Der Dealer deckt seine verdeckte Karte auf\n- Muss ziehen, bis die Summe **17 oder höher** erreicht\n- Der Dealer überzieht, wenn die Summe 21 überschreitet\n\n### 4. Vergleich der Hände\n- Die Hand, die am nächsten an 21 ist, gewinnt\n- **Blackjack** (Ass + 10-Wert-Karte) bei der ersten Verteilung schlägt eine normale 21\n\n---\n\n## \uD83D\uDCB0 Auszahlungen\n- **Gewinn:** 1:1\n- **Blackjack:** 3:2\n- **Unentschieden (Push):** Einsatz zurück\n- **Verlust:** Einsatz verloren\n\n---\n\n## \uD83D\uDCDD Beispiel\n- **Spieler:** A♠ + 8♣ = 19 → Stand\n- **Dealer:** 10♦ + 6♥ + 7♠ = 23 → Überzogen → Spieler gewinnt\n\n---\n\n## ✅ Schnelle Tipps\n- Immer **bei 17 oder mehr stehen**\n- Ziehe bei 11 oder weniger – du kannst nicht überziehen\n- Überlege, ob du bei 10 oder 11 verdoppeln solltest, wenn der Dealer eine schwache Karte hat (z. B. 4, 5 oder 6)\n- Asse zu teilen ist normalerweise eine gute Entscheidung\n\n"}
     }
   }
-}
 }
