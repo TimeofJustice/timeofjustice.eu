@@ -1,9 +1,10 @@
 from django.urls import path, include
 
-from .user import change
+from .user import update, leaderboard
 
 urlpatterns = [
     path("higher-lower/", include("casino.views.api.higher_lower.urls")),
     path("ride-the-bus/", include("casino.views.api.ride_the_bus.urls")),
-    path("user/change/", change, name="change"),
+    path("user/update/", update, name="update"),
+    path("leaderboard/", leaderboard, name="leaderboard"),
 ]

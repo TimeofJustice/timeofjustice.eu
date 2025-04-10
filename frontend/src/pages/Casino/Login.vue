@@ -4,26 +4,16 @@ import { faDice } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { computed, reactive } from "vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
 import {useI18n} from "vue-i18n";
+import { watch } from "vue";
 
 interface Props {
   error: undefined | string;
 }
 
-const { error } = defineProps<Props>();
-
 const i18n = useI18n();
-
 const { show } = useToastController()
 
-const form = reactive({
-  wallet_id: null
-})
-
-function onSubmit() {
-  router.post('/casino/login/', form)
-}
-
-import { watch } from "vue";
+const { error } = defineProps<Props>();
 
 watch(() => error, (newError) => {
   if (newError) {
@@ -38,13 +28,21 @@ watch(() => error, (newError) => {
   }
 });
 
-const validation = computed(() => {
-  if (form.wallet_id === null) {
-    return null;
+const form = reactive({
+  walletId: null
+})
+
+function submit() {
+  router.post('/casino/login/', form)
+}
+
+const validateWalletId = computed(() => {
+  if (form.walletId === null) {
+    return false;
   }
 
   const uuidRegex = /^[0-9a-f]{32}$/i;
-  return uuidRegex.test(form.wallet_id);
+  return uuidRegex.test(form.walletId);
 });
 </script>
 
@@ -61,10 +59,10 @@ const validation = computed(() => {
           </h1>
         </template>
 
-        <BForm @submit.prevent="onSubmit" class="d-flex flex-column gap-2 w-100">
+        <BForm @submit.prevent="submit" class="d-flex flex-column gap-2 w-100">
           <BFormGroup id="input-group-2" label-for="input-2">
-            <BFormInput id="input-2" v-model="form.wallet_id" :placeholder="$t('casino.login.enter_wallet')" required :state="validation" />
-            <BFormInvalidFeedback :state="validation">
+            <BFormInput id="input-2" v-model="form.walletId" :placeholder="$t('casino.login.enter_wallet')" required :state="validateWalletId" />
+            <BFormInvalidFeedback :state="validateWalletId">
               {{ $t('casino.login.error.not_valid') }}
             </BFormInvalidFeedback>
           </BFormGroup>

@@ -1,35 +1,13 @@
-import json
-
-from django.conf import settings
 from django.http.response import JsonResponse
-from django.views.decorators.csrf import ensure_csrf_cookie
 
 from casino import models
 from casino.decorators import wallet_required
+from core.helpers import BodyContent
 from core.models import get_or_none
 
 
-class BodyContent:
-    def __init__(self, request):
-        body_unicode = request.body.decode('utf-8')
-
-        self.body = None
-
-        try:
-            self.body = json.loads(body_unicode)
-        except:
-            pass
-
-    def get(self, key):
-        if self.body is None:
-            return None
-
-        return self.body.get(key)
-
-
-@ensure_csrf_cookie
 @wallet_required
-def change(request):
+def update(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
@@ -49,3 +27,7 @@ def change(request):
         return JsonResponse({"error": "casino.main.errors.invalid_request"}, status=400)
 
     return JsonResponse({"name": wallet.name})
+
+
+def leaderboard(request):
+    return JsonResponse({"leaderboard": [wallet.public_json() for wallet in models.Wallet.objects.order_by('-balance')[:5]]})
