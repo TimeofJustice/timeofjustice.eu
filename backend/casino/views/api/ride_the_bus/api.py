@@ -88,7 +88,7 @@ def process_turn(request, round_index, multiplier=1, higher_lower_function=None,
 
     request.session['ride_the_bus_session'] = create_session(round_index=round_index + 1,deck=deck.remaining(), cards=cards, bet=bet, session=session)
 
-    if bet <= 0:
+    if bet <= 0 or round_index == 3:
         return end(request)
 
     return JsonResponse(session_json(request.session['ride_the_bus_session']))
