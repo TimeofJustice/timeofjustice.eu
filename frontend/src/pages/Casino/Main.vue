@@ -110,6 +110,7 @@ const redeemDailyBonus = () => {
   axios.post("/casino/api/user/redeem/").then(response => {
     showToast(i18n.t("casino.main.reward_redeemed", {"reward": response.data.reward}), "success");
 
+    showDailyBonus.value = false;
     onBalanceChange(response.data.reward)
     waitingForResponse.value = false;
   }).catch(error => {
