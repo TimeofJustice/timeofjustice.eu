@@ -1,6 +1,7 @@
 import uuid
 from random import shuffle
 from django.http.response import JsonResponse
+from django.views.decorators.http import require_http_methods
 
 from core.helpers import BodyContent
 from core.models import get_or_none
@@ -32,6 +33,7 @@ def update_wallet(wallet, bet):
     wallet.save()
 
 @wallet_required
+@require_http_methods(["POST"])
 def start(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
     post_data = BodyContent(request)
@@ -94,55 +96,66 @@ def process_turn(request, round_index, multiplier=1, higher_lower_function=None,
     return JsonResponse(session_json(request.session['ride_the_bus_session']))
 
 @wallet_required
+@require_http_methods(["POST"])
 def red(request):
     return process_turn(request, round_index=0, multiplier=2, suits=["diamonds", "hearts"])
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def black(request):
     return process_turn(request, round_index=0, multiplier=2, suits=["clubs", "spades"])
 
 @wallet_required
+@require_http_methods(["POST"])
 def higher(request):
     return process_turn(request, round_index=1, multiplier=3, higher_lower_function=is_higher)
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def lower(request):
     return process_turn(request, round_index=1, multiplier=3, higher_lower_function=is_lower)
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def inside(request):
     return process_turn(request, round_index=2, multiplier=4, inside_outside_function=is_inside)
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def outside(request):
     return process_turn(request, round_index=2, multiplier=4, inside_outside_function=is_outside)
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def hearts(request):
     return process_turn(request, round_index=3, multiplier=20, suit="hearts")
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def diamonds(request):
     return process_turn(request, round_index=3, multiplier=20, suit="diamonds")
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def clubs(request):
     return process_turn(request, round_index=3, multiplier=20, suit="clubs")
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def spades(request):
     return process_turn(request, round_index=3, multiplier=20, suit="spades")
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def leave(request):
     session = request.session.get('ride_the_bus_session', None)
     post_data = BodyContent(request)

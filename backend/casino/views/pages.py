@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from core.helpers import BodyContent, props
 from core.models import get_or_none
+from .api.user import days_since_last_login
 from .. import models
 from ..decorators import wallet_required
 
@@ -54,7 +55,7 @@ def register(request):
         wallet_id = uuid.uuid4().hex
         wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
 
-    wallet = models.Wallet.objects.create(wallet_id=wallet_id, last_visit=timezone.now())
+    wallet = models.Wallet.objects.create(wallet_id=wallet_id, last_visit=timezone.now().date())
 
     request.session['wallet_id'] = wallet.wallet_id
 
@@ -81,18 +82,11 @@ def main(request):
     leaderboard = [wallet for wallet in leaderboard]
     own_index = leaderboard.index(wallet)
 
-    if wallet.last_visit is not None and 2 <= (timezone.now() - wallet.last_visit).days:
-        wallet.days_played = 0
-        wallet.save()
-    elif wallet.last_visit is None:
-        wallet.last_visit = timezone.now()
-        wallet.save()
-
     page_props = {
         "wallet": wallet.json(),
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
         "ownPosition": own_index + 1,
-        "newBonus": wallet.last_visit is not None and (timezone.now() - wallet.last_visit).days >= 1,
+        "newBonus": days_since_last_login(wallet) >= 1,
         "dailyBonus": [
             {"day": 1, "reward": 50, "status": "claimed" if wallet.days_played > 0 else "unlocked" if wallet.days_played == 0 else "locked"},
             {"day": 2, "reward": 50, "status": "claimed" if wallet.days_played > 1 else "unlocked" if wallet.days_played == 1 else "locked"},

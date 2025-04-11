@@ -4,11 +4,11 @@ from django.db import models
 
 # Create your models here.
 class Wallet(models.Model):
-    wallet_id = models.CharField(primary_key=True, default=uuid.uuid4().hex, max_length=32, editable=False)
+    wallet_id = models.CharField(primary_key=True, max_length=32, editable=False)
     name = models.CharField(max_length=32, default="Anonymous")
     balance = models.IntegerField(default=100)
     days_played = models.IntegerField(default=0)
-    last_visit = models.DateTimeField(null=True, blank=True)
+    last_visit = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -1,5 +1,6 @@
 import uuid
 from django.http.response import JsonResponse
+from django.views.decorators.http import require_http_methods
 
 from core.helpers import BodyContent
 from core.models import get_or_none
@@ -34,6 +35,7 @@ def update_wallet(wallet, bet):
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def start(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
     post_data = BodyContent(request)
@@ -94,21 +96,25 @@ def process_turn(request, comparison_function, multiplier):
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def higher(request):
     return process_turn(request, is_higher, 1)
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def lower(request):
     return process_turn(request, is_lower, 1)
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def draw(request):
     return process_turn(request, is_equal, 8)
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def leave(request):
     session = request.session.get('higher_lower_session', None)
     post_data = BodyContent(request)
