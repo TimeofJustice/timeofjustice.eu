@@ -64,7 +64,7 @@ const cardLoaded = (name: string) => {
     waitingForResponse.value = false;
   }
 
-  if (gameSession.value.state === "won")
+  if (gameSession.value.state === "won" || gameSession.value.state === "push")
     emit("balanceChange", gameSession.value["bet"]);
 };
 
