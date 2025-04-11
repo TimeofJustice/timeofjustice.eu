@@ -81,7 +81,7 @@ def main(request):
     leaderboard = [wallet for wallet in leaderboard]
     own_index = leaderboard.index(wallet)
 
-    if wallet.last_visit and 2 <= (timezone.now() - wallet.last_visit).days:
+    if wallet.last_visit is not None and 2 <= (timezone.now() - wallet.last_visit).days:
         wallet.days_played = 0
         wallet.save()
     elif wallet.last_visit is None:
@@ -92,7 +92,7 @@ def main(request):
         "wallet": wallet.json(),
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
         "ownPosition": own_index + 1,
-        "newBonus": wallet.last_visit and (timezone.now() - wallet.last_visit).days >= 1,
+        "newBonus": wallet.last_visit is not None and (timezone.now() - wallet.last_visit).days >= 1,
         "dailyBonus": [
             {"day": 1, "reward": 50, "status": "claimed" if wallet.days_played > 0 else "unlocked" if wallet.days_played == 0 else "locked"},
             {"day": 2, "reward": 50, "status": "claimed" if wallet.days_played > 1 else "unlocked" if wallet.days_played == 1 else "locked"},

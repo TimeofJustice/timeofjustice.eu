@@ -177,30 +177,32 @@ const gameEnd = () => {
         </template>
       </BModal>
 
-      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2" v-if="gameSession.state !== 'first_round' && gameSession.state !== 'still_playing'">
-        <div class="d-flex flex-column col-3 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
-          <h1 class="text-white text-center" v-if="gameSession.state !== 'not_started'">
-            {{ gameSession.state === 'lost' ? $t('casino.game.higher_lower.outcomes.lost') : $t('casino.game.higher_lower.outcomes.won') }}
-          </h1>
+      <Transition>
+        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2" v-if="gameSession.state !== 'first_round' && gameSession.state !== 'still_playing'">
+          <div class="d-flex flex-column col-3 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
+            <h1 class="text-white text-center" v-if="gameSession.state !== 'not_started'">
+              {{ gameSession.state === 'lost' ? $t('casino.game.higher_lower.outcomes.lost') : $t('casino.game.higher_lower.outcomes.won') }}
+            </h1>
 
-          <BFormGroup id="input-group-2" label-for="input-2" v-else>
+            <BFormGroup id="input-group-2" label-for="input-2" v-else>
         <span class="text-white text-center">
           {{ $t('casino.game.higher_lower.bet') }}: {{ gameSession.bet }}
         </span>
-            <BInput id="input-2" type="range" v-model="gameSession.bet" min="10" :max="balance < 100 ? balance : 100" :state="validateBet" />
-            <BFormInvalidFeedback :state="validateBet">
-              {{ $t('casino.not_enough_tokens') }}
-            </BFormInvalidFeedback>
-          </BFormGroup>
+              <BInput id="input-2" type="range" v-model="gameSession.bet" min="10" :max="balance < 100 ? balance : 100" :state="validateBet" />
+              <BFormInvalidFeedback :state="validateBet">
+                {{ $t('casino.not_enough_tokens') }}
+              </BFormInvalidFeedback>
+            </BFormGroup>
 
-          <BButton variant="primary" class="btn-lg" @click.prevent="gameEnd" v-if="gameSession.state !== 'not_started'">
-            {{ $t('casino.game.higher_lower.actions.play_again') }}
-          </BButton>
-          <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet">
-            {{ $t('casino.game.higher_lower.actions.start') }}
-          </BButton>
+            <BButton variant="primary" class="btn-lg" @click.prevent="gameEnd" v-if="gameSession.state !== 'not_started'">
+              {{ $t('casino.game.higher_lower.actions.play_again') }}
+            </BButton>
+            <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet">
+              {{ $t('casino.game.higher_lower.actions.start') }}
+            </BButton>
+          </div>
         </div>
-      </div>
+      </Transition>
 
       <div class="d-flex flex-column gap-2">
         <div class="d-flex justify-content-center align-items-center gap-2">
@@ -237,3 +239,15 @@ const gameEnd = () => {
     </div>
   </BCard>
 </template>
+
+<style scoped lang="scss">
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+</style>

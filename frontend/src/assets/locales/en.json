@@ -151,6 +151,27 @@
           "invalid_bet": "Invalid bet"
         },
         "rules": "### \uD83D\uDE8C Ride the Bus – Game Instructions\n\n#### \uD83C\uDFAF Objective:\nMake it through **four consecutive card challenges**, each more difficult than the last.  \nEarn increasing payouts for each correct guess based on your **initial bet**.\n\n---\n\n#### \uD83C\uDCCF Step-by-Step Gameplay:\n\nYou will face **4 questions**, one after another. Each correct answer increases your total payout.  \nOne wrong answer ends the game — you \"crash the bus\" \uD83D\uDE8D\uD83D\uDCA5\n\n---\n\n### \uD83D\uDD39 Round 1: Color\n\n**Question:** Will the next card be **Red** or **Black**?\n\n- ♠\uFE0F♣\uFE0F = Black\n- ♥\uFE0F♦\uFE0F = Red\n\n**Correct guess:**  \n✅ Win **2× your initial bet**\n\n---\n\n### \uD83D\uDD38 Round 2: Higher or Lower\n\n**Question:** Will the **next card** be **Higher** or **Lower** than the last one?\n\n- Aces are low\n- Equal value = **Incorrect**\n\n**Correct guess:**  \n✅ Win **3× your initial bet**\n\n---\n\n### \uD83D\uDD3A Round 3: Inside or Outside\n\n**Question:** Will the **third card's value** be **inside** or **outside** the range of the first two cards?\n\n- **Inside** = between first two values\n- **Outside** = lower than both or higher than both\n- **Equal to one of the edges = Incorrect**\n\n**Correct guess:**  \n✅ Win **4× your initial bet**\n\n---\n\n### \uD83D\uDD3B Round 4: Suit Guess\n\n**Question:** What **suit** will the next card be? (♠\uFE0F ♥\uFE0F ♦\uFE0F ♣\uFE0F)\n\n- Choose **1 of 4 suits**\n\n**Correct guess:**  \n✅ Win **20× your initial bet**\n\n---\n\n#### \uD83D\uDCA5 Lose Condition:\n- One wrong answer at any stage = ❌ **Game Over**\n- You lose your accumulated winnings unless you cashed out earlier"
+      },
+      "black_jack": {
+        "title": "Black Jack",
+        "bet": "Bet",
+        "actions": {
+          "start": "Start",
+          "hit": "Hit",
+          "stand": "Stand",
+          "play_again": "Play again"
+        },
+        "outcomes": {
+          "won": "You won!",
+          "push": "Push",
+          "lost": "You lost!"
+        },
+        "errors": {
+          "session_expired": "Session expired",
+          "deck_empty": "Deck is empty",
+          "invalid_bet": "Invalid bet"
+        },
+        "rules": "# \uD83C\uDCCF Blackjack Rules\n\n## \uD83C\uDFAF Goal of the Game\n- Get a **hand total as close to 21 as possible**, without going over.\n- **Beat the dealer’s hand** by:\n    - Having a higher total without busting (over 21), or\n    - The dealer busts and you don’t.\n\n---\n\n## \uD83E\uDDEE Card Values\n- **2–10:** Face value\n- **Jack, Queen, King:** 10 points\n- **Ace (A):** 1 **or** 11 points, whichever is more favorable to the hand\n\n---\n\n## \uD83C\uDFB2 Game Flow\n\n### 1. Initial Deal\n- Players: 2 cards face up\n- Dealer: 1 card face up, 1 card face down (the \"hole card\")\n\n### 2. Player Turn\nEach player may:\n- **Hit** – Take another card\n- **Stand** – Keep your current hand\n\n### 3. Dealer Turn\n- Dealer reveals their hole card\n- Must hit until total is **17 or higher**\n- Dealer busts if total exceeds 21\n\n### 4. Compare Hands\n- Closest to 21 wins\n- **Blackjack** (Ace + 10-value card) on the initial deal beats a regular 21\n\n---\n\n## \uD83D\uDCB0 Payouts\n- **Win:** 1:1\n- **Blackjack:** 3:2\n- **Push (tie):** Bet returned\n- **Lose:** You lose your bet\n\n---\n\n## \uD83D\uDCDD Example\n- **Player:** A♠ + 8♣ = 19 → Stand\n- **Dealer:** 10♦ + 6♥ + 7♠ = 23 → Bust → Player wins\n\n---\n\n## ✅ Quick Tips\n- Always **stand on 17 or more**\n- Hit on 11 or less — you can’t bust\n- Consider doubling down on 10 or 11 if the dealer has a weak card (like 4, 5, or 6)\n- Splitting aces is usually a good move\n\n"
       }
     }
   }

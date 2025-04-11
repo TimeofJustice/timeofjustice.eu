@@ -20,6 +20,7 @@ import { computed, onBeforeUnmount } from "@node_modules/vue";
 import axios from "axios";
 import LeaderboardPosition from "@pages/Casino/components/LeaderboardPosition.vue";
 import DailyReward from "@pages/Casino/components/DailyReward.vue";
+import BlackJack from "@pages/Casino/Games/BlackJack.vue";
 
 interface Player {
   name: string;
@@ -48,7 +49,8 @@ const { wallet, leaderboard, ownPosition, newBonus } = defineProps<MainProps>();
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
   ["higher_lower", HigherOrLower],
-  ["ride_the_bus", RideTheBus]
+  ["ride_the_bus", RideTheBus],
+  ["black_jack", BlackJack]
 ]);
 
 const balanceChange = ref(0);
@@ -140,6 +142,9 @@ const onBalanceChange = (tokens: number) => {
 };
 
 const leaderBoardFetch = setInterval(() => {
+  if (document.hidden)
+    return;
+
   axios.get("/casino/api/leaderboard/").then(response => {
     updatedLeaderboard.value = response.data.leaderboard;
     updatedOwnPosition.value = response.data.ownPosition;

@@ -37,7 +37,7 @@ def redeem(request):
     if not wallet:
         return HttpResponseRedirect('/casino/login/')
 
-    if not wallet.last_visit:
+    if wallet.last_visit is None:
         wallet.last_visit = timezone.now()
         wallet.save()
 
