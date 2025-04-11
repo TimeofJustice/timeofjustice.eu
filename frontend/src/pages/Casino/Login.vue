@@ -61,7 +61,7 @@ const validateWalletId = computed(() => {
 
         <BForm @submit.prevent="submit" class="d-flex flex-column gap-2 w-100">
           <BFormGroup id="input-group-2" label-for="input-2">
-            <BFormInput id="input-2" v-model="form.walletId" :placeholder="$t('casino.login.enter_wallet')" required :state="validateWalletId" />
+            <BFormInput id="input-2" v-model="form.walletId" :placeholder="$t('casino.login.enter_wallet')" required :state="validateWalletId" type="password" />
             <BFormInvalidFeedback :state="validateWalletId">
               {{ $t('casino.login.error.not_valid') }}
             </BFormInvalidFeedback>
