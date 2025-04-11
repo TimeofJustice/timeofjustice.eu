@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import { faFire } from "@fortawesome/free-solid-svg-icons";
+
 interface LeaderboardPosition {
   index: number;
   name: string;
   balance: number;
+  streak: number;
   highlighted?: boolean;
 }
 
@@ -15,8 +18,15 @@ defineProps<LeaderboardPosition>();
       {{ index }}. {{ name }}
     </span>
 
-    <div class="col-4 text-end">
-      {{ balance }} TJTs
+    <div class="d-flex flex-row justify-content-end align-items-center gap-2 flex-grow-1">
+      <div class="text-end text-warning text-nowrap" v-if="streak > 0">
+        {{ streak }}
+        <font-awesome-icon :icon="faFire"/>
+      </div>
+
+      <div class="text-end text-nowrap">
+        {{ balance }} TJTs
+      </div>
     </div>
   </div>
 </template>

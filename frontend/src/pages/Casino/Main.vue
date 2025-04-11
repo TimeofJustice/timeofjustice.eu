@@ -25,6 +25,7 @@ import BlackJack from "@pages/Casino/Games/BlackJack.vue";
 interface Player {
   name: string;
   balance: number;
+  streak: number;
 }
 
 interface DailyBonus {
@@ -301,7 +302,7 @@ onBeforeUnmount(() => {
 
           <BCollapse v-model="showLeaderboard">
             <BCardBody class="d-flex flex-column gap-2">
-              <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
+              <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance" :streak="player.streak"
                                    :highlighted="index + 1 === updatedOwnPosition" />
 
               <template v-if="updatedOwnPosition > 5">
@@ -309,7 +310,7 @@ onBeforeUnmount(() => {
                   <font-awesome-icon :icon="faEllipsis" />
                 </div>
 
-                <LeaderboardPosition :index="updatedOwnPosition" :name="wallet.name" :balance="wallet.balance" highlighted />
+                <LeaderboardPosition :index="updatedOwnPosition" :name="wallet.name" :balance="wallet.balance" :streak="wallet.streak" highlighted />
               </template>
             </BCardBody>
           </BCollapse>

@@ -19,10 +19,12 @@ class Wallet(models.Model):
             "walletId": self.wallet_id,
             "name": self.name,
             "balance": int(self.balance),
+            "streak": int(self.days_played),
         }
 
     def public_json(self):
         return {
             "name": self.name,
             "balance": int(self.balance),
+            "streak": int(self.days_played),
         }
