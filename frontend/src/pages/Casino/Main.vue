@@ -207,14 +207,14 @@ onBeforeUnmount(() => {
     </BForm>
   </BModal>
 
-  <div class="container-xxl text-white d-flex gap-2 justify-content-center">
-    <div class="row w-100 g-2">
-      <div class="col-9">
-        <component :is="gameComponent" :balance="wallet.balance" @balanceChange="onBalanceChange" />
-      </div>
+  <div class="container-xxl text-white d-flex flex-column flex-lg-row gap-2 justify-content-center pb-3">
+    <div class="col-12 col-lg-9">
+      <component :is="gameComponent" :balance="wallet.balance" @balanceChange="onBalanceChange" />
+    </div>
 
-      <div class="col-3 d-flex flex-column gap-2">
-        <BToast :model-value="showCopyReminder" variant="danger" body-class="d-flex align-items-center justify-content-between gap-2">
+    <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2">
+      <div class="d-flex flex-column gap-2 col-12 col-md-6 col-lg-12">
+        <BToast :model-value="showCopyReminder" variant="danger" body-class="d-flex align-items-center justify-content-between gap-2" class="w-100">
           <div>{{ $t("casino.main.reminder") }}</div>
 
           <BButton variant="tertiary" class="btn-square" @click="showCopyReminder = false">
@@ -266,7 +266,9 @@ onBeforeUnmount(() => {
             </Transition>
           </div>
         </BCard>
+      </div>
 
+      <div class="d-flex flex-column gap-2 col-12 flex-shrink-1">
         <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
           <template #header>
             <h4 class="m-0">
@@ -316,6 +318,7 @@ onBeforeUnmount(() => {
           </BCollapse>
         </BCard>
       </div>
+
     </div>
   </div>
 
