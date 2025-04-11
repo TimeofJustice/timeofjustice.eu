@@ -2,7 +2,8 @@ from functools import wraps
 
 from django.http.response import HttpResponseRedirect
 
-from casino.models import Wallet
+from casino import models
+from core.models import get_or_none
 
 
 def wallet_required(view_func):
@@ -12,8 +13,9 @@ def wallet_required(view_func):
         if not wallet_id:
             return HttpResponseRedirect('/casino/login/')
 
-        wallet = Wallet.objects.get(wallet_id=wallet_id)
+        wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
         if not wallet:
+            del request.session['wallet_id']
             return HttpResponseRedirect('/casino/login/')
 
         return view_func(request, *args, **kwargs)

@@ -1,4 +1,5 @@
 from django.http.response import JsonResponse, HttpResponseRedirect
+from django.views.decorators.http import require_http_methods
 
 from casino import models
 from casino.decorators import wallet_required
@@ -8,6 +9,7 @@ from django.utils import timezone
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def update(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
@@ -31,22 +33,16 @@ def update(request):
 
 
 @wallet_required
+@require_http_methods(["POST"])
 def redeem(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
         return HttpResponseRedirect('/casino/login/')
 
-    if wallet.last_visit is None:
-        wallet.last_visit = timezone.now()
-        wallet.save()
-
-    if 2 <= (timezone.now() - wallet.last_visit).days:
-        wallet.days_played = 0
-
-    if (timezone.now() - wallet.last_visit).days >= 1:
+    if days_since_last_login(wallet) >= 1:
         wallet.days_played += 1
-        wallet.last_visit = timezone.now()
+        wallet.last_visit = timezone.now().date()
         reward = 50
 
         if wallet.days_played == 3:
@@ -62,6 +58,17 @@ def redeem(request):
         return JsonResponse({"reward": reward})
 
     return JsonResponse({"error": "casino.main.errors.already_claimed"}, status=400)
+
+
+def days_since_last_login(wallet):
+    if wallet.last_visit is None:
+        wallet.last_visit = timezone.now().date()
+        wallet.save()
+    elif 2 <= (timezone.now().date() - wallet.last_visit).days:
+        wallet.days_played = 0
+        wallet.save()
+
+    return (timezone.now().date() - wallet.last_visit).days
 
 
 @wallet_required
