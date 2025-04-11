@@ -262,7 +262,7 @@ const end = () => {
       <Transition>
         <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2"
              v-if="gameSession.state !== 'playing'">
-          <div class="d-flex flex-column col-3 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
+          <div class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
             <h1 class="text-white text-center" v-if="gameSession.state !== 'not_started'">
               {{ gameSession.state === "lost" ? $t("casino.game.black_jack.outcomes.lost") : gameSession.state === "push" ? $t("casino.game.black_jack.outcomes.push") : $t("casino.game.black_jack.outcomes.won") }}
             </h1>
@@ -289,13 +289,13 @@ const end = () => {
 
       <div class="d-flex flex-column gap-2 col-12">
         <div class="d-flex gap-2 pe-2">
-          <h3 class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 col-9 text-center">
+          <h3 class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 col-8 col-md-9 text-center">
             {{ gameSession.state === "not_started" ? 0 : gameSession.dealerScore }}
           </h3>
         </div>
 
         <div class="d-flex justify-content-center align-items-center gap-2">
-          <div class="d-flex flex-column gap-2 col-9">
+          <div class="d-flex flex-column gap-2 col-8 col-md-9">
             <div class="d-flex overflow-hidden justify-content-center">
               <div class="overflow-hidden col-1" v-if="shownDealerCards.length < 2">
                 <img :src="'/files/images/casino/cards/back.svg'" alt="back" class="playing-card" />
@@ -315,7 +315,7 @@ const end = () => {
             </div>
           </div>
 
-          <div class="d-flex flex-column gap-2 col-3">
+          <div class="d-flex flex-column gap-2 col-4 col-md-3">
             <BButton variant="success" @click.prevent="processTurn('hit')"
                      :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <font-awesome-icon :icon="faPlus" />
@@ -330,11 +330,11 @@ const end = () => {
         </div>
 
         <div class="d-flex gap-2">
-          <h3 class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center">
+          <h3 class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0">
             {{ gameSession.state === "not_started" ? 0 : gameSession.cardsScore }}
           </h3>
 
-          <h3 class="bg-grey-100 rounded-3 p-2 d-flex text-center align-items-center text-light col-3">
+          <h3 class="bg-grey-100 rounded-3 p-2 d-flex text-center align-items-center text-light col-4 col-md-3 mb-0">
             <Icon icon="playing-cards" />
             {{ gameSession.leftOverCards }}
           </h3>
@@ -362,7 +362,14 @@ const end = () => {
 .v-lazy-image {
   filter: unset;
 }
+
 .v-lazy-image-loaded {
   filter: unset;
+}
+
+@media (max-width: 576px) {
+  .playing-card {
+    max-width: 6em;
+  }
 }
 </style>

@@ -176,7 +176,7 @@ const gameEnd = () => {
       <Transition>
         <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2"
              v-if="gameSession.state === 'not_started' || gameSession.state === 'won' || gameSession.state === 'lost'">
-          <div class="d-flex flex-column col-3 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
+          <div class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
             <h1 class="text-white text-center" v-if="gameSession.state !== 'not_started'">
               {{ gameSession.state === "lost" ? $t("casino.game.ride_the_bus.outcomes.lost") : $t("casino.game.ride_the_bus.outcomes.won") }}
             </h1>
@@ -201,12 +201,12 @@ const gameEnd = () => {
         </div>
       </Transition>
 
-      <div class="d-flex flex-column gap-2">
-        <div class="d-flex justify-content-center align-items-center gap-2">
-          <img :src="'/files/images/casino/cards/' + gameSession.cards[0] + '.svg'" :alt="gameSession.cards[0]" class="img-fluid" @load="cardLoaded('first_round')" />
-          <img :src="'/files/images/casino/cards/' + gameSession.cards[1] + '.svg'" :alt="gameSession.cards[1]" class="img-fluid" @load="cardLoaded('second_round')" />
-          <img :src="'/files/images/casino/cards/' + gameSession.cards[2] + '.svg'" :alt="gameSession.cards[2]" class="img-fluid" @load="cardLoaded('third_round')" />
-          <img :src="'/files/images/casino/cards/' + gameSession.cards[3] + '.svg'" :alt="gameSession.cards[3]" class="img-fluid" @load="cardLoaded('fourth_round')" />
+      <div class="d-flex flex-column gap-2 w-100">
+        <div class="row gx-2">
+          <img :src="'/files/images/casino/cards/' + gameSession.cards[0] + '.svg'" :alt="gameSession.cards[0]" class="img-fluid col-3" @load="cardLoaded('first_round')" />
+          <img :src="'/files/images/casino/cards/' + gameSession.cards[1] + '.svg'" :alt="gameSession.cards[1]" class="img-fluid col-3" @load="cardLoaded('second_round')" />
+          <img :src="'/files/images/casino/cards/' + gameSession.cards[2] + '.svg'" :alt="gameSession.cards[2]" class="img-fluid col-3" @load="cardLoaded('third_round')" />
+          <img :src="'/files/images/casino/cards/' + gameSession.cards[3] + '.svg'" :alt="gameSession.cards[3]" class="img-fluid col-3" @load="cardLoaded('fourth_round')" />
         </div>
 
         <div class="d-flex">
@@ -215,69 +215,69 @@ const gameEnd = () => {
           </h3>
         </div>
 
-        <div class="d-flex gap-2">
-          <div class="d-flex flex-column gap-2 w-100 transition-opacity"
+        <div class="row gx-2">
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity"
                :class="gameSession.state !== 'first_round' && gameSession.state !== 'not_started' ? 'opacity-0' : ''">
             <BButton variant="danger" @click.prevent="processTurn('red', 'second_round')" :disabled="gameSession.state !== 'first_round' || waitingForResponse">
               <Icon icon="diamonds" />
-              <Icon icon="hearts" class="me-1" />
-              {{ $t("casino.game.ride_the_bus.actions.red") }}
-              <Icon icon="hearts" class="ms-1" />
-              <Icon icon="diamonds" />
+              <Icon icon="hearts" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.red") }}</span>
+              <Icon icon="hearts" class="ms-1 d-none d-md-inline-block" />
+              <Icon icon="diamonds" class="d-none d-md-inline-block" />
             </BButton>
             <BButton variant="primary" @click.prevent="processTurn('black', 'second_round')" :disabled="gameSession.state !== 'first_round' || waitingForResponse">
               <Icon icon="spades" />
-              <Icon icon="clubs" class="me-1" />
-              {{ $t("casino.game.ride_the_bus.actions.black") }}
-              <Icon icon="clubs" class="ms-1" />
-              <Icon icon="spades" />
+              <Icon icon="clubs" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.black") }}</span>
+              <Icon icon="clubs" class="ms-1 d-none d-md-inline-block" />
+              <Icon icon="spades" class="d-none d-md-inline-block" />
             </BButton>
           </div>
 
-          <div class="d-flex flex-column gap-2 w-100 transition-opacity" :class="gameSession.state !== 'second_round' ? 'opacity-0' : ''">
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'second_round' ? 'opacity-0' : ''">
             <BButton variant="success" @click.prevent="processTurn('higher', 'third_round')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowUp" class="me-1" />
-              {{ $t("casino.game.ride_the_bus.actions.higher") }}
+              <font-awesome-icon :icon="faArrowUp" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.higher") }}</span>
             </BButton>
             <BButton variant="danger" @click.prevent="processTurn('lower', 'third_round')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowDown" class="me-1" />
-              {{ $t("casino.game.ride_the_bus.actions.lower") }}
+              <font-awesome-icon :icon="faArrowDown" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.lower") }}</span>
             </BButton>
             <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
               {{ $t("casino.game.ride_the_bus.actions.quit") }}
             </BButton>
           </div>
 
-          <div class="d-flex flex-column gap-2 w-100 transition-opacity" :class="gameSession.state !== 'third_round' ? 'opacity-0' : ''">
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'third_round' ? 'opacity-0' : ''">
             <BButton variant="primary" @click.prevent="processTurn('inside', 'fourth_round')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowRightToBracket" class="me-1" />
-              {{ $t("casino.game.ride_the_bus.actions.inside") }}
+              <font-awesome-icon :icon="faArrowRightToBracket" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.inside") }}</span>
             </BButton>
             <BButton variant="danger" @click.prevent="processTurn('outside', 'fourth_round')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowRightFromBracket" class="me-1" />
-              {{ $t("casino.game.ride_the_bus.actions.outside") }}
+              <font-awesome-icon :icon="faArrowRightFromBracket" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.outside") }}</span>
             </BButton>
             <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
               {{ $t("casino.game.ride_the_bus.actions.quit") }}
             </BButton>
           </div>
 
-          <div class="d-flex flex-column gap-2 w-100 transition-opacity" :class="gameSession.state !== 'fourth_round' ? 'opacity-0' : ''">
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'fourth_round' ? 'opacity-0' : ''">
             <BButton variant="primary" @click.prevent="processTurn('clubs', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="clubs" />
-              {{ $t("casino.game.ride_the_bus.actions.clubs") }}
+              <Icon icon="clubs" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.clubs") }}</span>
             </BButton>
             <BButton variant="danger" @click.prevent="processTurn('diamonds', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="diamonds" />
-              {{ $t("casino.game.ride_the_bus.actions.diamonds") }}
+              <Icon icon="diamonds" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.diamonds") }}</span>
             </BButton>
             <BButton variant="primary" @click.prevent="processTurn('spades', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="spades" />
-              {{ $t("casino.game.ride_the_bus.actions.spades") }}
+              <Icon icon="spades" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.spades") }}</span>
             </BButton>
             <BButton variant="danger" @click.prevent="processTurn('hearts', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="hearts" />
-              {{ $t("casino.game.ride_the_bus.actions.hearts") }}
+              <Icon icon="hearts" class="me-md-1" />
+              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.hearts") }}</span>
             </BButton>
             <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
               {{ $t("casino.game.ride_the_bus.actions.quit") }}
@@ -302,5 +302,11 @@ const gameEnd = () => {
 
 .transition-opacity {
   transition: opacity 0.5s ease;
+}
+
+@media (max-width: 576px) {
+  .playing-card {
+    max-width: 6em;
+  }
 }
 </style>
