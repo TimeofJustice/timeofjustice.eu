@@ -39,13 +39,14 @@ interface MainProps {
   leaderboard: Player[];
   ownPosition: number;
   newBonus: boolean;
+  nextBonus: string;
   dailyBonus: DailyBonus[];
 }
 
 const i18n = useI18n();
 const { show } = useToastController();
 
-const { wallet, leaderboard, ownPosition, newBonus } = defineProps<MainProps>();
+const { wallet, leaderboard, ownPosition, newBonus, nextBonus } = defineProps<MainProps>();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -76,6 +77,28 @@ const validateName = computed(() => {
 
   return /^[a-zA-Z0-9]{3,32}$/.test(settingsForm.name);
 });
+
+const nextBonusDate = ref(new Date(nextBonus));
+const timer = ref("");
+
+const updateTimer = () => {
+  const now = new Date();
+  const diff = nextBonusDate.value.getTime() - now.getTime();
+
+  if (diff <= 0) {
+    timer.value = "00:00:00";
+    return;
+  }
+
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  timer.value = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+updateTimer();
+const nextBonusCounter = setInterval(updateTimer, 1000);
 
 const showToast = (message: string, variant: "success" | "danger") => {
   show?.({
@@ -114,6 +137,7 @@ const redeemDailyBonus = () => {
     showToast(i18n.t("casino.main.reward_redeemed", {"reward": response.data.reward}), "success");
 
     showDailyBonus.value = false;
+    nextBonusDate.value = new Date(response.data.nextBonus);
     onBalanceChange(response.data.reward)
     waitingForResponse.value = false;
   }).catch(error => {
@@ -154,6 +178,7 @@ const leaderBoardFetch = setInterval(() => {
 
 onBeforeUnmount(() => {
   clearInterval(leaderBoardFetch);
+  clearInterval(nextBonusCounter);
 });
 </script>
 
@@ -265,6 +290,13 @@ onBeforeUnmount(() => {
               </span>
             </Transition>
           </div>
+
+          <small class="text-blue-grey-500" v-if="timer !== '00:00:00' && timer !== ''">
+            {{ $t("casino.main.next_bonus_in", { "time": timer }) }}
+          </small>
+          <small class="text-warning" v-else-if="timer !== ''">
+            {{ $t("casino.main.next_bonus") }}
+          </small>
         </BCard>
       </div>
 

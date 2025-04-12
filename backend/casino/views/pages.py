@@ -81,12 +81,17 @@ def main(request):
     leaderboard = models.Wallet.objects.order_by('-balance')
     leaderboard = [wallet for wallet in leaderboard]
     own_index = leaderboard.index(wallet)
+    new_bonus = days_since_last_login(wallet) >= 1
+
+    last_visit = timezone.datetime.combine(wallet.last_visit, timezone.datetime.min.time()) if wallet.last_visit else timezone.now()
+    next_bonus = last_visit + timezone.timedelta(days=1)
 
     page_props = {
         "wallet": wallet.json(),
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
         "ownPosition": own_index + 1,
-        "newBonus": days_since_last_login(wallet) >= 1,
+        "newBonus": new_bonus,
+        "nextBonus": next_bonus.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "dailyBonus": [
             {"day": 1, "reward": 50, "status": "claimed" if wallet.days_played > 0 else "unlocked" if wallet.days_played == 0 else "locked"},
             {"day": 2, "reward": 50, "status": "claimed" if wallet.days_played > 1 else "unlocked" if wallet.days_played == 1 else "locked"},

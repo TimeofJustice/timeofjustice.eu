@@ -90,6 +90,8 @@
       "daily_bonus": "Daily Bonus",
       "redeem": "Redeem",
       "reward_redeemed": "Reward redeemed: {reward}",
+      "next_bonus_in": "Next bonus in {time}",
+      "next_bonus": "Reload the page to claim your next bonus",
       "errors": {
         "wallet_not_found": "Wallet not found",
         "name_invalid": "Name invalid",
