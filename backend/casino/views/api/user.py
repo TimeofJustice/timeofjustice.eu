@@ -55,7 +55,10 @@ def redeem(request):
         wallet.balance += reward
         wallet.save()
 
-        return JsonResponse({"reward": reward})
+        last_visit = timezone.datetime.combine(wallet.last_visit, timezone.datetime.min.time()) if wallet.last_visit else timezone.now()
+        next_bonus = last_visit + timezone.timedelta(days=1)
+
+        return JsonResponse({"reward": reward, "nextBonus": next_bonus.strftime("%Y-%m-%dT%H:%M:%SZ")})
 
     return JsonResponse({"error": "casino.main.errors.already_claimed"}, status=400)
 

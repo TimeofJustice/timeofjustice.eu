@@ -90,6 +90,8 @@
     "daily_bonus": "Täglicher Bonus",
     "redeem": "Einlösen",
     "reward_redeemed": "Belohnung eingelöst: {reward}",
+    "next_bonus_in": "Nächster Bonus in {time}",
+    "next_bonus": "Lade die Seite neu, um deinen nächsten Bonus zu erhalten",
     "errors": {
       "wallet_not_found": "Wallet nicht gefunden",
       "name_invalid": "Name ungültig",
