@@ -212,6 +212,11 @@ onBeforeUnmount(() => {
               </BFormInvalidFeedback>
             </BFormGroup>
 
+            <h5 class="rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0"
+                :class="gameSession.bet - gameSession.initialBet > 0 ? 'text-success' : ''" v-if="gameSession.state === 'won'">
+              {{ gameSession.bet - gameSession.initialBet > 0 ? "+" : "" }}{{ gameSession.bet - gameSession.initialBet }}
+            </h5>
+
             <BButton variant="primary" class="btn-lg" @click.prevent="gameEnd" v-if="gameSession.state !== 'not_started'">
               {{ $t("casino.game.ride_the_bus.actions.play_again") }}
             </BButton>
