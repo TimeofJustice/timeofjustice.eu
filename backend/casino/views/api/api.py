@@ -34,6 +34,20 @@ def update(request):
 
 @wallet_required
 @require_http_methods(["POST"])
+def dismiss(request):
+    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+
+    if not wallet:
+        return HttpResponseRedirect('/casino/login/')
+
+    wallet.hint_dismissed = True
+    wallet.save()
+
+    return JsonResponse({"hintDismissed": wallet.hint_dismissed})
+
+
+@wallet_required
+@require_http_methods(["POST"])
 def redeem(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
