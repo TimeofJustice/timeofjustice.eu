@@ -44,7 +44,7 @@ const areRulesOpen = ref(false);
 const diceValues = ref([1, 2, 3]);
 
 const evaluate = () => {
-  rollDice(1, 2, 3)
+  rollDice(20, 40, 60)
 }
 
 const rollDice = (amount1: number, amount2: number, amount3: number) => {
