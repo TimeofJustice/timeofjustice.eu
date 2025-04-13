@@ -97,6 +97,8 @@ const start = async () => {
       gameSession.value.state = 'playing';
       gameSession.value.bet = data["bet"];
       gameSession.value.initialBet = data["initial_bet"];
+
+      waitingForResponse.value = false;
     })
     .catch(error => {
       showToast(i18n.t(error.response.data.error), "danger");
@@ -225,7 +227,7 @@ const gameEnd = () => {
         <div class="d-flex flex-column gap-2 w-100">
           <div class="d-flex justify-content-between align-items-stretch gap-2 w-100 flex-wrap">
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('small')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('small')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>Small</h3>
                 <div>4 - 10</div>
                 <div>{{ $t('casino.game.sic_bo.loss_3') }}</div>
@@ -237,15 +239,15 @@ const gameEnd = () => {
 
             <div class="d-flex flex-column gap-2 flex-grow-1 align-items-stretch">
               <div class="d-flex gap-2 justify-content-center align-items-stretch w-100 h-100">
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-1')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-1')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="1" size="md" />
                   <Dice :value="1" size="md" />
                 </BButton>
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-2')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-2')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="2" size="md" />
                   <Dice :value="2" size="md" />
                 </BButton>
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-3')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-3')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="3" size="md" />
                   <Dice :value="3" size="md" />
                 </BButton>
@@ -257,17 +259,17 @@ const gameEnd = () => {
 
             <div class="d-flex flex-column gap-2 flex-grow-1 align-items-stretch">
               <div class="d-flex flex-column gap-2 justify-content-center align-items-stretch w-100 h-100">
-                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-1')">
+                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-1')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="1" size="sm" />
                   <Dice :value="1" size="sm" />
                   <Dice :value="1" size="sm" />
                 </BButton>
-                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-2')">
+                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-2')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="2" size="sm" />
                   <Dice :value="2" size="sm" />
                   <Dice :value="2" size="sm" />
                 </BButton>
-                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-3')">
+                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-3')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="3" size="sm" />
                   <Dice :value="3" size="sm" />
                   <Dice :value="3" size="sm" />
@@ -279,7 +281,7 @@ const gameEnd = () => {
             </div>
 
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2" @click="processTurn('triple-any')">
+              <BButton class="d-flex flex-column gap-2 p-2" @click="processTurn('triple-any')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <div class="d-flex gap-2 justify-content-center align-items-center w-100">
                   <Dice :value="1" size="sm" />
                   <Dice :value="1" size="sm" />
@@ -318,17 +320,17 @@ const gameEnd = () => {
 
             <div class="d-flex flex-column gap-2 flex-grow-1 align-items-stretch">
               <div class="d-flex flex-column gap-2 justify-content-center align-items-stretch w-100 h-100">
-                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-4')">
+                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-4')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="4" size="sm" />
                   <Dice :value="4" size="sm" />
                   <Dice :value="4" size="sm" />
                 </BButton>
-                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-5')">
+                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="5" size="sm" />
                   <Dice :value="5" size="sm" />
                   <Dice :value="5" size="sm" />
                 </BButton>
-                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-6')">
+                <BButton class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center" @click="processTurn('triple-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="6" size="sm" />
                   <Dice :value="6" size="sm" />
                   <Dice :value="6" size="sm" />
@@ -341,15 +343,15 @@ const gameEnd = () => {
 
             <div class="d-flex flex-column gap-2 flex-grow-1 align-items-stretch">
               <div class="d-flex gap-2 justify-content-center align-items-stretch w-100 h-100">
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-4')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-4')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="4" size="md" />
                   <Dice :value="4" size="md" />
                 </BButton>
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-5')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="5" size="md" />
                   <Dice :value="5" size="md" />
                 </BButton>
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-6')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('double-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <Dice :value="6" size="md" />
                   <Dice :value="6" size="md" />
                 </BButton>
@@ -360,7 +362,7 @@ const gameEnd = () => {
             </div>
 
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('big')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('big')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>Big</h3>
                 <div>11 - 17</div>
                 <div>{{ $t('casino.game.sic_bo.loss_3') }}</div>
@@ -373,7 +375,7 @@ const gameEnd = () => {
 
           <div class="d-flex justify-content-between align-items-stretch gap-2 w-100 flex-wrap">
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-4')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-4')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>4</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -381,7 +383,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-5')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>5</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -389,7 +391,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-6')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>6</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -397,7 +399,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-7')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-7')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>7</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -405,7 +407,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-8')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-8')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>8</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -414,16 +416,16 @@ const gameEnd = () => {
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <div class="d-flex gap-2 justify-content-center align-items-center">
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-9')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-9')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <h3>9</h3>
                 </BButton>
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-10')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-10')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <h3>10</h3>
                 </BButton>
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-11')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-11')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <h3>11</h3>
                 </BButton>
-                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-12')">
+                <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-12')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                   <h3>12</h3>
                 </BButton>
               </div>
@@ -432,7 +434,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-13')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-13')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>13</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -440,7 +442,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-14')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-14')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>14</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -448,7 +450,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-15')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-15')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>15</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -456,7 +458,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-16')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-16')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>16</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -464,7 +466,7 @@ const gameEnd = () => {
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-17')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100" @click="processTurn('total-17')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <h3>17</h3>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
@@ -474,63 +476,63 @@ const gameEnd = () => {
           </div>
 
           <div class="d-flex justify-content-between align-items-stretch gap-2 w-100 flex-wrap">
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-2')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-2')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="1" size="md" />
               <Dice :value="2" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-3')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-3')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="1" size="md" />
               <Dice :value="3" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-4')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-4')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="1" size="md" />
               <Dice :value="4" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-5')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="1" size="md" />
               <Dice :value="5" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-6')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-1-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="1" size="md" />
               <Dice :value="6" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-3')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-3')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="2" size="md" />
               <Dice :value="3" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-4')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-4')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="2" size="md" />
               <Dice :value="4" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-5')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="2" size="md" />
               <Dice :value="5" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-6')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-2-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="2" size="md" />
               <Dice :value="6" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-3-4')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-3-4')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="3" size="md" />
               <Dice :value="4" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-3-5')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-3-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="3" size="md" />
               <Dice :value="5" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-3-6')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-3-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="3" size="md" />
               <Dice :value="6" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-4-5')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-4-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="4" size="md" />
               <Dice :value="5" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-4-6')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-4-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="4" size="md" />
               <Dice :value="6" size="md" />
             </BButton>
-            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-5-6')">
+            <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center" @click="processTurn('pair-5-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <Dice :value="5" size="md" />
               <Dice :value="6" size="md" />
             </BButton>
@@ -542,22 +544,22 @@ const gameEnd = () => {
 
           <div class="d-flex flex-column justify-content-between gap-2 w-100">
             <div class="d-flex flex-grow-1 gap-2 flex-wrap">
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-1')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-1')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <Dice :value="1" size="md" />
               </BButton>
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-2')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-2')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <Dice :value="2" size="md" />
               </BButton>
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-3')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-3')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <Dice :value="3" size="md" />
               </BButton>
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-4')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-4')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <Dice :value="4" size="md" />
               </BButton>
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-5')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-5')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <Dice :value="5" size="md" />
               </BButton>
-              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-6')">
+              <BButton class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1" @click="processTurn('face-6')" :disabled="gameSession.state !== 'playing' || waitingForResponse">
                 <Dice :value="6" size="md" />
               </BButton>
             </div>
