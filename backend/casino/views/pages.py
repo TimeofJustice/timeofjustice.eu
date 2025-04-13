@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from core.helpers import BodyContent, props
 from core.models import get_or_none
-from .api.user import days_since_last_login, get_vault
+from .api.api import days_since_last_login, get_vault
 from .. import models
 from ..decorators import wallet_required
 
@@ -104,6 +104,7 @@ def main(request):
         ],
         "vault": vault.balance,
         "vaultReset": vault_reset.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "hintDismissed": wallet.hint_dismissed,
     }
 
     return render(request, "Casino/Main", props=props(page_props))

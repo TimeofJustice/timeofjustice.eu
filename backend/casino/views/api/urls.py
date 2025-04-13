@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from .user import update, redeem, leaderboard, vault
+from .api import update, redeem, leaderboard, vault, dismiss
 
 urlpatterns = [
     path("higher-lower/", include("casino.views.api.higher_lower.urls")),
@@ -9,6 +9,7 @@ urlpatterns = [
     path("sic-bo/", include("casino.views.api.sic_bo.urls")),
     path("user/update/", update, name="update"),
     path("user/redeem/", redeem, name="redeem"),
+    path("hint/dismiss/", dismiss, name="dismiss"),
     path("leaderboard/", leaderboard, name="leaderboard"),
     path("vault/", vault, name="vault"),
 ]

@@ -44,12 +44,13 @@ interface MainProps {
   dailyBonus: DailyBonus[];
   vault: number;
   vaultReset: string;
+  hintDismissed: boolean;
 }
 
 const i18n = useI18n();
 const { show } = useToastController();
 
-const { wallet, leaderboard, ownPosition, newBonus, nextBonus, vault, vaultReset } = defineProps<MainProps>();
+const { wallet, leaderboard, ownPosition, newBonus, nextBonus, vault, vaultReset, hintDismissed } = defineProps<MainProps>();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -64,7 +65,7 @@ const updatedLeaderboard = ref<Player[]>(leaderboard);
 const updatedOwnPosition = ref(ownPosition);
 const updatedVault = ref(vault);
 
-const showCopyReminder = ref(true);
+const showCopyReminder = ref(!hintDismissed);
 const showSettings = ref(false);
 const showDailyBonus = ref(newBonus);
 const showGames = ref(true);
@@ -102,7 +103,7 @@ const getTimer = (date: Date) => {
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
+};
 
 bonusTimer.value = getTimer(nextBonusDate.value);
 const nextBonusCounter = setInterval(() => {
@@ -147,11 +148,11 @@ const redeemDailyBonus = () => {
   waitingForResponse.value = true;
 
   axios.post("/casino/api/user/redeem/").then(response => {
-    showToast(i18n.t("casino.main.reward_redeemed", {"reward": response.data.reward}), "success");
+    showToast(i18n.t("casino.main.reward_redeemed", { "reward": response.data.reward }), "success");
 
     showDailyBonus.value = false;
     nextBonusDate.value = new Date(response.data.nextBonus);
-    onBalanceChange(response.data.reward)
+    onBalanceChange(response.data.reward);
     waitingForResponse.value = false;
   }).catch(error => {
     showToast(i18n.t(error.response.data.error), "danger");
@@ -187,7 +188,7 @@ const leaderBoardFetch = setInterval(() => {
     updatedLeaderboard.value = response.data.leaderboard;
     updatedOwnPosition.value = response.data.ownPosition;
   });
-}, 10000)
+}, 10000);
 
 const vaultFetch = setInterval(() => {
   if (document.hidden)
@@ -197,7 +198,7 @@ const vaultFetch = setInterval(() => {
     vaultResetDate.value = new Date(response.data.vaultReset);
     updatedVault.value = response.data.vault;
   });
-}, 10000)
+}, 10000);
 
 onBeforeUnmount(() => {
   clearInterval(leaderBoardFetch);
@@ -205,6 +206,15 @@ onBeforeUnmount(() => {
   clearInterval(vaultCounter);
   clearInterval(vaultFetch);
 });
+
+const dismissHint = () => {
+  showCopyReminder.value = false;
+
+  axios.post("/casino/api/hint/dismiss/")
+    .catch(error => {
+      console.error("Failed to dismiss hint:", error);
+    });
+};
 </script>
 
 <template>
@@ -214,7 +224,7 @@ onBeforeUnmount(() => {
           :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="md" centered>
     <template #header>
       <h2 class="m-0">
-        {{ $t('casino.main.daily_bonus') }}
+        {{ $t("casino.main.daily_bonus") }}
       </h2>
 
       <BButton variant="tertiary" class="btn-square text-light" @click="showDailyBonus = false">
@@ -267,7 +277,7 @@ onBeforeUnmount(() => {
         <BToast :model-value="showCopyReminder" variant="danger" body-class="d-flex align-items-center justify-content-between gap-2" class="w-100">
           <div>{{ $t("casino.main.reminder") }}</div>
 
-          <BButton variant="tertiary" class="btn-square" @click="showCopyReminder = false">
+          <BButton variant="tertiary" class="btn-square" @click="dismissHint">
             <font-awesome-icon :icon="faClose" />
           </BButton>
         </BToast>
@@ -389,7 +399,8 @@ onBeforeUnmount(() => {
 
           <BCollapse v-model="showLeaderboard">
             <BCardBody class="d-flex flex-column gap-2">
-              <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance" :streak="player.streak"
+              <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
+                                   :streak="player.streak"
                                    :highlighted="index + 1 === updatedOwnPosition" />
 
               <template v-if="updatedOwnPosition > 5">

@@ -5,7 +5,7 @@ from django.views.decorators.http import require_http_methods
 from core.helpers import BodyContent
 from core.models import get_or_none
 from ..cards import CardDeck, is_higher, is_lower, is_equal, card_to_string, cards_score
-from ..user import get_vault
+from ..api import get_vault
 from .... import models
 from ....decorators import wallet_required
 
