@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { faClose, faCopy, faDice, faHand, faInfo, faPlus } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import Icon from "@components/Icon.vue";
-import { computed, ref } from "@node_modules/vue";
+import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
 import { useI18n } from "@node_modules/vue-i18n";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import axios from "@node_modules/axios";
 
-interface HigherLowerProps {
+interface BlackJackProps {
   balance: number;
 }
 
@@ -22,6 +22,7 @@ interface GameSession {
   bet: number;
   initialBet: number;
   leftOverCards: number;
+  msLeft: number;
 }
 
 const i18n = useI18n();
@@ -30,7 +31,8 @@ const emit = defineEmits({
   balanceChange: null
 });
 
-const { balance } = defineProps<HigherLowerProps>();
+const { balance } = defineProps<BlackJackProps>();
+const msPerTurn = 15000;
 
 const gameSession = ref<GameSession>({
   sessionId: "",
@@ -41,7 +43,8 @@ const gameSession = ref<GameSession>({
   cardsScore: 0,
   bet: 10,
   initialBet: 10,
-  leftOverCards: 52
+  leftOverCards: 52,
+  msLeft: msPerTurn,
 });
 const newGameSession = ref<GameSession | undefined>(undefined);
 const loadedImages = ref(0);
@@ -108,7 +111,8 @@ const start = async () => {
         cardsScore: data["cards_score"],
         bet: data["bet"],
         initialBet: data["initial_bet"],
-        leftOverCards: data["cards_left"]
+        leftOverCards: data["cards_left"],
+        msLeft: msPerTurn,
       };
 
       shownDealerCards.value = [data["dealer_cards"][0]];
@@ -159,7 +163,8 @@ const processTurn = (type: turnType) => {
         cardsScore: data["cards_score"],
         bet: data["bet"],
         initialBet: data["initial_bet"],
-        leftOverCards: data["cards_left"]
+        leftOverCards: data["cards_left"],
+        msLeft: msPerTurn,
       };
 
       if (currentShownDealerCard.value < gameSession.value["dealerCards"].length) {
@@ -217,7 +222,8 @@ const end = () => {
     cardsScore: 0,
     bet: gameSession.value["initialBet"],
     initialBet: gameSession.value["initialBet"],
-    leftOverCards: 52
+    leftOverCards: 52,
+    msLeft: msPerTurn,
   };
   newGameSession.value = undefined;
   shownCards.value = ["back"];
@@ -226,6 +232,21 @@ const end = () => {
   currentShownDealerCard.value = 0;
   loadedImages.value = 0;
 };
+
+const turnInterval = setInterval(() => {
+  if (gameSession.value.state === 'playing' && gameSession.value.msLeft > 0 && !waitingForResponse.value) {
+    gameSession.value.msLeft -= 50;
+
+    if (gameSession.value.msLeft <= 0) {
+      gameSession.value.state = 'lost';
+      gameSession.value.sessionId = '';
+    }
+  }
+}, 50);
+
+onBeforeUnmount(() => {
+  clearInterval(turnInterval);
+});
 </script>
 
 <template>
@@ -316,6 +337,11 @@ const end = () => {
           </div>
 
           <div class="d-flex flex-column gap-2 col-4 col-md-3">
+            <BProgress :max="msPerTurn">
+              <BProgressBar :value="gameSession.msLeft">
+                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+              </BProgressBar>
+            </BProgress>
             <BButton variant="success" @click.prevent="processTurn('hit')"
                      :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <font-awesome-icon :icon="faPlus" />
