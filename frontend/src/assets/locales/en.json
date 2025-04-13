@@ -61,7 +61,7 @@
     "title": "Casino",
     "entry": {
       "title": "Welcome",
-      "warning": "This casino only uses the TimeofJustice token (TJT). Gambling can still be addictive. Please play responsibly.",
+      "warning": "This is a fun-based online casino designed purely for entertainment purposes. No real money is involved, and no real-world prizes or payouts are offered. **The game uses a virtual currency called “TimeofJustice Token (TJT)”**, which **has no real-world monetary value**.\n\nPlease play responsibly – even virtual games can become a habit. **This game is not recommended for players under the age of 18**.",
       "enter_with_new_wallet": "Enter with a new wallet",
       "enter_with_existing_wallet": "Enter with an existing wallet"
     },
@@ -92,6 +92,8 @@
       "reward_redeemed": "Reward redeemed: {reward}",
       "next_bonus_in": "Next bonus in {time}",
       "next_bonus": "Reload the page to claim your next bonus",
+      "vault": "Vault",
+      "vault_reset_in": "Vault reset in {time}",
       "errors": {
         "wallet_not_found": "Wallet not found",
         "name_invalid": "Name invalid",

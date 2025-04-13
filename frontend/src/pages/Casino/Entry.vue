@@ -13,9 +13,11 @@ defineProps<Props>();
   <Head :title="$t('casino.title')" />
 
   <div class="container text-white d-flex flex-column align-items-center justify-content-center">
-    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
-      <BAlert :model-value="true" variant="danger">{{ $t('casino.entry.warning') }}</BAlert>
+    <BAlert :model-value="true" variant="danger">
+      <vue-markdown :source="$t('casino.entry.warning')" />
+    </BAlert>
 
+    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
       <BCard class="bg-grey-100 bg-opacity-50" body-class="d-flex flex-column align-items-center">
         <template #header>
           <h1 class="text-center">
