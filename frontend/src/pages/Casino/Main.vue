@@ -21,6 +21,7 @@ import axios from "axios";
 import LeaderboardPosition from "@pages/Casino/components/LeaderboardPosition.vue";
 import DailyReward from "@pages/Casino/components/DailyReward.vue";
 import BlackJack from "@pages/Casino/Games/BlackJack.vue";
+import SicBo from "@pages/Casino/Games/SicBo.vue";
 
 interface Player {
   name: string;
@@ -52,7 +53,8 @@ const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
   ["higher_lower", HigherOrLower],
   ["ride_the_bus", RideTheBus],
-  ["black_jack", BlackJack]
+  ["black_jack", BlackJack],
+  ["sic_bo", SicBo]
 ]);
 
 const balanceChange = ref(0);

@@ -174,6 +174,28 @@
           "invalid_bet": "Invalid bet"
         },
         "rules": "# \uD83C\uDCCF Blackjack Rules\n\n## \uD83C\uDFAF Goal of the Game\n- Get a **hand total as close to 21 as possible**, without going over.\n- **Beat the dealer’s hand** by:\n    - Having a higher total without busting (over 21), or\n    - The dealer busts and you don’t.\n\n---\n\n## \uD83E\uDDEE Card Values\n- **2–10:** Face value\n- **Jack, Queen, King:** 10 points\n- **Ace (A):** 1 **or** 11 points, whichever is more favorable to the hand\n\n---\n\n## \uD83C\uDFB2 Game Flow\n\n### 1. Initial Deal\n- Players: 2 cards face up\n- Dealer: 1 card face up, 1 card face down (the \"hole card\")\n\n### 2. Player Turn\nEach player may:\n- **Hit** – Take another card\n- **Stand** – Keep your current hand\n\n### 3. Dealer Turn\n- Dealer reveals their hole card\n- Must hit until total is **17 or higher**\n- Dealer busts if total exceeds 21\n\n### 4. Compare Hands\n- Closest to 21 wins\n- **Blackjack** (Ace + 10-value card) on the initial deal beats a regular 21\n\n---\n\n## \uD83D\uDCB0 Payouts\n- **Win:** 1:1\n- **Blackjack:** 3:2\n- **Push (tie):** Bet returned\n- **Lose:** You lose your bet\n\n---\n\n## \uD83D\uDCDD Example\n- **Player:** A♠ + 8♣ = 19 → Stand\n- **Dealer:** 10♦ + 6♥ + 7♠ = 23 → Bust → Player wins\n\n---\n\n## ✅ Quick Tips\n- Always **stand on 17 or more**\n- Hit on 11 or less — you can’t bust\n- Consider doubling down on 10 or 11 if the dealer has a weak card (like 4, 5, or 6)\n- Splitting aces is usually a good move\n\n"
+      },
+      "sic_bo": {
+        "title": "Sic Bo",
+        "bet": "Bet",
+        "loss_3": "Loss if 3 of a kind",
+        "on_one_die": "on one die",
+        "on_two_dice": "on two dice",
+        "on_three_dice": "on three dice",
+        "actions": {
+          "start": "Start",
+          "play_again": "Play again"
+        },
+        "outcomes": {
+          "won": "You won!",
+          "lost": "You lost!"
+        },
+        "errors": {
+          "session_expired": "Session expired",
+          "deck_empty": "Deck is empty",
+          "invalid_bet": "Invalid bet"
+        },
+        "rules": ""
       }
     }
   }
