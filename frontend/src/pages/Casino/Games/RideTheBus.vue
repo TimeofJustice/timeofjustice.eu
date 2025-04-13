@@ -10,7 +10,7 @@ import {
   faInfo
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import Icon from "@components/Icon.vue";
-import { computed, ref } from "@node_modules/vue";
+import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
 import axios from "@node_modules/axios";
@@ -27,6 +27,7 @@ interface GameSession {
   cards: string[];
   bet: number;
   initialBet: number;
+  msLeft: number;
 }
 
 const i18n = useI18n();
@@ -36,13 +37,15 @@ const emit = defineEmits({
 });
 
 const { balance } = defineProps<RideTheBusProps>();
+const msPerTurn = 10000;
 
 const gameSession = ref<GameSession>({
   sessionId: "",
   state: "not_started",
   cards: ["back", "back", "back", "back"],
   bet: 10,
-  initialBet: 10
+  initialBet: 10,
+  msLeft: msPerTurn,
 });
 const newGameSession = ref<GameSession | undefined>(undefined);
 
@@ -90,7 +93,8 @@ const start = async () => {
         state: "first_round",
         cards: gameSession.value["cards"],
         bet: data["bet"],
-        initialBet: data["initial_bet"]
+        initialBet: data["initial_bet"],
+        msLeft: msPerTurn,
       };
 
       waitingForResponse.value = false;
@@ -120,7 +124,8 @@ const processTurn = (type: turnType, gameState: GameState) => {
         state: data["bet"] <= 0 ? "lost" : gameState,
         cards: gameSession.value["cards"],
         bet: data["bet"],
-        initialBet: data["initial_bet"]
+        initialBet: data["initial_bet"],
+        msLeft: msPerTurn,
       };
     })
     .catch(error => {
@@ -136,10 +141,26 @@ const gameEnd = () => {
     state: "not_started",
     cards: ["back", "back", "back", "back"],
     bet: gameSession.value["initialBet"],
-    initialBet: gameSession.value["initialBet"]
+    initialBet: gameSession.value["initialBet"],
+    msLeft: msPerTurn,
   };
   newGameSession.value = undefined;
 };
+
+const turnInterval = setInterval(() => {
+  if ((gameSession.value.state === 'first_round' || gameSession.value.state === 'second_round' || gameSession.value.state === 'third_round' || gameSession.value.state === 'fourth_round') && gameSession.value.msLeft > 0 && !waitingForResponse.value) {
+    gameSession.value.msLeft -= 50;
+
+    if (gameSession.value.msLeft <= 0) {
+      gameSession.value.state = 'lost';
+      gameSession.value.sessionId = '';
+    }
+  }
+}, 50);
+
+onBeforeUnmount(() => {
+  clearInterval(turnInterval);
+});
 </script>
 
 <template>
@@ -218,6 +239,11 @@ const gameEnd = () => {
         <div class="row gx-2">
           <div class="d-flex flex-column gap-2 col-3 transition-opacity"
                :class="gameSession.state !== 'first_round' && gameSession.state !== 'not_started' ? 'opacity-0' : ''">
+            <BProgress :max="msPerTurn">
+              <BProgressBar :value="gameSession.msLeft">
+                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+              </BProgressBar>
+            </BProgress>
             <BButton variant="danger" @click.prevent="processTurn('red', 'second_round')" :disabled="gameSession.state !== 'first_round' || waitingForResponse">
               <Icon icon="diamonds" />
               <Icon icon="hearts" class="me-md-1" />
@@ -235,6 +261,11 @@ const gameEnd = () => {
           </div>
 
           <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'second_round' ? 'opacity-0' : ''">
+            <BProgress :max="msPerTurn">
+              <BProgressBar :value="gameSession.state === 'second_round' ? gameSession.msLeft : msPerTurn">
+                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+              </BProgressBar>
+            </BProgress>
             <BButton variant="success" @click.prevent="processTurn('higher', 'third_round')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
               <font-awesome-icon :icon="faArrowUp" class="me-md-1" />
               <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.higher") }}</span>
@@ -249,6 +280,11 @@ const gameEnd = () => {
           </div>
 
           <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'third_round' ? 'opacity-0' : ''">
+            <BProgress :max="msPerTurn">
+              <BProgressBar :value="gameSession.state === 'third_round' ? gameSession.msLeft : msPerTurn">
+                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+              </BProgressBar>
+            </BProgress>
             <BButton variant="primary" @click.prevent="processTurn('inside', 'fourth_round')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
               <font-awesome-icon :icon="faArrowRightToBracket" class="me-md-1" />
               <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.inside") }}</span>
@@ -263,6 +299,11 @@ const gameEnd = () => {
           </div>
 
           <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'fourth_round' ? 'opacity-0' : ''">
+            <BProgress :max="msPerTurn">
+              <BProgressBar :value="gameSession.state === 'fourth_round' ? gameSession.msLeft : msPerTurn">
+                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+              </BProgressBar>
+            </BProgress>
             <BButton variant="primary" @click.prevent="processTurn('clubs', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
               <Icon icon="clubs" class="me-md-1" />
               <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.clubs") }}</span>

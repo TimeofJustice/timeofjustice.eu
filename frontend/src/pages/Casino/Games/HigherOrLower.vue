@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { faArrowDown, faArrowUp, faClose, faCopy, faDice, faInfo, faMinus } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { computed } from "@node_modules/vue";
+import { computed, onBeforeUnmount } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
 import Icon from "@components/Icon.vue";
 import { useI18n } from "@node_modules/vue-i18n";
@@ -20,6 +20,7 @@ interface GameSession {
   bet: number;
   initialBet: number;
   leftOverCards: number;
+  msLeft: number;
 }
 
 const i18n = useI18n();
@@ -29,6 +30,7 @@ const emit = defineEmits({
 });
 
 const { balance } = defineProps<HigherLowerProps>();
+const msPerTurn = 8000;
 
 const gameSession = ref<GameSession>({
   sessionId: '',
@@ -37,6 +39,7 @@ const gameSession = ref<GameSession>({
   bet: 10,
   initialBet: 10,
   leftOverCards: 52,
+  msLeft: msPerTurn,
 });
 const newGameSession = ref<GameSession | undefined>(undefined);
 
@@ -85,6 +88,7 @@ const start = async () => {
         bet: data["bet"],
         initialBet: data["initial_bet"],
         leftOverCards: data["cards_left"],
+        msLeft: msPerTurn,
       };
     })
     .catch(error => {
@@ -113,6 +117,7 @@ const processTurn = (type: turnType, gameState: GameState) => {
           bet: data["bet"],
           initialBet: data["initial_bet"],
           leftOverCards: data["cards_left"],
+          msLeft: msPerTurn,
         };
       } else {
         gameSession.value['card'] = data["card"];
@@ -123,6 +128,7 @@ const processTurn = (type: turnType, gameState: GameState) => {
           bet: data["bet"],
           initialBet: data["initial_bet"],
           leftOverCards: data["cards_left"],
+          msLeft: msPerTurn,
         };
       }
     })
@@ -141,9 +147,25 @@ const gameEnd = () => {
     bet: gameSession.value['initialBet'],
     initialBet: gameSession.value['initialBet'],
     leftOverCards: 52,
+    msLeft: msPerTurn,
   }
   newGameSession.value = undefined;
 }
+
+const turnInterval = setInterval(() => {
+  if ((gameSession.value.state === 'first_round' || gameSession.value.state === 'still_playing') && gameSession.value.msLeft > 0 && !waitingForResponse.value) {
+    gameSession.value.msLeft -= 50;
+
+    if (gameSession.value.msLeft <= 0) {
+      gameSession.value.state = 'lost';
+      gameSession.value.sessionId = '';
+    }
+  }
+}, 50);
+
+onBeforeUnmount(() => {
+  clearInterval(turnInterval);
+});
 </script>
 
 <template>
@@ -224,6 +246,12 @@ const gameEnd = () => {
             </BButton>
           </div>
         </div>
+
+        <BProgress :max="msPerTurn">
+          <BProgressBar :value="gameSession.msLeft">
+            <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+          </BProgressBar>
+        </BProgress>
 
         <div class="d-flex gap-2">
           <h3 class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0">
