@@ -1,5 +1,4 @@
 import random
-import uuid
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 
@@ -59,21 +58,23 @@ wins = {
 }
 
 
-def create_session(session_id=None, dice=None, bet=None, initial_bet=None, session=None):
+def create_session(dice=None, bets=None, initial_bet=None, bet=None, possible_wins=None, session=None):
     return {
-        "session_id": session_id if session_id is not None else session["session_id"],
         "dice": dice if dice is not None else session["dice"],
+        "bets": bets if bets is not None else session["bet"],
+        "initialBet": initial_bet if initial_bet is not None else session["initial_bet"],
         "bet": bet if bet is not None else session["bet"],
-        "initial_bet": initial_bet if initial_bet is not None else session["initial_bet"],
+        "possibleWins": possible_wins if possible_wins is not None else session["possible_wins"],
     }
 
 
 def session_json(session):
     return {
-        "session_id": session["session_id"],
         "dice": session["dice"],
+        "bets": session["bets"],
+        "initialBet": session["initialBet"],
         "bet": session["bet"],
-        "initial_bet": session["initial_bet"],
+        "possibleWins": session["possibleWins"],
     }
 
 
@@ -95,66 +96,42 @@ def start(request):
     if not wallet:
         return JsonResponse({"error": "casino.game.sic_bo.errors.session_expired"}, status=400)
 
-    if not post_data or not post_data.get('bet'):
+    if not post_data or not post_data.get('bets'):
         return JsonResponse({"error": "casino.game.sic_bo.errors.invalid_request"}, status=400)
 
-    bet = post_data.get('bet')
+    bets = post_data.get('bets')
 
-    if bet <= 0 or bet > wallet.balance or 100 < bet:
+    if not isinstance(bets, dict) or len(bets) < 1:
+        return JsonResponse({"error": "casino.game.sic_bo.errors.invalid_request"}, status=400)
+
+    total_bet = 0
+    for bet, amount in bets.items():
+        total_bet += amount
+
+    if total_bet <= 0 or total_bet > wallet.balance or total_bet > 500:
         return JsonResponse({"error": "casino.game.sic_bo.errors.invalid_bet"}, status=400)
 
-    update_wallet(wallet, -bet)
+    update_wallet(wallet, -total_bet)
 
-    request.session['sic_bo_session'] = create_session(uuid.uuid4().hex, [], bet, bet)
+    dice = [ random.randint(1, 6) for _ in range(3) ]
+    possible_wins = get_wins(dice)
 
-    return JsonResponse(session_json(request.session['sic_bo_session']))
+    won = 0
 
+    for bet, amount in bets.items():
+        if bet in possible_wins:
+            if "face" not in bet:
+                won += amount + amount * wins[bet]
+            else:
+                amount_turn_in_wins = 0
+                for win in possible_wins:
+                    if bet == win:
+                        amount_turn_in_wins += 1
+                won += amount + amount * amount_turn_in_wins
 
-@wallet_required
-@require_http_methods(["POST"])
-def process_turn(request, turn):
-    session = request.session.get('sic_bo_session', None)
-    post_data = BodyContent(request)
-    turn = turn.lower()
+    if won > 0:
+        update_wallet(wallet, won)
 
-    if not post_data or not post_data.get('session'):
-        return JsonResponse({"error": "casino.game.sic_bo.errors.invalid_request"}, status=400)
-
-    session_id = post_data.get('session')
-
-    if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "casino.game.sic_bo.errors.session_expired"}, status=400)
-
-    dices = [ random.randint(1, 6) for _ in range(3) ]
-    possible_wins = get_wins(dices)
-
-    if turn in possible_wins:
-        if "face" not in turn:
-            bet = session['bet'] + session['initial_bet'] * wins[turn]
-        else:
-            amount_turn_in_wins = 0
-            for win in possible_wins:
-                if turn == win:
-                    amount_turn_in_wins += 1
-            bet = session['bet'] + session['initial_bet'] * amount_turn_in_wins
-    else:
-        bet = 0
-
-    request.session['sic_bo_session'] = create_session(session=request.session['sic_bo_session'], dice=dices, bet=bet)
-
-    return end(request)
-
-
-def end(request):
-    session = request.session.get('sic_bo_session', None)
-    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
-
-    if not session:
-        return JsonResponse({"error": "casino.game.sic_bo.errors.session_expired"}, status=400)
-
-    if session['bet'] > 0:
-        update_wallet(wallet, session['bet'])
-
-    del request.session['sic_bo_session']
+    session = create_session(dice, bets, total_bet, won, possible_wins)
 
     return JsonResponse(session_json(session))
