@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from core.helpers import BodyContent, props
 from core.models import get_or_none
-from .api.user import days_since_last_login
+from .api.user import days_since_last_login, get_vault
 from .. import models
 from ..decorators import wallet_required
 
@@ -86,6 +86,8 @@ def main(request):
     last_visit = timezone.datetime.combine(wallet.last_visit, timezone.datetime.min.time()) if wallet.last_visit else timezone.now()
     next_bonus = last_visit + timezone.timedelta(days=1)
 
+    vault, vault_reset = get_vault()
+
     page_props = {
         "wallet": wallet.json(),
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
@@ -99,7 +101,9 @@ def main(request):
             {"day": 4, "reward": 100, "status": "claimed" if wallet.days_played > 3 else "unlocked" if wallet.days_played == 3 else "locked"},
             {"day": 5, "reward": 100, "status": "claimed" if wallet.days_played > 4 else "unlocked" if wallet.days_played == 4 else "locked"},
             {"day": 6, "reward": 200, "status": "unlocked" if wallet.days_played >= 5 else "locked"},
-        ]
+        ],
+        "vault": vault.balance,
+        "vaultReset": vault_reset.strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 
     return render(request, "Casino/Main", props=props(page_props))

@@ -61,7 +61,7 @@
     "title": "Casino",
     "entry": {
       "title": "Willkommen",
-      "warning": "Dieses Casino verwendet nur den TimeofJustice-Token (TJT). Glücksspiel kann dennoch süchtig machen. Bitte spiele verantwortungsvoll.",
+      "warning": "Dieses Online-Spiel ist ein reines Spaß-Casino und dient ausschließlich der Unterhaltung. Es werden **keine Echtgeld-Einsätze** getätigt und **keine echten Gewinne** ausgezahlt. Gespielt wird ausschließlich mit der **virtuellen Spielwährung „TimeofJustice Token (TJT)“**, die **keinen realen Geldwert besitzt**.\n\nBitte spiele verantwortungsbewusst – auch virtuelle Spiele können zur Gewohnheit werden. **Für Spieler unter 18 Jahren ist die Nutzung nicht empfohlen**.",
       "enter_with_new_wallet": "Mit einer neuen Wallet betreten",
       "enter_with_existing_wallet": "Mit einer bestehenden Wallet betreten"
     },
@@ -92,6 +92,8 @@
       "reward_redeemed": "Belohnung eingelöst: {reward}",
       "next_bonus_in": "Nächster Bonus in {time}",
       "next_bonus": "Lade die Seite neu, um deinen nächsten Bonus zu erhalten",
+      "vault": "Tresor",
+      "vault_reset_in": "Der Tresor wird in {time} zurückgesetzt",
       "errors": {
         "wallet_not_found": "Wallet nicht gefunden",
         "name_invalid": "Name ungültig",

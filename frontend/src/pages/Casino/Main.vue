@@ -8,7 +8,7 @@ import {
   faEdit,
   faEllipsis,
   faSignOut,
-  faTrophy, faUser,
+  faTrophy, faUser, faVault,
   faWallet
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
@@ -42,12 +42,14 @@ interface MainProps {
   newBonus: boolean;
   nextBonus: string;
   dailyBonus: DailyBonus[];
+  vault: number;
+  vaultReset: string;
 }
 
 const i18n = useI18n();
 const { show } = useToastController();
 
-const { wallet, leaderboard, ownPosition, newBonus, nextBonus } = defineProps<MainProps>();
+const { wallet, leaderboard, ownPosition, newBonus, nextBonus, vault, vaultReset } = defineProps<MainProps>();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -60,12 +62,14 @@ const gameComponents = new Map<string, object>([
 const balanceChange = ref(0);
 const updatedLeaderboard = ref<Player[]>(leaderboard);
 const updatedOwnPosition = ref(ownPosition);
+const updatedVault = ref(vault);
 
 const showCopyReminder = ref(true);
 const showSettings = ref(false);
 const showDailyBonus = ref(newBonus);
 const showGames = ref(true);
 const showLeaderboard = ref(false);
+const showCasinoAccount = ref(false);
 
 const waitingForResponse = ref(false);
 
@@ -81,26 +85,33 @@ const validateName = computed(() => {
 });
 
 const nextBonusDate = ref(new Date(nextBonus));
-const timer = ref("");
+const vaultResetDate = ref(new Date(vaultReset));
+const bonusTimer = ref("");
+const vaultTimer = ref("");
 
-const updateTimer = () => {
+const getTimer = (date: Date) => {
   const now = new Date();
-  const diff = nextBonusDate.value.getTime() - now.getTime();
+  const diff = date.getTime() - now.getTime();
 
   if (diff <= 0) {
-    timer.value = "00:00:00";
-    return;
+    return "00:00:00";
   }
 
   const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-  timer.value = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-updateTimer();
-const nextBonusCounter = setInterval(updateTimer, 1000);
+bonusTimer.value = getTimer(nextBonusDate.value);
+const nextBonusCounter = setInterval(() => {
+  bonusTimer.value = getTimer(nextBonusDate.value);
+}, 1000);
+vaultTimer.value = getTimer(vaultResetDate.value);
+const vaultCounter = setInterval(() => {
+  vaultTimer.value = getTimer(vaultResetDate.value);
+}, 1000);
 
 const showToast = (message: string, variant: "success" | "danger") => {
   show?.({
@@ -178,9 +189,21 @@ const leaderBoardFetch = setInterval(() => {
   });
 }, 10000)
 
+const vaultFetch = setInterval(() => {
+  if (document.hidden)
+    return;
+
+  axios.get("/casino/api/vault/").then(response => {
+    vaultResetDate.value = new Date(response.data.vaultReset);
+    updatedVault.value = response.data.vault;
+  });
+}, 10000)
+
 onBeforeUnmount(() => {
   clearInterval(leaderBoardFetch);
   clearInterval(nextBonusCounter);
+  clearInterval(vaultCounter);
+  clearInterval(vaultFetch);
 });
 </script>
 
@@ -293,14 +316,42 @@ onBeforeUnmount(() => {
             </Transition>
           </div>
 
-          <small class="text-blue-grey-500" v-if="timer !== '00:00:00' && timer !== ''">
-            {{ $t("casino.main.next_bonus_in", { "time": timer }) }}
+          <small class="text-blue-grey-500" v-if="bonusTimer !== '00:00:00' && bonusTimer !== ''">
+            {{ $t("casino.main.next_bonus_in", { "time": bonusTimer }) }}
           </small>
-          <small class="text-warning" v-else-if="timer !== ''">
+          <small class="text-warning" v-else-if="bonusTimer !== ''">
             {{ $t("casino.main.next_bonus") }}
           </small>
         </BCard>
       </div>
+
+      <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
+        <template #header>
+          <h4 class="m-0">
+            <font-awesome-icon :icon="faVault" />
+            {{ $t("casino.main.vault") }}
+          </h4>
+
+          <BButton variant="tertiary" class="btn-square stretched-link" @click="showCasinoAccount = !showCasinoAccount">
+            <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showCasinoAccount ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
+          </BButton>
+        </template>
+
+        <BCollapse v-model="showCasinoAccount">
+          <BCardBody class="d-flex flex-column gap-2">
+            <div class="d-flex gap-1 align-items-center justify-content-between">
+              <div class="d-flex gap-1 align-items-center" :class="updatedVault >= 0 ? 'text-success' : 'text-danger'">
+                <font-awesome-icon :icon="faCoins" />
+                <strong>{{ updatedVault }} TJTs</strong>
+              </div>
+            </div>
+
+            <small class="text-blue-grey-500" v-if="vaultTimer !== ''">
+              {{ $t("casino.main.vault_reset_in", { "time": vaultTimer }) }}
+            </small>
+          </BCardBody>
+        </BCollapse>
+      </BCard>
 
       <div class="d-flex flex-column gap-2 col-12 flex-shrink-1">
         <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
