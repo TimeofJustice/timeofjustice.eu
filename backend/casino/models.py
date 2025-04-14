@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class Wallet(models.Model):
     wallet_id = models.CharField(primary_key=True, max_length=32, editable=False)
@@ -13,6 +14,13 @@ class Wallet(models.Model):
         return self.wallet_id
 
     def json(self):
+        if self.last_visit is None:
+            self.last_visit = timezone.now().date()
+            self.save()
+        elif 2 <= (timezone.now().date() - self.last_visit).days:
+            self.days_played = 0
+            self.save()
+
         return {
             "walletId": self.wallet_id,
             "name": self.name,
@@ -22,6 +30,13 @@ class Wallet(models.Model):
         }
 
     def public_json(self):
+        if self.last_visit is None:
+            self.last_visit = timezone.now().date()
+            self.save()
+        elif 2 <= (timezone.now().date() - self.last_visit).days:
+            self.days_played = 0
+            self.save()
+
         return {
             "name": self.name,
             "balance": int(self.balance),
