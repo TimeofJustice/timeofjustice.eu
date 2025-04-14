@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
             <BButton variant="primary" class="btn-lg" @click.prevent="gameEnd" v-if="gameSession.state !== 'not_started'">
               {{ $t('casino.game.higher_lower.actions.play_again') }}
             </BButton>
-            <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet">
+            <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet || waitingForResponse || gameSession.state !== 'not_started'">
               {{ $t('casino.game.higher_lower.actions.start') }}
             </BButton>
           </div>
