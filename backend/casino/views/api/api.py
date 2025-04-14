@@ -88,6 +88,14 @@ def days_since_last_login(wallet):
     return (timezone.now().date() - wallet.last_visit).days
 
 
+def get_leaderboard(wallet):
+    leaderboard = models.Wallet.objects.order_by('-balance')
+    leaderboard = [wallet for wallet in leaderboard]
+    own_index = leaderboard.index(wallet)
+
+    return leaderboard, own_index
+
+
 @wallet_required
 def leaderboard(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
@@ -95,9 +103,7 @@ def leaderboard(request):
     if not wallet:
         return HttpResponseRedirect('/casino/login/')
 
-    leaderboard = models.Wallet.objects.order_by('-balance')
-    leaderboard = [wallet for wallet in leaderboard]
-    own_index = leaderboard.index(wallet)
+    leaderboard, own_index = get_leaderboard(wallet)
 
     return JsonResponse({
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],

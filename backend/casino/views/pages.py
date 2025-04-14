@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from core.helpers import BodyContent, props
 from core.models import get_or_none
-from .api.api import days_since_last_login, get_vault
+from .api.api import days_since_last_login, get_vault, get_leaderboard
 from .. import models
 from ..decorators import wallet_required
 
@@ -78,9 +78,7 @@ def main(request):
     if not wallet:
         return HttpResponseRedirect('/casino/login/')
 
-    leaderboard = models.Wallet.objects.order_by('-balance')
-    leaderboard = [wallet for wallet in leaderboard]
-    own_index = leaderboard.index(wallet)
+    leaderboard, own_index = get_leaderboard(wallet)
     new_bonus = days_since_last_login(wallet) >= 1
 
     last_visit = timezone.datetime.combine(wallet.last_visit, timezone.datetime.min.time()) if wallet.last_visit else timezone.now()
