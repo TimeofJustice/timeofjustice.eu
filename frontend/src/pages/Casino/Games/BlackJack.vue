@@ -306,7 +306,7 @@ onBeforeUnmount(() => {
             <BButton variant="primary" class="btn-lg" @click.prevent="end" v-if="gameSession.state !== 'not_started'">
               {{ $t("casino.game.black_jack.actions.play_again") }}
             </BButton>
-            <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet">
+            <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet || waitingForResponse || gameSession.state !== 'not_started'">
               {{ $t("casino.game.black_jack.actions.start") }}
             </BButton>
           </div>

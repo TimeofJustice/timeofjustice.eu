@@ -269,7 +269,9 @@ const dismissHint = () => {
 
   <div class="container-xxl text-white d-flex flex-column flex-lg-row gap-2 justify-content-center pb-3">
     <div class="col-12 col-lg-9">
-      <component :is="gameComponent" :balance="wallet.balance" @balanceChange="onBalanceChange" />
+      <KeepAlive>
+        <component :is="gameComponent" :balance="wallet.balance" @balanceChange="onBalanceChange" />
+      </KeepAlive>
     </div>
 
     <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2">

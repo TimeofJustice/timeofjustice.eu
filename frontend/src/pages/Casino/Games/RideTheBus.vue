@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
             <BButton variant="primary" class="btn-lg" @click.prevent="gameEnd" v-if="gameSession.state !== 'not_started'">
               {{ $t("casino.game.ride_the_bus.actions.play_again") }}
             </BButton>
-            <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet">
+            <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet || waitingForResponse || gameSession.state !== 'not_started'">
               {{ $t("casino.game.ride_the_bus.actions.start") }}
             </BButton>
           </div>
@@ -242,92 +242,116 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="row gx-2">
-          <div class="d-flex flex-column gap-2 col-3 transition-opacity"
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between"
                :class="gameSession.state !== 'first_round' && gameSession.state !== 'not_started' ? 'opacity-0' : ''">
-            <BProgress :max="msPerTurn">
-              <BProgressBar :value="gameSession.msLeft">
-                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-              </BProgressBar>
-            </BProgress>
-            <BButton variant="danger" @click.prevent="processTurn('red', 'second_round')" :disabled="gameSession.state !== 'first_round' || waitingForResponse">
-              <Icon icon="diamonds" />
-              <Icon icon="hearts" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.red") }}</span>
-              <Icon icon="hearts" class="ms-1 d-none d-md-inline-block" />
-              <Icon icon="diamonds" class="d-none d-md-inline-block" />
-            </BButton>
-            <BButton variant="primary" @click.prevent="processTurn('black', 'second_round')" :disabled="gameSession.state !== 'first_round' || waitingForResponse">
-              <Icon icon="spades" />
-              <Icon icon="clubs" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.black") }}</span>
-              <Icon icon="clubs" class="ms-1 d-none d-md-inline-block" />
-              <Icon icon="spades" class="d-none d-md-inline-block" />
-            </BButton>
+            <div class="d-flex flex-column gap-2">
+              <BProgress :max="msPerTurn">
+                <BProgressBar :value="gameSession.msLeft">
+                  <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+                </BProgressBar>
+              </BProgress>
+              <BButton variant="danger" @click.prevent="processTurn('red', 'second_round')" :disabled="gameSession.state !== 'first_round' || waitingForResponse">
+                <Icon icon="diamonds" />
+                <Icon icon="hearts" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.red") }}</span>
+                <Icon icon="hearts" class="ms-1 d-none d-md-inline-block" />
+                <Icon icon="diamonds" class="d-none d-md-inline-block" />
+              </BButton>
+              <BButton variant="primary" @click.prevent="processTurn('black', 'second_round')" :disabled="gameSession.state !== 'first_round' || waitingForResponse">
+                <Icon icon="spades" />
+                <Icon icon="clubs" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.black") }}</span>
+                <Icon icon="clubs" class="ms-1 d-none d-md-inline-block" />
+                <Icon icon="spades" class="d-none d-md-inline-block" />
+              </BButton>
+            </div>
+
+            <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              1:1
+            </div>
           </div>
 
-          <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'second_round' ? 'opacity-0' : ''">
-            <BProgress :max="msPerTurn">
-              <BProgressBar :value="gameSession.state === 'second_round' ? gameSession.msLeft : msPerTurn">
-                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-              </BProgressBar>
-            </BProgress>
-            <BButton variant="success" @click.prevent="processTurn('higher', 'third_round')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowUp" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.higher") }}</span>
-            </BButton>
-            <BButton variant="danger" @click.prevent="processTurn('lower', 'third_round')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowDown" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.lower") }}</span>
-            </BButton>
-            <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
-              {{ $t("casino.game.ride_the_bus.actions.quit") }}
-            </BButton>
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between" :class="gameSession.state !== 'second_round' ? 'opacity-0' : ''">
+            <div class="d-flex flex-column gap-2">
+              <BProgress :max="msPerTurn">
+                <BProgressBar :value="gameSession.state === 'second_round' ? gameSession.msLeft : msPerTurn">
+                  <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+                </BProgressBar>
+              </BProgress>
+              <BButton variant="success" @click.prevent="processTurn('higher', 'third_round')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
+                <font-awesome-icon :icon="faArrowUp" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.higher") }}</span>
+              </BButton>
+              <BButton variant="danger" @click.prevent="processTurn('lower', 'third_round')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
+                <font-awesome-icon :icon="faArrowDown" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.lower") }}</span>
+              </BButton>
+              <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'second_round' || waitingForResponse">
+                {{ $t("casino.game.ride_the_bus.actions.quit") }}
+              </BButton>
+            </div>
+
+            <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              1:2
+            </div>
           </div>
 
-          <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'third_round' ? 'opacity-0' : ''">
-            <BProgress :max="msPerTurn">
-              <BProgressBar :value="gameSession.state === 'third_round' ? gameSession.msLeft : msPerTurn">
-                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-              </BProgressBar>
-            </BProgress>
-            <BButton variant="primary" @click.prevent="processTurn('inside', 'fourth_round')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowRightToBracket" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.inside") }}</span>
-            </BButton>
-            <BButton variant="danger" @click.prevent="processTurn('outside', 'fourth_round')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
-              <font-awesome-icon :icon="faArrowRightFromBracket" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.outside") }}</span>
-            </BButton>
-            <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
-              {{ $t("casino.game.ride_the_bus.actions.quit") }}
-            </BButton>
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between" :class="gameSession.state !== 'third_round' ? 'opacity-0' : ''">
+            <div class="d-flex flex-column gap-2">
+              <BProgress :max="msPerTurn">
+                <BProgressBar :value="gameSession.state === 'third_round' ? gameSession.msLeft : msPerTurn">
+                  <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+                </BProgressBar>
+              </BProgress>
+              <BButton variant="primary" @click.prevent="processTurn('inside', 'fourth_round')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
+                <font-awesome-icon :icon="faArrowRightToBracket" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.inside") }}</span>
+              </BButton>
+              <BButton variant="danger" @click.prevent="processTurn('outside', 'fourth_round')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
+                <font-awesome-icon :icon="faArrowRightFromBracket" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.outside") }}</span>
+              </BButton>
+              <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'third_round' || waitingForResponse">
+                {{ $t("casino.game.ride_the_bus.actions.quit") }}
+              </BButton>
+            </div>
+
+            <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              1:3
+            </div>
           </div>
 
-          <div class="d-flex flex-column gap-2 col-3 transition-opacity" :class="gameSession.state !== 'fourth_round' ? 'opacity-0' : ''">
-            <BProgress :max="msPerTurn">
-              <BProgressBar :value="gameSession.state === 'fourth_round' ? gameSession.msLeft : msPerTurn">
-                <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-              </BProgressBar>
-            </BProgress>
-            <BButton variant="primary" @click.prevent="processTurn('clubs', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="clubs" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.clubs") }}</span>
-            </BButton>
-            <BButton variant="danger" @click.prevent="processTurn('diamonds', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="diamonds" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.diamonds") }}</span>
-            </BButton>
-            <BButton variant="primary" @click.prevent="processTurn('spades', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="spades" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.spades") }}</span>
-            </BButton>
-            <BButton variant="danger" @click.prevent="processTurn('hearts', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              <Icon icon="hearts" class="me-md-1" />
-              <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.hearts") }}</span>
-            </BButton>
-            <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
-              {{ $t("casino.game.ride_the_bus.actions.quit") }}
-            </BButton>
+          <div class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between" :class="gameSession.state !== 'fourth_round' ? 'opacity-0' : ''">
+            <div class="d-flex flex-column gap-2">
+              <BProgress :max="msPerTurn">
+                <BProgressBar :value="gameSession.state === 'fourth_round' ? gameSession.msLeft : msPerTurn">
+                  <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
+                </BProgressBar>
+              </BProgress>
+              <BButton variant="primary" @click.prevent="processTurn('clubs', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
+                <Icon icon="clubs" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.clubs") }}</span>
+              </BButton>
+              <BButton variant="danger" @click.prevent="processTurn('diamonds', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
+                <Icon icon="diamonds" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.diamonds") }}</span>
+              </BButton>
+              <BButton variant="primary" @click.prevent="processTurn('spades', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
+                <Icon icon="spades" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.spades") }}</span>
+              </BButton>
+              <BButton variant="danger" @click.prevent="processTurn('hearts', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
+                <Icon icon="hearts" class="me-md-1" />
+                <span class="d-none d-md-inline-block">{{ $t("casino.game.ride_the_bus.actions.hearts") }}</span>
+              </BButton>
+              <BButton variant="secondary" @click.prevent="processTurn('leave', 'won')" :disabled="gameSession.state !== 'fourth_round' || waitingForResponse">
+                {{ $t("casino.game.ride_the_bus.actions.quit") }}
+              </BButton>
+            </div>
+
+            <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              1:7
+            </div>
           </div>
         </div>
       </div>

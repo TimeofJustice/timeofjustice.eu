@@ -138,25 +138,25 @@ def outside(request):
 @wallet_required
 @require_http_methods(["POST"])
 def hearts(request):
-    return process_turn(request, round_index=3, multiplier=20, suit="hearts")
+    return process_turn(request, round_index=3, multiplier=8, suit="hearts")
 
 
 @wallet_required
 @require_http_methods(["POST"])
 def diamonds(request):
-    return process_turn(request, round_index=3, multiplier=20, suit="diamonds")
+    return process_turn(request, round_index=3, multiplier=8, suit="diamonds")
 
 
 @wallet_required
 @require_http_methods(["POST"])
 def clubs(request):
-    return process_turn(request, round_index=3, multiplier=20, suit="clubs")
+    return process_turn(request, round_index=3, multiplier=8, suit="clubs")
 
 
 @wallet_required
 @require_http_methods(["POST"])
 def spades(request):
-    return process_turn(request, round_index=3, multiplier=20, suit="spades")
+    return process_turn(request, round_index=3, multiplier=8, suit="spades")
 
 
 @wallet_required
