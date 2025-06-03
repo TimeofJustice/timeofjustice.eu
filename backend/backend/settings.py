@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     'django_otp.plugins.otp_static',
     'core',
     'farming_stats',
-    'casino',
+    'games',
 ]
 
 MIDDLEWARE = [

@@ -1,8 +1,8 @@
 from django.http.response import JsonResponse, HttpResponseRedirect
 from django.views.decorators.http import require_http_methods
 
-from casino import models
-from casino.decorators import wallet_required
+from games import models
+from games.decorators import wallet_required
 from core.helpers import BodyContent
 from core.models import get_or_none
 from django.utils import timezone
@@ -14,7 +14,7 @@ def update(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return JsonResponse({"error": "casino.main.errors.wallet_not_found"}, status=404)
+        return JsonResponse({"error": "games.main.errors.wallet_not_found"}, status=404)
 
     post_data = BodyContent(request)
 
@@ -25,9 +25,9 @@ def update(request):
             wallet.name = name
             wallet.save()
         else:
-            return JsonResponse({"error": "casino.main.errors.name_invalid"}, status=400)
+            return JsonResponse({"error": "games.main.errors.name_invalid"}, status=400)
     else:
-        return JsonResponse({"error": "casino.main.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.main.errors.invalid_request"}, status=400)
 
     return JsonResponse({"name": wallet.name})
 
@@ -38,7 +38,7 @@ def dismiss(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/casino/login/')
+        return HttpResponseRedirect('/games/login/')
 
     wallet.hint_dismissed = True
     wallet.save()
@@ -52,7 +52,7 @@ def redeem(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/casino/login/')
+        return HttpResponseRedirect('/games/login/')
 
     if days_since_last_login(wallet) >= 1:
         wallet.days_played += 1
@@ -74,7 +74,7 @@ def redeem(request):
 
         return JsonResponse({"reward": reward, "nextBonus": next_bonus.strftime("%Y-%m-%dT%H:%M:%SZ")})
 
-    return JsonResponse({"error": "casino.main.errors.already_claimed"}, status=400)
+    return JsonResponse({"error": "games.main.errors.already_claimed"}, status=400)
 
 
 def days_since_last_login(wallet):
@@ -101,7 +101,7 @@ def leaderboard(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/casino/login/')
+        return HttpResponseRedirect('/games/login/')
 
     leaderboard, own_index = get_leaderboard(wallet)
 

@@ -24,8 +24,8 @@ def profile_images(request, name):
     return FileResponse(open(f"{settings.FILE_DESTINATION}images/profile/{name}", 'rb'))
 
 
-def casino_cards(request, name):
-    return FileResponse(open(f"{settings.FILE_DESTINATION}images/casino/cards/{name}", 'rb'))
+def games_cards(request, name):
+    return FileResponse(open(f"{settings.FILE_DESTINATION}images/games/cards/{name}", 'rb'))
 
 
 def robot(request):

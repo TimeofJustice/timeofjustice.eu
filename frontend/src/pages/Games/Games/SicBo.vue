@@ -7,7 +7,7 @@ import { computed } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
 import { useI18n } from "@node_modules/vue-i18n";
 import axios from "@node_modules/axios";
-import Dice from "@pages/Casino/components/Dice.vue";
+import Dice from "@pages/Games/components/Dice.vue";
 
 interface HigherLowerProps {
   balance: number;
@@ -123,7 +123,7 @@ type turnType = totalType | doubleType | tripleType | pairType | faceType;
 const start = async () => {
   waitingForResponse.value = true;
 
-  axios.post(`/casino/api/sic-bo/start/`, {
+  axios.post(`/games/api/sic-bo/start/`, {
     bets: gameSession.value.bets
   })
     .then(response => {
@@ -229,7 +229,7 @@ const removeBet = () => {
     <template #header>
       <h4 class="m-0">
         <font-awesome-icon :icon="faDice" />
-        {{ $t("casino.game.sic_bo.title") }}
+        {{ $t("games.game.sic_bo.title") }}
       </h4>
 
       <BButton variant="tertiary" class="btn-square opacity-0">
@@ -244,10 +244,10 @@ const removeBet = () => {
 
       <BModal data-bs-theme="dark" v-model="areRulesOpen" header-class="justify-content-between align-items-center"
               :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="xl" centered>
-        <vue-markdown :source="$t('casino.game.sic_bo.rules')" />
+        <vue-markdown :source="$t('games.game.sic_bo.rules')" />
 
         <template #header>
-          <h2 class="m-0">{{ $t("casino.game.sic_bo.title") }}</h2>
+          <h2 class="m-0">{{ $t("games.game.sic_bo.title") }}</h2>
 
           <BButton variant="tertiary" class="btn-square text-light" @click="areRulesOpen = false">
             <font-awesome-icon :icon="faClose" />
@@ -260,7 +260,7 @@ const removeBet = () => {
              v-if="gameSession.state !== 'betting' && gameSession.state !== 'playing'">
           <div class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
             <h1 class="text-white text-center" v-if="gameSession.state !== 'settingBet'">
-              {{ gameSession.bet - gameSession.initialBet >= 0 ? $t("casino.game.sic_bo.outcomes.won") : $t("casino.game.sic_bo.outcomes.lost") }}
+              {{ gameSession.bet - gameSession.initialBet >= 0 ? $t("games.game.sic_bo.outcomes.won") : $t("games.game.sic_bo.outcomes.lost") }}
             </h1>
 
             <h5 class="rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0"
@@ -270,26 +270,26 @@ const removeBet = () => {
 
             <BFormGroup id="input-group-2" label-for="input-2" v-else>
               <span class="text-white text-center">
-                {{ $t("casino.game.sic_bo.bet") }}: {{ currentBet }}
+                {{ $t("games.game.sic_bo.bet") }}: {{ currentBet }}
               </span>
               <BInput id="input-2" type="range" v-model="currentBet" min="10" :max="balance - getTotalBet() < 500 ? balance - getTotalBet() : 500"
                       :state="validateBet && validateTotalBet" />
               <BFormInvalidFeedback :state="validateBet || validateTotalBet">
                 <span v-if="!validateTotalBet">
-                  {{ $t("casino.game.sic_bo.bet_too_high") }}
+                  {{ $t("games.game.sic_bo.bet_too_high") }}
                 </span>
                 <span v-else>
-                  {{ $t("casino.not_enough_tokens") }}
+                  {{ $t("games.not_enough_tokens") }}
                 </span>
               </BFormInvalidFeedback>
             </BFormGroup>
 
             <BButton variant="primary" class="btn-lg" @click.prevent="gameEnd" v-if="gameSession.state !== 'settingBet'">
-              {{ $t("casino.game.sic_bo.actions.play_again") }}
+              {{ $t("games.game.sic_bo.actions.play_again") }}
             </BButton>
             <div v-else class="d-flex gap-2 w-100">
               <BButton variant="primary" class="btn-lg w-100 text-truncate" @click.prevent="setBet" :disabled="!validateBet || !validateTotalBet">
-                {{ $t("casino.game.sic_bo.bet") }}
+                {{ $t("games.game.sic_bo.bet") }}
               </BButton>
               <BButton variant="danger" class="btn-lg" @click.prevent="removeBet">
                 <font-awesome-icon :icon="faX" />
@@ -317,7 +317,7 @@ const removeBet = () => {
                 </div>
                 <h3>Small</h3>
                 <div>4 - 10</div>
-                <div>{{ $t("casino.game.sic_bo.loss_3") }}</div>
+                <div>{{ $t("games.game.sic_bo.loss_3") }}</div>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
                 1:1
@@ -541,7 +541,7 @@ const removeBet = () => {
                 </div>
                 <h3>Big</h3>
                 <div>11 - 17</div>
-                <div>{{ $t("casino.game.sic_bo.loss_3") }}</div>
+                <div>{{ $t("games.game.sic_bo.loss_3") }}</div>
               </BButton>
               <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
                 1:1
@@ -934,20 +934,20 @@ const removeBet = () => {
             </div>
             <div class="d-flex flex-grow-1 rounded-3 overflow-hidden">
               <div class="bg-grey-100 p-1 text-center w-100">
-                1:1 {{ $t("casino.game.sic_bo.on_one_die") }}
+                1:1 {{ $t("games.game.sic_bo.on_one_die") }}
               </div>
               <div class="bg-grey-100 p-1 text-center w-100">
-                1:2 {{ $t("casino.game.sic_bo.on_two_dice") }}
+                1:2 {{ $t("games.game.sic_bo.on_two_dice") }}
               </div>
               <div class="bg-grey-100 p-1 text-center w-100">
-                1:3 {{ $t("casino.game.sic_bo.on_three_dice") }}
+                1:3 {{ $t("games.game.sic_bo.on_three_dice") }}
               </div>
             </div>
           </div>
 
           <BButton variant="primary" class="btn-lg" @click.prevent="start"
                    :disabled="gameSession.state !== 'betting' || waitingForResponse || Object.keys(gameSession.bets).length === 0 || !validateTotalBet">
-            {{ $t("casino.game.sic_bo.actions.start") }}
+            {{ $t("games.game.sic_bo.actions.start") }}
           </BButton>
         </div>
       </div>

@@ -17,7 +17,7 @@ def index(request):
     wallet = request.session.get('wallet_id', None)
 
     if not wallet:
-        return render(request, "Casino/Entry", props=props({}))
+        return render(request, "Games/Entry", props=props({}))
 
     return main(request)
 
@@ -32,19 +32,19 @@ def login(request):
 
             if wallet:
                 request.session['wallet_id'] = wallet.wallet_id
-                return HttpResponseRedirect('/casino/')
+                return HttpResponseRedirect('/games/')
             else:
-                error_text = "casino.login.error.invalid_wallet"
+                error_text = "games.login.error.invalid_wallet"
         else:
-            error_text = "casino.login.error.invalid_request"
+            error_text = "games.login.error.invalid_request"
     else:
-        error_text = "casino.login.error.invalid_request"
+        error_text = "games.login.error.invalid_request"
 
     page_props = {
         "error": error_text,
     }
 
-    return render(request, "Casino/Login", props=props(page_props))
+    return render(request, "Games/Login", props=props(page_props))
 
 
 def register(request):
@@ -59,11 +59,11 @@ def register(request):
 
     request.session['wallet_id'] = wallet.wallet_id
 
-    return HttpResponseRedirect('/casino/')
+    return HttpResponseRedirect('/games/')
 
 
 def logout(request):
-    response = HttpResponseRedirect('/casino/login/')
+    response = HttpResponseRedirect('/games/login/')
 
     if 'wallet_id' in request.session:
         del request.session['wallet_id']
@@ -76,7 +76,7 @@ def main(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/casino/login/')
+        return HttpResponseRedirect('/games/login/')
 
     leaderboard, own_index = get_leaderboard(wallet)
     new_bonus = days_since_last_login(wallet) >= 1
@@ -105,4 +105,4 @@ def main(request):
         "hintDismissed": wallet.hint_dismissed,
     }
 
-    return render(request, "Casino/Main", props=props(page_props))
+    return render(request, "Games/Main", props=props(page_props))

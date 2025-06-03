@@ -29,9 +29,9 @@ import LocaleDropdown from "@components/LocaleDropdown.vue";
             <FontAwesomeIcon :icon="faHome"/>
             <span class="ms-1">{{ $t('nav.projects') }}</span>
           </BLink>
-          <BLink class="nav-item nav-link p-0" to="/casino/" :class="{ 'active': $page.component === 'Casino/Main' }">
+          <BLink class="nav-item nav-link p-0" to="/games/" :class="{ 'active': $page.component === 'Games/Main' }">
             <FontAwesomeIcon :icon="faDice"/>
-            <span class="ms-1">{{ $t('nav.casino') }}</span>
+            <span class="ms-1">{{ $t('nav.games') }}</span>
           </BLink>
           <BLink class="nav-item nav-link p-0" to="https://legacy.timeofjustice.eu/place" external>
             <FontAwesomeIcon :icon="faPaintBrush"/>

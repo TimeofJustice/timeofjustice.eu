@@ -72,7 +72,7 @@ const showToast = (message: string, variant: "success" | "danger") => {
 const start = async () => {
   waitingForResponse.value = true;
 
-  axios.post(`/casino/api/higher-lower/start/`, {
+  axios.post(`/games/api/higher-lower/start/`, {
     bet: Number(gameSession.value["bet"])
   })
     .then(response => {
@@ -103,7 +103,7 @@ type turnType = 'higher' | 'draw' | 'lower' | 'leave';
 const processTurn = (type: turnType, gameState: GameState) => {
   waitingForResponse.value = true;
 
-  axios.post(`/casino/api/higher-lower/${type}/`, {
+  axios.post(`/games/api/higher-lower/${type}/`, {
     session: gameSession.value["sessionId"]
   })
     .then(response => {
@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
     <template #header>
       <h4 class="m-0">
         <font-awesome-icon :icon="faDice"/>
-        {{ $t("casino.game.higher_lower.title") }}
+        {{ $t("games.game.higher_lower.title") }}
       </h4>
 
       <BButton variant="tertiary" class="btn-square opacity-0">
@@ -188,10 +188,10 @@ onBeforeUnmount(() => {
 
       <BModal data-bs-theme="dark" v-model="areRulesOpen" header-class="justify-content-between align-items-center"
               :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="xl" centered>
-        <vue-markdown :source="$t('casino.game.higher_lower.rules')" />
+        <vue-markdown :source="$t('games.game.higher_lower.rules')" />
 
         <template #header>
-          <h2 class="m-0">{{ $t('casino.game.higher_lower.title') }}</h2>
+          <h2 class="m-0">{{ $t('games.game.higher_lower.title') }}</h2>
 
           <BButton variant="tertiary" class="btn-square text-light" @click="areRulesOpen = false">
             <font-awesome-icon :icon="faClose" />
@@ -203,16 +203,16 @@ onBeforeUnmount(() => {
         <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2" v-if="gameSession.state !== 'first_round' && gameSession.state !== 'still_playing'">
           <div class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
             <h1 class="text-white text-center" v-if="gameSession.state !== 'not_started'">
-              {{ gameSession.state === 'lost' ? $t('casino.game.higher_lower.outcomes.lost') : $t('casino.game.higher_lower.outcomes.won') }}
+              {{ gameSession.state === 'lost' ? $t('games.game.higher_lower.outcomes.lost') : $t('games.game.higher_lower.outcomes.won') }}
             </h1>
 
             <BFormGroup id="input-group-2" label-for="input-2" v-else>
               <span class="text-white text-center">
-                {{ $t('casino.game.higher_lower.bet') }}: {{ gameSession.bet }}
+                {{ $t('games.game.higher_lower.bet') }}: {{ gameSession.bet }}
               </span>
               <BInput id="input-2" type="range" v-model="gameSession.bet" min="10" :max="balance < 100 ? balance : 100" :state="validateBet" />
               <BFormInvalidFeedback :state="validateBet">
-                {{ $t('casino.not_enough_tokens') }}
+                {{ $t('games.not_enough_tokens') }}
               </BFormInvalidFeedback>
             </BFormGroup>
 
@@ -222,10 +222,10 @@ onBeforeUnmount(() => {
             </h5>
 
             <BButton variant="primary" class="btn-lg" @click.prevent="gameEnd" v-if="gameSession.state !== 'not_started'">
-              {{ $t('casino.game.higher_lower.actions.play_again') }}
+              {{ $t('games.game.higher_lower.actions.play_again') }}
             </BButton>
             <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet || waitingForResponse || gameSession.state !== 'not_started'">
-              {{ $t('casino.game.higher_lower.actions.start') }}
+              {{ $t('games.game.higher_lower.actions.start') }}
             </BButton>
           </div>
         </div>
@@ -234,7 +234,7 @@ onBeforeUnmount(() => {
       <div class="d-flex flex-column gap-2">
         <div class="d-flex justify-content-center align-items-center gap-2">
           <div class="d-flex flex-column">
-            <img :src="'/files/images/casino/cards/' + gameSession.card + '.svg'" :alt="gameSession.card" class="img-fluid" @load="cardLoaded" />
+            <img :src="'/files/images/games/cards/' + gameSession.card + '.svg'" :alt="gameSession.card" class="img-fluid" @load="cardLoaded" />
           </div>
           <div class="d-flex flex-column gap-2 col-3">
             <BButton variant="success" @click.prevent="processTurn('higher', 'still_playing')" :disabled="(gameSession.state !== 'first_round' && gameSession.state !== 'still_playing') || waitingForResponse">
@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
               <font-awesome-icon :icon="faArrowDown"/>
             </BButton>
             <BButton variant="primary" @click.prevent="processTurn('leave', 'won')" :disabled="(gameSession.state !== 'still_playing') || waitingForResponse">
-              {{ $t('casino.game.higher_lower.actions.quit') }}
+              {{ $t('games.game.higher_lower.actions.quit') }}
             </BButton>
           </div>
         </div>

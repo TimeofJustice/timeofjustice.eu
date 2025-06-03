@@ -15,9 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.template.defaulttags import url
 from django.urls import path, include
 from django_otp.admin import OTPAdminSite
 from django.conf import settings
+from django.shortcuts import redirect
 
 if not settings.DEBUG:
     admin.site.__class__ = OTPAdminSite
@@ -28,7 +30,8 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("", include("core.urls")),
     path("farming-stats/", include("farming_stats.urls")),
-    path("casino/", include("casino.urls")),
+    path("games/", include("games.urls")),
+    path("casino/", lambda request: redirect("/games/", permanent=False)),
 ]
 
 handler404 = "core.views.errors.page_not_found"

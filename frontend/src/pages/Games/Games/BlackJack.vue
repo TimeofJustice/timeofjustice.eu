@@ -89,7 +89,7 @@ const showToast = (message: string, variant: "success" | "danger") => {
 const start = async () => {
   waitingForResponse.value = true;
 
-  axios.post(`/casino/api/black-jack/start/`, {
+  axios.post(`/games/api/black-jack/start/`, {
     bet: Number(gameSession.value["bet"])
   })
     .then(response => {
@@ -144,7 +144,7 @@ type turnType = 'hit' | 'stand';
 const processTurn = (type: turnType) => {
   waitingForResponse.value = true;
 
-  axios.post(`/casino/api/black-jack/${type}/`, {
+  axios.post(`/games/api/black-jack/${type}/`, {
     session: gameSession.value["sessionId"]
   })
     .then(response => {
@@ -254,7 +254,7 @@ onBeforeUnmount(() => {
     <template #header>
       <h4 class="m-0">
         <font-awesome-icon :icon="faDice" />
-        {{ $t("casino.game.black_jack.title") }}
+        {{ $t("games.game.black_jack.title") }}
       </h4>
 
       <BButton variant="tertiary" class="btn-square opacity-0">
@@ -269,10 +269,10 @@ onBeforeUnmount(() => {
 
       <BModal data-bs-theme="dark" v-model="areRulesOpen" header-class="justify-content-between align-items-center"
               :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="xl" centered>
-        <vue-markdown :source="$t('casino.game.black_jack.rules')" />
+        <vue-markdown :source="$t('games.game.black_jack.rules')" />
 
         <template #header>
-          <h2 class="m-0">{{ $t("casino.game.black_jack.title") }}</h2>
+          <h2 class="m-0">{{ $t("games.game.black_jack.title") }}</h2>
 
           <BButton variant="tertiary" class="btn-square text-light" @click="areRulesOpen = false">
             <font-awesome-icon :icon="faClose" />
@@ -285,16 +285,16 @@ onBeforeUnmount(() => {
              v-if="gameSession.state !== 'playing'">
           <div class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2">
             <h1 class="text-white text-center" v-if="gameSession.state !== 'not_started'">
-              {{ gameSession.state === "lost" ? $t("casino.game.black_jack.outcomes.lost") : gameSession.state === "push" ? $t("casino.game.black_jack.outcomes.push") : $t("casino.game.black_jack.outcomes.won") }}
+              {{ gameSession.state === "lost" ? $t("games.game.black_jack.outcomes.lost") : gameSession.state === "push" ? $t("games.game.black_jack.outcomes.push") : $t("games.game.black_jack.outcomes.won") }}
             </h1>
 
             <BFormGroup id="input-group-2" label-for="input-2" v-else>
             <span class="text-white text-center">
-              {{ $t("casino.game.black_jack.bet") }}: {{ gameSession.bet }}
+              {{ $t("games.game.black_jack.bet") }}: {{ gameSession.bet }}
             </span>
               <BInput id="input-2" type="range" v-model="gameSession.bet" min="10" :max="balance < 1000 ? balance : 1000" :state="validateBet" />
               <BFormInvalidFeedback :state="validateBet">
-                {{ $t("casino.not_enough_tokens") }}
+                {{ $t("games.not_enough_tokens") }}
               </BFormInvalidFeedback>
             </BFormGroup>
 
@@ -304,10 +304,10 @@ onBeforeUnmount(() => {
             </h5>
 
             <BButton variant="primary" class="btn-lg" @click.prevent="end" v-if="gameSession.state !== 'not_started'">
-              {{ $t("casino.game.black_jack.actions.play_again") }}
+              {{ $t("games.game.black_jack.actions.play_again") }}
             </BButton>
             <BButton variant="primary" class="btn-lg" @click.prevent="start" v-else :disabled="!validateBet || waitingForResponse || gameSession.state !== 'not_started'">
-              {{ $t("casino.game.black_jack.actions.start") }}
+              {{ $t("games.game.black_jack.actions.start") }}
             </BButton>
           </div>
         </div>
@@ -324,19 +324,19 @@ onBeforeUnmount(() => {
           <div class="d-flex flex-column gap-2 col-8 col-md-9">
             <div class="d-flex overflow-hidden justify-content-center">
               <div class="overflow-hidden col-1" v-if="shownDealerCards.length < 2">
-                <img :src="'/files/images/casino/cards/back.svg'" alt="back" class="playing-card" />
+                <img :src="'/files/images/games/cards/back.svg'" alt="back" class="playing-card" />
               </div>
               <div v-for="(card, index) in shownDealerCards" :key="index" class="overflow-hidden position-relative" :class="{ 'col-1' : index < shownDealerCards.length - 1 }">
-                <v-lazy-image class="playing-card" :src="'/files/images/casino/cards/' + card + '.svg'" src-placeholder="/files/images/casino/cards/back.svg" @load="cardLoaded(card)" />
+                <v-lazy-image class="playing-card" :src="'/files/images/games/cards/' + card + '.svg'" src-placeholder="/files/images/games/cards/back.svg" @load="cardLoaded(card)" />
               </div>
             </div>
 
             <div class="d-flex overflow-hidden justify-content-center col-12">
               <div class="overflow-hidden col-1" v-if="shownCards.length < 2">
-                <img :src="'/files/images/casino/cards/back.svg'" alt="back" class="playing-card" />
+                <img :src="'/files/images/games/cards/back.svg'" alt="back" class="playing-card" />
               </div>
               <div v-for="(card, index) in shownCards" :key="index" class="overflow-hidden" :class="{ 'col-1' : index < shownCards.length - 1 }">
-                <v-lazy-image class="playing-card" :src="'/files/images/casino/cards/' + card + '.svg'" src-placeholder="/files/images/casino/cards/back.svg" @load="cardLoaded(card)" />
+                <v-lazy-image class="playing-card" :src="'/files/images/games/cards/' + card + '.svg'" src-placeholder="/files/images/games/cards/back.svg" @load="cardLoaded(card)" />
               </div>
             </div>
           </div>
@@ -350,12 +350,12 @@ onBeforeUnmount(() => {
             <BButton variant="success" @click.prevent="processTurn('hit')"
                      :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <font-awesome-icon :icon="faPlus" />
-              {{ $t("casino.game.black_jack.actions.hit") }}
+              {{ $t("games.game.black_jack.actions.hit") }}
             </BButton>
             <BButton variant="danger" @click.prevent="processTurn('stand')"
                      :disabled="gameSession.state !== 'playing' || waitingForResponse">
               <font-awesome-icon :icon="faHand" />
-              {{ $t("casino.game.black_jack.actions.stand") }}
+              {{ $t("games.game.black_jack.actions.stand") }}
             </BButton>
           </div>
         </div>

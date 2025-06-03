@@ -10,7 +10,7 @@
     "projects": "Projects",
     "place": "r/Place",
     "farming_stats": "Farming Stats",
-    "casino": "Casino",
+    "games": "Games",
     "stable_hint": "You are using the staging version. This version is not intended for production use and may contain bugs or incomplete features. Please use the production version at [timeofjustice.eu](https://timeofjustice.eu) for a stable experience."
   },
   "index": {
@@ -57,11 +57,11 @@
       "commodities": "Commodities"
     }
   },
-  "casino": {
-    "title": "Casino",
+  "games": {
+    "title": "Games",
     "entry": {
       "title": "Welcome",
-      "warning": "This is a fun-based online casino designed purely for entertainment purposes. No real money is involved, and no real-world prizes or payouts are offered. **The game uses a virtual currency called “TimeofJustice Token (TJT)”**, which **has no real-world monetary value**.\n\nPlease play responsibly – even virtual games can become a habit. **This game is not recommended for players under the age of 18**.",
+      "warning": "These are a fun-based online games designed purely for entertainment purposes. No real money is involved, and no real-world prizes or payouts are offered. **The game uses a virtual currency called “TimeofJustice Token (TJT)”**, which **has no real-world monetary value**.\n\nPlease play responsibly – even virtual games can become a habit. **This game is not recommended for players under the age of 18**.",
       "enter_with_new_wallet": "Enter with a new wallet",
       "enter_with_existing_wallet": "Enter with an existing wallet"
     },
