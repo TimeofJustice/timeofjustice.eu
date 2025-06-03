@@ -8,5 +8,5 @@ urlpatterns = [
     path("register/", pages.register, name="register"),
     path("logout/", pages.logout, name="logout"),
 
-    path("api/", include("casino.views.api.urls")),
+    path("api/", include("games.views.api.urls")),
 ]

@@ -44,15 +44,15 @@ def start(request):
     post_data = BodyContent(request)
 
     if not wallet:
-        return JsonResponse({"error": "casino.game.ride_the_bus.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.ride_the_bus.errors.session_expired"}, status=400)
 
     if not post_data or not post_data.get('bet'):
-        return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.ride_the_bus.errors.invalid_request"}, status=400)
 
     bet = post_data.get('bet')
 
     if bet <= 0 or bet > wallet.balance or 500 < bet:
-        return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_bet"}, status=400)
+        return JsonResponse({"error": "games.game.ride_the_bus.errors.invalid_bet"}, status=400)
 
     update_wallet(wallet, -bet)
 
@@ -68,17 +68,17 @@ def process_turn(request, round_index, multiplier=1, higher_lower_function=None,
     post_data = BodyContent(request)
 
     if not post_data or not post_data.get('session'):
-        return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.ride_the_bus.errors.invalid_request"}, status=400)
 
     session_id = post_data.get('session')
 
     if not session or session['session_id'] != session_id or session['round'] != round_index:
-        return JsonResponse({"error": "casino.game.ride_the_bus.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.ride_the_bus.errors.session_expired"}, status=400)
 
     deck = CardDeck(session['deck'])
     card = deck.draw()
     if card is None:
-        return None, JsonResponse({"error": "casino.game.higher_lower.errors.deck_empty"}, status=400)
+        return None, JsonResponse({"error": "games.game.higher_lower.errors.deck_empty"}, status=400)
 
     if suit:
         bet = session['initial_bet'] * multiplier if card['suit'] == suit else 0
@@ -166,15 +166,15 @@ def leave(request):
     post_data = BodyContent(request)
 
     if not post_data or not post_data.get('session'):
-        return JsonResponse({"error": "casino.game.ride_the_bus.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.ride_the_bus.errors.invalid_request"}, status=400)
 
     session_id = post_data.get('session')
 
     if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "casino.game.higher_lower.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.higher_lower.errors.session_expired"}, status=400)
 
     if session['bet'] == session['initial_bet']:
-        return JsonResponse({"error": "casino.game.higher_lower.errors.invalid_round"}, status=400)
+        return JsonResponse({"error": "games.game.higher_lower.errors.invalid_round"}, status=400)
 
     deck = CardDeck(session['deck'])
     card = deck.draw()
@@ -194,7 +194,7 @@ def end(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not session:
-        return JsonResponse({"error": "casino.game.ride_the_bus.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.ride_the_bus.errors.session_expired"}, status=400)
 
     if session['bet'] > 0:
         update_wallet(wallet, session['bet'])

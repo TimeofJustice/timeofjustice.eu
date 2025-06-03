@@ -14,14 +14,14 @@ import {
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
 import { reactive, ref, shallowRef } from "vue";
-import HigherOrLower from "@pages/Casino/Games/HigherOrLower.vue";
-import RideTheBus from "@pages/Casino/Games/RideTheBus.vue";
+import HigherOrLower from "@pages/Games/Games/HigherOrLower.vue";
+import RideTheBus from "@pages/Games/Games/RideTheBus.vue";
 import { computed, onBeforeUnmount } from "@node_modules/vue";
 import axios from "axios";
-import LeaderboardPosition from "@pages/Casino/components/LeaderboardPosition.vue";
-import DailyReward from "@pages/Casino/components/DailyReward.vue";
-import BlackJack from "@pages/Casino/Games/BlackJack.vue";
-import SicBo from "@pages/Casino/Games/SicBo.vue";
+import LeaderboardPosition from "@pages/Games/components/LeaderboardPosition.vue";
+import DailyReward from "@pages/Games/components/DailyReward.vue";
+import BlackJack from "@pages/Games/Games/BlackJack.vue";
+import SicBo from "@pages/Games/Games/SicBo.vue";
 
 interface Player {
   name: string;
@@ -70,7 +70,7 @@ const showSettings = ref(false);
 const showDailyBonus = ref(newBonus);
 const showGames = ref(true);
 const showLeaderboard = ref(false);
-const showCasinoAccount = ref(false);
+const showGamesAccount = ref(false);
 
 const waitingForResponse = ref(false);
 
@@ -129,10 +129,10 @@ const saveSettings = async () => {
   if (validateName.value) {
     waitingForResponse.value = true;
 
-    axios.post("/casino/api/user/update/", {
+    axios.post("/games/api/user/update/", {
       name: settingsForm.name
     }).then(response => {
-      showToast(i18n.t("casino.main.settings_success"), "success");
+      showToast(i18n.t("games.main.settings_success"), "success");
 
       wallet.name = response.data.name;
       waitingForResponse.value = false;
@@ -147,8 +147,8 @@ const saveSettings = async () => {
 const redeemDailyBonus = () => {
   waitingForResponse.value = true;
 
-  axios.post("/casino/api/user/redeem/").then(response => {
-    showToast(i18n.t("casino.main.reward_redeemed", { "reward": response.data.reward }), "success");
+  axios.post("/games/api/user/redeem/").then(response => {
+    showToast(i18n.t("games.main.reward_redeemed", { "reward": response.data.reward }), "success");
 
     showDailyBonus.value = false;
     nextBonusDate.value = new Date(response.data.nextBonus);
@@ -164,10 +164,10 @@ const redeemDailyBonus = () => {
 const copyToClipboard = () => {
   navigator.clipboard.writeText(wallet.walletId)
     .then(() => {
-      showToast(i18n.t("casino.main.copy_wallet"), "success");
+      showToast(i18n.t("games.main.copy_wallet"), "success");
     })
     .catch(_ => {
-      showToast(i18n.t("casino.main.copy_wallet_error"), "danger");
+      showToast(i18n.t("games.main.copy_wallet_error"), "danger");
     });
 };
 
@@ -184,7 +184,7 @@ const leaderBoardFetch = setInterval(() => {
   if (document.hidden)
     return;
 
-  axios.get("/casino/api/leaderboard/").then(response => {
+  axios.get("/games/api/leaderboard/").then(response => {
     updatedLeaderboard.value = response.data.leaderboard;
     updatedOwnPosition.value = response.data.ownPosition;
   });
@@ -194,7 +194,7 @@ const vaultFetch = setInterval(() => {
   if (document.hidden)
     return;
 
-  axios.get("/casino/api/vault/").then(response => {
+  axios.get("/games/api/vault/").then(response => {
     vaultResetDate.value = new Date(response.data.vaultReset);
     updatedVault.value = response.data.vault;
   });
@@ -210,7 +210,7 @@ onBeforeUnmount(() => {
 const dismissHint = () => {
   showCopyReminder.value = false;
 
-  axios.post("/casino/api/hint/dismiss/")
+  axios.post("/games/api/hint/dismiss/")
     .catch(error => {
       console.error("Failed to dismiss hint:", error);
     });
@@ -218,13 +218,13 @@ const dismissHint = () => {
 </script>
 
 <template>
-  <Head :title="$t('casino.title')" />
+  <Head :title="$t('games.title')" />
 
   <BModal data-bs-theme="dark" v-model="showDailyBonus" header-class="justify-content-between align-items-center" body-class="d-flex flex-column gap-2"
           :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="md" centered>
     <template #header>
       <h2 class="m-0">
-        {{ $t("casino.main.daily_bonus") }}
+        {{ $t("games.main.daily_bonus") }}
       </h2>
 
       <BButton variant="tertiary" class="btn-square text-light" @click="showDailyBonus = false">
@@ -237,7 +237,7 @@ const dismissHint = () => {
     </div>
 
     <BButton variant="success" class="w-100" @click="redeemDailyBonus" :disabled="waitingForResponse">
-      {{ $t("casino.main.redeem") }}
+      {{ $t("games.main.redeem") }}
     </BButton>
   </BModal>
 
@@ -245,7 +245,7 @@ const dismissHint = () => {
           :hide-footer="true" :no-close-on-backdrop="true" scrollable :no-close-on-esc="true" size="md" centered>
     <template #header>
       <h2 class="m-0">
-        {{ $t("casino.main.settings") }}
+        {{ $t("games.main.settings") }}
       </h2>
 
       <BButton variant="tertiary" class="btn-square text-light" @click="showSettings = false">
@@ -255,9 +255,9 @@ const dismissHint = () => {
 
     <BForm @submit.prevent="saveSettings" class="d-flex flex-column gap-2 w-100">
       <BFormGroup id="input-group-2" label-for="input-2">
-        <BFormInput id="input-2" v-model="settingsForm.name" :placeholder="$t('casino.login.enter_wallet')" required :state="validateName" />
+        <BFormInput id="input-2" v-model="settingsForm.name" :placeholder="$t('games.login.enter_wallet')" required :state="validateName" />
         <BFormInvalidFeedback :state="validateName">
-          {{ $t("casino.main.settings_invalid") }}
+          {{ $t("games.main.settings_invalid") }}
         </BFormInvalidFeedback>
       </BFormGroup>
 
@@ -277,7 +277,7 @@ const dismissHint = () => {
     <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2">
       <div class="d-flex flex-column gap-2 col-12 col-md-6 col-lg-12">
         <BToast :model-value="showCopyReminder" variant="danger" body-class="d-flex align-items-center justify-content-between gap-2" class="w-100">
-          <div>{{ $t("casino.main.reminder") }}</div>
+          <div>{{ $t("games.main.reminder") }}</div>
 
           <BButton variant="tertiary" class="btn-square" @click="dismissHint">
             <font-awesome-icon :icon="faClose" />
@@ -295,7 +295,7 @@ const dismissHint = () => {
               <BButton variant="tertiary" class="btn-square" @click="showSettings = true">
                 <font-awesome-icon :icon="faEdit" />
               </BButton>
-              <BButton variant="danger" class="btn-square" to="/casino/logout/">
+              <BButton variant="danger" class="btn-square" to="/games/logout/">
                 <font-awesome-icon :icon="faSignOut" />
               </BButton>
             </div>
@@ -329,10 +329,10 @@ const dismissHint = () => {
           </div>
 
           <small class="text-blue-grey-500" v-if="bonusTimer !== '00:00:00' && bonusTimer !== ''">
-            {{ $t("casino.main.next_bonus_in", { "time": bonusTimer }) }}
+            {{ $t("games.main.next_bonus_in", { "time": bonusTimer }) }}
           </small>
           <small class="text-warning" v-else-if="bonusTimer !== ''">
-            {{ $t("casino.main.next_bonus") }}
+            {{ $t("games.main.next_bonus") }}
           </small>
         </BCard>
       </div>
@@ -341,15 +341,15 @@ const dismissHint = () => {
         <template #header>
           <h4 class="m-0">
             <font-awesome-icon :icon="faVault" />
-            {{ $t("casino.main.vault") }}
+            {{ $t("games.main.vault") }}
           </h4>
 
-          <BButton variant="tertiary" class="btn-square stretched-link" @click="showCasinoAccount = !showCasinoAccount">
-            <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showCasinoAccount ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
+          <BButton variant="tertiary" class="btn-square stretched-link" @click="showGamesAccount = !showGamesAccount">
+            <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showGamesAccount ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
           </BButton>
         </template>
 
-        <BCollapse v-model="showCasinoAccount">
+        <BCollapse v-model="showGamesAccount">
           <BCardBody class="d-flex flex-column gap-2">
             <div class="d-flex gap-1 align-items-center justify-content-between">
               <div class="d-flex gap-1 align-items-center" :class="updatedVault >= 0 ? 'text-success' : 'text-danger'">
@@ -359,7 +359,7 @@ const dismissHint = () => {
             </div>
 
             <small class="text-blue-grey-500" v-if="vaultTimer !== ''">
-              {{ $t("casino.main.vault_reset_in", { "time": vaultTimer }) }}
+              {{ $t("games.main.vault_reset_in", { "time": vaultTimer }) }}
             </small>
           </BCardBody>
         </BCollapse>
@@ -370,7 +370,7 @@ const dismissHint = () => {
           <template #header>
             <h4 class="m-0">
               <font-awesome-icon :icon="faDice" />
-              {{ $t("casino.main.games") }}
+              {{ $t("games.main.games") }}
             </h4>
 
             <BButton variant="tertiary" class="btn-square stretched-link" @click="showGames = !showGames">
@@ -381,7 +381,7 @@ const dismissHint = () => {
           <BCollapse v-model="showGames">
             <BCardBody class="d-flex flex-column gap-2">
               <BButton @click="gameComponent = Comp" :active="gameComponent === Comp" v-for="([name, Comp], index) in gameComponents" :key="index">
-                {{ $t("casino.game." + name + ".title") }}
+                {{ $t("games.game." + name + ".title") }}
               </BButton>
             </BCardBody>
           </BCollapse>
@@ -391,7 +391,7 @@ const dismissHint = () => {
           <template #header>
             <h4 class="m-0">
               <font-awesome-icon :icon="faTrophy" />
-              {{ $t("casino.main.leaderboard") }}
+              {{ $t("games.main.leaderboard") }}
             </h4>
 
             <BButton variant="tertiary" class="btn-square stretched-link" @click="showLeaderboard = !showLeaderboard">

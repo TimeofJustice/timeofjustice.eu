@@ -52,15 +52,15 @@ def start(request):
     post_data = BodyContent(request)
 
     if not wallet:
-        return JsonResponse({"error": "casino.game.black_jack.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.session_expired"}, status=400)
 
     if not post_data or not post_data.get('bet'):
-        return JsonResponse({"error": "casino.game.black_jack.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.invalid_request"}, status=400)
 
     bet = post_data.get('bet')
 
     if bet <= 0 or bet > wallet.balance or 1000 < bet:
-        return JsonResponse({"error": "casino.game.black_jack.errors.invalid_bet"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.invalid_bet"}, status=400)
 
     update_wallet(wallet, -bet)
 
@@ -71,7 +71,7 @@ def start(request):
     dealer_card2 = deck.draw()
 
     if player_card1 is None or dealer_card1 is None or player_card2 is None or dealer_card2 is None:
-        return JsonResponse({"error": "casino.game.black_jack.errors.deck_empty"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.deck_empty"}, status=400)
 
     dealer_cards = [dealer_card1, dealer_card2]
     player_cards = [player_card1, player_card2]
@@ -111,18 +111,18 @@ def hit(request):
     post_data = BodyContent(request)
 
     if not post_data or not post_data.get('session'):
-        return JsonResponse({"error": "casino.game.black_jack.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.invalid_request"}, status=400)
 
     session_id = post_data.get('session')
 
     if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "casino.game.black_jack.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.session_expired"}, status=400)
 
     deck = CardDeck(session['deck'])
     card = deck.draw()
 
     if card is None:
-        return JsonResponse({"error": "casino.game.black_jack.errors.deck_empty"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.deck_empty"}, status=400)
 
     cards = session['cards'] + [card]
     status = session['status']
@@ -146,12 +146,12 @@ def stand(request):
     post_data = BodyContent(request)
 
     if not post_data or not post_data.get('session'):
-        return JsonResponse({"error": "casino.game.black_jack.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.invalid_request"}, status=400)
 
     session_id = post_data.get('session')
 
     if not session or session['session_id'] != session_id:
-        return JsonResponse({"error": "casino.game.black_jack.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.session_expired"}, status=400)
 
     deck = CardDeck(session['deck'])
 
@@ -160,7 +160,7 @@ def stand(request):
     while cards_score(dealer_cards) < 17:
         dealer_card = deck.draw()
         if dealer_card is None:
-            return JsonResponse({"error": "casino.game.black_jack.errors.deck_empty"}, status=400)
+            return JsonResponse({"error": "games.game.black_jack.errors.deck_empty"}, status=400)
         dealer_cards.append(dealer_card)
 
     if cards_score(dealer_cards) > 21 and cards_score(session['cards']) > 21:
@@ -198,7 +198,7 @@ def end(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not session:
-        return JsonResponse({"error": "casino.game.black_jack.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.black_jack.errors.session_expired"}, status=400)
 
     if session['bet'] > 0:
         update_wallet(wallet, session['bet'])

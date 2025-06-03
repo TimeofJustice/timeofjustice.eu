@@ -14,7 +14,7 @@ urlpatterns = [
     path("files/images/tool/<str:name>", helpers.tool_images, name="tool_images"),
     path("files/images/profile/<str:name>", helpers.profile_images, name="profile_images"),
     path("files/video/project/<str:name>", helpers.project_video, name="project_video"),
-    path("files/images/casino/cards/<str:name>", helpers.casino_cards, name="casino_cards"),
+    path("files/images/games/cards/<str:name>", helpers.games_cards, name="games_cards"),
 
     path("robots.txt", helpers.robot),
 ]

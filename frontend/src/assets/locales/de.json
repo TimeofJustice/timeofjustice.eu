@@ -10,7 +10,7 @@
     "projects": "Projekte",
     "place": "r/Place",
     "farming_stats": "Farming Stats",
-    "casino": "Casino",
+    "games": "Spiele",
     "stable_hint": "Du verwendest die Staging-Version. Diese Version ist nicht für den produktiven Einsatz gedacht und kann Fehler oder unvollständige Funktionen enthalten. Bitte nutze die Produktionsversion unter [timeofjustice.eu](https://timeofjustice.eu) für eine stabile Erfahrung."
   },
   "index": {
@@ -57,11 +57,11 @@
       "commodities": "Waren"
     }
   },
-  "casino": {
-    "title": "Casino",
+  "games": {
+    "title": "Spiele",
     "entry": {
       "title": "Willkommen",
-      "warning": "Dieses Online-Spiel ist ein reines Spaß-Casino und dient ausschließlich der Unterhaltung. Es werden **keine Echtgeld-Einsätze** getätigt und **keine echten Gewinne** ausgezahlt. Gespielt wird ausschließlich mit der **virtuellen Spielwährung „TimeofJustice Token (TJT)“**, die **keinen realen Geldwert besitzt**.\n\nBitte spiele verantwortungsbewusst – auch virtuelle Spiele können zur Gewohnheit werden. **Für Spieler unter 18 Jahren ist die Nutzung nicht empfohlen**.",
+      "warning": "Diese Online-Spiele sind reine Spaß-Spiele und dienen ausschließlich der Unterhaltung. Es werden **keine Echtgeld-Einsätze** getätigt und **keine echten Gewinne** ausgezahlt. Gespielt wird ausschließlich mit der **virtuellen Spielwährung „TimeofJustice Token (TJT)“**, die **keinen realen Geldwert besitzt**.\n\nBitte spiele verantwortungsbewusst – auch virtuelle Spiele können zur Gewohnheit werden. **Für Spieler unter 18 Jahren ist die Nutzung nicht empfohlen**.",
       "enter_with_new_wallet": "Mit einer neuen Wallet betreten",
       "enter_with_existing_wallet": "Mit einer bestehenden Wallet betreten"
     },

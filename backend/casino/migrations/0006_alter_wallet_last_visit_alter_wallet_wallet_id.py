@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('casino', '0005_wallet_last_visit_alter_wallet_wallet_id'),
+        ('games', '0005_wallet_last_visit_alter_wallet_wallet_id'),
     ]
 
     operations = [

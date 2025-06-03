@@ -94,22 +94,22 @@ def start(request):
     post_data = BodyContent(request)
 
     if not wallet:
-        return JsonResponse({"error": "casino.game.sic_bo.errors.session_expired"}, status=400)
+        return JsonResponse({"error": "games.game.sic_bo.errors.session_expired"}, status=400)
 
     if not post_data or not post_data.get('bets'):
-        return JsonResponse({"error": "casino.game.sic_bo.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.sic_bo.errors.invalid_request"}, status=400)
 
     bets = post_data.get('bets')
 
     if not isinstance(bets, dict) or len(bets) < 1:
-        return JsonResponse({"error": "casino.game.sic_bo.errors.invalid_request"}, status=400)
+        return JsonResponse({"error": "games.game.sic_bo.errors.invalid_request"}, status=400)
 
     total_bet = 0
     for bet, amount in bets.items():
         total_bet += amount
 
     if total_bet <= 0 or total_bet > wallet.balance or total_bet > 500:
-        return JsonResponse({"error": "casino.game.sic_bo.errors.invalid_bet"}, status=400)
+        return JsonResponse({"error": "games.game.sic_bo.errors.invalid_bet"}, status=400)
 
     update_wallet(wallet, -total_bet)
 
