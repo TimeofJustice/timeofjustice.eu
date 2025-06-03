@@ -20,6 +20,9 @@ import "@configurations/FontAwesome";
 import bootstrapVueNextConfig from '@configurations/bootstrapVueNext';
 import axios from 'axios';
 
+import { Calendar, DatePicker } from 'v-calendar';
+import 'v-calendar/style.css';
+
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
 
 const i18n = createI18n({
@@ -58,6 +61,8 @@ createInertiaApp({
             .use(Vue3Marquee)
             .directive('wip', wip)
             .component('Link', Link)
+            .component('VCalendar', Calendar)
+            .component('VDatePicker', DatePicker)
             .provide('$router', 'fake')
             .mount(el);
     },

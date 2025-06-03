@@ -13,7 +13,7 @@ import {
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
-import { reactive, ref, shallowRef } from "vue";
+import { reactive, Ref, ref, shallowRef } from "vue";
 import HigherOrLower from "@pages/Casino/Games/HigherOrLower.vue";
 import RideTheBus from "@pages/Casino/Games/RideTheBus.vue";
 import { computed, onBeforeUnmount } from "@node_modules/vue";
@@ -22,6 +22,9 @@ import LeaderboardPosition from "@pages/Casino/components/LeaderboardPosition.vu
 import DailyReward from "@pages/Casino/components/DailyReward.vue";
 import BlackJack from "@pages/Casino/Games/BlackJack.vue";
 import SicBo from "@pages/Casino/Games/SicBo.vue";
+import { Calendar as VCalendar } from "@node_modules/v-calendar";
+import { Page } from "@node_modules/v-calendar/dist/types/src/utils/page";
+import { AttributeConfig } from "@node_modules/v-calendar/dist/types/src/utils/attribute";
 
 interface Player {
   name: string;
@@ -215,6 +218,21 @@ const dismissHint = () => {
       console.error("Failed to dismiss hint:", error);
     });
 };
+
+const calendarAttributes: Ref<AttributeConfig[]> = ref([
+  {
+    highlight: {
+      start: { fillMode: 'light', color: 'orange' },
+      base: { fillMode: 'light', color: 'orange' },
+      end: { fillMode: 'light', color: 'orange' },
+    },
+    dates: [{ start: new Date("2025-04-10"), end: new Date("2025-04-14") }, new Date()],
+  },
+]);
+
+const onMove = (page: Page) => {
+  console.log("Moved to date:", page);
+};
 </script>
 
 <template>
@@ -268,10 +286,75 @@ const dismissHint = () => {
   </BModal>
 
   <div class="container-xxl text-white d-flex flex-column flex-lg-row gap-2 justify-content-center pb-3">
-    <div class="col-12 col-lg-9">
+    <div class="w-100 d-flex flex-column gap-2">
       <KeepAlive>
         <component :is="gameComponent" :balance="wallet.balance" @balanceChange="onBalanceChange" />
       </KeepAlive>
+
+      <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
+        <template #header>
+          <h4 class="m-0">
+            <font-awesome-icon :icon="faTrophy" />
+            {{ $t("casino.main.leaderboard") }}
+          </h4>
+
+          <BButton variant="tertiary" class="btn-square stretched-link" @click="showLeaderboard = !showLeaderboard">
+            <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showLeaderboard ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
+          </BButton>
+        </template>
+
+        <BCollapse v-model="showLeaderboard">
+          <BCardBody class="d-flex flex-column gap-2">
+            <BTabs content-class="mt-3">
+              <BTab title="Alltime" active>
+                <div class="d-flex flex-column gap-2">
+                  <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
+                                       :streak="player.streak"
+                                       :highlighted="index + 1 === updatedOwnPosition" />
+
+                  <template v-if="updatedOwnPosition > 5">
+                    <div class="fw-bold text-center">
+                      <font-awesome-icon :icon="faEllipsis" />
+                    </div>
+
+                    <LeaderboardPosition :index="updatedOwnPosition" :name="wallet.name" :balance="wallet.balance" :streak="wallet.streak" highlighted />
+                  </template>
+                </div>
+              </BTab>
+              <BTab title="Alltime">
+                <div class="d-flex flex-column gap-2">
+                  <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
+                                       :streak="player.streak"
+                                       :highlighted="index + 1 === updatedOwnPosition" />
+
+                  <template v-if="updatedOwnPosition > 5">
+                    <div class="fw-bold text-center">
+                      <font-awesome-icon :icon="faEllipsis" />
+                    </div>
+
+                    <LeaderboardPosition :index="updatedOwnPosition" :name="wallet.name" :balance="wallet.balance" :streak="wallet.streak" highlighted />
+                  </template>
+                </div>
+              </BTab>
+              <BTab title="Alltime">
+                <div class="d-flex flex-column gap-2">
+                  <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
+                                       :streak="player.streak"
+                                       :highlighted="index + 1 === updatedOwnPosition" />
+
+                  <template v-if="updatedOwnPosition > 5">
+                    <div class="fw-bold text-center">
+                      <font-awesome-icon :icon="faEllipsis" />
+                    </div>
+
+                    <LeaderboardPosition :index="updatedOwnPosition" :name="wallet.name" :balance="wallet.balance" :streak="wallet.streak" highlighted />
+                  </template>
+                </div>
+              </BTab>
+            </BTabs>
+          </BCardBody>
+        </BCollapse>
+      </BCard>
     </div>
 
     <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2">
@@ -327,15 +410,42 @@ const dismissHint = () => {
               </span>
             </Transition>
           </div>
-
-          <small class="text-blue-grey-500" v-if="bonusTimer !== '00:00:00' && bonusTimer !== ''">
-            {{ $t("casino.main.next_bonus_in", { "time": bonusTimer }) }}
-          </small>
-          <small class="text-warning" v-else-if="bonusTimer !== ''">
-            {{ $t("casino.main.next_bonus") }}
-          </small>
         </BCard>
       </div>
+
+      <VCalendar :attributes="calendarAttributes" is-dark class="w-100 bg-grey-100 bg-opacity-50" @did-move="onMove">
+        <template #footer>
+          <div class="px-3 pb-3">
+            <small class="text-blue-grey-500" v-if="bonusTimer !== '00:00:00' && bonusTimer !== ''">
+              {{ $t("casino.main.next_bonus_in", { "time": bonusTimer }) }}
+            </small>
+            <small class="text-warning" v-else-if="bonusTimer !== ''">
+              {{ $t("casino.main.next_bonus") }}
+            </small>
+          </div>
+        </template>
+      </VCalendar>
+
+      <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
+        <template #header>
+          <h4 class="m-0">
+            <font-awesome-icon :icon="faDice" />
+            {{ $t("casino.main.games") }}
+          </h4>
+
+          <BButton variant="tertiary" class="btn-square stretched-link" @click="showGames = !showGames">
+            <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showGames ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
+          </BButton>
+        </template>
+
+        <BCollapse v-model="showGames">
+          <BCardBody class="d-flex flex-column gap-2">
+            <BButton @click="gameComponent = Comp" :active="gameComponent === Comp" v-for="([name, Comp], index) in gameComponents" :key="index">
+              {{ $t("casino.game." + name + ".title") }}
+            </BButton>
+          </BCardBody>
+        </BCollapse>
+      </BCard>
 
       <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
         <template #header>
@@ -364,59 +474,6 @@ const dismissHint = () => {
           </BCardBody>
         </BCollapse>
       </BCard>
-
-      <div class="d-flex flex-column gap-2 col-12 flex-shrink-1">
-        <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
-          <template #header>
-            <h4 class="m-0">
-              <font-awesome-icon :icon="faDice" />
-              {{ $t("casino.main.games") }}
-            </h4>
-
-            <BButton variant="tertiary" class="btn-square stretched-link" @click="showGames = !showGames">
-              <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showGames ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
-            </BButton>
-          </template>
-
-          <BCollapse v-model="showGames">
-            <BCardBody class="d-flex flex-column gap-2">
-              <BButton @click="gameComponent = Comp" :active="gameComponent === Comp" v-for="([name, Comp], index) in gameComponents" :key="index">
-                {{ $t("casino.game." + name + ".title") }}
-              </BButton>
-            </BCardBody>
-          </BCollapse>
-        </BCard>
-
-        <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
-          <template #header>
-            <h4 class="m-0">
-              <font-awesome-icon :icon="faTrophy" />
-              {{ $t("casino.main.leaderboard") }}
-            </h4>
-
-            <BButton variant="tertiary" class="btn-square stretched-link" @click="showLeaderboard = !showLeaderboard">
-              <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showLeaderboard ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
-            </BButton>
-          </template>
-
-          <BCollapse v-model="showLeaderboard">
-            <BCardBody class="d-flex flex-column gap-2">
-              <LeaderboardPosition v-for="(player, index) in updatedLeaderboard" :key="index" :index="index + 1" :name="player.name" :balance="player.balance"
-                                   :streak="player.streak"
-                                   :highlighted="index + 1 === updatedOwnPosition" />
-
-              <template v-if="updatedOwnPosition > 5">
-                <div class="fw-bold text-center">
-                  <font-awesome-icon :icon="faEllipsis" />
-                </div>
-
-                <LeaderboardPosition :index="updatedOwnPosition" :name="wallet.name" :balance="wallet.balance" :streak="wallet.streak" highlighted />
-              </template>
-            </BCardBody>
-          </BCollapse>
-        </BCard>
-      </div>
-
     </div>
   </div>
 

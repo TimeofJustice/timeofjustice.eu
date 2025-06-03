@@ -11,18 +11,18 @@ interface Props {
 }
 
 const i18n = useI18n();
-const { show } = useToastController()
+const { create } = useToastController()
 
 const { error } = defineProps<Props>();
 
 watch(() => error, (newError) => {
   if (newError) {
-    show?.({
+    create?.({
       props: {
         body: i18n.t(newError),
         variant: "danger",
         interval: 5000,
-        pos: "bottom-start",
+        position: "bottom-start",
       }
     });
   }
