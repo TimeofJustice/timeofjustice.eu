@@ -132,8 +132,6 @@ for table in tables:
 
         query = query[:-2] + ");"
 
-        print(f"Executing query: {query}")
-
         try:
             staging_cursor.execute(query)
         except Exception as e:
