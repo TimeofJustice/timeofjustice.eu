@@ -32,6 +32,7 @@ urlpatterns = [
     path("farming-stats/", include("farming_stats.urls")),
     path("games/", include("games.urls")),
     path("casino/", lambda request: redirect("/games/", permanent=False)),
+    path("r-place/", include("r_place.urls")),
 ]
 
 handler404 = "core.views.errors.page_not_found"
