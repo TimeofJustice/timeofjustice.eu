@@ -29,3 +29,4 @@ urllib3==2.2.2
 schedule~=1.2.2
 peewee~=3.17.6
 pytz~=2024.1
+gunicorn==23.0.0
