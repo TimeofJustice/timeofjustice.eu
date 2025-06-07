@@ -53,7 +53,7 @@ jobs:
 
       - name: Copy files from production
         run: |
-          rsync -r /var/www/vue.timeofjustice.eu/files /var/www/staging.timeofjustice.eu/backend/
+          rsync -r /var/www/vue.timeofjustice.eu/files /var/www/staging.timeofjustice.eu/
 
       - name: Copy database from production
         run: |
