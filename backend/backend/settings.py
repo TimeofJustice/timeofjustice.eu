@@ -190,3 +190,36 @@ if LOCAL_PRODUCTION:
 
 
     WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
+
+if not DEBUG:
+    LOGGING_DESTINATION = CONFIG_PARSER["DEFAULT"]["LOGGING_DESTINATION"]
+
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "root": {"level": "INFO", "handlers": ["file"]},
+        "handlers": {
+            "file": {
+                "level": "INFO",
+                "class": "logging.FileHandler",
+                "filename": LOGGING_DESTINATION + "django.log",
+                "formatter": "app",
+            },
+        },
+        "loggers": {
+            "django": {
+                "handlers": ["file"],
+                "level": "INFO",
+                "propagate": True
+            },
+        },
+        "formatters": {
+            "app": {
+                "format": (
+                    u"%(asctime)s [%(levelname)-8s] "
+                    "(%(module)s.%(funcName)s) %(message)s"
+                ),
+                "datefmt": "%Y-%m-%d %H:%M:%S",
+            },
+        },
+    }
