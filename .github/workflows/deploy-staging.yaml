@@ -77,6 +77,10 @@ jobs:
         run: |
           rsync -r --delete-delay backend/ /var/www/staging.timeofjustice.eu/backend/
 
+      - name: Link to storage
+        run: |
+          ln -s ../files /var/www/staging.timeofjustice.eu/backend/files
+
       - name: Trigger gunicorn to reload
         run: |
           sudo /bin/systemctl restart staging.gunicorn.service
