@@ -77,6 +77,6 @@ jobs:
         run: |
           rsync -r --delete-delay backend/ /var/www/staging.timeofjustice.eu/backend/
 
-      - name: Trigger Apache to reload
+      - name: Trigger gunicorn to reload
         run: |
-          touch /var/www/staging.timeofjustice.eu/backend/backend/wsgi.py
+          sudo /bin/systemctl restart staging.gunicorn.service
