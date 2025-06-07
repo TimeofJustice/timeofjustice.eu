@@ -84,3 +84,7 @@ jobs:
       - name: Trigger gunicorn to reload
         run: |
           sudo /bin/systemctl restart staging.gunicorn.service
+
+      - name: Trigger daphne to reload
+        run: |
+          sudo /bin/systemctl restart staging.daphne.service
