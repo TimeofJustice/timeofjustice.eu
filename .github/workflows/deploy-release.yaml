@@ -70,6 +70,6 @@ jobs:
         run: |
           rsync -r --delete-delay backend/ /var/www/vue.timeofjustice.eu/backend/
 
-      - name: Trigger Apache to reload
+      - name: Trigger gunicorn to reload
         run: |
-          touch /var/www/vue.timeofjustice.eu/backend/backend/wsgi.py
+          sudo /bin/systemctl restart gunicorn.service
