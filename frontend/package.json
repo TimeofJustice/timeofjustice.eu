@@ -21,6 +21,7 @@
     "apexcharts": "^4.0.0",
     "bootstrap": "^5.3.3",
     "bootstrap-vue-next": "^0.25.10",
+    "panzoom": "^9.4.3",
     "v-lazy-image": "^2.1.1",
     "vite-plugin-require": "^1.2.14",
     "vue": "^3.3.4",
