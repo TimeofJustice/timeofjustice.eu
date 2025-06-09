@@ -1,9 +1,20 @@
-from django.shortcuts import render
+import django.shortcuts
+from inertia import render
+
+from core.helpers import props
 
 
-def index(request):
-    return render(request, "chat/index.html")
+def chat(request):
+    return django.shortcuts.render(request, "chat/index.html")
 
 
 def room(request, room_name):
-    return render(request, "chat/room.html", {"room_name": room_name})
+    return django.shortcuts.render(request, "chat/room.html", {"room_name": room_name})
+
+
+def index(request):
+    page_props = {
+
+    }
+
+    return render(request, "RPlace", props=props(page_props))

@@ -25,7 +25,7 @@ defineProps<IBasicLayout>();
 
     <Navbar />
 
-    <div class="w-100 overflow-y-auto overflow-x-hidden z-0">
+    <div class="w-100 overflow-y-auto overflow-x-hidden z-0 flex-grow-1 d-flex flex-column">
       <div class="container-xxl px-3" v-if="!stable">
         <BAlert :model-value="true" variant="info">
           <vue-markdown :source="$t('nav.stable_hint')" />
