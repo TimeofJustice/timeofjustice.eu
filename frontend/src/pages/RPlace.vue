@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import axios from "@node_modules/axios";
 
 const fieldPanZoom = ref<HTMLCanvasElement | null>(null);
 const cursorImage = ref<HTMLImageElement | null>(null);
@@ -25,10 +26,9 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   const rectHeight = 1000;
   const cellSize = 10;
 
-  const numberOfChunksX = 10;
-  const numberOfChunksY = 10;
-  const chunkWidth = rectWidth / numberOfChunksX;
-  const chunkHeight = rectHeight / numberOfChunksY;
+  const numberOfChunks = 5;
+  const chunkWidth = rectWidth / numberOfChunks;
+  const chunkHeight = rectHeight / numberOfChunks;
 
   const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
 
@@ -78,11 +78,11 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       this.y = at.y - ((at.y - this.y) * (this.scale / oldScale));
     },
     initChunks() {
-      for (let i = 0; i < numberOfChunksX; i++) {
-        for (let j = 0; j < numberOfChunksY; j++) {
+      for (let i = 0; i < numberOfChunks; i++) {
+        for (let j = 0; j < numberOfChunks; j++) {
           const offscreenCanvas = document.createElement('canvas');
-          offscreenCanvas.width = chunkWidth;
-          offscreenCanvas.height = chunkHeight;
+          offscreenCanvas.width = chunkWidth + 1;
+          offscreenCanvas.height = chunkHeight + 1;
           const offscreenCtx = offscreenCanvas.getContext('2d')!;
 
           offscreenCtx.fillStyle = 'white';
@@ -90,7 +90,15 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
 
           const paintCell = (x: number, y: number, color: string) => {
             offscreenCtx.fillStyle = color;
-            offscreenCtx.fillRect(x, y, 1, 1);
+            if (x === offscreenCanvas.width - 2 && y === offscreenCanvas.height - 2) {
+              offscreenCtx.fillRect(x, y, 2, 2);
+            } else if (x === offscreenCanvas.width - 2) {
+              offscreenCtx.fillRect(x, y, 2, 1);
+            } else if (y === offscreenCanvas.height - 2) {
+              offscreenCtx.fillRect(x, y, 1, 2);
+            } else {
+              offscreenCtx.fillRect(x, y, 1, 1);
+            }
           };
 
           this.chunks.push({
@@ -101,18 +109,61 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
         }
       }
     },
+    loadChunks() {
+      const loadNextChunk = (i: number) => {
+        const numberOfRequestedChunks = 4;
+        const chunkWidth = rectWidth / numberOfRequestedChunks;
+        const chunkHeight = rectHeight / numberOfRequestedChunks;
+        console.log(`Loading chunk ${i + 1}/${numberOfRequestedChunks * numberOfRequestedChunks}`);
+
+        if (i >= numberOfRequestedChunks * numberOfRequestedChunks) return;
+
+        const chunkX = (i % numberOfRequestedChunks) * (chunkWidth);
+        const chunkY = Math.floor(i / numberOfRequestedChunks) * (chunkHeight);
+
+        axios.post(`/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/`)
+          .then(response => {
+            const data = response.data;
+            this.loadChunk(data.cells);
+          })
+          .catch(error => {
+            console.error(`Error loading chunk ${i}:`, error);
+          })
+          .finally(() => {
+            if (i < numberOfRequestedChunks * numberOfRequestedChunks - 1) {
+              setTimeout(() => loadNextChunk(i + 1), 100);
+            } else {
+              console.log('All chunks loaded');
+              draw();
+            }
+          });
+      };
+      loadNextChunk(0);
+    },
+    loadChunk(cells: { x: number; y: number; color: string }[]) {
+      cells.forEach(cell => {
+        const chunkX = Math.floor(cell.x / chunkWidth);
+        const chunkY = Math.floor(cell.y / chunkHeight);
+        const localX = cell.x % chunkWidth;
+        const localY = cell.y % chunkHeight;
+
+        const chunkIndex = (chunkY * numberOfChunks) + chunkX;
+        if (chunkIndex < 0 || chunkIndex >= this.chunks.length) return;
+
+        const chunk = this.chunks[chunkIndex];
+        chunk.paintCell(localX, localY, cell.color);
+      });
+    },
     drawCell(x: number, y: number, color: string) {
       const chunkX = Math.floor(x / chunkWidth);
       const chunkY = Math.floor(y / chunkHeight);
       const localX = x % chunkWidth;
       const localY = y % chunkHeight;
 
-      const chunkIndex = (chunkY * numberOfChunksX) + chunkX;
+      const chunkIndex = (chunkY * numberOfChunks) + chunkX;
       if (chunkIndex < 0 || chunkIndex >= this.chunks.length) return;
 
       const chunk = this.chunks[chunkIndex];
-      console.log(`Drawing cell at chunk ${chunkIndex} (${chunkX}, ${chunkY}) at local position (${localX}, ${localY}) with color ${color}`);
-      console.log(chunk)
       chunk.paintCell(localX, localY, color);
     },
     click(e: MouseEvent) {
@@ -153,16 +204,20 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
 
     for (let i = 0; i < view.chunks.length; i++) {
       const chunk = view.chunks[i];
-      const chunkX = (i % numberOfChunksX) * chunkWidth;
-      const chunkY = Math.floor(i / numberOfChunksX) * chunkHeight;
+      const chunkX = (i % numberOfChunks) * chunkWidth;
+      const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
       ctx.drawImage(
         chunk.canvas,
         ((chunkX * 10)),
         ((chunkY * 10)),
-        (chunkWidth * 10),
-        (chunkHeight * 10)
+        ((chunkWidth + 1) * 10),
+        ((chunkHeight + 1) * 10)
       );
     }
+
+    // Remove pixel that are only for rounding issues
+    ctx.clearRect(10000, -10, 20, (canvas.height * 10) + 20);
+    ctx.clearRect(-10, 10000, (canvas.width * 10) + 20, 20);
 
     if (view.scale > 3) {
       const alpha = Math.min(1, (view.scale - 3) / 2);
@@ -260,6 +315,7 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   );
   chatSocket.onopen = () => {
     console.log('WebSocket connection established');
+    view.loadChunks();
   };
   chatSocket.onmessage = (e: MessageEvent) => {
     console.log('WebSocket message received:', e.data);

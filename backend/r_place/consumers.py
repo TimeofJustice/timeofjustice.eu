@@ -3,7 +3,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
-from .models import Message
+from .models import Message, Cell
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -83,11 +83,19 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        type = text_data_json["type"]
+
+        if type == "cell_update":
+            await self.handle_cell_update(text_data_json)
+
+    async def handle_cell_update(self, data):
         cell = {
-            "x": text_data_json["x"],
-            "y": text_data_json["y"],
-            "color": text_data_json["color"]
+            "x": data["x"],
+            "y": data["y"],
+            "color": data["color"]
         }
+
+        await database_sync_to_async(self.save_cell)(cell)
 
         await self.channel_layer.group_send(
             "r_place",
@@ -95,6 +103,13 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
                 "type": "cell.update",
                 "cell": cell
             }
+        )
+
+    def save_cell(self, cell):
+        Cell.objects.update_or_create(
+            x=cell["x"],
+            y=cell["y"],
+            defaults={"color": cell["color"]}
         )
 
     async def cell_update(self, event):
