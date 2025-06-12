@@ -111,6 +111,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       if (chunkIndex < 0 || chunkIndex >= this.chunks.length) return;
 
       const chunk = this.chunks[chunkIndex];
+      console.log(`Drawing cell at chunk ${chunkIndex} (${chunkX}, ${chunkY}) at local position (${localX}, ${localY}) with color ${color}`);
+      console.log(chunk)
       chunk.paintCell(localX, localY, color);
     },
     click(e: MouseEvent) {
@@ -121,6 +123,12 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       }
       if (pos.x < 0 || pos.x >= rectWidth || pos.y < 0 || pos.y >= rectHeight) return;
       this.highlightCell(pos.x, pos.y);
+      chatSocket.send(JSON.stringify({
+        type: 'cell_update',
+        x: pos.x,
+        y: pos.y,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
       return pos;
     },
     highlightCell(x: number, y: number) {
@@ -129,14 +137,6 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     }
   };
   view.initChunks();
-
-  setInterval(() => {
-    const randomX = Math.floor(Math.random() * rectWidth);
-    const randomY = Math.floor(Math.random() * rectHeight);
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    view.drawCell(randomX, randomY, randomColor);
-    draw();
-  }, 100);
 
   const draw = () => {
     const ctx = canvas.getContext('2d')!;
@@ -188,6 +188,7 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       cellSize + 1
     );
   };
+  draw();
 
   let isDragging = false;
   let lastMouse = { x: 0, y: 0 };
@@ -245,7 +246,33 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     draw();
   });
 
-  draw();
+  const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
+
+  const chatSocket = new WebSocket(
+    ws_scheme
+    + '://'
+    + window.location.host
+    + '/ws/r-place/'
+  );
+  chatSocket.onopen = () => {
+    console.log('WebSocket connection established');
+    view.drawCell(500, 500, "#FF0000");
+    draw();
+  };
+  chatSocket.onmessage = (e: MessageEvent) => {
+    console.log('WebSocket message received:', e.data);
+    const data = JSON.parse(e.data);
+    if (data.type === 'cell_update') {
+      const cell = data.cell;
+      view.drawCell(cell.x, cell.y, cell.color);
+      draw();
+    }
+  };
+  chatSocket.onclose = () => {
+    console.log('WebSocket connection closed');
+    view.drawCell(1, 1, "#FF0000");
+    draw();
+  };
 };
 
 onMounted(() => {

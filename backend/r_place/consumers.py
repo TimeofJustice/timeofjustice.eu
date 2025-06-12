@@ -41,6 +41,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await database_sync_to_async(self.save_message)(message)
 
+        print("Received message:", message)
+
         # Send message to room group
         await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat.message", "message": message}
@@ -53,10 +55,54 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event["message"]
 
+        print("chat_message message:", message)
+
         # Send message to WebSocket
         await self.send(text_data=json.dumps(
             {
                 "type": "new_message",
                 "message": message
+            }
+        ))
+
+
+class RPlaceConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.channel_layer.group_add(
+            "r_place",
+            self.channel_name
+        )
+
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            "r_place",
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        cell = {
+            "x": text_data_json["x"],
+            "y": text_data_json["y"],
+            "color": text_data_json["color"]
+        }
+
+        await self.channel_layer.group_send(
+            "r_place",
+            {
+                "type": "cell.update",
+                "cell": cell
+            }
+        )
+
+    async def cell_update(self, event):
+        cell = event["cell"]
+
+        await self.send(text_data=json.dumps(
+            {
+                "type": "cell_update",
+                "cell": cell
             }
         ))
