@@ -11,8 +11,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       console.error('Canvas parent element not found');
       return;
     }
-    canvas.width = canvas.parentElement.clientWidth - (parseFloat(getComputedStyle(canvas.parentElement).paddingLeft) || 0) - (parseFloat(getComputedStyle(canvas.parentElement).paddingRight) || 0);
-    canvas.height = canvas.parentElement.clientHeight - (parseFloat(getComputedStyle(canvas.parentElement).paddingTop) || 0) - (parseFloat(getComputedStyle(canvas.parentElement).paddingBottom) || 0);
+    canvas.width = parent.clientWidth - (parseFloat(getComputedStyle(parent).paddingLeft) || 0) - (parseFloat(getComputedStyle(parent).paddingRight) || 0);
+    canvas.height = parent.clientHeight - (parseFloat(getComputedStyle(parent).paddingTop) || 0) - (parseFloat(getComputedStyle(parent).paddingBottom) || 0);
   };
   setUpCanvasSize();
 
@@ -165,8 +165,11 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     }
 
     if (view.scale > 3) {
-      ctx.strokeStyle = 'rgba(0,0,0,1)';
-      ctx.lineWidth = 0.5;
+      const alpha = Math.min(1, (view.scale - 3) / 2);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = 'rgb(144,144,144)';
+      ctx.lineWidth = 0.1;
       for (let x = 0; x < rectWidth * cellSize; x += cellSize) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -179,13 +182,14 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
         ctx.lineTo(rectWidth * cellSize, y);
         ctx.stroke();
       }
+      ctx.restore();
     }
 
     ctx.drawImage(cursor,
-      (view.highlightedCell.x * cellSize - 0.5),
-      (view.highlightedCell.y * cellSize - 0.5),
-      cellSize + 1,
-      cellSize + 1
+      view.highlightedCell.x * cellSize - 0.1,
+      view.highlightedCell.y * cellSize - 0.1,
+      cellSize + 0.2,
+      cellSize + 0.2
     );
   };
   draw();
@@ -256,8 +260,6 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   );
   chatSocket.onopen = () => {
     console.log('WebSocket connection established');
-    view.drawCell(500, 500, "#FF0000");
-    draw();
   };
   chatSocket.onmessage = (e: MessageEvent) => {
     console.log('WebSocket message received:', e.data);
@@ -270,8 +272,6 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   };
   chatSocket.onclose = () => {
     console.log('WebSocket connection closed');
-    view.drawCell(1, 1, "#FF0000");
-    draw();
   };
 };
 
@@ -290,14 +290,50 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container-xxl h-100 overflow-hidden pb-2">
-    <canvas width="1000" height="1000" ref="fieldPanZoom" class="field bg-grey-200"></canvas>
-    <img :src="require('@assets/images/Cursor.png')" alt="cursor" class="cursor" ref="cursorImage" />
+  <div class="container-xxl h-100 overflow-hidden mb-2">
+    <div class="w-100 rounded overflow-hidden position-relative h-100">
+      <canvas width="1000" height="1000" ref="fieldPanZoom" class="field bg-grey-200"></canvas>
+      <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
+        <div class="colors active">
+          Test
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-none">
+    <img :src="require('@assets/images/Cursor.png')" ref="cursorImage" />
   </div>
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/colors.scss";
+
 canvas {
   image-rendering: pixelated;
+}
+
+.colors {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 0;
+  min-height: 0;
+  max-height: 8rem;
+  margin-bottom: -2px;
+
+  background: $lightgray-200;
+  border-top: 2px solid $black;
+
+  transition: height .5s ease-in-out, min-height .5s ease-in-out;
+
+  pointer-events: all;
+
+  &.active {
+    height: 25%;
+    min-height: 4rem;
+  }
 }
 </style>

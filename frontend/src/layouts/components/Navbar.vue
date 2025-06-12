@@ -14,7 +14,7 @@ import LocaleDropdown from "@components/LocaleDropdown.vue";
       <div class="navbar-brand d-flex me-0 me-lg-3">
         <LocaleDropdown class="d-block d-lg-none"/>
 
-        <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.svg')" style="width: 2.3rem;">
+        <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.svg')" style="width: 2.3rem; height: 2.3rem;" alt="Time of Justice Logo"/>
       </div>
 
       <div class="navbar-nav offcanvas offcanvas-start offcanvas-small d-flex justify-content-between flex-lg-row" id="offcanvasNavbar">
