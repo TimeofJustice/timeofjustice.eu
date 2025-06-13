@@ -76,21 +76,21 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       console.error('Canvas parent element not found');
       return;
     }
-    canvas.width = parent.clientWidth - (parseFloat(getComputedStyle(parent).paddingLeft) || 0) - (parseFloat(getComputedStyle(parent).paddingRight) || 0);
-    canvas.height = parent.clientHeight - (parseFloat(getComputedStyle(parent).paddingTop) || 0) - (parseFloat(getComputedStyle(parent).paddingBottom) || 0);
+    const oldWidth = canvas.width;
+    const oldHeight = canvas.height;
+    const newWidth = parent.clientWidth - (parseFloat(getComputedStyle(parent).paddingLeft) || 0) - (parseFloat(getComputedStyle(parent).paddingRight) || 0);
+    const newHeight = parent.clientHeight - (parseFloat(getComputedStyle(parent).paddingTop) || 0) - (parseFloat(getComputedStyle(parent).paddingBottom) || 0);
+    const deltaWidth = newWidth - oldWidth;
+    const deltaHeight = newHeight - oldHeight;
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    return {
+      deltaWidth,
+      deltaHeight,
+    };
   };
   setUpCanvasSize();
-
-  const resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      if (entry.target === canvasContainer.value) {
-        setUpCanvasSize();
-        draw();
-      }
-    }
-  });
-
-  resizeObserver.observe(canvasContainer.value!);
 
   const rectWidth = 1000;
   const rectHeight = 1000;
@@ -144,6 +144,20 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       this.y = at.y - ((at.y - this.y) * (this.scale / oldScale));
     },
     initChunks() {
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.target === canvasContainer.value) {
+            const delta = setUpCanvasSize();
+            draw();
+            if (delta === undefined) return;
+            this.x += delta.deltaWidth / 2;
+            this.y += delta.deltaHeight / 2;
+          }
+        }
+      });
+
+      resizeObserver.observe(canvasContainer.value!);
+
       for (let i = 0; i < numberOfChunks; i++) {
         for (let j = 0; j < numberOfChunks; j++) {
           const offscreenCanvas = document.createElement('canvas');
