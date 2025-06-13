@@ -6,6 +6,7 @@ on:
     paths:
       - frontend/**
       - backend/**
+      - .github/workflows/deploy-release.yaml
 
 jobs:
   build:
@@ -77,3 +78,7 @@ jobs:
       - name: Trigger gunicorn to reload
         run: |
           sudo /bin/systemctl restart gunicorn.service
+
+      - name: Trigger daphne to reload
+        run: |
+          sudo /bin/systemctl restart daphne.service

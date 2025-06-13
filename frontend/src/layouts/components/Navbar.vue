@@ -14,7 +14,7 @@ import LocaleDropdown from "@components/LocaleDropdown.vue";
       <div class="navbar-brand d-flex me-0 me-lg-3">
         <LocaleDropdown class="d-block d-lg-none"/>
 
-        <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.svg')" style="width: 2.3rem;">
+        <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.svg')" style="width: 2.3rem; height: 2.3rem;" alt="Time of Justice Logo"/>
       </div>
 
       <div class="navbar-nav offcanvas offcanvas-start offcanvas-small d-flex justify-content-between flex-lg-row" id="offcanvasNavbar">
@@ -24,18 +24,24 @@ import LocaleDropdown from "@components/LocaleDropdown.vue";
           </BButton>
         </div>
 
-        <div class="offcanvas-body d-flex flex-column flex-lg-row gap-3 align-items-lg-center ps-3 ps-lg-0 pt-2 pt-lg-0">
-          <BLink class="nav-item nav-link p-0" to="/" :class="{ 'active': $page.component === 'Projects' }">
+        <div class="offcanvas-body d-flex flex-column flex-lg-row align-items-lg-center ps-3 ps-lg-0 pt-2 pt-lg-0">
+          <BLink class="nav-item nav-link p-0 px-2" to="/" :class="{ 'active': $page.component === 'Projects' }">
             <FontAwesomeIcon :icon="faHome"/>
             <span class="ms-1">{{ $t('nav.projects') }}</span>
           </BLink>
-          <BLink class="nav-item nav-link p-0" to="/games/" :class="{ 'active': $page.component === 'Games/Main' }">
+          <BLink class="nav-item nav-link p-0 px-2" to="/games/" :class="{ 'active': $page.component === 'Games/Main' }">
             <FontAwesomeIcon :icon="faDice"/>
             <span class="ms-1">{{ $t('nav.games') }}</span>
           </BLink>
-          <BLink class="nav-item nav-link p-0" to="https://legacy.timeofjustice.eu/place" external>
+          <BLink class="nav-item nav-link p-0 px-2 position-relative" to="/r-place/" :class="{ 'active': $page.component === 'RPlace' }">
             <FontAwesomeIcon :icon="faPaintBrush"/>
             <span class="ms-1">{{ $t('nav.place') }}</span>
+            <BBadge
+              variant="danger"
+              class="position-absolute top-0 start-100 translate-middle mt-1 me-1 border-0 pulse"
+              dot-indicator
+            >
+            </BBadge>
           </BLink>
         </div>
 
@@ -46,5 +52,22 @@ import LocaleDropdown from "@components/LocaleDropdown.vue";
 </template>
 
 <style scoped lang="scss">
+.pulse {
+  animation: pulse 2s infinite;
+  padding: 0.3rem!important;
 
+  transition: --padding 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 </style>
