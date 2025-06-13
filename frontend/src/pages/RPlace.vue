@@ -346,8 +346,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     }
 
     // Remove pixel that are only for rounding issues
-    ctx.clearRect(10000, -10, 20, (canvas.height * 10) + 20);
-    ctx.clearRect(-10, 10000, (canvas.width * 10) + 20, 20);
+    ctx.clearRect(10000, -10, 20, (rectWidth * cellSize) + 20);
+    ctx.clearRect(-10, 10000, (rectHeight * 10) + 20, 20);
 
     if (view.scale > 3) {
       const alpha = Math.min(1, (view.scale - 3) / 2);
@@ -383,6 +383,7 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   let lastMouse = { x: 0, y: 0 };
   const mouseDown = { x: 0, y: 0 };
 
+  // Desktop: Maussteuerung
   canvas.addEventListener('click', (e) => {
     if (
       Math.abs(mouseDown.x - e.clientX) >= 30 ||
@@ -442,6 +443,84 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     view.scaleAt(mouse, zoomFactor);
     draw();
   });
+
+  // Mobile: Touchsteuerung
+  canvas.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      isDragging = true;
+      lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      mouseDown.x = e.touches[0].clientX;
+      mouseDown.y = e.touches[0].clientY;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    if (isDragging && e.touches.length === 1) {
+      const dx = e.touches[0].clientX - lastMouse.x;
+      const dy = e.touches[0].clientY - lastMouse.y;
+      view.pan({ x: dx, y: dy });
+      lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      draw();
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', () => {
+    isDragging = false;
+  }, { passive: false });
+
+  canvas.addEventListener('touchcancel', () => {
+    isDragging = false;
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length === 1) {
+      const touch = e.changedTouches[0];
+      if (
+        Math.abs(mouseDown.x - touch.clientX) < 30 &&
+        Math.abs(mouseDown.y - touch.clientY) < 30
+      ) {
+        // Simuliere Klick
+        const fakeEvent = {
+          clientX: touch.clientX,
+          clientY: touch.clientY,
+          stopPropagation: () => {},
+        } as MouseEvent;
+        view.click(fakeEvent);
+        draw();
+      }
+    }
+  }, { passive: false });
+
+  // Zoom (Pinch-to-zoom)
+  let lastPinchDist: number | null = null;
+  canvas.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (lastPinchDist !== null) {
+        const zoomFactor = dist / lastPinchDist;
+        const rect = canvas.getBoundingClientRect();
+        const center = {
+          x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left,
+          y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
+        };
+        view.scaleAt(center, zoomFactor);
+        draw();
+      }
+      lastPinchDist = dist;
+      e.preventDefault();
+    } else {
+      lastPinchDist = null;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      lastPinchDist = null;
+    }
+  }, { passive: false });
 
   const ws_scheme = window.location.protocol === "https:" ? "wss" : "ws";
 
@@ -511,7 +590,7 @@ onMounted(() => {
 
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
         <div class="position-absolute top-0 end-0 p-2">
-          <button class="button button-small text-light" @click="fullscreen = !fullscreen; ">
+          <button class="button button-small text-light d-none d-xxl-flex" @click="fullscreen = !fullscreen;">
             <font-awesome-icon :icon="faMaximize"/>
           </button>
         </div>
@@ -526,7 +605,7 @@ onMounted(() => {
           <button class="button button-small text-light" @click="pickColorFunction()">
             <font-awesome-icon :icon="faEyeDropper"/>
           </button>
-          <div class="position-absolute bottom-0 end-0 p-2 text-black fw-bold">
+          <div class="position-absolute bottom-0 end-0 p-2 text-black fw-bold d-none d-sm-block">
             {{ $t('r_place.canvas.players_online', {"player_count": playerCount}) }}
           </div>
         </div>
@@ -535,7 +614,7 @@ onMounted(() => {
             <div class="colors-container">
               <div class="col color" :class="{ active: selectedColor === color }" :style="{ backgroundColor: color }" @click="selectedColor = color" v-for="color in colors"></div>
             </div>
-            <div class="position-relative">
+            <div class="position-relative d-none d-sm-block">
               <BInput type="color" v-model="customColor" class="color color-big" :class="{ active: selectedColor === customColor && !colors.includes(selectedColor) }"
                       @blur="selectedColor = customColor" />
               <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none">
@@ -600,6 +679,14 @@ canvas {
   &.active {
     height: 25%;
     min-height: 4rem;
+
+    @media (max-width: 576px) {
+      min-height: 10rem;
+    }
+
+    @media (max-width: 992px) {
+      min-height: 12rem;
+    }
   }
 }
 
@@ -608,6 +695,10 @@ canvas {
   grid-template-rows: repeat(2, fit-content(100%));
   grid-template-columns: repeat(16, fit-content(100%));
   grid-gap: 0.25rem;
+
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(8, fit-content(100%));
+  }
 }
 
 .color {
@@ -624,6 +715,11 @@ canvas {
 
   &:hover {
     border: 2px solid $gray-10;
+  }
+
+  @media (max-width: 576px) {
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   &-big {
