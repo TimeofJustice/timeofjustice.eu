@@ -11,6 +11,9 @@ const playerCount = ref(1);
 const coordinates = ref({ x: 500, y: 500 });
 const fullscreen = ref(false);
 const canvasContainer = ref<HTMLDivElement | null>(null);
+const started = ref(false);
+const chunkNumber = ref(0);
+const loadedChunks = ref(0);
 
 const colors = [
   '#6d001a',
@@ -185,10 +188,12 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       }
     },
     loadChunks() {
+      const numberOfRequestedChunks = 4;
+      const chunkWidth = rectWidth / numberOfRequestedChunks;
+      const chunkHeight = rectHeight / numberOfRequestedChunks;
+      chunkNumber.value = numberOfRequestedChunks * numberOfRequestedChunks;
+
       const loadNextChunk = (i: number) => {
-        const numberOfRequestedChunks = 4;
-        const chunkWidth = rectWidth / numberOfRequestedChunks;
-        const chunkHeight = rectHeight / numberOfRequestedChunks;
         console.log(`Loading chunk ${i + 1}/${numberOfRequestedChunks * numberOfRequestedChunks}`);
 
         if (i >= numberOfRequestedChunks * numberOfRequestedChunks) return;
@@ -205,10 +210,13 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
             console.error(`Error loading chunk ${i}:`, error);
           })
           .finally(() => {
+            loadedChunks.value++;
+
             if (i < numberOfRequestedChunks * numberOfRequestedChunks - 1) {
               setTimeout(() => loadNextChunk(i + 1), 100);
             } else {
               console.log('All chunks loaded');
+              started.value = true;
               draw();
             }
           });
@@ -466,6 +474,16 @@ onMounted(() => {
 
   <div class="container-xxl h-100 overflow-hidden mb-2" :class="{ 'fullscreen': fullscreen }" ref="canvasContainer">
     <div class="w-100 rounded overflow-hidden position-relative h-100">
+      <Transition>
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="!started">
+          <BProgress :max="chunkNumber" class="col-5">
+            <BProgressBar :value="loadedChunks" striped animated>
+              <small>{{ Math.round((loadedChunks / chunkNumber) * 100) }}%</small>
+            </BProgressBar>
+          </BProgress>
+        </div>
+      </Transition>
+
       <canvas width="1000" height="1000" ref="fieldPanZoom" class="field bg-grey-200"></canvas>
 
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
@@ -474,7 +492,7 @@ onMounted(() => {
             <font-awesome-icon :icon="faMaximize"/>
           </button>
         </div>
-        <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative">
+        <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative" v-if="started">
           <button class="button button-small text-light" @click="recenterFunction()">
             <font-awesome-icon :icon="faArrowsToDot"/>
           </button>
@@ -489,7 +507,7 @@ onMounted(() => {
             {{ $t('r_place.canvas.players_online', {"player_count": playerCount}) }}
           </div>
         </div>
-        <div class="colors active">
+        <div class="colors" :class="{ active: started }">
           <div class="d-flex justify-content-center align-items-center gap-1">
             <div class="colors-container">
               <div class="col color" :class="{ active: selectedColor === color }" :style="{ backgroundColor: color }" @click="selectedColor = color" v-for="color in colors"></div>
@@ -525,6 +543,16 @@ canvas {
 
 .container-xxl {
   transition: max-width .5s ease-in-out, height .5s ease-in-out;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 
 .colors {
