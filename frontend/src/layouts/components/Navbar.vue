@@ -33,7 +33,7 @@ import LocaleDropdown from "@components/LocaleDropdown.vue";
             <FontAwesomeIcon :icon="faDice"/>
             <span class="ms-1">{{ $t('nav.games') }}</span>
           </BLink>
-          <BLink class="nav-item nav-link p-0" to="https://legacy.timeofjustice.eu/place" external>
+          <BLink class="nav-item nav-link p-0" to="/r-place/":class="{ 'active': $page.component === 'RPlace' }">
             <FontAwesomeIcon :icon="faPaintBrush"/>
             <span class="ms-1">{{ $t('nav.place') }}</span>
           </BLink>

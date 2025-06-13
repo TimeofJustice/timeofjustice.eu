@@ -4,6 +4,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
 from .models import Message, Cell
+from django.core.cache import cache
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -74,12 +75,29 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
+        await self.update_player_count(1)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             "r_place",
             self.channel_name
         )
+        await self.update_player_count(-1)
+
+    async def update_player_count(self, delta):
+        count = cache.get("r_place_user_count", 0) + delta
+        cache.set("r_place_user_count", count, timeout=None)
+
+        await self.channel_layer.group_send("r_place", {
+            "type": "player.update",
+            "count": count
+        })
+
+    async def player_update(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "player_update",
+            "count": event["count"]
+        }))
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)

@@ -16,7 +16,6 @@ def room(request, room_name):
 
 def index(request):
     page_props = {
-
     }
 
     return render(request, "RPlace", props=props(page_props))

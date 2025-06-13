@@ -1,9 +1,69 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import axios from "@node_modules/axios";
+import { faArrowsToDot, faEyeDropper, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faMaximize } from "@fortawesome/free-solid-svg-icons";
+import { Head } from "@node_modules/@inertiajs/vue3";
 
 const fieldPanZoom = ref<HTMLCanvasElement | null>(null);
 const cursorImage = ref<HTMLImageElement | null>(null);
+const playerCount = ref(1);
+const coordinates = ref({ x: 500, y: 500 });
+const fullscreen = ref(false);
+const canvasContainer = ref<HTMLDivElement | null>(null);
+
+const colors = [
+  '#6d001a',
+  '#ff4500',
+  '#ffd635',
+  '#00a368',
+  '#7eed56',
+  '#009eaa',
+  '#2450a4',
+  '#51e9f4',
+  '#6a5cff',
+  '#811e9f',
+  '#e4abff',
+  '#ff3881',
+  '#6d482f',
+  '#ffb470',
+  '#515252',
+  '#d4d7d9',
+  '#be0039',
+  '#ffa800',
+  '#fff8b8',
+  '#00cc78',
+  '#00756f',
+  '#00ccc0',
+  '#3690ea',
+  '#493ac1',
+  '#94b3ff',
+  '#b44ac0',
+  '#de107f',
+  '#ff99aa',
+  '#9c6926',
+  '#000000',
+  '#898d90',
+  '#ffffff'
+];
+const customColor = ref('#000000');
+const selectedColor = ref(colors[0]);
+const paintFunction = ref<() => void>(() => {
+  console.error('Paint function not set');
+});
+const pickColorFunction = ref<() => void>(() => {
+  console.error('Pick color function not set');
+});
+const recenterFunction = ref<() => void>(() => {
+  console.error('Recenter function not set');
+});
+
+type Chunk = {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  paintCell: (x: number, y: number, color: string) => void;
+  getColor: (x: number, y: number) => string;
+};
 
 const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   const setUpCanvasSize = () => {
@@ -17,10 +77,16 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   };
   setUpCanvasSize();
 
-  window.addEventListener('resize', () => {
-    setUpCanvasSize();
-    draw();
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.target === canvasContainer.value) {
+        setUpCanvasSize();
+        draw();
+      }
+    }
   });
+
+  resizeObserver.observe(canvasContainer.value!);
 
   const rectWidth = 1000;
   const rectHeight = 1000;
@@ -29,14 +95,6 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   const numberOfChunks = 5;
   const chunkWidth = rectWidth / numberOfChunks;
   const chunkHeight = rectHeight / numberOfChunks;
-
-  const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'];
-
-  type Chunk = {
-    canvas: HTMLCanvasElement;
-    ctx: CanvasRenderingContext2D;
-    paintCell: (x: number, y: number, color: string) => void;
-  };
 
   const view = {
     x: (canvas.width - rectWidth) / 2,
@@ -50,6 +108,10 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     pan(amount: { x: number; y: number }) {
       this.x += amount.x;
       this.y += amount.y;
+    },
+    recenter() {
+      if (!this.highlightedCell) return;
+      this.centerCell(this.highlightedCell.x, this.highlightedCell.y);
     },
     centerCell(x: number, y: number) {
       const targetX = (canvas.width / 2) - ((x * cellSize * this.scale) + (cellSize * this.scale / 2));
@@ -101,10 +163,23 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
             }
           };
 
+          const getColor = (x: number, y: number) => {
+            function rgbToHex(r: number, g: number, b: number) {
+              if (r > 255 || g > 255 || b > 255)
+                throw "Invalid color component";
+              return ((r << 16) | (g << 8) | b).toString(16);
+            }
+
+            var p = offscreenCtx.getImageData(x, y, 1, 1).data;
+            var hex = "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
+            return hex;
+          };
+
           this.chunks.push({
             canvas: offscreenCanvas,
             ctx: offscreenCtx,
-            paintCell: paintCell
+            paintCell: paintCell,
+            getColor: getColor
           });
         }
       }
@@ -166,6 +241,18 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       const chunk = this.chunks[chunkIndex];
       chunk.paintCell(localX, localY, color);
     },
+    pickColor(x: number, y: number) {
+      const chunkX = Math.floor(x / chunkWidth);
+      const chunkY = Math.floor(y / chunkHeight);
+      const localX = x % chunkWidth;
+      const localY = y % chunkHeight;
+
+      const chunkIndex = (chunkY * numberOfChunks) + chunkX;
+      if (chunkIndex < 0 || chunkIndex >= this.chunks.length) return null;
+
+      const chunk = this.chunks[chunkIndex];
+      return chunk.getColor(localX, localY);
+    },
     click(e: MouseEvent) {
       const bounds = canvas.getBoundingClientRect();
       const pos = {
@@ -174,20 +261,40 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       }
       if (pos.x < 0 || pos.x >= rectWidth || pos.y < 0 || pos.y >= rectHeight) return;
       this.highlightCell(pos.x, pos.y);
-      chatSocket.send(JSON.stringify({
-        type: 'cell_update',
-        x: pos.x,
-        y: pos.y,
-        color: colors[Math.floor(Math.random() * colors.length)]
-      }));
       return pos;
     },
     highlightCell(x: number, y: number) {
       this.highlightedCell = { x, y };
       this.centerCell(x, y);
+      coordinates.value = { x, y };
+    },
+    paintCell() {
+      const color = selectedColor.value;
+      if (!this.highlightedCell) return;
+      chatSocket.send(JSON.stringify({
+        type: 'cell_update',
+        x: this.highlightedCell.x,
+        y: this.highlightedCell.y,
+        color: color
+      }));
     }
   };
   view.initChunks();
+  paintFunction.value = () => {
+    view.paintCell();
+  };
+  pickColorFunction.value = () => {
+    const color = view.pickColor(view.highlightedCell.x, view.highlightedCell.y);
+    if (color) {
+      if (!colors.includes(color)) {
+        customColor.value = color;
+      }
+      selectedColor.value = color;
+    }
+  };
+  recenterFunction.value = () => {
+    view.recenter();
+  };
 
   const draw = () => {
     const ctx = canvas.getContext('2d')!;
@@ -274,23 +381,31 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     mouseDown.y = e.clientY;
   });
 
-  canvas.addEventListener('mousemove', (e) => {
-    if (isDragging) {
-      const dx = e.clientX - lastMouse.x;
-      const dy = e.clientY - lastMouse.y;
-      view.pan({ x: dx, y: dy });
-      lastMouse = { x: e.clientX, y: e.clientY };
-      draw();
-    }
-    e.stopPropagation();
-  });
+  canvas.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    lastMouse = { x: e.clientX, y: e.clientY };
+    mouseDown.x = e.clientX;
+    mouseDown.y = e.clientY;
 
-  canvas.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
+    const onMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        const dx = e.clientX - lastMouse.x;
+        const dy = e.clientY - lastMouse.y;
+        view.pan({ x: dx, y: dy });
+        lastMouse = { x: e.clientX, y: e.clientY };
+        draw();
+      }
+      e.stopPropagation();
+    };
 
-  canvas.addEventListener('mouseleave', () => {
-    isDragging = false;
+    const onMouseUp = () => {
+      isDragging = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
   });
 
   canvas.addEventListener('wheel', (e) => {
@@ -318,12 +433,13 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     view.loadChunks();
   };
   chatSocket.onmessage = (e: MessageEvent) => {
-    console.log('WebSocket message received:', e.data);
     const data = JSON.parse(e.data);
     if (data.type === 'cell_update') {
       const cell = data.cell;
       view.drawCell(cell.x, cell.y, cell.color);
       draw();
+    } else if (data.type === 'player_update') {
+      playerCount.value = data.count;
     }
   };
   chatSocket.onclose = () => {
@@ -346,12 +462,46 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container-xxl h-100 overflow-hidden mb-2">
+  <Head :title="$t('r_place.title')" />
+
+  <div class="container-xxl h-100 overflow-hidden mb-2" :class="{ 'fullscreen': fullscreen }" ref="canvasContainer">
     <div class="w-100 rounded overflow-hidden position-relative h-100">
       <canvas width="1000" height="1000" ref="fieldPanZoom" class="field bg-grey-200"></canvas>
+
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
+        <div class="position-absolute top-0 end-0 p-2">
+          <button class="button button-small text-light" @click="fullscreen = !fullscreen; ">
+            <font-awesome-icon :icon="faMaximize"/>
+          </button>
+        </div>
+        <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative">
+          <button class="button button-small text-light" @click="recenterFunction()">
+            <font-awesome-icon :icon="faArrowsToDot"/>
+          </button>
+          <button class="button button-big text-light d-flex flex-column justify-content-center align-items-center" @click="paintFunction()">
+            <span class="fw-bold fs-5">{{ $t("r_place.canvas.place_pixel") }}</span>
+            <span>X: {{coordinates.x}} Y: {{coordinates.y}}</span>
+          </button>
+          <button class="button button-small text-light" @click="pickColorFunction()">
+            <font-awesome-icon :icon="faEyeDropper"/>
+          </button>
+          <div class="position-absolute bottom-0 end-0 p-2 text-black fw-bold">
+            {{ $t('r_place.canvas.players_online', {"player_count": playerCount}) }}
+          </div>
+        </div>
         <div class="colors active">
-          Test
+          <div class="d-flex justify-content-center align-items-center gap-1">
+            <div class="colors-container">
+              <div class="col color" :class="{ active: selectedColor === color }" :style="{ backgroundColor: color }" @click="selectedColor = color" v-for="color in colors"></div>
+            </div>
+            <div class="position-relative">
+              <BInput type="color" v-model="customColor" class="color color-big" :class="{ active: selectedColor === customColor && !colors.includes(selectedColor) }"
+                      @blur="selectedColor = customColor" />
+              <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none">
+                <font-awesome-icon :icon="faPalette"/>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -367,6 +517,14 @@ onMounted(() => {
 
 canvas {
   image-rendering: pixelated;
+}
+
+.fullscreen {
+  max-width: 100%;
+}
+
+.container-xxl {
+  transition: max-width .5s ease-in-out, height .5s ease-in-out;
 }
 
 .colors {
@@ -386,10 +544,74 @@ canvas {
   transition: height .5s ease-in-out, min-height .5s ease-in-out;
 
   pointer-events: all;
+  overflow: hidden;
 
   &.active {
     height: 25%;
     min-height: 4rem;
+  }
+}
+
+.colors-container {
+  display: grid;
+  grid-template-rows: repeat(2, fit-content(100%));
+  grid-template-columns: repeat(16, fit-content(100%));
+  grid-gap: 0.25rem;
+}
+
+.color {
+  position: relative;
+
+  width: 2.5rem;
+  height: 2.5rem;
+
+  cursor: pointer;
+
+  border: 2px solid $black;
+
+  transition: border .2s ease-in-out, transform .2s ease-in-out;
+
+  &:hover {
+    border: 2px solid $gray-10;
+  }
+
+  &-big {
+    height: 5.25rem;
+    width: 5.25rem;
+
+    border-radius: 0;
+    padding: 0;
+  }
+
+  &.active {
+    border: 4px solid $black;
+    transform: scale(1.05);
+  }
+}
+
+input[type=color]::-webkit-color-swatch {
+  border-radius: 0;
+}
+
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 12rem;
+  padding: 0.5rem;
+
+  background: $gray-500;
+  border: 2px solid $black;
+
+  pointer-events: all;
+
+  &-small {
+    width: auto;
+  }
+
+  &:hover {
+    border: 2px solid $gray-10;
   }
 }
 </style>
