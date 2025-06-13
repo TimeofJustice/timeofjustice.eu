@@ -6,14 +6,6 @@ from core.helpers import props
 from .models import Cell
 
 
-def chat(request):
-    return django.shortcuts.render(request, "chat/index.html")
-
-
-def room(request, room_name):
-    return django.shortcuts.render(request, "chat/room.html", {"room_name": room_name})
-
-
 def index(request):
     page_props = {
     }

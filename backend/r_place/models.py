@@ -2,16 +2,6 @@ from django.db import models
 from django.utils import timezone
 
 
-# Create your models here.
-class Message(models.Model):
-    id = models.AutoField(primary_key=True)
-    room = models.CharField(max_length=255)
-    message = models.TextField()
-
-    def __str__(self):
-        return f"Message {self.id} in room {self.room}: {self.message[:50]}..."
-
-
 class Cell(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     x = models.IntegerField(default=0)
