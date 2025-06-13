@@ -148,10 +148,11 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
         for (const entry of entries) {
           if (entry.target === canvasContainer.value) {
             const delta = setUpCanvasSize();
+            if (delta !== undefined) {
+              this.x += delta.deltaWidth / 2;
+              this.y += delta.deltaHeight / 2;
+            }
             draw();
-            if (delta === undefined) return;
-            this.x += delta.deltaWidth / 2;
-            this.y += delta.deltaHeight / 2;
           }
         }
       });
@@ -216,7 +217,7 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
         const chunkX = (i % numberOfRequestedChunks) * (chunkWidth);
         const chunkY = Math.floor(i / numberOfRequestedChunks) * (chunkHeight);
 
-        axios.post(`/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/`)
+        axios.get(`/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/`)
           .then(response => {
             const data = response.data;
             this.loadChunk(data.cells);
