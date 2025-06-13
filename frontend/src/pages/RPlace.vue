@@ -12,6 +12,7 @@ const coordinates = ref({ x: 500, y: 500 });
 const fullscreen = ref(false);
 const canvasContainer = ref<HTMLDivElement | null>(null);
 const started = ref(false);
+const disconnected = ref(false);
 const chunkNumber = ref(0);
 const loadedChunks = ref(0);
 
@@ -452,6 +453,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   };
   chatSocket.onclose = () => {
     console.log('WebSocket connection closed');
+    disconnected.value = true;
+    started.value = false;
   };
 };
 
@@ -475,12 +478,18 @@ onMounted(() => {
   <div class="container-xxl h-100 overflow-hidden mb-2" :class="{ 'fullscreen': fullscreen }" ref="canvasContainer">
     <div class="w-100 rounded overflow-hidden position-relative h-100">
       <Transition>
-        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="!started">
-          <BProgress :max="chunkNumber" class="col-5">
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="!started || disconnected"
+             :class="{ 'bg-opacity-75': disconnected }">
+          <BProgress :max="chunkNumber" class="col-5" v-if="!started && !disconnected">
             <BProgressBar :value="loadedChunks" striped animated>
               <small>{{ Math.round((loadedChunks / chunkNumber) * 100) }}%</small>
             </BProgressBar>
           </BProgress>
+
+          <BButton class="button text-light d-flex flex-column justify-content-center align-items-center rounded-0" to="/r-place/" v-if="disconnected">
+            <span class="fw-bold fs-5">{{ $t("r_place.canvas.disconnected.title") }}</span>
+            <span>{{ $t("r_place.canvas.disconnected.description") }}</span>
+          </BButton>
         </div>
       </Transition>
 
