@@ -350,8 +350,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     ctx.clearRect(10000, -10, 20, (rectWidth * cellSize) + 20);
     ctx.clearRect(-10, 10000, (rectHeight * 10) + 20, 20);
 
-    if (view.scale > 3) {
-      const alpha = Math.min(1, (view.scale - 3) / 2);
+    if (view.scale > 2) {
+      const alpha = Math.min(1, (view.scale - 2) / 2);
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.strokeStyle = 'rgb(144,144,144)';
@@ -383,6 +383,58 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   let isDragging = false;
   let lastMouse = { x: 0, y: 0 };
   const mouseDown = { x: 0, y: 0 };
+
+  // Desktop: Tastatursteuerung
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'r' || e.key === 'R') {
+      e.preventDefault();
+      view.recenter();
+      draw();
+    } else if (e.key === ' ') {
+      e.preventDefault();
+      view.paintCell();
+      draw();
+    } else if (e.key === 'c' || e.key === 'C') {
+      e.preventDefault();
+      const color = view.pickColor(view.highlightedCell.x, view.highlightedCell.y);
+      if (color) {
+        if (!colors.includes(color)) {
+          customColor.value = color;
+        }
+        selectedColor.value = color;
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      view.highlightCell(view.highlightedCell.x, view.highlightedCell.y - 1);
+      view.centerCell(view.highlightedCell.x, view.highlightedCell.y);
+      draw();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      view.highlightCell(view.highlightedCell.x, view.highlightedCell.y + 1);
+      view.centerCell(view.highlightedCell.x, view.highlightedCell.y);
+      draw();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      view.highlightCell(view.highlightedCell.x - 1, view.highlightedCell.y);
+      view.centerCell(view.highlightedCell.x, view.highlightedCell.y);
+      draw();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      view.highlightCell(view.highlightedCell.x + 1, view.highlightedCell.y);
+      view.centerCell(view.highlightedCell.x, view.highlightedCell.y);
+      draw();
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const currentIndex = colors.indexOf(selectedColor.value);
+      if (currentIndex === -1) {
+        selectedColor.value = colors[0];
+      } else if (currentIndex === colors.length - 1) {
+        selectedColor.value = customColor.value;
+      } else {
+        selectedColor.value = colors[currentIndex + 1];
+      }
+    }
+  });
 
   // Desktop: Maussteuerung
   canvas.addEventListener('click', (e) => {
