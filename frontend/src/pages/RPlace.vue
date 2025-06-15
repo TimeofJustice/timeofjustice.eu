@@ -1,14 +1,28 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import axios from "@node_modules/axios";
-import { faArrowsToDot, faEyeDropper, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faArrowsToDot, faBinoculars, faEyeDropper, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { faMaximize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
+
+interface Canvas {
+  name: string;
+  width: number;
+  height: number;
+  active: boolean;
+}
+
+interface Props {
+  activeCanvas: Canvas;
+  canvases: Canvas[];
+}
+
+const { activeCanvas, canvases } = defineProps<Props>();
 
 const fieldPanZoom = ref<HTMLCanvasElement | null>(null);
 const cursorImage = ref<HTMLImageElement | null>(null);
 const playerCount = ref(1);
-const coordinates = ref({ x: 500, y: 500 });
+const coordinates = ref({ x: 0, y: 0 });
 const fullscreen = ref(false);
 const canvasContainer = ref<HTMLDivElement | null>(null);
 const started = ref(false);
@@ -92,8 +106,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   };
   setUpCanvasSize();
 
-  const rectWidth = 1000;
-  const rectHeight = 1000;
+  const rectWidth = activeCanvas.width;
+  const rectHeight = activeCanvas.height;
   const cellSize = 10;
 
   const numberOfChunks = 5;
@@ -104,7 +118,7 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     x: (canvas.width - rectWidth) / 2,
     y: (canvas.height - rectHeight) / 2,
     scale: 0.1,
-    highlightedCell: { x: 500, y: 500 },
+    highlightedCell: { x: 0, y: 0 },
     chunks: [] as Chunk[],
     apply(ctx: CanvasRenderingContext2D) {
       ctx.setTransform(this.scale, 0, 0, this.scale, this.x, this.y);
@@ -210,14 +224,12 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       chunkNumber.value = numberOfRequestedChunks * numberOfRequestedChunks;
 
       const loadNextChunk = (i: number) => {
-        console.log(`Loading chunk ${i + 1}/${numberOfRequestedChunks * numberOfRequestedChunks}`);
-
         if (i >= numberOfRequestedChunks * numberOfRequestedChunks) return;
 
         const chunkX = (i % numberOfRequestedChunks) * (chunkWidth);
         const chunkY = Math.floor(i / numberOfRequestedChunks) * (chunkHeight);
 
-        axios.get(`/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/`)
+        axios.get(`/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/${activeCanvas.name}/`)
           .then(response => {
             const data = response.data;
             this.loadChunk(data.cells);
@@ -231,7 +243,6 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
             if (i < numberOfRequestedChunks * numberOfRequestedChunks - 1) {
               setTimeout(() => loadNextChunk(i + 1), 100);
             } else {
-              console.log('All chunks loaded');
               started.value = true;
               draw();
             }
@@ -288,6 +299,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       return pos;
     },
     highlightCell(x: number, y: number) {
+      if (x < 0 || x >= rectWidth || y < 0 || y >= rectHeight) return;
+
       this.highlightedCell = { x, y };
       this.centerCell(x, y);
       coordinates.value = { x, y };
@@ -347,8 +360,8 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     }
 
     // Remove pixel that are only for rounding issues
-    ctx.clearRect(10000, -10, 20, (rectWidth * cellSize) + 20);
-    ctx.clearRect(-10, 10000, (rectHeight * 10) + 20, 20);
+    ctx.clearRect(rectWidth * cellSize, -cellSize * 1.5, cellSize * 1.5, (rectWidth * cellSize) + cellSize * 3);
+    ctx.clearRect(-cellSize * 1.5, rectHeight * cellSize, (rectHeight * cellSize) + cellSize * 3, cellSize * 1.5);
 
     if (view.scale > 2) {
       const alpha = Math.min(1, (view.scale - 2) / 2);
@@ -646,6 +659,20 @@ onMounted(() => {
           <button class="button button-small text-light d-none d-xxl-flex" @click="fullscreen = !fullscreen;">
             <font-awesome-icon :icon="faMaximize"/>
           </button>
+        </div>
+        <div class="position-absolute top-0 start-0 p-2">
+          <BDropdown variant="primary" class="pe-auto">
+            <template #button-content>
+              <font-awesome-icon :icon="faBinoculars" class="me-2" />
+              <span>{{ activeCanvas.name }}</span>
+            </template>
+            <BDropdownItem v-for="canvas in canvases" :key="canvas.name" :to="'/r-place/' + canvas.name + '/'" link-class="d-flex align-items-center justify-content-between gap-2">
+              {{ canvas.name }}
+              <BBadge variant="success" v-if="canvas.active">
+                Ongoing
+              </BBadge>
+            </BDropdownItem>
+          </BDropdown>
         </div>
         <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative" v-if="started">
           <button class="button button-small text-light" @click="recenterFunction()">

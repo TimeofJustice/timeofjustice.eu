@@ -3,7 +3,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
-from .models import Cell
+from .models import Cell, Canvas
 from django.core.cache import cache
 
 
@@ -53,6 +53,13 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
             "color": data["color"]
         }
 
+        active_canvas = await database_sync_to_async(self.get_active_canvas)()
+        if not active_canvas:
+            return
+
+        if not (0 <= cell["x"] < active_canvas.width and 0 <= cell["y"] < active_canvas.height):
+            return
+
         await database_sync_to_async(self.save_cell)(cell)
 
         await self.channel_layer.group_send(
@@ -62,6 +69,9 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
                 "cell": cell
             }
         )
+
+    def get_active_canvas(self):
+        return Canvas.objects.filter(active=True).first()
 
     def save_cell(self, cell):
         Cell.objects.update_or_create(
