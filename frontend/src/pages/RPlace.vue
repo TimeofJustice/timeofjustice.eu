@@ -1,9 +1,31 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import axios from "@node_modules/axios";
 import { faArrowsToDot, faBinoculars, faEyeDropper, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { faMaximize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
+import axios from "@node_modules/axios";
+
+interface PlaceState {
+  playerCount: number;
+  coordinates: { x: number; y: number };
+  fullscreen: boolean;
+  state: 'loading' | 'started' | 'disconnected';
+  chunks: {
+    number: number;
+    loaded: number;
+  };
+  color: {
+    active: string;
+    custom: string;
+  }
+}
+
+type Chunk = {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  paintCell: (x: number, y: number, color: string) => void;
+  getColor: (x: number, y: number) => string;
+};
 
 interface Canvas {
   name: string;
@@ -19,16 +41,10 @@ interface Props {
 
 const { activeCanvas, canvases } = defineProps<Props>();
 
-const fieldPanZoom = ref<HTMLCanvasElement | null>(null);
+const canvas = ref<HTMLCanvasElement | null>(null);
 const cursorImage = ref<HTMLImageElement | null>(null);
-const playerCount = ref(1);
-const coordinates = ref({ x: 0, y: 0 });
-const fullscreen = ref(false);
+
 const canvasContainer = ref<HTMLDivElement | null>(null);
-const started = ref(false);
-const disconnected = ref(false);
-const chunkNumber = ref(0);
-const loadedChunks = ref(0);
 
 const colors = [
   '#6d001a',
@@ -64,8 +80,7 @@ const colors = [
   '#898d90',
   '#ffffff'
 ];
-const customColor = ref('#000000');
-const selectedColor = ref(colors[0]);
+
 const paintFunction = ref<() => void>(() => {
   console.error('Paint function not set');
 });
@@ -76,12 +91,20 @@ const recenterFunction = ref<() => void>(() => {
   console.error('Recenter function not set');
 });
 
-type Chunk = {
-  canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
-  paintCell: (x: number, y: number, color: string) => void;
-  getColor: (x: number, y: number) => string;
-};
+const placeState = ref<PlaceState>({
+  playerCount: 1,
+  coordinates: { x: 0, y: 0 },
+  fullscreen: false,
+  state: 'loading',
+  chunks: {
+    number: 0,
+    loaded: 0
+  },
+  color: {
+    active: '#6d001a',
+    custom: '#00156b'
+  }
+});
 
 const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
   const setUpCanvasSize = () => {
@@ -118,7 +141,7 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     x: (canvas.width - rectWidth) / 2,
     y: (canvas.height - rectHeight) / 2,
     scale: 0.1,
-    highlightedCell: { x: 0, y: 0 },
+    highlightedCell: { x: rectWidth / 2, y: rectHeight / 2 },
     chunks: [] as Chunk[],
     apply(ctx: CanvasRenderingContext2D) {
       ctx.setTransform(this.scale, 0, 0, this.scale, this.x, this.y);
@@ -221,7 +244,7 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       const numberOfRequestedChunks = 4;
       const chunkWidth = rectWidth / numberOfRequestedChunks;
       const chunkHeight = rectHeight / numberOfRequestedChunks;
-      chunkNumber.value = numberOfRequestedChunks * numberOfRequestedChunks;
+      placeState.value.chunks.number = numberOfRequestedChunks * numberOfRequestedChunks;
 
       const loadNextChunk = (i: number) => {
         if (i >= numberOfRequestedChunks * numberOfRequestedChunks) return;
@@ -238,12 +261,12 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
             console.error(`Error loading chunk ${i}:`, error);
           })
           .finally(() => {
-            loadedChunks.value++;
+            placeState.value.chunks.loaded++;
 
             if (i < numberOfRequestedChunks * numberOfRequestedChunks - 1) {
               setTimeout(() => loadNextChunk(i + 1), 100);
             } else {
-              started.value = true;
+              placeState.value.state = 'started';
               draw();
             }
           });
@@ -303,10 +326,10 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
 
       this.highlightedCell = { x, y };
       this.centerCell(x, y);
-      coordinates.value = { x, y };
+      placeState.value.coordinates = { x, y };
     },
     paintCell() {
-      const color = selectedColor.value;
+      const color = placeState.value.color.active;
       if (!this.highlightedCell) return;
       chatSocket.send(JSON.stringify({
         type: 'cell_update',
@@ -324,13 +347,17 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
     const color = view.pickColor(view.highlightedCell.x, view.highlightedCell.y);
     if (color) {
       if (!colors.includes(color)) {
-        customColor.value = color;
+        placeState.value.color.custom = color;
       }
-      selectedColor.value = color;
+      placeState.value.color.active = color;
     }
   };
   recenterFunction.value = () => {
     view.recenter();
+  };
+  placeState.value.coordinates = {
+    x: view.highlightedCell.x,
+    y: view.highlightedCell.y
   };
 
   const draw = () => {
@@ -412,9 +439,9 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       const color = view.pickColor(view.highlightedCell.x, view.highlightedCell.y);
       if (color) {
         if (!colors.includes(color)) {
-          customColor.value = color;
+          placeState.value.color.custom = color;
         }
-        selectedColor.value = color;
+        placeState.value.color.active = color;
       }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
@@ -438,13 +465,13 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       draw();
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      const currentIndex = colors.indexOf(selectedColor.value);
+      const currentIndex = colors.indexOf(placeState.value.color.active);
       if (currentIndex === -1) {
-        selectedColor.value = colors[0];
+        placeState.value.color.active = colors[0];
       } else if (currentIndex === colors.length - 1) {
-        selectedColor.value = customColor.value;
+        placeState.value.color.active = placeState.value.color.custom;
       } else {
-        selectedColor.value = colors[currentIndex + 1];
+        placeState.value.color.active = colors[currentIndex + 1];
       }
     }
   });
@@ -607,61 +634,59 @@ const setUpCanvas = (canvas: HTMLCanvasElement, cursor: HTMLImageElement) => {
       view.drawCell(cell.x, cell.y, cell.color);
       draw();
     } else if (data.type === 'player_update') {
-      playerCount.value = data.count;
+      placeState.value.playerCount = data.count;
     }
   };
   chatSocket.onclose = () => {
     console.log('WebSocket connection closed');
-    disconnected.value = true;
-    started.value = false;
+    placeState.value.state = 'disconnected';
   };
 };
 
 onMounted(() => {
-  if (!fieldPanZoom.value || !cursorImage.value) {
+  if (!canvas.value || !cursorImage.value) {
     console.error('Canvas element not found');
     return;
   }
-  const canvas = fieldPanZoom.value;
-  if (!(canvas instanceof HTMLCanvasElement)) {
-    console.error('fieldPanZoom is not a canvas element');
+  if (!(canvas.value instanceof HTMLCanvasElement)) {
+    console.error('canvas is not a canvas element');
     return;
   }
-  setUpCanvas(canvas, cursorImage.value);
+  setUpCanvas(canvas.value, cursorImage.value);
 });
 </script>
 
 <template>
   <Head :title="$t('r_place.title')" />
 
-  <div class="container-xxl h-100 overflow-hidden mb-2" :class="{ 'fullscreen': fullscreen }" ref="canvasContainer">
+  <div class="container-xxl h-100 overflow-hidden mb-2" :class="{ 'fullscreen': placeState.fullscreen }" ref="canvasContainer">
     <div class="w-100 rounded overflow-hidden position-relative h-100">
       <Transition>
-        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="!started || disconnected"
-             :class="{ 'bg-opacity-75': disconnected }">
-          <BProgress :max="chunkNumber" class="col-5" v-if="!started && !disconnected">
-            <BProgressBar :value="loadedChunks" striped animated>
-              <small>{{ Math.round((loadedChunks / chunkNumber) * 100) }}%</small>
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="placeState.state !== 'started'"
+             :class="{ 'bg-opacity-75': placeState.state === 'disconnected' }">
+          <BProgress :max="placeState.chunks.number" class="col-5" v-if="placeState.state === 'loading'">
+            <BProgressBar :value="placeState.chunks.loaded" striped animated>
+              <small>{{ Math.round((placeState.chunks.loaded / placeState.chunks.number) * 100) }}%</small>
             </BProgressBar>
           </BProgress>
 
-          <BButton class="button text-light d-flex flex-column justify-content-center align-items-center rounded-0" to="/r-place/" v-if="disconnected">
+          <BButton class="button text-light d-flex flex-column justify-content-center align-items-center rounded-0" to="/r-place/" v-if="placeState.state === 'disconnected'">
             <span class="fw-bold fs-5">{{ $t("r_place.canvas.disconnected.title") }}</span>
             <span>{{ $t("r_place.canvas.disconnected.description") }}</span>
           </BButton>
         </div>
       </Transition>
 
-      <canvas width="1000" height="1000" ref="fieldPanZoom" class="field bg-grey-200"></canvas>
+      <canvas width="1000" height="1000" ref="canvas" class="field bg-grey-200"></canvas>
 
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
         <div class="position-absolute top-0 end-0 p-2">
-          <button class="button button-small text-light d-none d-xxl-flex" @click="fullscreen = !fullscreen;">
+          <button class="button button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
             <font-awesome-icon :icon="faMaximize"/>
           </button>
         </div>
         <div class="position-absolute top-0 start-0 p-2">
-          <BDropdown variant="primary" class="pe-auto">
+          <BDropdown variant="primary" class="pe-auto place-dropdown" offset="5">
             <template #button-content>
               <font-awesome-icon :icon="faBinoculars" class="me-2" />
               <span>{{ activeCanvas.name }}</span>
@@ -674,29 +699,29 @@ onMounted(() => {
             </BDropdownItem>
           </BDropdown>
         </div>
-        <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative" v-if="started">
+        <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative" v-if="placeState.state === 'started'">
           <button class="button button-small text-light" @click="recenterFunction()">
             <font-awesome-icon :icon="faArrowsToDot"/>
           </button>
           <button class="button button-big text-light d-flex flex-column justify-content-center align-items-center" @click="paintFunction()">
             <span class="fw-bold fs-5">{{ $t("r_place.canvas.place_pixel") }}</span>
-            <span>X: {{coordinates.x}} Y: {{coordinates.y}}</span>
+            <span>X: {{placeState.coordinates.x}} Y: {{placeState.coordinates.y}}</span>
           </button>
           <button class="button button-small text-light" @click="pickColorFunction()">
             <font-awesome-icon :icon="faEyeDropper"/>
           </button>
           <div class="position-absolute bottom-0 end-0 p-2 text-black fw-bold d-none d-sm-block">
-            {{ $t('r_place.canvas.players_online', {"player_count": playerCount}) }}
+            {{ $t('r_place.canvas.players_online', {"player_count": placeState.playerCount}) }}
           </div>
         </div>
-        <div class="colors" :class="{ active: started }">
+        <div class="colors" :class="{ active: placeState.state === 'started' }">
           <div class="d-flex justify-content-center align-items-center gap-1">
             <div class="colors-container">
-              <div class="col color" :class="{ active: selectedColor === color }" :style="{ backgroundColor: color }" @click="selectedColor = color" v-for="color in colors"></div>
+              <div class="col color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in colors"></div>
             </div>
             <div class="position-relative d-none d-sm-block">
-              <BInput type="color" v-model="customColor" class="color color-big" :class="{ active: selectedColor === customColor && !colors.includes(selectedColor) }"
-                      @blur="selectedColor = customColor" />
+              <BInput type="color" v-model="placeState.color.custom" class="color color-big" :class="{ active: placeState.color.active === placeState.color.custom && !colors.includes(placeState.color.active) }"
+                      @blur="placeState.color.active = placeState.color.custom" />
               <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none">
                 <font-awesome-icon :icon="faPalette"/>
               </div>
@@ -712,7 +737,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "@/assets/scss/colors.scss";
 
 canvas {
@@ -803,11 +828,23 @@ canvas {
   }
 
   &-big {
-    height: 5.25rem;
-    width: 5.25rem;
+    border: 2px solid $black!important;
+    height: 5.25rem!important;
+    width: 5.25rem!important;
 
-    border-radius: 0;
-    padding: 0;
+    border-radius: 0!important;
+    padding: 0!important;
+
+    outline: none!important;
+
+    &:hover {
+      border: 2px solid $gray-10!important;
+    }
+
+    &.active {
+      border: 4px solid $black!important;
+      transform: scale(1.05)!important;
+    }
   }
 
   &.active {
@@ -820,25 +857,37 @@ input[type=color]::-webkit-color-swatch {
   border-radius: 0;
 }
 
-.button {
+.button, .place-dropdown > .btn-primary {
   display: flex;
   justify-content: center;
   align-items: center;
 
-  width: 12rem;
   padding: 0.5rem;
 
+  --bs-btn-hover-bg: #{$gray-500};
   background: $gray-500;
+  --bs-btn-bg: $gray-500;
   border: 2px solid $black;
+  border-radius: 0;
 
   pointer-events: all;
 
-  &-small {
-    width: auto;
+  &-big {
+    width: 12rem;
   }
 
   &:hover {
     border: 2px solid $gray-10;
   }
+}
+
+.place-dropdown > .dropdown-menu {
+  background: $gray-500;
+  border: 2px solid $black;
+  border-radius: 0;
+  --bs-dropdown-link-color: #{$white};
+
+  --bs-dropdown-link-hover-color: #{$white};
+  --bs-dropdown-link-hover-bg: #{$gray-300};
 }
 </style>
