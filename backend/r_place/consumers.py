@@ -63,7 +63,7 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         if not isinstance(cell["color"], str) or len(cell["color"]) != 7 or not cell["color"].startswith("#"):
             return
 
-        await database_sync_to_async(self.save_cell)(cell)
+        await database_sync_to_async(self.save_cell)(cell, active_canvas)
 
         await self.channel_layer.group_send(
             "r_place",
@@ -76,10 +76,11 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
     def get_active_canvas(self):
         return Canvas.objects.filter(active=True).first()
 
-    def save_cell(self, cell):
+    def save_cell(self, cell, canvas):
         Cell.objects.update_or_create(
             x=cell["x"],
             y=cell["y"],
+            canvas=canvas,
             defaults={"color": cell["color"]}
         )
 
