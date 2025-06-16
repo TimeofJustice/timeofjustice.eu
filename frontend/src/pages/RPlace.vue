@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { faArrowsToDot, faBinoculars, faEyeDropper, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
+import { faAdd } from "@node_modules/@fortawesome/free-solid-svg-icons/faAdd";
 
 interface PlaceState {
   playerCount: number;
@@ -673,6 +674,87 @@ onMounted(() => {
     socket.close()
   });
 });
+
+const file = ref<File | null>(null);
+const previewCanvas = ref<HTMLCanvasElement | null>(null);
+const sizeOnCanvasX = ref(10);
+const limitSizeOnCanvasX = ref(1000);
+const positionOnCanvasX = ref(0);
+const positionOnCanvasY = ref(0);
+
+watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, newSizeX, newPositionX, newPositionY]) => {
+  if (!newFile || !previewCanvas.value) return;
+
+  const ctx = previewCanvas.value.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  if (!ctx) {
+    console.error('Failed to get canvas context');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      // Ursprüngliches Seitenverhältnis berechnen
+      const imgRatio = img.width / img.height;
+      let pixelW = Number(newSizeX);
+      let pixelH = Math.round(pixelW / imgRatio);
+
+      // Canvas-Größe anpassen
+      const previewWidth = 300;
+      const previewHeight = 300;
+      const multiplierWidth = previewWidth / activeCanvas.width;
+      const multiplierHeight = previewHeight / activeCanvas.height;
+      previewCanvas.value.width = previewWidth;
+      previewCanvas.value.height = previewHeight;
+
+      // Limit width to 1000, or to the maximum width where the height does not exceed 1000
+      limitSizeOnCanvasX.value = Math.min(Math.min(1000, img.width), Math.floor(1000 / pixelH * pixelW));
+      if (sizeOnCanvasX.value > limitSizeOnCanvasX.value) {
+        sizeOnCanvasX.value = limitSizeOnCanvasX.value;
+      }
+
+      // Temporäres Canvas für das Downscaling
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = pixelW;
+      tempCanvas.height = pixelH;
+      const tempCtx = tempCanvas.getContext('2d');
+      if (!tempCtx) {
+        console.error('Failed to get temp canvas context');
+        return;
+      }
+      // Bild auf kleine Größe zeichnen
+      tempCtx.drawImage(img, 0, 0, pixelW, pixelH);
+
+      // Haupt-Canvas zurücksetzen
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
+      for (let i = 0; i < view.chunks.length; i++) {
+        const chunk = view.chunks[i];
+        const chunkX = (i % numberOfChunks) * chunkWidth;
+        const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
+        ctx.drawImage(
+          chunk.canvas,
+          chunkX * multiplierWidth,
+          chunkY * multiplierHeight,
+          (chunkWidth + 1) * multiplierWidth,
+          (chunkHeight + 1) * multiplierHeight
+        );
+      }
+
+      // Bild wieder hochskalieren, ohne Glättung (pixelig)
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(
+        tempCanvas,
+        0, 0, pixelW, pixelH,
+        newPositionX * multiplierWidth, newPositionY * multiplierHeight, pixelW * multiplierWidth, pixelH * multiplierHeight
+      );
+    };
+    img.src = e.target?.result as string;
+  };
+  reader.readAsDataURL(newFile);
+});
 </script>
 
 <template>
@@ -749,6 +831,24 @@ onMounted(() => {
           </div>
         </div>
       </div>
+
+      <Transition>
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark bg-opacity-75 gap-2">
+          <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+            <canvas ref="previewCanvas"></canvas>
+            <BFormFile v-model="file" accept="image/*" />
+
+            <BInput type="number" v-model="positionOnCanvasX" min="0" max="1000" class="w-100 mb-2" />
+            <BInput type="number" v-model="positionOnCanvasY" min="0" max="1000" class="w-100 mb-2" />
+
+            <BInput type="range" v-model="sizeOnCanvasX" min="1" :max="limitSizeOnCanvasX" class="w-100 mb-2" />
+
+            <BButton class="place-button place-button-big text-light">
+              <font-awesome-icon :icon="faAdd" />
+            </BButton>
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 
