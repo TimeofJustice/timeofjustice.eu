@@ -857,16 +857,16 @@ input[type=color]::-webkit-color-swatch {
   border-radius: 0;
 }
 
-.button, .place-dropdown > .btn-primary {
+.button, .place-dropdown > .btn, .button.btn {
   display: flex;
   justify-content: center;
   align-items: center;
 
   padding: 0.5rem;
 
+  --bs-btn-bg: $gray-500;
   --bs-btn-hover-bg: #{$gray-500};
   background: $gray-500;
-  --bs-btn-bg: $gray-500;
   border: 2px solid $black;
   border-radius: 0;
 

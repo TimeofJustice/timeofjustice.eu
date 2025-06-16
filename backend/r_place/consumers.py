@@ -60,12 +60,15 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         if not (0 <= cell["x"] < active_canvas.width and 0 <= cell["y"] < active_canvas.height):
             return
 
+        if not isinstance(cell["color"], str) or len(cell["color"]) != 7 or not cell["color"].startswith("#"):
+            return
+
         await database_sync_to_async(self.save_cell)(cell)
 
         await self.channel_layer.group_send(
             "r_place",
             {
-                "type": "cell.update",
+                "type": "cell_update",
                 "cell": cell
             }
         )
