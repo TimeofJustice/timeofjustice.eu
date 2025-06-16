@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import Navbar from "@layouts/components/Navbar.vue";
+import { faClose } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 interface IBasicLayout {
   production: boolean;
@@ -25,9 +26,13 @@ defineProps<IBasicLayout>();
 
     <Navbar />
 
-    <div class="w-100 overflow-y-auto overflow-x-hidden z-0">
+    <div class="w-100 overflow-y-auto overflow-x-hidden z-0 flex-grow-1 d-flex flex-column">
       <div class="container-xxl px-3" v-if="!stable">
-        <BAlert :model-value="true" variant="info">
+        <BAlert :model-value="true" variant="info" dismissible close-variant="tertiary">
+          <template #close>
+            <font-awesome-icon :icon="faClose"/>
+          </template>
+
           <vue-markdown :source="$t('nav.stable_hint')" />
         </BAlert>
       </div>

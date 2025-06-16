@@ -77,6 +77,14 @@ jobs:
         run: |
           rsync -r --delete-delay backend/ /var/www/staging.timeofjustice.eu/backend/
 
+      - name: Recreate environment
+        run: |
+          cd /var/www/staging.timeofjustice.eu/backend
+          rm -r .env
+          python3.12 -m venv .env
+          source .env/bin/activate
+          pip3.12 install -r requirements.txt
+
       - name: Link to storage
         run: |
           ln -s ../files /var/www/staging.timeofjustice.eu/backend/files
@@ -84,3 +92,7 @@ jobs:
       - name: Trigger gunicorn to reload
         run: |
           sudo /bin/systemctl restart staging.gunicorn.service
+
+      - name: Trigger daphne to reload
+        run: |
+          sudo /bin/systemctl restart staging.daphne.service

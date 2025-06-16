@@ -10,6 +10,7 @@ import Link from "@components/Link.vue";
 
 import "@assets/scss/_index.scss";
 import 'bootstrap';
+import 'vue-color/style.css';
 
 import de from "@assets/locales/de.json";
 import en from "@assets/locales/en.json";
@@ -54,7 +55,7 @@ createInertiaApp({
             .component('vue-markdown', VueMarkdown)
             .use(MotionPlugin)
             .use(i18n)
-            .use(VueApexCharts)
+            .use(VueApexCharts as any)
             .use(Vue3Marquee)
             .directive('wip', wip)
             .component('Link', Link)
