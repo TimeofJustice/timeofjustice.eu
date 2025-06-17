@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { faArrowsToDot, faBinoculars, faCheck, faEyeDropper, faLayerGroup, faPalette, faSync } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import {
+  faArrowsToDot,
+  faBinoculars,
+  faCheck,
+  faChevronLeft,
+  faChevronRight,
+  faEyeDropper,
+  faLayerGroup,
+  faPalette,
+  faSync
+} from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
@@ -11,7 +21,8 @@ interface PlaceState {
   fullscreen: boolean;
   overlayScreen: boolean;
   inOverlay: boolean;
-  colors: string[];
+  colors: string[][];
+  colorsPage: number;
   state: 'loading' | 'viewing' | 'started' | 'disconnected';
   chunks: {
     number: number;
@@ -180,7 +191,8 @@ const placeState = ref<PlaceState>({
   fullscreen: false,
   overlayScreen: false,
   inOverlay: false,
-  colors: colors,
+  colors: [colors],
+  colorsPage: 0,
   state: 'loading',
   chunks: {
     number: 0,
@@ -468,13 +480,21 @@ const view = {
 
     if (this.overlay && (this.overlay.x <= x && x < this.overlay.x + this.overlay.width) &&
         (this.overlay.y <= y && y < this.overlay.y + this.overlay.height)) {
-      placeState.value.colors = this.overlay.colors;
-      placeState.value.color.active = this.overlay.colors[0];
-      placeState.value.inOverlay = true;
+      if (!placeState.value.inOverlay) {
+        placeState.value.colors = [];
+        for (let i = 0; i < this.overlay.colors.length; i += 32) {
+          placeState.value.colors.push(this.overlay.colors.slice(i, i + 32));
+        }
+
+        placeState.value.color.active = this.overlay.colors[0];
+        placeState.value.inOverlay = true;
+        placeState.value.colorsPage = 0;
+      }
     } else {
-      placeState.value.colors = colors;
+      placeState.value.colors = [colors];
       placeState.value.color.active = colors[0];
       placeState.value.inOverlay = false;
+      placeState.value.colorsPage = 0;
 
       if (this.overlay) {
         this.overlay.calculateOverlay();
@@ -543,13 +563,13 @@ function keydownHandler(e: KeyboardEvent) {
     view.pickColor();
   } else if (e.key === 'Tab') {
     e.preventDefault();
-    const currentIndex = colors.indexOf(placeState.value.color.active);
-    if (currentIndex === -1) {
-      placeState.value.color.active = colors[0];
-    } else if (currentIndex === colors.length - 1) {
+    const currentIndex = placeState.value.colors[placeState.value.colorsPage].indexOf(placeState.value.color.active);
+    if (currentIndex === -1 || (placeState.value.inOverlay && currentIndex === placeState.value.colors[placeState.value.colorsPage].length - 1)) {
+      placeState.value.color.active = placeState.value.colors[placeState.value.colorsPage][0];
+    } else if (currentIndex === placeState.value.colors[placeState.value.colorsPage].length - 1 && !placeState.value.inOverlay) {
       placeState.value.color.active = placeState.value.color.custom;
     } else {
-      placeState.value.color.active = colors[currentIndex + 1];
+      placeState.value.color.active = placeState.value.colors[placeState.value.colorsPage][currentIndex + 1];
     }
   }
 }
@@ -983,6 +1003,14 @@ const overlay = {
     synced.value = true;
   },
   calculate() {
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!this.reducedCanvas) {
+      console.error('Reduced canvas not found');
+      return;
+    }
+    this.preview();
     view.overlay = new Overlay(this.reducedCanvas, Number(positionOnCanvasX.value), Number(positionOnCanvasY.value));
     view.refresh();
     placeState.value.overlayScreen = false;
@@ -1077,11 +1105,21 @@ watch(() => placeState.value.color.active, (newColor) => {
         </div>
         <div class="place-colors-container" :class="{ active: placeState.state === 'started' }">
           <div class="d-flex justify-content-center align-items-center gap-1">
-            <div class="place-colors-grid">
-              <div class="col place-color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in placeState.colors"></div>
+            <div @click="placeState.colorsPage = Math.max(0, placeState.colorsPage - 1)" class="place-colors-arrow" :class="{ 'opacity-0': placeState.colorsPage === 0 }" v-if="placeState.inOverlay">
+              <font-awesome-icon :icon="faChevronLeft" />
             </div>
+            <div class="place-colors-grid" v-for="(page, index) in placeState.colors" :key="index" v-show="placeState.colorsPage === index">
+              <div class="col place-color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in page"></div>
+              <div class="col place-color d-flex justify-content-center align-items-center" v-for="i in (32 - page.length)" :key="i" style="background-color: white;">
+                <font-awesome-icon :icon="faClose" class="text-black" />
+              </div>
+            </div>
+            <div @click="placeState.colorsPage = Math.min(placeState.colors.length - 1, placeState.colorsPage + 1)" class="place-colors-arrow" :class="{ 'opacity-0': placeState.colorsPage === placeState.colors.length - 1 }" v-if="placeState.inOverlay">
+              <font-awesome-icon :icon="faChevronRight" />
+            </div>
+
             <div class="position-relative d-none d-sm-block" v-if="!placeState.inOverlay">
-              <BInput type="color" v-model="placeState.color.custom" class="place-color place-color-big" :class="{ active: placeState.color.active === placeState.color.custom && !placeState.colors.includes(placeState.color.active) }"
+              <BInput type="color" v-model="placeState.color.custom" class="place-color place-color-big" :class="{ active: placeState.color.active === placeState.color.custom && !placeState.colors[placeState.colorsPage].includes(placeState.color.active) }"
                       @blur="placeState.color.active = placeState.color.custom" />
               <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none">
                 <font-awesome-icon :icon="faPalette"/>
@@ -1118,7 +1156,7 @@ watch(() => placeState.value.color.active, (newColor) => {
                 id="position-x-input"
                 type="range"
                 v-model="positionOnCanvasX"
-                min="0" :max="1000"
+                min="0" :max="activeCanvas.width"
                 class="place-range"
               />
             </BFormGroup>
@@ -1132,7 +1170,7 @@ watch(() => placeState.value.color.active, (newColor) => {
                 id="position-y-input"
                 type="range"
                 v-model="positionOnCanvasY"
-                min="0" :max="1000"
+                min="0" :max="activeCanvas.height"
                 class="place-range"
               />
             </BFormGroup>
@@ -1162,7 +1200,7 @@ watch(() => placeState.value.color.active, (newColor) => {
                 id="width-input"
                 type="range"
                 v-model="numberColors"
-                :min="2" :max="32"
+                :min="2" :max="200"
                 class="place-range"
               />
             </BFormGroup>
@@ -1378,5 +1416,23 @@ input[type=color]::-webkit-color-swatch {
 .place-range::-webkit-slider-runnable-track {
   background: $gray-500!important;
   border-radius: 0!important;
+}
+
+.place-colors-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0.5rem;
+
+  cursor: pointer;
+  color: $black;
+  opacity: 1;
+
+  transition: opacity .2s ease-in-out;
+
+  &:hover {
+    color: $gray-10;
+  }
 }
 </style>
