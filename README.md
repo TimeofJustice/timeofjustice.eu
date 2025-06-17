@@ -1,11 +1,17 @@
-# timeofjustice.eu
+![Title of the project](.github/images/title.png)
 
-This project is a portfolio project that displays all the projects I have done in the past. The project is divided into two parts: the backend and the frontend. The backend is a REST API written in Python using the Django framework. The frontend is a React application that uses the REST API to display the data.
+[![Deploy in production](https://github.com/TimeofJustice/timeofjustice.eu/actions/workflows/deploy-release.yaml/badge.svg)](https://github.com/TimeofJustice/timeofjustice.eu/actions/workflows/deploy-release.yaml)
+[![Last Commit](https://badgen.net/github/last-commit/timeofjustice/timeofjustice.eu)](https://timeofjustice.eu)
+[![Visit](https://badgen.net/badge/visit%20now/timeofjustice.eu/blue)](https://timeofjustice.eu)
 
-## Backend
+**timeofjustice.eu** began as a portfolio project to showcase my past and current work.
+Since then, it has evolved into a playground for experimenting with new technologies and frameworks.
+It's not about being perfect, but about having fun and learning new things.
+The frontend is built with Vue.js, TypeScript, and Bootstrap.
+The backend is powered by Django and a PostgreSQL database.
 
-The backend is a REST API written in Python using the Django framework.
+![Features of the project](.github/images/features.png)
 
-## Frontend
-
-The frontend is a React application that uses the REST API to display the data. The frontend is reachable at [timeofjustice.eu](https://timeofjustice.eu).
+- **Portfolio**: A showcase of my work and projects.
+- **Games**: A collection of mini-games.
+- **r/Place**: A recreation of Reddit’s *r/place* event.
