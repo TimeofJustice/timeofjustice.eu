@@ -215,6 +215,7 @@
         "description": "Click here to reconnect"
       },
       "overlay": {
+        "invalid_file": "Supported types (PNG, JPG, JPEG, GIF)",
         "x": "Position x: {x}",
         "y": "Position y: {y}",
         "width": "Width: {width}",

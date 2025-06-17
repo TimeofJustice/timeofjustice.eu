@@ -215,6 +215,7 @@
         "description": "Erneut verbinden"
       },
       "overlay": {
+        "invalid_file": "Unterstützte Formate (PNG, JPG, JPEG, GIF)",
         "x": "Position x: {x}",
         "y": "Position y: {y}",
         "width": "Breite: {width}",

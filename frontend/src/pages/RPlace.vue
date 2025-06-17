@@ -14,6 +14,7 @@ import {
 import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
+import { computed } from "@node_modules/vue";
 
 interface PlaceState {
   playerCount: number;
@@ -44,6 +45,7 @@ class Overlay {
   image: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   overlayImage: HTMLCanvasElement;
+  cache: Map<string, HTMLCanvasElement> = new Map();
   initialized: boolean = false;
   colors: string[] = [];
   x: number;
@@ -68,9 +70,16 @@ class Overlay {
     this.initialized = true;
   }
   calculateOverlay(color?: string) {
-    const ctx = this.overlayImage.getContext('2d')!;
+    if (this.cache.has(color || 'default')) {
+      this.overlayImage = this.cache.get(color || 'default')!;
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
     ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, this.overlayImage.width, this.overlayImage.height);
+    canvas.width = this.overlayImage.width;
+    canvas.height = this.overlayImage.height;
 
     for (let x = 0; x < this.image.width; x++) {
       for (let y = 0; y < this.image.height; y++) {
@@ -88,6 +97,9 @@ class Overlay {
         }
       }
     }
+
+    this.overlayImage = canvas;
+    this.cache.set(color || 'default', this.overlayImage);
   }
 }
 
@@ -795,6 +807,14 @@ onMounted(() => {
 });
 
 const file = ref<File | null>(null);
+const validateFile = computed(() => {
+  if (file.value === null) {
+    return null;
+  } else if (!file.value.name.match(/\.(png|jpg|jpeg|gif)$/i)) {
+    return false;
+  }
+  return true;
+});
 const previewCanvas = ref<HTMLCanvasElement | null>(null);
 const sizeOnCanvasX = ref(100);
 const limitSizeOnCanvasX = ref(1000);
@@ -1003,6 +1023,10 @@ const overlay = {
     synced.value = true;
   },
   calculate() {
+    if (!this.imageLoaded) {
+      placeState.value.overlayScreen = false;
+      return;
+    }
     if (!this.initialized) {
       this.init();
     }
@@ -1130,8 +1154,8 @@ watch(() => placeState.value.color.active, (newColor) => {
       </div>
 
       <Transition>
-        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark bg-opacity-75 overflow-auto p-2" :class="{ 'd-none': !placeState.overlayScreen }">
-          <div class="d-flex flex-column justify-content-center align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black">
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 p-2" :class="{ 'd-none': !placeState.overlayScreen }">
+          <div class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black overflow-auto col-md-6">
             <div class="position-relative">
               <canvas ref="previewCanvas"></canvas>
 
@@ -1144,7 +1168,13 @@ watch(() => placeState.value.color.active, (newColor) => {
               </Transition>
             </div>
 
-            <BFormFile v-model="file" accept="image/*" class="place-input" />
+            <BFormGroup label-for="file-input">
+              <BFormFile id="file-input" v-model="file" accept="image/png,image/jpeg,image/gif"
+                         class="place-input" :state="validateFile" />
+              <BFormInvalidFeedback :state="validateFile">
+                {{ $t('r_place.canvas.overlay.invalid_file') }}
+              </BFormInvalidFeedback>
+            </BFormGroup>
 
             <BFormGroup
               :label="$t('r_place.canvas.overlay.x', { 'x': positionOnCanvasX })"
@@ -1268,12 +1298,12 @@ watch(() => placeState.value.color.active, (newColor) => {
     height: 25%;
     min-height: 4rem;
 
-    @media (max-width: 576px) {
-      min-height: 10rem;
-    }
-
     @media (max-width: 992px) {
       min-height: 12rem;
+    }
+
+    @media (max-width: 576px) {
+      min-height: 10rem;
     }
   }
 }
@@ -1292,8 +1322,8 @@ watch(() => placeState.value.color.active, (newColor) => {
 .place-color {
   position: relative;
 
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
 
   cursor: pointer;
 
@@ -1306,14 +1336,14 @@ watch(() => placeState.value.color.active, (newColor) => {
   }
 
   @media (max-width: 576px) {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 1.9rem;
+    height: 1.9rem;
   }
 
   &-big {
     border: 2px solid $black!important;
-    height: 5.25rem!important;
-    width: 5.25rem!important;
+    height: 4.75rem!important;
+    width: 4.75rem!important;
 
     border-radius: 0!important;
     padding: 0!important;
@@ -1386,7 +1416,7 @@ input[type=color]::-webkit-color-swatch {
   outline: none!important;
   transition: border .2s ease-in-out!important;
 
-  &::-webkit-file-upload-button {
+  &::file-selector-button {
     background: $gray-300!important;
   }
 
@@ -1407,13 +1437,12 @@ input[type=color]::-webkit-color-swatch {
   border: 2px solid $black!important;
 }
 
-.place-range::-ms-thumb {
+.place-range::-webkit-slider-runnable-track {
   background: $gray-500!important;
   border-radius: 0!important;
-  border: 2px solid $black!important;
 }
 
-.place-range::-webkit-slider-runnable-track {
+.place-range::-moz-range-track {
   background: $gray-500!important;
   border-radius: 0!important;
 }
