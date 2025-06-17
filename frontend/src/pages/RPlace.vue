@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { faArrowsToDot, faBinoculars, faCheck, faChevronUp, faEyeDropper, faLayerGroup, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faArrowsToDot, faBinoculars, faCheck, faEyeDropper, faLayerGroup, faPalette, faSync } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
@@ -10,7 +10,7 @@ interface PlaceState {
   coordinates: { x: number; y: number };
   fullscreen: boolean;
   overlayScreen: boolean;
-  colorsList: boolean;
+  inOverlay: boolean;
   colors: string[];
   state: 'loading' | 'viewing' | 'started' | 'disconnected';
   chunks: {
@@ -33,6 +33,7 @@ class Overlay {
   image: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   overlayImage: HTMLCanvasElement;
+  initialized: boolean = false;
   colors: string[] = [];
   x: number;
   y: number;
@@ -46,31 +47,36 @@ class Overlay {
     this.y = y;
     this.width = image.width;
     this.height = image.height;
-    console.log(`Overlay initialized at (${x}, ${y}) with size ${image.width}x${image.height}`);
 
     this.overlayImage = document.createElement('canvas');
+    this.overlayImage.width = this.image.width * 5;
+    this.overlayImage.height = this.image.height * 5;
 
-    this.overlayImage.width = image.width * 5;
-    this.overlayImage.height = image.height * 5;
+    this.calculateOverlay();
 
+    this.initialized = true;
+  }
+  calculateOverlay(color?: string) {
     const ctx = this.overlayImage.getContext('2d')!;
     ctx.imageSmoothingEnabled = false;
-    for (let x = 0; x < image.width; x++) {
-      for (let y = 0; y < image.height; y++) {
-        const pixelColor = image.getContext('2d')!.getImageData(x, y, 1, 1).data;
+    ctx.clearRect(0, 0, this.overlayImage.width, this.overlayImage.height);
+
+    for (let x = 0; x < this.image.width; x++) {
+      for (let y = 0; y < this.image.height; y++) {
+        const pixelColor = this.image.getContext('2d')!.getImageData(x, y, 1, 1).data;
+        const hexColor = "#" + ("000000" + rgbToHex(pixelColor[0], pixelColor[1], pixelColor[2])).slice(-6);
+
+        if (color && hexColor !== color) continue;
+
         ctx.fillStyle = `rgba(${pixelColor[0]}, ${pixelColor[1]}, ${pixelColor[2]}, ${pixelColor[3] / 255})`;
         ctx.fillRect(x * 5 + 2, y * 5 + 2, 1, 1);
 
-        const hexColor = "#" + ("000000" + rgbToHex(pixelColor[0], pixelColor[1], pixelColor[2])).slice(-6);
+        if (this.initialized) continue;
         if (!this.colors.includes(hexColor)) {
           this.colors.push(hexColor);
         }
       }
     }
-  }
-  getColor(x: number, y: number) {
-    const p = this.ctx.getImageData(x, y, 1, 1).data;
-    return "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
   }
 }
 
@@ -173,8 +179,8 @@ const placeState = ref<PlaceState>({
   coordinates: { x: 0, y: 0 },
   fullscreen: false,
   overlayScreen: false,
-  colorsList: false,
-  colors: [],
+  inOverlay: false,
+  colors: colors,
   state: 'loading',
   chunks: {
     number: 0,
@@ -463,6 +469,17 @@ const view = {
     if (this.overlay && (this.overlay.x <= x && x < this.overlay.x + this.overlay.width) &&
         (this.overlay.y <= y && y < this.overlay.y + this.overlay.height)) {
       placeState.value.colors = this.overlay.colors;
+      placeState.value.color.active = this.overlay.colors[0];
+      placeState.value.inOverlay = true;
+    } else {
+      placeState.value.colors = colors;
+      placeState.value.color.active = colors[0];
+      placeState.value.inOverlay = false;
+
+      if (this.overlay) {
+        this.overlay.calculateOverlay();
+        this.refresh();
+      }
     }
   },
   click(e: MouseEvent) {
@@ -474,6 +491,19 @@ const view = {
     if (pos.x < 0 || pos.x >= rectWidth || pos.y < 0 || pos.y >= rectHeight) return;
     this.moveTo(pos.x, pos.y);
     return pos;
+  },
+  calculateOverlay(color: string) {
+    if (!this.overlay) {
+      console.error('Overlay not initialized');
+      return;
+    }
+    this.overlay.calculateOverlay(color);
+    this.refresh();
+
+    if (!colors.includes(color)) {
+      placeState.value.color.custom = color;
+    }
+    placeState.value.color.active = color;
   }
 }
 
@@ -746,35 +776,53 @@ onMounted(() => {
 
 const file = ref<File | null>(null);
 const previewCanvas = ref<HTMLCanvasElement | null>(null);
-const sizeOnCanvasX = ref(10);
+const sizeOnCanvasX = ref(100);
 const limitSizeOnCanvasX = ref(1000);
 const positionOnCanvasX = ref(0);
 const positionOnCanvasY = ref(0);
+const numberColors = ref(10);
+const synced = ref(true);
 
 const overlay = {
-  tempCanvas: document.createElement('canvas'),
+  fieldCanvas: document.createElement('canvas'),
+  originalCanvas: document.createElement('canvas'),
+  reducedCanvas: document.createElement('canvas'),
+  resizeCanvas: document.createElement('canvas'),
   initialized: false,
+  imageLoaded: false,
+  x: 0,
+  y: 0,
   init() {
-    const canvas = previewCanvas.value;
-    if (!canvas) {
-      console.error('Preview canvas not found');
-      return;
-    }
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error('Failed to get canvas context');
+    if (!this.fieldCanvas || !previewCanvas.value) {
+      console.error('Field ord preview canvas not found');
       return;
     }
 
     const previewWidth = 300;
     const previewHeight = 300;
-    const multiplierWidth = previewWidth / activeCanvas.width;
-    const multiplierHeight = previewHeight / activeCanvas.height;
-    canvas.width = previewWidth;
-    canvas.height = previewHeight;
+    this.fieldCanvas.width = previewWidth;
+    this.fieldCanvas.height = previewHeight;
+
+    this.loadChunks();
+
+    this.initialized = true;
+  },
+  loadChunks() {
+    if (!this.fieldCanvas) {
+      console.error('Field canvas not found');
+      return;
+    }
+    const ctx = this.fieldCanvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get canvas context');
+      return;
+    }
+
+    const multiplierWidth = this.fieldCanvas.width / activeCanvas.width;
+    const multiplierHeight = this.fieldCanvas.height / activeCanvas.height;
 
     ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, this.fieldCanvas.width, this.fieldCanvas.height);
     for (let i = 0; i < view.chunks.length; i++) {
       const chunk = view.chunks[i];
       const chunkX = (i % numberOfChunks) * chunkWidth;
@@ -787,21 +835,45 @@ const overlay = {
         (chunkHeight + 1) * multiplierHeight
       );
     }
-
-    this.initialized = true;
   },
   open() {
     if (!this.initialized) {
       this.init();
     }
+    this.loadChunks();
+
+    if (!previewCanvas.value || !this.reducedCanvas || !this.fieldCanvas) {
+      console.error('Preview, temp or field canvas not found');
+      return;
+    }
+    previewCanvas.value.width = this.fieldCanvas.width;
+    previewCanvas.value.height = this.fieldCanvas.height;
+    const ctx = previewCanvas.value.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get preview canvas context');
+      return;
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
+    ctx.drawImage(this.fieldCanvas, 0, 0, previewCanvas.value.width, previewCanvas.value.height);
 
     placeState.value.overlayScreen = true;
+
+    if(!this.imageLoaded) return;
+
+    this.preview();
   },
-  preview(canvas: HTMLCanvasElement, file: File, width: number, x: number, y: number) {
-    const ctx = canvas.getContext('2d')!;
-    ctx.imageSmoothingEnabled = false;
+  loadImage(file: File) {
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!this.originalCanvas) {
+      console.error('canvas not found');
+      return;
+    }
+    const ctx = this.originalCanvas.getContext('2d');
     if (!ctx) {
-      console.error('Failed to get canvas context');
+      console.error('Failed to get original canvas context');
       return;
     }
 
@@ -809,69 +881,133 @@ const overlay = {
     reader.onload = (e) => {
       const img = new Image();
       img.onload = () => {
-        const imgRatio = img.width / img.height;
-        let pixelW = Number(width);
-        let pixelH = Math.round(pixelW / imgRatio);
-
-        const previewWidth = 300;
-        const previewHeight = 300;
-        const multiplierWidth = previewWidth / activeCanvas.width;
-        const multiplierHeight = previewHeight / activeCanvas.height;
-        canvas.width = previewWidth;
-        canvas.height = previewHeight;
-
-        limitSizeOnCanvasX.value = Math.min(Math.min(1000, img.width), Math.floor(1000 / pixelH * pixelW));
-        if (sizeOnCanvasX.value > limitSizeOnCanvasX.value) {
-          sizeOnCanvasX.value = limitSizeOnCanvasX.value;
-        }
-
-        this.tempCanvas.width = pixelW;
-        this.tempCanvas.height = pixelH;
-        const tempCtx = this.tempCanvas.getContext('2d');
-        if (!tempCtx) {
-          console.error('Failed to get temp canvas context');
-          return;
-        }
-        tempCtx.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
-        tempCtx.drawImage(img, 0, 0, pixelW, pixelH);
-
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        for (let i = 0; i < view.chunks.length; i++) {
-          const chunk = view.chunks[i];
-          const chunkX = (i % numberOfChunks) * chunkWidth;
-          const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
-          ctx.drawImage(
-            chunk.canvas,
-            chunkX * multiplierWidth,
-            chunkY * multiplierHeight,
-            (chunkWidth + 1) * multiplierWidth,
-            (chunkHeight + 1) * multiplierHeight
-          );
-        }
-
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(
-          this.tempCanvas,
-          0, 0, pixelW, pixelH,
-          x * multiplierWidth, y * multiplierHeight, pixelW * multiplierWidth, pixelH * multiplierHeight
-        );
+        this.originalCanvas.width = img.width;
+        this.originalCanvas.height = img.height;
+        ctx.clearRect(0, 0, this.originalCanvas.width, this.originalCanvas.height);
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        this.imageLoaded = true;
+        this.preview();
       };
       img.src = e.target?.result as string;
     };
     reader.readAsDataURL(file);
   },
+  reduceColors(amount: number) {
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!this.resizeCanvas || !this.reducedCanvas) {
+      console.error('Original or reduced canvas not found');
+      return;
+    }
+
+    this.reducedCanvas.width = this.resizeCanvas.width;
+    this.reducedCanvas.height = this.resizeCanvas.height;
+    const ctx = this.reducedCanvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get resize canvas context');
+      return;
+    }
+    ctx.imageSmoothingEnabled = false;
+
+    const RgbQuant = require('rgbquant');
+    const q = new RgbQuant({colors: amount})
+    q.sample(this.resizeCanvas);
+    q.palette();
+    const out = q.reduce(this.resizeCanvas);
+
+    const imageData = new ImageData(new Uint8ClampedArray(out), this.reducedCanvas.width, this.reducedCanvas.height);
+    ctx.putImageData(imageData, 0, 0);
+  },
+  resizeImage(width: number) {
+    const imgRatio = this.originalCanvas.width / this.originalCanvas.height;
+    let pixelW = width;
+    let pixelH = Math.round(pixelW / imgRatio);
+
+    limitSizeOnCanvasX.value = Math.min(Math.min(1000, this.originalCanvas.width), Math.floor(1000 / pixelH * pixelW));
+    if (sizeOnCanvasX.value > limitSizeOnCanvasX.value) {
+      sizeOnCanvasX.value = limitSizeOnCanvasX.value;
+
+      pixelW = limitSizeOnCanvasX.value;
+      pixelH = Math.round(pixelW / imgRatio);
+    }
+
+    this.resizeCanvas.width = pixelW;
+    this.resizeCanvas.height = pixelH;
+    const tempCtx = this.resizeCanvas.getContext('2d');
+    if (!tempCtx) {
+      console.error('Failed to get temp canvas context');
+      return;
+    }
+    tempCtx.clearRect(0, 0, this.resizeCanvas.width, this.resizeCanvas.height);
+    tempCtx.drawImage(this.originalCanvas, 0, 0, pixelW, pixelH);
+
+    this.reduceColors(Number(numberColors.value));
+  },
+  preview() {
+    if (!this.imageLoaded) {
+      synced.value = true;
+      return;
+    }
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!previewCanvas.value || !this.reducedCanvas || !this.fieldCanvas) {
+      console.error('Preview, temp or field canvas not found');
+      return;
+    }
+    previewCanvas.value.width = this.fieldCanvas.width;
+    previewCanvas.value.height = this.fieldCanvas.height;
+    const ctx = previewCanvas.value.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get preview canvas context');
+      return;
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
+    ctx.drawImage(this.fieldCanvas, 0, 0, previewCanvas.value.width, previewCanvas.value.height);
+
+    const previewWidth = 300;
+    const previewHeight = 300;
+    const multiplierWidth = previewWidth / activeCanvas.width;
+    const multiplierHeight = previewHeight / activeCanvas.height;
+
+    this.resizeImage(Number(sizeOnCanvasX.value));
+
+    ctx.drawImage(
+      this.reducedCanvas,
+      0, 0, this.reducedCanvas.width, this.reducedCanvas.height,
+      this.x * multiplierWidth, this.y * multiplierHeight, this.reducedCanvas.width * multiplierWidth, this.reducedCanvas.height * multiplierHeight
+    );
+
+    synced.value = true;
+  },
   calculate() {
-    view.overlay = new Overlay(this.tempCanvas, Number(positionOnCanvasX.value), Number(positionOnCanvasY.value));
+    view.overlay = new Overlay(this.reducedCanvas, Number(positionOnCanvasX.value), Number(positionOnCanvasY.value));
     view.refresh();
     placeState.value.overlayScreen = false;
   }
 }
 
-watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, newSizeX, newPositionX, newPositionY]) => {
-  if (!newFile || !previewCanvas.value) return;
+watch(file, (newFile) => {
+  if (!newFile) return;
+  overlay.loadImage(newFile);
+});
 
-  overlay.preview(previewCanvas.value, newFile, newSizeX, newPositionX, newPositionY)
+watch([positionOnCanvasX, positionOnCanvasY], ([newPositionX, newPositionY]) => {
+  overlay.x = newPositionX;
+  overlay.y = newPositionY;
+});
+
+watch([positionOnCanvasX, positionOnCanvasY, numberColors, sizeOnCanvasX], () => {
+  synced.value = false;
+});
+
+watch(() => placeState.value.color.active, (newColor) => {
+  if (placeState.value.inOverlay) {
+    view.calculateOverlay(newColor);
+    view.refresh();
+  }
 });
 </script>
 
@@ -900,33 +1036,15 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
 
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
         <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2 align-items-end">
-          <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
-            <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
-            <font-awesome-icon :icon="faMinimize" v-else/>
-          </BButton>
-          <BButton class="place-button place-button-small text-light" @click="overlay.open()">
-            <font-awesome-icon :icon="faLayerGroup"/>
-          </BButton>
-          <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative gap-2" no-body v-if="0 < placeState.colors.length">
-            <template #header>
-              <span>
-                <font-awesome-icon :icon="faPalette" />
-                Colors
-              </span>
-
-              <div class="stretched-link pe-auto" @click="placeState.colorsList = !placeState.colorsList">
-                <font-awesome-icon :icon="faChevronUp" :style="{ transform: !placeState.colorsList ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
-              </div>
-            </template>
-
-            <BCollapse v-model="placeState.colorsList">
-              <BCardBody class="d-flex flex-column gap-2 overflow-auto" style="max-height: 5rem">
-                <div v-for="color in placeState.colors" :key="color" class="d-flex align-items-center gap-2">
-                  <span>{{ color }}</span>
-                </div>
-              </BCardBody>
-            </BCollapse>
-          </BCard>
+          <div class="d-flex gap-2">
+            <BButton class="place-button place-button-small text-light" @click="overlay.open()">
+              <font-awesome-icon :icon="faLayerGroup"/>
+            </BButton>
+            <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
+              <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
+              <font-awesome-icon :icon="faMinimize" v-else/>
+            </BButton>
+          </div>
         </div>
         <div class="position-absolute top-0 start-0 p-2">
           <BDropdown variant="primary" class="pe-auto place-dropdown" offset="5">
@@ -937,7 +1055,7 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
             <BDropdownItem v-for="canvas in canvases" :key="canvas.name" :to="'/r-place/' + canvas.name + '/'" link-class="d-flex align-items-center justify-content-between gap-2">
               {{ canvas.name }}
               <BBadge variant="success" v-if="canvas.active">
-                Ongoing
+                {{ $t('r_place.canvas.canvas_select.ongoing') }}
               </BBadge>
             </BDropdownItem>
           </BDropdown>
@@ -960,10 +1078,10 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
         <div class="place-colors-container" :class="{ active: placeState.state === 'started' }">
           <div class="d-flex justify-content-center align-items-center gap-1">
             <div class="place-colors-grid">
-              <div class="col place-color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in colors"></div>
+              <div class="col place-color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in placeState.colors"></div>
             </div>
-            <div class="position-relative d-none d-sm-block">
-              <BInput type="color" v-model="placeState.color.custom" class="place-color place-color-big" :class="{ active: placeState.color.active === placeState.color.custom && !colors.includes(placeState.color.active) }"
+            <div class="position-relative d-none d-sm-block" v-if="!placeState.inOverlay">
+              <BInput type="color" v-model="placeState.color.custom" class="place-color place-color-big" :class="{ active: placeState.color.active === placeState.color.custom && !placeState.colors.includes(placeState.color.active) }"
                       @blur="placeState.color.active = placeState.color.custom" />
               <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none">
                 <font-awesome-icon :icon="faPalette"/>
@@ -976,7 +1094,17 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
       <Transition>
         <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark bg-opacity-75 overflow-auto p-2" :class="{ 'd-none': !placeState.overlayScreen }">
           <div class="d-flex flex-column justify-content-center align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black">
-            <canvas ref="previewCanvas"></canvas>
+            <div class="position-relative">
+              <canvas ref="previewCanvas"></canvas>
+
+              <Transition>
+                <div class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-grey-200 bg-opacity-75" v-if="!synced">
+                  <BButton @click="overlay.preview()" class="place-button fs-3">
+                    <font-awesome-icon :icon="faSync" />
+                  </BButton>
+                </div>
+              </Transition>
+            </div>
 
             <BFormFile v-model="file" accept="image/*" class="place-input" />
 
@@ -1020,6 +1148,21 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
                 type="range"
                 v-model="sizeOnCanvasX"
                 min="1" :max="limitSizeOnCanvasX"
+                class="place-range"
+              />
+            </BFormGroup>
+
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.colors', { 'colors': numberColors })"
+              label-for="width-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="width-input"
+                type="range"
+                v-model="numberColors"
+                :min="2" :max="32"
                 class="place-range"
               />
             </BFormGroup>

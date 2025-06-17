@@ -204,10 +204,12 @@
   },
   "r_place": {
     "title": "r/Place",
-    "description": "A collaborative canvas where users can place pixels. The canvas is reset every 5 minutes, and you can place a pixel every 5 minutes.",
     "canvas": {
       "place_pixel": "Place",
       "players_online": "{player_count} player online | {player_count} players online",
+      "canvas_select": {
+        "ongoing": "Ongoing"
+      },
       "disconnected": {
         "title": "Disconnected",
         "description": "Click here to reconnect"
@@ -215,7 +217,8 @@
       "overlay": {
         "x": "Position x: {x}",
         "y": "Position y: {y}",
-        "width": "Width: {width}"
+        "width": "Width: {width}",
+        "colors": "Amount of colors: {colors}"
       }
     }
   }

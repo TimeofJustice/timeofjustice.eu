@@ -201,5 +201,25 @@
         "rules": "Test"
       }
     }
+  },
+  "r_place": {
+    "title": "r/Place",
+    "canvas": {
+      "place_pixel": "Platzieren",
+      "players_online": "{player_count} Spieler online",
+      "canvas_select": {
+        "ongoing": "Aktiv"
+      },
+      "disconnected": {
+        "title": "Nicht verbunden",
+        "description": "Erneut verbinden"
+      },
+      "overlay": {
+        "x": "Position x: {x}",
+        "y": "Position y: {y}",
+        "width": "Breite: {width}",
+        "colors": "Anzahl Farben: {colors}"
+      }
+    }
   }
 }
