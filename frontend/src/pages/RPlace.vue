@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { faArrowsToDot, faBinoculars, faCheck, faEyeDropper, faLayerGroup, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faArrowsToDot, faBinoculars, faCheck, faChevronUp, faEyeDropper, faLayerGroup, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
@@ -10,6 +10,8 @@ interface PlaceState {
   coordinates: { x: number; y: number };
   fullscreen: boolean;
   overlayScreen: boolean;
+  colorsList: boolean;
+  colors: string[];
   state: 'loading' | 'viewing' | 'started' | 'disconnected';
   chunks: {
     number: number;
@@ -171,6 +173,8 @@ const placeState = ref<PlaceState>({
   coordinates: { x: 0, y: 0 },
   fullscreen: false,
   overlayScreen: false,
+  colorsList: false,
+  colors: [],
   state: 'loading',
   chunks: {
     number: 0,
@@ -458,7 +462,7 @@ const view = {
 
     if (this.overlay && (this.overlay.x <= x && x < this.overlay.x + this.overlay.width) &&
         (this.overlay.y <= y && y < this.overlay.y + this.overlay.height)) {
-      console.log(this.overlay.colors);
+      placeState.value.colors = this.overlay.colors;
     }
   },
   click(e: MouseEvent) {
@@ -895,7 +899,7 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
       <canvas width="1000" height="1000" ref="canvas" class="field bg-grey-200"></canvas>
 
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
-        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2">
+        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2 align-items-end">
           <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
             <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
             <font-awesome-icon :icon="faMinimize" v-else/>
@@ -903,6 +907,26 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
           <BButton class="place-button place-button-small text-light" @click="overlay.open()">
             <font-awesome-icon :icon="faLayerGroup"/>
           </BButton>
+          <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative gap-2" no-body v-if="0 < placeState.colors.length">
+            <template #header>
+              <span>
+                <font-awesome-icon :icon="faPalette" />
+                Colors
+              </span>
+
+              <div class="stretched-link pe-auto" @click="placeState.colorsList = !placeState.colorsList">
+                <font-awesome-icon :icon="faChevronUp" :style="{ transform: !placeState.colorsList ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
+              </div>
+            </template>
+
+            <BCollapse v-model="placeState.colorsList">
+              <BCardBody class="d-flex flex-column gap-2 overflow-auto" style="max-height: 5rem">
+                <div v-for="color in placeState.colors" :key="color" class="d-flex align-items-center gap-2">
+                  <span>{{ color }}</span>
+                </div>
+              </BCardBody>
+            </BCollapse>
+          </BCard>
         </div>
         <div class="position-absolute top-0 start-0 p-2">
           <BDropdown variant="primary" class="pe-auto place-dropdown" offset="5">
