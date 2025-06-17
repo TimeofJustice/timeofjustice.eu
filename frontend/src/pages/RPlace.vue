@@ -1,14 +1,29 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
-import { faArrowsToDot, faBinoculars, faEyeDropper, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import {
+  faArrowsToDot,
+  faBinoculars,
+  faCheck,
+  faChevronLeft,
+  faChevronRight,
+  faEyeDropper,
+  faLayerGroup,
+  faPalette,
+  faSync
+} from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
+import { computed } from "@node_modules/vue";
 
 interface PlaceState {
   playerCount: number;
   coordinates: { x: number; y: number };
   fullscreen: boolean;
+  overlayScreen: boolean;
+  inOverlay: boolean;
+  colors: string[][];
+  colorsPage: number;
   state: 'loading' | 'viewing' | 'started' | 'disconnected';
   chunks: {
     number: number;
@@ -24,6 +39,68 @@ function rgbToHex(r: number, g: number, b: number) {
   if (r > 255 || g > 255 || b > 255)
     throw "Invalid color component";
   return ((r << 16) | (g << 8) | b).toString(16);
+}
+
+class Overlay {
+  image: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  overlayImage: HTMLCanvasElement;
+  cache: Map<string, HTMLCanvasElement> = new Map();
+  initialized: boolean = false;
+  colors: string[] = [];
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+
+  constructor(image: HTMLCanvasElement, x: number, y: number) {
+    this.image = image;
+    this.ctx = image.getContext('2d')!;
+    this.x = x;
+    this.y = y;
+    this.width = image.width;
+    this.height = image.height;
+
+    this.overlayImage = document.createElement('canvas');
+    this.overlayImage.width = this.image.width * 5;
+    this.overlayImage.height = this.image.height * 5;
+
+    this.calculateOverlay();
+
+    this.initialized = true;
+  }
+  calculateOverlay(color?: string) {
+    if (this.cache.has(color || 'default')) {
+      this.overlayImage = this.cache.get(color || 'default')!;
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+    canvas.width = this.overlayImage.width;
+    canvas.height = this.overlayImage.height;
+
+    for (let x = 0; x < this.image.width; x++) {
+      for (let y = 0; y < this.image.height; y++) {
+        const pixelColor = this.image.getContext('2d')!.getImageData(x, y, 1, 1).data;
+        const hexColor = "#" + ("000000" + rgbToHex(pixelColor[0], pixelColor[1], pixelColor[2])).slice(-6);
+
+        if (color && hexColor !== color) continue;
+
+        ctx.fillStyle = `rgba(${pixelColor[0]}, ${pixelColor[1]}, ${pixelColor[2]}, ${pixelColor[3] / 255})`;
+        ctx.fillRect(x * 5 + 2, y * 5 + 2, 1, 1);
+
+        if (this.initialized) continue;
+        if (!this.colors.includes(hexColor)) {
+          this.colors.push(hexColor);
+        }
+      }
+    }
+
+    this.overlayImage = canvas;
+    this.cache.set(color || 'default', this.overlayImage);
+  }
 }
 
 class Chunk {
@@ -124,6 +201,10 @@ const placeState = ref<PlaceState>({
   playerCount: 1,
   coordinates: { x: 0, y: 0 },
   fullscreen: false,
+  overlayScreen: false,
+  inOverlay: false,
+  colors: [colors],
+  colorsPage: 0,
   state: 'loading',
   chunks: {
     number: 0,
@@ -166,6 +247,7 @@ const view = {
   scale: 0.1,
   cursorPosition: { x: 0, y: 0 },
   chunks: [] as Chunk[],
+  overlay: null as Overlay | null,
 
   init(canvas: HTMLCanvasElement, cursor: HTMLImageElement, socket?: WebSocket) {
     this.canvas = canvas;
@@ -340,6 +422,16 @@ const view = {
     ctx.clearRect(rectWidth * cellSize, -cellSize * 1.5, cellSize * 1.5, (rectWidth * cellSize) + cellSize * 3);
     ctx.clearRect(-cellSize * 1.5, rectHeight * cellSize, (rectHeight * cellSize) + cellSize * 3, cellSize * 1.5);
 
+    if (this.overlay) {
+      ctx.drawImage(
+        this.overlay.overlayImage,
+        this.overlay.x * cellSize,
+        this.overlay.y * cellSize,
+        this.overlay.overlayImage.width * cellSize / 5,
+        this.overlay.overlayImage.height * cellSize / 5
+      );
+    }
+
     if (view.scale > 2) {
       const alpha = Math.min(1, (view.scale - 2) / 2);
       ctx.save();
@@ -397,6 +489,30 @@ const view = {
     this.cursorPosition.y = y;
     placeState.value.coordinates = { x, y };
     this.center();
+
+    if (this.overlay && (this.overlay.x <= x && x < this.overlay.x + this.overlay.width) &&
+        (this.overlay.y <= y && y < this.overlay.y + this.overlay.height)) {
+      if (!placeState.value.inOverlay) {
+        placeState.value.colors = [];
+        for (let i = 0; i < this.overlay.colors.length; i += 32) {
+          placeState.value.colors.push(this.overlay.colors.slice(i, i + 32));
+        }
+
+        placeState.value.color.active = this.overlay.colors[0];
+        placeState.value.inOverlay = true;
+        placeState.value.colorsPage = 0;
+      }
+    } else {
+      placeState.value.colors = [colors];
+      placeState.value.color.active = colors[0];
+      placeState.value.inOverlay = false;
+      placeState.value.colorsPage = 0;
+
+      if (this.overlay) {
+        this.overlay.calculateOverlay();
+        this.refresh();
+      }
+    }
   },
   click(e: MouseEvent) {
     const bounds = this.canvas!.getBoundingClientRect();
@@ -407,7 +523,200 @@ const view = {
     if (pos.x < 0 || pos.x >= rectWidth || pos.y < 0 || pos.y >= rectHeight) return;
     this.moveTo(pos.x, pos.y);
     return pos;
+  },
+  calculateOverlay(color: string) {
+    if (!this.overlay) {
+      console.error('Overlay not initialized');
+      return;
+    }
+    this.overlay.calculateOverlay(color);
+    this.refresh();
+
+    if (!colors.includes(color)) {
+      placeState.value.color.custom = color;
+    }
+    placeState.value.color.active = color;
   }
+}
+
+let isDragging = false;
+let lastMouse = { x: 0, y: 0 };
+const mouseDown = { x: 0, y: 0 };
+
+function keydownHandler(e: KeyboardEvent) {
+  if (placeState.value.overlayScreen) {
+    return;
+  }
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x, view.cursorPosition.y - 1);
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x, view.cursorPosition.y + 1);
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x - 1, view.cursorPosition.y);
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x + 1, view.cursorPosition.y);
+  } else if (e.key === 'r' || e.key === 'R') {
+    e.preventDefault();
+    view.center();
+  }
+
+  if (placeState.value.state !== 'started') return;
+
+  if (e.key === ' ') {
+    e.preventDefault();
+    view.paint();
+  } else if (e.key === 'c' || e.key === 'C') {
+    e.preventDefault();
+    view.pickColor();
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    const currentIndex = placeState.value.colors[placeState.value.colorsPage].indexOf(placeState.value.color.active);
+    if (currentIndex === -1 || (placeState.value.inOverlay && currentIndex === placeState.value.colors[placeState.value.colorsPage].length - 1)) {
+      placeState.value.color.active = placeState.value.colors[placeState.value.colorsPage][0];
+    } else if (currentIndex === placeState.value.colors[placeState.value.colorsPage].length - 1 && !placeState.value.inOverlay) {
+      placeState.value.color.active = placeState.value.color.custom;
+    } else {
+      placeState.value.color.active = placeState.value.colors[placeState.value.colorsPage][currentIndex + 1];
+    }
+  }
+}
+
+function clickBeforeHandler(e: MouseEvent) {
+  if (
+    Math.abs(mouseDown.x - e.clientX) >= 30 ||
+    Math.abs(mouseDown.y - e.clientY) >= 30
+  ) {
+    e.stopPropagation();
+  }
+}
+
+function clickAfterHandler(e: MouseEvent) {
+  view.click(e);
+}
+
+function mouseDownHandler(e: MouseEvent) {
+  isDragging = true;
+  lastMouse = { x: e.clientX, y: e.clientY };
+  mouseDown.x = e.clientX;
+  mouseDown.y = e.clientY;
+
+  const onMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const dx = e.clientX - lastMouse.x;
+      const dy = e.clientY - lastMouse.y;
+      view.pan({ x: dx, y: dy });
+      lastMouse = { x: e.clientX, y: e.clientY };
+      view.refresh();
+    }
+    e.stopPropagation();
+  };
+
+  const onMouseUp = () => {
+    isDragging = false;
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+  };
+
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+}
+
+function wheelHandler(e: WheelEvent) {
+  e.preventDefault();
+  if (!canvas.value || !cursorImage.value) {
+    console.error('Canvas element not found');
+    return;
+  }
+
+  const rect = canvas.value.getBoundingClientRect();
+  const mouse = {
+    x: (e.clientX - rect.left),
+    y: (e.clientY - rect.top)
+  };
+  const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  view.scaleAt(mouse, zoomFactor);
+  view.refresh();
+}
+
+function touchStartHandler(e: TouchEvent) {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    mouseDown.x = e.touches[0].clientX;
+    mouseDown.y = e.touches[0].clientY;
+  }
+}
+
+let lastPinchDist: number | null = null;
+
+function touchMoveHandler(e: TouchEvent) {
+  if (isDragging && e.touches.length === 1) {
+    const dx = e.touches[0].clientX - lastMouse.x;
+    const dy = e.touches[0].clientY - lastMouse.y;
+    view.pan({ x: dx, y: dy });
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    view.refresh();
+    e.preventDefault();
+  }
+
+  if (!canvas.value || !cursorImage.value) {
+    console.error('Canvas element not found');
+    return;
+  }
+
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (lastPinchDist !== null) {
+      const zoomFactor = dist / lastPinchDist;
+      const rect = canvas.value.getBoundingClientRect();
+      const center = {
+        x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left,
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
+      };
+      view.scaleAt(center, zoomFactor);
+      view.refresh();
+    }
+    lastPinchDist = dist;
+    e.preventDefault();
+  } else {
+    lastPinchDist = null;
+  }
+}
+
+function touchEndHandler(e: TouchEvent) {
+  isDragging = false;
+
+  if (e.touches.length < 2) {
+    lastPinchDist = null;
+  }
+
+  if (e.changedTouches.length === 1) {
+    const touch = e.changedTouches[0];
+    if (
+      Math.abs(mouseDown.x - touch.clientX) < 30 &&
+      Math.abs(mouseDown.y - touch.clientY) < 30
+    ) {
+      // Simuliere Klick
+      const fakeEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        stopPropagation: () => {},
+      } as MouseEvent;
+      view.click(fakeEvent);
+      view.refresh();
+    }
+  }
+}
+
+function touchCancelHandler() {
+  isDragging = false;
 }
 
 onMounted(() => {
@@ -427,208 +736,31 @@ onMounted(() => {
 
   resizeObserver.observe(canvasContainer.value!);
 
-  let isDragging = false;
-  let lastMouse = { x: 0, y: 0 };
-  const mouseDown = { x: 0, y: 0 };
-
   // Desktop: Keyboard controls
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x, view.cursorPosition.y - 1);
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x, view.cursorPosition.y + 1);
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x - 1, view.cursorPosition.y);
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x + 1, view.cursorPosition.y);
-    } else if (e.key === 'r' || e.key === 'R') {
-      e.preventDefault();
-      view.center();
-    }
-
-    if (placeState.value.state !== 'started') return;
-
-    if (e.key === ' ') {
-      e.preventDefault();
-      view.paint();
-    } else if (e.key === 'c' || e.key === 'C') {
-      e.preventDefault();
-      view.pickColor();
-    } else if (e.key === 'Tab') {
-      e.preventDefault();
-      const currentIndex = colors.indexOf(placeState.value.color.active);
-      if (currentIndex === -1) {
-        placeState.value.color.active = colors[0];
-      } else if (currentIndex === colors.length - 1) {
-        placeState.value.color.active = placeState.value.color.custom;
-      } else {
-        placeState.value.color.active = colors[currentIndex + 1];
-      }
-    }
-  });
-
+  window.addEventListener('keydown', keydownHandler);
   // Desktop: Mouse controls
-  canvas.value.addEventListener('click', (e) => {
-    if (
-      Math.abs(mouseDown.x - e.clientX) >= 30 ||
-      Math.abs(mouseDown.y - e.clientY) >= 30
-    ) {
-      e.stopPropagation();
-    }
-  }, true);
-
-  canvas.value.addEventListener('click', (e) => {
-    view.click(e);
-  }, false);
-
-  canvas.value.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    lastMouse = { x: e.clientX, y: e.clientY };
-    mouseDown.x = e.clientX;
-    mouseDown.y = e.clientY;
-  });
-
-  canvas.value.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    lastMouse = { x: e.clientX, y: e.clientY };
-    mouseDown.x = e.clientX;
-    mouseDown.y = e.clientY;
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        const dx = e.clientX - lastMouse.x;
-        const dy = e.clientY - lastMouse.y;
-        view.pan({ x: dx, y: dy });
-        lastMouse = { x: e.clientX, y: e.clientY };
-        view.refresh();
-      }
-      e.stopPropagation();
-    };
-
-    const onMouseUp = () => {
-      isDragging = false;
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  });
-
-  canvas.value.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    if (!canvas.value || !cursorImage.value) {
-      console.error('Canvas element not found');
-      return;
-    }
-
-    const rect = canvas.value.getBoundingClientRect();
-    const mouse = {
-      x: (e.clientX - rect.left),
-      y: (e.clientY - rect.top)
-    };
-    const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-    view.scaleAt(mouse, zoomFactor);
-    view.refresh();
-  });
+  canvas.value.addEventListener('click', clickBeforeHandler, true);
+  canvas.value.addEventListener('click', clickAfterHandler, false);
+  canvas.value.addEventListener('mousedown', mouseDownHandler);
+  canvas.value.addEventListener('wheel', wheelHandler);
 
   // Mobile: Touch-controls
-  canvas.value.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      isDragging = true;
-      lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      mouseDown.x = e.touches[0].clientX;
-      mouseDown.y = e.touches[0].clientY;
-    }
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchmove', (e) => {
-    if (isDragging && e.touches.length === 1) {
-      const dx = e.touches[0].clientX - lastMouse.x;
-      const dy = e.touches[0].clientY - lastMouse.y;
-      view.pan({ x: dx, y: dy });
-      lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      view.refresh();
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchend', () => {
-    isDragging = false;
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchcancel', () => {
-    isDragging = false;
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchend', (e) => {
-    if (e.changedTouches.length === 1) {
-      const touch = e.changedTouches[0];
-      if (
-        Math.abs(mouseDown.x - touch.clientX) < 30 &&
-        Math.abs(mouseDown.y - touch.clientY) < 30
-      ) {
-        // Simuliere Klick
-        const fakeEvent = {
-          clientX: touch.clientX,
-          clientY: touch.clientY,
-          stopPropagation: () => {},
-        } as MouseEvent;
-        view.click(fakeEvent);
-        view.refresh();
-      }
-    }
-  }, { passive: false });
-
-  // Zoom (Pinch-to-zoom)
-  let lastPinchDist: number | null = null;
-  canvas.value.addEventListener('touchmove', (e) => {
-    if (!canvas.value || !cursorImage.value) {
-      console.error('Canvas element not found');
-      return;
-    }
-
-    if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (lastPinchDist !== null) {
-        const zoomFactor = dist / lastPinchDist;
-        const rect = canvas.value.getBoundingClientRect();
-        const center = {
-          x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left,
-          y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
-        };
-        view.scaleAt(center, zoomFactor);
-        view.refresh();
-      }
-      lastPinchDist = dist;
-      e.preventDefault();
-    } else {
-      lastPinchDist = null;
-    }
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchend', (e) => {
-    if (e.touches.length < 2) {
-      lastPinchDist = null;
-    }
-  }, { passive: false });
+  canvas.value.addEventListener('touchstart', touchStartHandler, { passive: false });
+  canvas.value.addEventListener('touchmove', touchMoveHandler, { passive: false });
+  canvas.value.addEventListener('touchend', touchEndHandler, { passive: false });
+  canvas.value.addEventListener('touchcancel', touchCancelHandler, { passive: false });
 
   onBeforeUnmount(() => {
-    window.removeEventListener('keydown', () => {});
-    canvas.value?.removeEventListener('click', () => {});
-    canvas.value?.removeEventListener('mousedown', () => {});
-    canvas.value?.removeEventListener('wheel', () => {});
-    canvas.value?.removeEventListener('touchstart', () => {});
-    canvas.value?.removeEventListener('touchmove', () => {});
-    canvas.value?.removeEventListener('touchend', () => {});
-    canvas.value?.removeEventListener('touchcancel', () => {});
-    canvasContainer.value?.removeEventListener('resize', () => {});
+    console.log('Cleaning up event listeners');
+    window.removeEventListener('keydown', keydownHandler);
+    canvas.value?.removeEventListener('click', clickBeforeHandler, true);
+    canvas.value?.removeEventListener('click', clickAfterHandler, false);
+    canvas.value?.removeEventListener('mousedown', mouseDownHandler);
+    canvas.value?.removeEventListener('wheel', wheelHandler);
+    canvas.value?.removeEventListener('touchstart', touchStartHandler);
+    canvas.value?.removeEventListener('touchmove', touchMoveHandler);
+    canvas.value?.removeEventListener('touchend', touchEndHandler);
+    canvas.value?.removeEventListener('touchcancel', touchCancelHandler);
     resizeObserver.disconnect();
   });
 
@@ -673,6 +805,262 @@ onMounted(() => {
     socket.close()
   });
 });
+
+const file = ref<File | null>(null);
+const validateFile = computed(() => {
+  if (file.value === null) {
+    return null;
+  } else if (!file.value.name.match(/\.(png|jpg|jpeg|gif)$/i)) {
+    return false;
+  }
+  return true;
+});
+const previewCanvas = ref<HTMLCanvasElement | null>(null);
+const sizeOnCanvasX = ref(100);
+const limitSizeOnCanvasX = ref(1000);
+const positionOnCanvasX = ref(0);
+const positionOnCanvasY = ref(0);
+const numberColors = ref(10);
+const synced = ref(true);
+
+const overlay = {
+  fieldCanvas: document.createElement('canvas'),
+  originalCanvas: document.createElement('canvas'),
+  reducedCanvas: document.createElement('canvas'),
+  resizeCanvas: document.createElement('canvas'),
+  initialized: false,
+  imageLoaded: false,
+  x: 0,
+  y: 0,
+  init() {
+    if (!this.fieldCanvas || !previewCanvas.value) {
+      console.error('Field ord preview canvas not found');
+      return;
+    }
+
+    const previewWidth = 300;
+    const previewHeight = 300;
+    this.fieldCanvas.width = previewWidth;
+    this.fieldCanvas.height = previewHeight;
+
+    this.loadChunks();
+
+    this.initialized = true;
+  },
+  loadChunks() {
+    if (!this.fieldCanvas) {
+      console.error('Field canvas not found');
+      return;
+    }
+    const ctx = this.fieldCanvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get canvas context');
+      return;
+    }
+
+    const multiplierWidth = this.fieldCanvas.width / activeCanvas.width;
+    const multiplierHeight = this.fieldCanvas.height / activeCanvas.height;
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, this.fieldCanvas.width, this.fieldCanvas.height);
+    for (let i = 0; i < view.chunks.length; i++) {
+      const chunk = view.chunks[i];
+      const chunkX = (i % numberOfChunks) * chunkWidth;
+      const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
+      ctx.drawImage(
+        chunk.canvas,
+        chunkX * multiplierWidth,
+        chunkY * multiplierHeight,
+        (chunkWidth + 1) * multiplierWidth,
+        (chunkHeight + 1) * multiplierHeight
+      );
+    }
+  },
+  open() {
+    if (!this.initialized) {
+      this.init();
+    }
+    this.loadChunks();
+
+    if (!previewCanvas.value || !this.reducedCanvas || !this.fieldCanvas) {
+      console.error('Preview, temp or field canvas not found');
+      return;
+    }
+    previewCanvas.value.width = this.fieldCanvas.width;
+    previewCanvas.value.height = this.fieldCanvas.height;
+    const ctx = previewCanvas.value.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get preview canvas context');
+      return;
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
+    ctx.drawImage(this.fieldCanvas, 0, 0, previewCanvas.value.width, previewCanvas.value.height);
+
+    placeState.value.overlayScreen = true;
+
+    if(!this.imageLoaded) return;
+
+    this.preview();
+  },
+  loadImage(file: File) {
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!this.originalCanvas) {
+      console.error('canvas not found');
+      return;
+    }
+    const ctx = this.originalCanvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get original canvas context');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        this.originalCanvas.width = img.width;
+        this.originalCanvas.height = img.height;
+        ctx.clearRect(0, 0, this.originalCanvas.width, this.originalCanvas.height);
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        this.imageLoaded = true;
+        this.preview();
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  },
+  reduceColors(amount: number) {
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!this.resizeCanvas || !this.reducedCanvas) {
+      console.error('Original or reduced canvas not found');
+      return;
+    }
+
+    this.reducedCanvas.width = this.resizeCanvas.width;
+    this.reducedCanvas.height = this.resizeCanvas.height;
+    const ctx = this.reducedCanvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get resize canvas context');
+      return;
+    }
+    ctx.imageSmoothingEnabled = false;
+
+    const RgbQuant = require('rgbquant');
+    const q = new RgbQuant({colors: amount})
+    q.sample(this.resizeCanvas);
+    q.palette();
+    const out = q.reduce(this.resizeCanvas);
+
+    const imageData = new ImageData(new Uint8ClampedArray(out), this.reducedCanvas.width, this.reducedCanvas.height);
+    ctx.putImageData(imageData, 0, 0);
+  },
+  resizeImage(width: number) {
+    const imgRatio = this.originalCanvas.width / this.originalCanvas.height;
+    let pixelW = width;
+    let pixelH = Math.round(pixelW / imgRatio);
+
+    limitSizeOnCanvasX.value = Math.min(Math.min(1000, this.originalCanvas.width), Math.floor(1000 / pixelH * pixelW));
+    if (sizeOnCanvasX.value > limitSizeOnCanvasX.value) {
+      sizeOnCanvasX.value = limitSizeOnCanvasX.value;
+
+      pixelW = limitSizeOnCanvasX.value;
+      pixelH = Math.round(pixelW / imgRatio);
+    }
+
+    this.resizeCanvas.width = pixelW;
+    this.resizeCanvas.height = pixelH;
+    const tempCtx = this.resizeCanvas.getContext('2d');
+    if (!tempCtx) {
+      console.error('Failed to get temp canvas context');
+      return;
+    }
+    tempCtx.clearRect(0, 0, this.resizeCanvas.width, this.resizeCanvas.height);
+    tempCtx.drawImage(this.originalCanvas, 0, 0, pixelW, pixelH);
+
+    this.reduceColors(Number(numberColors.value));
+  },
+  preview() {
+    if (!this.imageLoaded) {
+      synced.value = true;
+      return;
+    }
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!previewCanvas.value || !this.reducedCanvas || !this.fieldCanvas) {
+      console.error('Preview, temp or field canvas not found');
+      return;
+    }
+    previewCanvas.value.width = this.fieldCanvas.width;
+    previewCanvas.value.height = this.fieldCanvas.height;
+    const ctx = previewCanvas.value.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get preview canvas context');
+      return;
+    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
+    ctx.drawImage(this.fieldCanvas, 0, 0, previewCanvas.value.width, previewCanvas.value.height);
+
+    const previewWidth = 300;
+    const previewHeight = 300;
+    const multiplierWidth = previewWidth / activeCanvas.width;
+    const multiplierHeight = previewHeight / activeCanvas.height;
+
+    this.resizeImage(Number(sizeOnCanvasX.value));
+
+    ctx.drawImage(
+      this.reducedCanvas,
+      0, 0, this.reducedCanvas.width, this.reducedCanvas.height,
+      this.x * multiplierWidth, this.y * multiplierHeight, this.reducedCanvas.width * multiplierWidth, this.reducedCanvas.height * multiplierHeight
+    );
+
+    synced.value = true;
+  },
+  calculate() {
+    if (!this.imageLoaded) {
+      placeState.value.overlayScreen = false;
+      return;
+    }
+    if (!this.initialized) {
+      this.init();
+    }
+    if (!this.reducedCanvas) {
+      console.error('Reduced canvas not found');
+      return;
+    }
+    this.preview();
+    view.overlay = new Overlay(this.reducedCanvas, Number(positionOnCanvasX.value), Number(positionOnCanvasY.value));
+    view.refresh();
+    placeState.value.overlayScreen = false;
+  }
+}
+
+watch(file, (newFile) => {
+  if (!newFile) return;
+  overlay.loadImage(newFile);
+});
+
+watch([positionOnCanvasX, positionOnCanvasY], ([newPositionX, newPositionY]) => {
+  overlay.x = newPositionX;
+  overlay.y = newPositionY;
+});
+
+watch([positionOnCanvasX, positionOnCanvasY, numberColors, sizeOnCanvasX], () => {
+  synced.value = false;
+});
+
+watch(() => placeState.value.color.active, (newColor) => {
+  if (placeState.value.inOverlay) {
+    view.calculateOverlay(newColor);
+    view.refresh();
+  }
+});
 </script>
 
 <template>
@@ -699,11 +1087,16 @@ onMounted(() => {
       <canvas width="1000" height="1000" ref="canvas" class="field bg-grey-200"></canvas>
 
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
-        <div class="position-absolute top-0 end-0 p-2">
-          <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
-            <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
-            <font-awesome-icon :icon="faMinimize" v-else/>
-          </BButton>
+        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2 align-items-end">
+          <div class="d-flex gap-2">
+            <BButton class="place-button place-button-small text-light" @click="overlay.open()">
+              <font-awesome-icon :icon="faLayerGroup"/>
+            </BButton>
+            <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
+              <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
+              <font-awesome-icon :icon="faMinimize" v-else/>
+            </BButton>
+          </div>
         </div>
         <div class="position-absolute top-0 start-0 p-2">
           <BDropdown variant="primary" class="pe-auto place-dropdown" offset="5">
@@ -714,7 +1107,7 @@ onMounted(() => {
             <BDropdownItem v-for="canvas in canvases" :key="canvas.name" :to="'/r-place/' + canvas.name + '/'" link-class="d-flex align-items-center justify-content-between gap-2">
               {{ canvas.name }}
               <BBadge variant="success" v-if="canvas.active">
-                Ongoing
+                {{ $t('r_place.canvas.canvas_select.ongoing') }}
               </BBadge>
             </BDropdownItem>
           </BDropdown>
@@ -736,11 +1129,21 @@ onMounted(() => {
         </div>
         <div class="place-colors-container" :class="{ active: placeState.state === 'started' }">
           <div class="d-flex justify-content-center align-items-center gap-1">
-            <div class="place-colors-grid">
-              <div class="col place-color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in colors"></div>
+            <div @click="placeState.colorsPage = Math.max(0, placeState.colorsPage - 1)" class="place-colors-arrow" :class="{ 'opacity-0': placeState.colorsPage === 0 }" v-if="placeState.inOverlay">
+              <font-awesome-icon :icon="faChevronLeft" />
             </div>
-            <div class="position-relative d-none d-sm-block">
-              <BInput type="color" v-model="placeState.color.custom" class="place-color place-color-big" :class="{ active: placeState.color.active === placeState.color.custom && !colors.includes(placeState.color.active) }"
+            <div class="place-colors-grid" v-for="(page, index) in placeState.colors" :key="index" v-show="placeState.colorsPage === index">
+              <div class="col place-color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in page"></div>
+              <div class="col place-color d-flex justify-content-center align-items-center" v-for="i in (32 - page.length)" :key="i" style="background-color: white;">
+                <font-awesome-icon :icon="faClose" class="text-black" />
+              </div>
+            </div>
+            <div @click="placeState.colorsPage = Math.min(placeState.colors.length - 1, placeState.colorsPage + 1)" class="place-colors-arrow" :class="{ 'opacity-0': placeState.colorsPage === placeState.colors.length - 1 }" v-if="placeState.inOverlay">
+              <font-awesome-icon :icon="faChevronRight" />
+            </div>
+
+            <div class="position-relative d-none d-sm-block" v-if="!placeState.inOverlay">
+              <BInput type="color" v-model="placeState.color.custom" class="place-color place-color-big" :class="{ active: placeState.color.active === placeState.color.custom && !placeState.colors[placeState.colorsPage].includes(placeState.color.active) }"
                       @blur="placeState.color.active = placeState.color.custom" />
               <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none">
                 <font-awesome-icon :icon="faPalette"/>
@@ -749,6 +1152,100 @@ onMounted(() => {
           </div>
         </div>
       </div>
+
+      <Transition>
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 p-2" :class="{ 'd-none': !placeState.overlayScreen }">
+          <div class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black overflow-auto col-md-6">
+            <div class="position-relative">
+              <canvas ref="previewCanvas"></canvas>
+
+              <Transition>
+                <div class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-grey-200 bg-opacity-75" v-if="!synced">
+                  <BButton @click="overlay.preview()" class="place-button fs-3">
+                    <font-awesome-icon :icon="faSync" />
+                  </BButton>
+                </div>
+              </Transition>
+            </div>
+
+            <BFormGroup label-for="file-input">
+              <BFormFile id="file-input" v-model="file" accept="image/png,image/jpeg,image/gif"
+                         class="place-input" :state="validateFile" />
+              <BFormInvalidFeedback :state="validateFile">
+                {{ $t('r_place.canvas.overlay.invalid_file') }}
+              </BFormInvalidFeedback>
+            </BFormGroup>
+
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.x', { 'x': positionOnCanvasX })"
+              label-for="position-x-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="position-x-input"
+                type="range"
+                v-model="positionOnCanvasX"
+                min="0" :max="activeCanvas.width"
+                class="place-range"
+              />
+            </BFormGroup>
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.y', { 'y': positionOnCanvasY })"
+              label-for="position-y-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="position-y-input"
+                type="range"
+                v-model="positionOnCanvasY"
+                min="0" :max="activeCanvas.height"
+                class="place-range"
+              />
+            </BFormGroup>
+
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.width', { 'width': sizeOnCanvasX })"
+              label-for="width-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="width-input"
+                type="range"
+                v-model="sizeOnCanvasX"
+                min="1" :max="limitSizeOnCanvasX"
+                class="place-range"
+              />
+            </BFormGroup>
+
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.colors', { 'colors': numberColors })"
+              label-for="width-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="width-input"
+                type="range"
+                v-model="numberColors"
+                :min="2" :max="200"
+                class="place-range"
+              />
+            </BFormGroup>
+
+            <div class="d-flex gap-2 w-100">
+              <BButton class="place-button place-button text-light" @click="placeState.overlayScreen = false">
+                <font-awesome-icon :icon="faClose" />
+              </BButton>
+              <BButton class="place-button place-button-big text-light flex-grow-1" @click="overlay.calculate()">
+                <font-awesome-icon :icon="faCheck" />
+              </BButton>
+            </div>
+          </div>
+        </div>
+      </Transition>
     </div>
   </div>
 
@@ -801,12 +1298,12 @@ onMounted(() => {
     height: 25%;
     min-height: 4rem;
 
-    @media (max-width: 576px) {
-      min-height: 10rem;
-    }
-
     @media (max-width: 992px) {
       min-height: 12rem;
+    }
+
+    @media (max-width: 576px) {
+      min-height: 10rem;
     }
   }
 }
@@ -825,8 +1322,8 @@ onMounted(() => {
 .place-color {
   position: relative;
 
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
 
   cursor: pointer;
 
@@ -839,14 +1336,14 @@ onMounted(() => {
   }
 
   @media (max-width: 576px) {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 1.9rem;
+    height: 1.9rem;
   }
 
   &-big {
     border: 2px solid $black!important;
-    height: 5.25rem!important;
-    width: 5.25rem!important;
+    height: 4.75rem!important;
+    width: 4.75rem!important;
 
     border-radius: 0!important;
     padding: 0!important;
@@ -878,6 +1375,7 @@ input[type=color]::-webkit-color-swatch {
   justify-content: center;
   align-items: center;
 
+  min-width: 2.25rem;
   padding: 0.5rem;
 
   --bs-btn-bg: $gray-500;
@@ -887,6 +1385,7 @@ input[type=color]::-webkit-color-swatch {
   border-radius: 0;
 
   pointer-events: all;
+  transition: border .2s ease-in-out;
 
   &-big {
     width: 12rem;
@@ -905,5 +1404,64 @@ input[type=color]::-webkit-color-swatch {
 
   --bs-dropdown-link-hover-color: #{$white};
   --bs-dropdown-link-hover-bg: #{$gray-300};
+}
+
+.place-input {
+  width: 100%;
+
+  background: $gray-500!important;
+  border: 2px solid $black!important;
+  border-radius: 0!important;
+
+  outline: none!important;
+  transition: border .2s ease-in-out!important;
+
+  &::file-selector-button {
+    background: $gray-300!important;
+  }
+
+  &:hover {
+    border: 2px solid $gray-10!important;
+  }
+}
+
+.place-range::-webkit-slider-thumb {
+  background: $gray-500!important;
+  border-radius: 0!important;
+  border: 2px solid $black!important;
+}
+
+.place-range::-moz-range-thumb {
+  background: $gray-500!important;
+  border-radius: 0!important;
+  border: 2px solid $black!important;
+}
+
+.place-range::-webkit-slider-runnable-track {
+  background: $gray-500!important;
+  border-radius: 0!important;
+}
+
+.place-range::-moz-range-track {
+  background: $gray-500!important;
+  border-radius: 0!important;
+}
+
+.place-colors-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0.5rem;
+
+  cursor: pointer;
+  color: $black;
+  opacity: 1;
+
+  transition: opacity .2s ease-in-out;
+
+  &:hover {
+    color: $gray-10;
+  }
 }
 </style>
