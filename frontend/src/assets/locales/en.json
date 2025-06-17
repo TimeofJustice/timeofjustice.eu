@@ -211,6 +211,11 @@
       "disconnected": {
         "title": "Disconnected",
         "description": "Click here to reconnect"
+      },
+      "overlay": {
+        "x": "Position x: {x}",
+        "y": "Position y: {y}",
+        "width": "Width: {width}"
       }
     }
   }

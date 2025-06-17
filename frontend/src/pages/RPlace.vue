@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { faArrowsToDot, faBinoculars, faEyeDropper, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
+import { faArrowsToDot, faBinoculars, faCheck, faEyeDropper, faLayerGroup, faPalette } from "@node_modules/@fortawesome/free-solid-svg-icons";
+import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
 import { Head } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
-import { faAdd } from "@node_modules/@fortawesome/free-solid-svg-icons/faAdd";
 
 interface PlaceState {
   playerCount: number;
   coordinates: { x: number; y: number };
   fullscreen: boolean;
+  overlayScreen: boolean;
   state: 'loading' | 'viewing' | 'started' | 'disconnected';
   chunks: {
     number: number;
@@ -25,6 +25,51 @@ function rgbToHex(r: number, g: number, b: number) {
   if (r > 255 || g > 255 || b > 255)
     throw "Invalid color component";
   return ((r << 16) | (g << 8) | b).toString(16);
+}
+
+class Overlay {
+  image: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  overlayImage: HTMLCanvasElement;
+  colors: string[] = [];
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+
+  constructor(image: HTMLCanvasElement, x: number, y: number) {
+    this.image = image;
+    this.ctx = image.getContext('2d')!;
+    this.x = x;
+    this.y = y;
+    this.width = image.width;
+    this.height = image.height;
+    console.log(`Overlay initialized at (${x}, ${y}) with size ${image.width}x${image.height}`);
+
+    this.overlayImage = document.createElement('canvas');
+
+    this.overlayImage.width = image.width * 5;
+    this.overlayImage.height = image.height * 5;
+
+    const ctx = this.overlayImage.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+    for (let x = 0; x < image.width; x++) {
+      for (let y = 0; y < image.height; y++) {
+        const pixelColor = image.getContext('2d')!.getImageData(x, y, 1, 1).data;
+        ctx.fillStyle = `rgba(${pixelColor[0]}, ${pixelColor[1]}, ${pixelColor[2]}, ${pixelColor[3] / 255})`;
+        ctx.fillRect(x * 5 + 2, y * 5 + 2, 1, 1);
+
+        const hexColor = "#" + ("000000" + rgbToHex(pixelColor[0], pixelColor[1], pixelColor[2])).slice(-6);
+        if (!this.colors.includes(hexColor)) {
+          this.colors.push(hexColor);
+        }
+      }
+    }
+  }
+  getColor(x: number, y: number) {
+    const p = this.ctx.getImageData(x, y, 1, 1).data;
+    return "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
+  }
 }
 
 class Chunk {
@@ -125,6 +170,7 @@ const placeState = ref<PlaceState>({
   playerCount: 1,
   coordinates: { x: 0, y: 0 },
   fullscreen: false,
+  overlayScreen: false,
   state: 'loading',
   chunks: {
     number: 0,
@@ -167,6 +213,7 @@ const view = {
   scale: 0.1,
   cursorPosition: { x: 0, y: 0 },
   chunks: [] as Chunk[],
+  overlay: null as Overlay | null,
 
   init(canvas: HTMLCanvasElement, cursor: HTMLImageElement, socket?: WebSocket) {
     this.canvas = canvas;
@@ -341,6 +388,16 @@ const view = {
     ctx.clearRect(rectWidth * cellSize, -cellSize * 1.5, cellSize * 1.5, (rectWidth * cellSize) + cellSize * 3);
     ctx.clearRect(-cellSize * 1.5, rectHeight * cellSize, (rectHeight * cellSize) + cellSize * 3, cellSize * 1.5);
 
+    if (this.overlay) {
+      ctx.drawImage(
+        this.overlay.overlayImage,
+        this.overlay.x * cellSize,
+        this.overlay.y * cellSize,
+        this.overlay.overlayImage.width * cellSize / 5,
+        this.overlay.overlayImage.height * cellSize / 5
+      );
+    }
+
     if (view.scale > 2) {
       const alpha = Math.min(1, (view.scale - 2) / 2);
       ctx.save();
@@ -398,6 +455,11 @@ const view = {
     this.cursorPosition.y = y;
     placeState.value.coordinates = { x, y };
     this.center();
+
+    if (this.overlay && (this.overlay.x <= x && x < this.overlay.x + this.overlay.width) &&
+        (this.overlay.y <= y && y < this.overlay.y + this.overlay.height)) {
+      console.log(this.overlay.colors);
+    }
   },
   click(e: MouseEvent) {
     const bounds = this.canvas!.getBoundingClientRect();
@@ -409,6 +471,186 @@ const view = {
     this.moveTo(pos.x, pos.y);
     return pos;
   }
+}
+
+let isDragging = false;
+let lastMouse = { x: 0, y: 0 };
+const mouseDown = { x: 0, y: 0 };
+
+function keydownHandler(e: KeyboardEvent) {
+  if (placeState.value.overlayScreen) {
+    return;
+  }
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x, view.cursorPosition.y - 1);
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x, view.cursorPosition.y + 1);
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x - 1, view.cursorPosition.y);
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    view.moveTo(view.cursorPosition.x + 1, view.cursorPosition.y);
+  } else if (e.key === 'r' || e.key === 'R') {
+    e.preventDefault();
+    view.center();
+  }
+
+  if (placeState.value.state !== 'started') return;
+
+  if (e.key === ' ') {
+    e.preventDefault();
+    view.paint();
+  } else if (e.key === 'c' || e.key === 'C') {
+    e.preventDefault();
+    view.pickColor();
+  } else if (e.key === 'Tab') {
+    e.preventDefault();
+    const currentIndex = colors.indexOf(placeState.value.color.active);
+    if (currentIndex === -1) {
+      placeState.value.color.active = colors[0];
+    } else if (currentIndex === colors.length - 1) {
+      placeState.value.color.active = placeState.value.color.custom;
+    } else {
+      placeState.value.color.active = colors[currentIndex + 1];
+    }
+  }
+}
+
+function clickBeforeHandler(e: MouseEvent) {
+  if (
+    Math.abs(mouseDown.x - e.clientX) >= 30 ||
+    Math.abs(mouseDown.y - e.clientY) >= 30
+  ) {
+    e.stopPropagation();
+  }
+}
+
+function clickAfterHandler(e: MouseEvent) {
+  view.click(e);
+}
+
+function mouseDownHandler(e: MouseEvent) {
+  isDragging = true;
+  lastMouse = { x: e.clientX, y: e.clientY };
+  mouseDown.x = e.clientX;
+  mouseDown.y = e.clientY;
+
+  const onMouseMove = (e: MouseEvent) => {
+    if (isDragging) {
+      const dx = e.clientX - lastMouse.x;
+      const dy = e.clientY - lastMouse.y;
+      view.pan({ x: dx, y: dy });
+      lastMouse = { x: e.clientX, y: e.clientY };
+      view.refresh();
+    }
+    e.stopPropagation();
+  };
+
+  const onMouseUp = () => {
+    isDragging = false;
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+  };
+
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+}
+
+function wheelHandler(e: WheelEvent) {
+  e.preventDefault();
+  if (!canvas.value || !cursorImage.value) {
+    console.error('Canvas element not found');
+    return;
+  }
+
+  const rect = canvas.value.getBoundingClientRect();
+  const mouse = {
+    x: (e.clientX - rect.left),
+    y: (e.clientY - rect.top)
+  };
+  const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+  view.scaleAt(mouse, zoomFactor);
+  view.refresh();
+}
+
+function touchStartHandler(e: TouchEvent) {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    mouseDown.x = e.touches[0].clientX;
+    mouseDown.y = e.touches[0].clientY;
+  }
+}
+
+let lastPinchDist: number | null = null;
+
+function touchMoveHandler(e: TouchEvent) {
+  if (isDragging && e.touches.length === 1) {
+    const dx = e.touches[0].clientX - lastMouse.x;
+    const dy = e.touches[0].clientY - lastMouse.y;
+    view.pan({ x: dx, y: dy });
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    view.refresh();
+    e.preventDefault();
+  }
+
+  if (!canvas.value || !cursorImage.value) {
+    console.error('Canvas element not found');
+    return;
+  }
+
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (lastPinchDist !== null) {
+      const zoomFactor = dist / lastPinchDist;
+      const rect = canvas.value.getBoundingClientRect();
+      const center = {
+        x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left,
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
+      };
+      view.scaleAt(center, zoomFactor);
+      view.refresh();
+    }
+    lastPinchDist = dist;
+    e.preventDefault();
+  } else {
+    lastPinchDist = null;
+  }
+}
+
+function touchEndHandler(e: TouchEvent) {
+  isDragging = false;
+
+  if (e.touches.length < 2) {
+    lastPinchDist = null;
+  }
+
+  if (e.changedTouches.length === 1) {
+    const touch = e.changedTouches[0];
+    if (
+      Math.abs(mouseDown.x - touch.clientX) < 30 &&
+      Math.abs(mouseDown.y - touch.clientY) < 30
+    ) {
+      // Simuliere Klick
+      const fakeEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+        stopPropagation: () => {},
+      } as MouseEvent;
+      view.click(fakeEvent);
+      view.refresh();
+    }
+  }
+}
+
+function touchCancelHandler() {
+  isDragging = false;
 }
 
 onMounted(() => {
@@ -428,208 +670,31 @@ onMounted(() => {
 
   resizeObserver.observe(canvasContainer.value!);
 
-  let isDragging = false;
-  let lastMouse = { x: 0, y: 0 };
-  const mouseDown = { x: 0, y: 0 };
-
   // Desktop: Keyboard controls
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x, view.cursorPosition.y - 1);
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x, view.cursorPosition.y + 1);
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x - 1, view.cursorPosition.y);
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      view.moveTo(view.cursorPosition.x + 1, view.cursorPosition.y);
-    } else if (e.key === 'r' || e.key === 'R') {
-      e.preventDefault();
-      view.center();
-    }
-
-    if (placeState.value.state !== 'started') return;
-
-    if (e.key === ' ') {
-      e.preventDefault();
-      view.paint();
-    } else if (e.key === 'c' || e.key === 'C') {
-      e.preventDefault();
-      view.pickColor();
-    } else if (e.key === 'Tab') {
-      e.preventDefault();
-      const currentIndex = colors.indexOf(placeState.value.color.active);
-      if (currentIndex === -1) {
-        placeState.value.color.active = colors[0];
-      } else if (currentIndex === colors.length - 1) {
-        placeState.value.color.active = placeState.value.color.custom;
-      } else {
-        placeState.value.color.active = colors[currentIndex + 1];
-      }
-    }
-  });
-
+  window.addEventListener('keydown', keydownHandler);
   // Desktop: Mouse controls
-  canvas.value.addEventListener('click', (e) => {
-    if (
-      Math.abs(mouseDown.x - e.clientX) >= 30 ||
-      Math.abs(mouseDown.y - e.clientY) >= 30
-    ) {
-      e.stopPropagation();
-    }
-  }, true);
-
-  canvas.value.addEventListener('click', (e) => {
-    view.click(e);
-  }, false);
-
-  canvas.value.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    lastMouse = { x: e.clientX, y: e.clientY };
-    mouseDown.x = e.clientX;
-    mouseDown.y = e.clientY;
-  });
-
-  canvas.value.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    lastMouse = { x: e.clientX, y: e.clientY };
-    mouseDown.x = e.clientX;
-    mouseDown.y = e.clientY;
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (isDragging) {
-        const dx = e.clientX - lastMouse.x;
-        const dy = e.clientY - lastMouse.y;
-        view.pan({ x: dx, y: dy });
-        lastMouse = { x: e.clientX, y: e.clientY };
-        view.refresh();
-      }
-      e.stopPropagation();
-    };
-
-    const onMouseUp = () => {
-      isDragging = false;
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-  });
-
-  canvas.value.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    if (!canvas.value || !cursorImage.value) {
-      console.error('Canvas element not found');
-      return;
-    }
-
-    const rect = canvas.value.getBoundingClientRect();
-    const mouse = {
-      x: (e.clientX - rect.left),
-      y: (e.clientY - rect.top)
-    };
-    const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-    view.scaleAt(mouse, zoomFactor);
-    view.refresh();
-  });
+  canvas.value.addEventListener('click', clickBeforeHandler, true);
+  canvas.value.addEventListener('click', clickAfterHandler, false);
+  canvas.value.addEventListener('mousedown', mouseDownHandler);
+  canvas.value.addEventListener('wheel', wheelHandler);
 
   // Mobile: Touch-controls
-  canvas.value.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      isDragging = true;
-      lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      mouseDown.x = e.touches[0].clientX;
-      mouseDown.y = e.touches[0].clientY;
-    }
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchmove', (e) => {
-    if (isDragging && e.touches.length === 1) {
-      const dx = e.touches[0].clientX - lastMouse.x;
-      const dy = e.touches[0].clientY - lastMouse.y;
-      view.pan({ x: dx, y: dy });
-      lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      view.refresh();
-      e.preventDefault();
-    }
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchend', () => {
-    isDragging = false;
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchcancel', () => {
-    isDragging = false;
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchend', (e) => {
-    if (e.changedTouches.length === 1) {
-      const touch = e.changedTouches[0];
-      if (
-        Math.abs(mouseDown.x - touch.clientX) < 30 &&
-        Math.abs(mouseDown.y - touch.clientY) < 30
-      ) {
-        // Simuliere Klick
-        const fakeEvent = {
-          clientX: touch.clientX,
-          clientY: touch.clientY,
-          stopPropagation: () => {},
-        } as MouseEvent;
-        view.click(fakeEvent);
-        view.refresh();
-      }
-    }
-  }, { passive: false });
-
-  // Zoom (Pinch-to-zoom)
-  let lastPinchDist: number | null = null;
-  canvas.value.addEventListener('touchmove', (e) => {
-    if (!canvas.value || !cursorImage.value) {
-      console.error('Canvas element not found');
-      return;
-    }
-
-    if (e.touches.length === 2) {
-      const dx = e.touches[0].clientX - e.touches[1].clientX;
-      const dy = e.touches[0].clientY - e.touches[1].clientY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (lastPinchDist !== null) {
-        const zoomFactor = dist / lastPinchDist;
-        const rect = canvas.value.getBoundingClientRect();
-        const center = {
-          x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left,
-          y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
-        };
-        view.scaleAt(center, zoomFactor);
-        view.refresh();
-      }
-      lastPinchDist = dist;
-      e.preventDefault();
-    } else {
-      lastPinchDist = null;
-    }
-  }, { passive: false });
-
-  canvas.value.addEventListener('touchend', (e) => {
-    if (e.touches.length < 2) {
-      lastPinchDist = null;
-    }
-  }, { passive: false });
+  canvas.value.addEventListener('touchstart', touchStartHandler, { passive: false });
+  canvas.value.addEventListener('touchmove', touchMoveHandler, { passive: false });
+  canvas.value.addEventListener('touchend', touchEndHandler, { passive: false });
+  canvas.value.addEventListener('touchcancel', touchCancelHandler, { passive: false });
 
   onBeforeUnmount(() => {
-    window.removeEventListener('keydown', () => {});
-    canvas.value?.removeEventListener('click', () => {});
-    canvas.value?.removeEventListener('mousedown', () => {});
-    canvas.value?.removeEventListener('wheel', () => {});
-    canvas.value?.removeEventListener('touchstart', () => {});
-    canvas.value?.removeEventListener('touchmove', () => {});
-    canvas.value?.removeEventListener('touchend', () => {});
-    canvas.value?.removeEventListener('touchcancel', () => {});
-    canvasContainer.value?.removeEventListener('resize', () => {});
+    console.log('Cleaning up event listeners');
+    window.removeEventListener('keydown', keydownHandler);
+    canvas.value?.removeEventListener('click', clickBeforeHandler, true);
+    canvas.value?.removeEventListener('click', clickAfterHandler, false);
+    canvas.value?.removeEventListener('mousedown', mouseDownHandler);
+    canvas.value?.removeEventListener('wheel', wheelHandler);
+    canvas.value?.removeEventListener('touchstart', touchStartHandler);
+    canvas.value?.removeEventListener('touchmove', touchMoveHandler);
+    canvas.value?.removeEventListener('touchend', touchEndHandler);
+    canvas.value?.removeEventListener('touchcancel', touchCancelHandler);
     resizeObserver.disconnect();
   });
 
@@ -682,78 +747,127 @@ const limitSizeOnCanvasX = ref(1000);
 const positionOnCanvasX = ref(0);
 const positionOnCanvasY = ref(0);
 
+const overlay = {
+  tempCanvas: document.createElement('canvas'),
+  initialized: false,
+  init() {
+    const canvas = previewCanvas.value;
+    if (!canvas) {
+      console.error('Preview canvas not found');
+      return;
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get canvas context');
+      return;
+    }
+
+    const previewWidth = 300;
+    const previewHeight = 300;
+    const multiplierWidth = previewWidth / activeCanvas.width;
+    const multiplierHeight = previewHeight / activeCanvas.height;
+    canvas.width = previewWidth;
+    canvas.height = previewHeight;
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (let i = 0; i < view.chunks.length; i++) {
+      const chunk = view.chunks[i];
+      const chunkX = (i % numberOfChunks) * chunkWidth;
+      const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
+      ctx.drawImage(
+        chunk.canvas,
+        chunkX * multiplierWidth,
+        chunkY * multiplierHeight,
+        (chunkWidth + 1) * multiplierWidth,
+        (chunkHeight + 1) * multiplierHeight
+      );
+    }
+
+    this.initialized = true;
+  },
+  open() {
+    if (!this.initialized) {
+      this.init();
+    }
+
+    placeState.value.overlayScreen = true;
+  },
+  preview(canvas: HTMLCanvasElement, file: File, width: number, x: number, y: number) {
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = false;
+    if (!ctx) {
+      console.error('Failed to get canvas context');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const imgRatio = img.width / img.height;
+        let pixelW = Number(width);
+        let pixelH = Math.round(pixelW / imgRatio);
+
+        const previewWidth = 300;
+        const previewHeight = 300;
+        const multiplierWidth = previewWidth / activeCanvas.width;
+        const multiplierHeight = previewHeight / activeCanvas.height;
+        canvas.width = previewWidth;
+        canvas.height = previewHeight;
+
+        limitSizeOnCanvasX.value = Math.min(Math.min(1000, img.width), Math.floor(1000 / pixelH * pixelW));
+        if (sizeOnCanvasX.value > limitSizeOnCanvasX.value) {
+          sizeOnCanvasX.value = limitSizeOnCanvasX.value;
+        }
+
+        this.tempCanvas.width = pixelW;
+        this.tempCanvas.height = pixelH;
+        const tempCtx = this.tempCanvas.getContext('2d');
+        if (!tempCtx) {
+          console.error('Failed to get temp canvas context');
+          return;
+        }
+        tempCtx.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
+        tempCtx.drawImage(img, 0, 0, pixelW, pixelH);
+
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (let i = 0; i < view.chunks.length; i++) {
+          const chunk = view.chunks[i];
+          const chunkX = (i % numberOfChunks) * chunkWidth;
+          const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
+          ctx.drawImage(
+            chunk.canvas,
+            chunkX * multiplierWidth,
+            chunkY * multiplierHeight,
+            (chunkWidth + 1) * multiplierWidth,
+            (chunkHeight + 1) * multiplierHeight
+          );
+        }
+
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(
+          this.tempCanvas,
+          0, 0, pixelW, pixelH,
+          x * multiplierWidth, y * multiplierHeight, pixelW * multiplierWidth, pixelH * multiplierHeight
+        );
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  },
+  calculate() {
+    view.overlay = new Overlay(this.tempCanvas, Number(positionOnCanvasX.value), Number(positionOnCanvasY.value));
+    view.refresh();
+    placeState.value.overlayScreen = false;
+  }
+}
+
 watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, newSizeX, newPositionX, newPositionY]) => {
   if (!newFile || !previewCanvas.value) return;
 
-  const ctx = previewCanvas.value.getContext('2d');
-  ctx.imageSmoothingEnabled = false;
-  if (!ctx) {
-    console.error('Failed to get canvas context');
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      // Ursprüngliches Seitenverhältnis berechnen
-      const imgRatio = img.width / img.height;
-      let pixelW = Number(newSizeX);
-      let pixelH = Math.round(pixelW / imgRatio);
-
-      // Canvas-Größe anpassen
-      const previewWidth = 300;
-      const previewHeight = 300;
-      const multiplierWidth = previewWidth / activeCanvas.width;
-      const multiplierHeight = previewHeight / activeCanvas.height;
-      previewCanvas.value.width = previewWidth;
-      previewCanvas.value.height = previewHeight;
-
-      // Limit width to 1000, or to the maximum width where the height does not exceed 1000
-      limitSizeOnCanvasX.value = Math.min(Math.min(1000, img.width), Math.floor(1000 / pixelH * pixelW));
-      if (sizeOnCanvasX.value > limitSizeOnCanvasX.value) {
-        sizeOnCanvasX.value = limitSizeOnCanvasX.value;
-      }
-
-      // Temporäres Canvas für das Downscaling
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = pixelW;
-      tempCanvas.height = pixelH;
-      const tempCtx = tempCanvas.getContext('2d');
-      if (!tempCtx) {
-        console.error('Failed to get temp canvas context');
-        return;
-      }
-      // Bild auf kleine Größe zeichnen
-      tempCtx.drawImage(img, 0, 0, pixelW, pixelH);
-
-      // Haupt-Canvas zurücksetzen
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
-      for (let i = 0; i < view.chunks.length; i++) {
-        const chunk = view.chunks[i];
-        const chunkX = (i % numberOfChunks) * chunkWidth;
-        const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
-        ctx.drawImage(
-          chunk.canvas,
-          chunkX * multiplierWidth,
-          chunkY * multiplierHeight,
-          (chunkWidth + 1) * multiplierWidth,
-          (chunkHeight + 1) * multiplierHeight
-        );
-      }
-
-      // Bild wieder hochskalieren, ohne Glättung (pixelig)
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(
-        tempCanvas,
-        0, 0, pixelW, pixelH,
-        newPositionX * multiplierWidth, newPositionY * multiplierHeight, pixelW * multiplierWidth, pixelH * multiplierHeight
-      );
-    };
-    img.src = e.target?.result as string;
-  };
-  reader.readAsDataURL(newFile);
+  overlay.preview(previewCanvas.value, newFile, newSizeX, newPositionX, newPositionY)
 });
 </script>
 
@@ -781,10 +895,13 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
       <canvas width="1000" height="1000" ref="canvas" class="field bg-grey-200"></canvas>
 
       <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
-        <div class="position-absolute top-0 end-0 p-2">
+        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2">
           <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
             <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
             <font-awesome-icon :icon="faMinimize" v-else/>
+          </BButton>
+          <BButton class="place-button place-button-small text-light" @click="overlay.open()">
+            <font-awesome-icon :icon="faLayerGroup"/>
           </BButton>
         </div>
         <div class="position-absolute top-0 start-0 p-2">
@@ -833,19 +950,64 @@ watch([file, sizeOnCanvasX, positionOnCanvasX, positionOnCanvasY], ([newFile, ne
       </div>
 
       <Transition>
-        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark bg-opacity-75 gap-2">
-          <div class="d-flex flex-column justify-content-center align-items-center gap-2">
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark bg-opacity-75 overflow-auto p-2" :class="{ 'd-none': !placeState.overlayScreen }">
+          <div class="d-flex flex-column justify-content-center align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black">
             <canvas ref="previewCanvas"></canvas>
-            <BFormFile v-model="file" accept="image/*" />
 
-            <BInput type="number" v-model="positionOnCanvasX" min="0" max="1000" class="w-100 mb-2" />
-            <BInput type="number" v-model="positionOnCanvasY" min="0" max="1000" class="w-100 mb-2" />
+            <BFormFile v-model="file" accept="image/*" class="place-input" />
 
-            <BInput type="range" v-model="sizeOnCanvasX" min="1" :max="limitSizeOnCanvasX" class="w-100 mb-2" />
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.x', { 'x': positionOnCanvasX })"
+              label-for="position-x-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="position-x-input"
+                type="range"
+                v-model="positionOnCanvasX"
+                min="0" :max="1000"
+                class="place-range"
+              />
+            </BFormGroup>
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.y', { 'y': positionOnCanvasY })"
+              label-for="position-y-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="position-y-input"
+                type="range"
+                v-model="positionOnCanvasY"
+                min="0" :max="1000"
+                class="place-range"
+              />
+            </BFormGroup>
 
-            <BButton class="place-button place-button-big text-light">
-              <font-awesome-icon :icon="faAdd" />
-            </BButton>
+            <BFormGroup
+              :label="$t('r_place.canvas.overlay.width', { 'width': sizeOnCanvasX })"
+              label-for="width-input"
+              label-class="mb-1"
+              class="w-100"
+            >
+              <BFormInput
+                id="width-input"
+                type="range"
+                v-model="sizeOnCanvasX"
+                min="1" :max="limitSizeOnCanvasX"
+                class="place-range"
+              />
+            </BFormGroup>
+
+            <div class="d-flex gap-2 w-100">
+              <BButton class="place-button place-button text-light" @click="placeState.overlayScreen = false">
+                <font-awesome-icon :icon="faClose" />
+              </BButton>
+              <BButton class="place-button place-button-big text-light flex-grow-1" @click="overlay.calculate()">
+                <font-awesome-icon :icon="faCheck" />
+              </BButton>
+            </div>
           </div>
         </div>
       </Transition>
@@ -978,6 +1140,7 @@ input[type=color]::-webkit-color-swatch {
   justify-content: center;
   align-items: center;
 
+  min-width: 2.25rem;
   padding: 0.5rem;
 
   --bs-btn-bg: $gray-500;
@@ -987,6 +1150,7 @@ input[type=color]::-webkit-color-swatch {
   border-radius: 0;
 
   pointer-events: all;
+  transition: border .2s ease-in-out;
 
   &-big {
     width: 12rem;
@@ -1005,5 +1169,47 @@ input[type=color]::-webkit-color-swatch {
 
   --bs-dropdown-link-hover-color: #{$white};
   --bs-dropdown-link-hover-bg: #{$gray-300};
+}
+
+.place-input {
+  width: 100%;
+
+  background: $gray-500!important;
+  border: 2px solid $black!important;
+  border-radius: 0!important;
+
+  outline: none!important;
+  transition: border .2s ease-in-out!important;
+
+  &::-webkit-file-upload-button {
+    background: $gray-300!important;
+  }
+
+  &:hover {
+    border: 2px solid $gray-10!important;
+  }
+}
+
+.place-range::-webkit-slider-thumb {
+  background: $gray-500!important;
+  border-radius: 0!important;
+  border: 2px solid $black!important;
+}
+
+.place-range::-moz-range-thumb {
+  background: $gray-500!important;
+  border-radius: 0!important;
+  border: 2px solid $black!important;
+}
+
+.place-range::-ms-thumb {
+  background: $gray-500!important;
+  border-radius: 0!important;
+  border: 2px solid $black!important;
+}
+
+.place-range::-webkit-slider-runnable-track {
+  background: $gray-500!important;
+  border-radius: 0!important;
 }
 </style>
