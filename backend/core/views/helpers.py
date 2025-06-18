@@ -1,8 +1,10 @@
-from PIL import Image
 from django.conf import settings
 from django.http import HttpResponse
 from django.http.response import FileResponse
 
+# For serving static files in development, use the following views.
+def favicon_images(request, name):
+    return FileResponse(open(f"{settings.FILE_DESTINATION}global/favicon/{name}", 'rb'))
 
 def project_images(request, name):
     return FileResponse(open(f"{settings.FILE_DESTINATION}images/project/{name}", 'rb'))

@@ -13,7 +13,12 @@ defineProps<IBasicLayout>();
 
 <template>
   <Head>
-    <link rel="icon" :href="require('@assets/images/favicon.png')" />
+    <link rel="icon" type="image/png" href="/files/global/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/files/global/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/files/global/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/files/global/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="timeofjustice.eu" />
+    <link rel="manifest" href="/files/global/favicon/site.webmanifest" />
   </Head>
 
   <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column overflow-hidden">
