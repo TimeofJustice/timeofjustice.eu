@@ -87,8 +87,9 @@ class Overlay {
         const hexColor = "#" + ("000000" + rgbToHex(pixelColor[0], pixelColor[1], pixelColor[2])).slice(-6);
 
         if (color && hexColor !== color) continue;
+        if (pixelColor[3] === 0) continue;
 
-        ctx.fillStyle = `rgba(${pixelColor[0]}, ${pixelColor[1]}, ${pixelColor[2]}, ${pixelColor[3] / 255})`;
+        ctx.fillStyle = hexColor;
         ctx.fillRect(x * 5 + 2, y * 5 + 2, 1, 1);
 
         if (this.initialized) continue;
@@ -100,6 +101,13 @@ class Overlay {
 
     this.overlayImage = canvas;
     this.cache.set(color || 'default', this.overlayImage);
+
+    if (this.initialized) return;
+    this.colors.sort((a, b) => {
+      const aNum = parseInt(a.replace('#', ''), 16);
+      const bNum = parseInt(b.replace('#', ''), 16);
+      return aNum - bNum;
+    });
   }
 }
 
@@ -503,14 +511,16 @@ const view = {
         placeState.value.colorsPage = 0;
       }
     } else {
-      placeState.value.colors = [colors];
-      placeState.value.color.active = colors[0];
-      placeState.value.inOverlay = false;
-      placeState.value.colorsPage = 0;
+      if (placeState.value.inOverlay) {
+        placeState.value.colors = [colors];
+        placeState.value.color.active = colors[0];
+        placeState.value.inOverlay = false;
+        placeState.value.colorsPage = 0;
 
-      if (this.overlay) {
-        this.overlay.calculateOverlay();
-        this.refresh();
+        if (this.overlay) {
+          this.overlay.calculateOverlay();
+          this.refresh();
+        }
       }
     }
   },
