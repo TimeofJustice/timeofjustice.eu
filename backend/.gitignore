@@ -169,6 +169,5 @@ config.ini
 ..../
 logs/
 *.bat
-*.sh
 
 files/*

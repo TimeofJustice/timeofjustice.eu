@@ -1,0 +1,83 @@
+# Stage 1: Base build stage
+FROM python:3.13-slim AS builder
+
+# Create the app directory
+RUN mkdir /app
+
+# Set the working directory
+WORKDIR /app
+
+# Set environment variables to optimize Python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Upgrade pip and install dependencies
+RUN pip install --upgrade pip
+
+# Copy the requirements file first (better caching)
+COPY backend/requirements.txt /app/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Build frontend stage
+FROM node:20-slim AS frontend-builder
+
+# Set the working directory
+WORKDIR /app/frontend
+
+# Copy the frontend source code
+COPY frontend/ ./
+
+# Install frontend dependencies
+RUN npm install
+
+# Build the frontend assets
+RUN npm run build
+
+# Stage 3: Production stage
+FROM python:3.13-slim
+
+RUN useradd -m -r appuser && \
+   mkdir /app && \
+   chown -R appuser /app
+
+# Copy the Python dependencies from the builder stage
+COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
+COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# Copy the built frontend assets from the frontend builder stage
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+
+# Set the working directory
+WORKDIR /app/
+
+# Copy application code
+COPY --chown=appuser:appuser backend/ backend/
+
+# Create the staticfiles directory
+RUN mkdir -p /app/backend/staticfiles && \
+    chown -R appuser:appuser /app/backend/staticfiles
+
+# Create the staticfiles directory
+RUN mkdir -p /app/backend/files && \
+    chown -R appuser:appuser /app/backend/files
+
+# Create the logs directory
+RUN mkdir -p /app/backend/logs && \
+    chown -R appuser:appuser /app/backend/logs
+
+# Set environment variables to optimize Python
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Switch to non-root user
+USER appuser
+
+# Expose the application port
+EXPOSE 8000 8001
+
+WORKDIR /app/backend
+
+# Start the application using Gunicorn
+CMD ["./entrypoint.sh"]
