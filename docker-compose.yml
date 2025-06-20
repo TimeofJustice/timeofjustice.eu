@@ -24,7 +24,9 @@ services:
       - .env
 
   django:
-    build: .
+    build:
+      context: .
+      dockerfile: .docker/dockerfile
     container_name: timeofjustice.eu
     profiles: ["production"]
     ports:
@@ -61,7 +63,7 @@ services:
       - files_volume:/app/backend/files
 
   nginx:
-    build: .nginx
+    build: .docker/.nginx
     profiles: ["production"]
     ports:
       - "8000:80"
@@ -74,8 +76,8 @@ services:
   django-dev:
     build:
         context: .
-        dockerfile: dockerfile.dev
-    container_name: timeofjustice.eu
+        dockerfile: .docker/dockerfile.dev
+    container_name: timeofjustice.eu-dev
     profiles: ["dev"]
     ports:
       - "8000:8000"
@@ -115,8 +117,8 @@ services:
   npm-dev:
     build:
       context: .
-      dockerfile: dockerfile-frontend.dev
-    container_name: timeofjustice.eu-dev
+      dockerfile: .docker/dockerfile-frontend.dev
+    container_name: timeofjustice.eu-npm-dev
     profiles: ["dev"]
     ports:
       - "5173:5173"
@@ -126,16 +128,13 @@ services:
       - ./frontend:/app/frontend
 
   nginx-dev:
-    build: .nginx-dev
+    build: .docker/.nginx-dev
     profiles: ["dev"]
     ports:
       - "80:80"
     depends_on:
       - django-dev
       - npm-dev
-    volumes:
-      - static_volume:/app/backend/staticfiles
-      - files_volume:/app/backend/files
 volumes:
   postgres_data:
   static_volume:

@@ -1,6 +1,5 @@
 ![Title of the project](.github/images/title.png)
 
-[![Deploy in production](https://github.com/TimeofJustice/timeofjustice.eu/actions/workflows/deploy-release.yaml/badge.svg)](https://github.com/TimeofJustice/timeofjustice.eu/actions/workflows/deploy-release.yaml)
 [![Last Commit](https://badgen.net/github/last-commit/timeofjustice/timeofjustice.eu)](https://timeofjustice.eu)
 [![Visit](https://badgen.net/badge/visit%20now/timeofjustice.eu/blue)](https://timeofjustice.eu)
 
