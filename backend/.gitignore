@@ -170,4 +170,4 @@ config.ini
 logs/
 *.bat
 
-files/*
+files/

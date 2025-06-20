@@ -20,21 +20,6 @@ COPY backend/requirements.txt /app/
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Stage 2: Build frontend stage
-FROM node:20-slim AS frontend-builder
-
-# Set the working directory
-WORKDIR /app/frontend
-
-# Copy the frontend source code
-COPY frontend/ ./
-
-# Install frontend dependencies
-RUN npm install
-
-# Build the frontend assets
-RUN npm run build
-
 # Stage 3: Production stage
 FROM python:3.13-slim
 
@@ -46,14 +31,8 @@ RUN useradd -m -r appuser && \
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
-# Copy the built frontend assets from the frontend builder stage
-COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
-
 # Set the working directory
 WORKDIR /app/
-
-# Copy application code
-COPY --chown=appuser:appuser backend/ backend/
 
 # Create the staticfiles directory
 RUN mkdir -p /app/backend/staticfiles && \
@@ -62,10 +41,6 @@ RUN mkdir -p /app/backend/staticfiles && \
 # Create the staticfiles directory
 RUN mkdir -p /app/backend/files && \
     chown -R appuser:appuser /app/backend/files
-
-# Create the logs directory
-RUN mkdir -p /app/backend/logs && \
-    chown -R appuser:appuser /app/backend/logs
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -80,4 +55,4 @@ EXPOSE 8000 8001
 WORKDIR /app/backend
 
 # Start the application using Gunicorn
-CMD ["./entrypoint.sh"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
