@@ -75,7 +75,7 @@ ENV PYTHONUNBUFFERED=1
 USER appuser
 
 # Expose the application port
-EXPOSE 8000 8001
+EXPOSE 8000
 
 WORKDIR /app/backend
 
