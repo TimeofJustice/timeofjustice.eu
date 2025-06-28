@@ -64,6 +64,7 @@ services:
       - ./staticfiles:/app/backend/staticfiles
       - ./files:/app/backend/files
       - ./sockets:/sockets
+      - ./logs:/app/backend/logs
 
   django-dev:
     build:

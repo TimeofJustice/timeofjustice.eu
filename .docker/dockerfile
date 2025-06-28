@@ -71,6 +71,9 @@ RUN mkdir -p /app/backend/logs && \
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Make the entrypoint script executable
+RUN chmod +x /app/backend/entrypoint.sh
+
 # Switch to non-root user
 USER appuser
 
