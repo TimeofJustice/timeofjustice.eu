@@ -20,8 +20,9 @@ from django.urls import path, include
 from django_otp.admin import OTPAdminSite
 from django.conf import settings
 from django.shortcuts import redirect
+import os
 
-if not settings.DEBUG:
+if os.getenv("USE_OTP", 'False').lower() in ('true', '1', 't'):
     admin.site.__class__ = OTPAdminSite
 
 from . import settings

@@ -1,7 +1,9 @@
 .idea/
 .vscode/
-.env/
+.venv/
+.dev/
 
 # Config-File
 config.ini
+.env
 /frontend/src/components.d.ts
