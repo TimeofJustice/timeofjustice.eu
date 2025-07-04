@@ -7,7 +7,7 @@ services:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - "5432:5432"
+      - "8002:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
@@ -17,7 +17,7 @@ services:
     image: redis:latest
     profiles: ["production", "dev"]
     ports:
-      - "6379:6379"
+      - "8001:6379"
     volumes:
       - redis_data:/data
     env_file:
