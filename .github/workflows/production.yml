@@ -1,11 +1,11 @@
 name: Production
 on:
   push:
-#    branches: [ main ]
-#    paths:
-#      - frontend/**
-#      - backend/**
-#      - .github/workflows/production.yml
+    branches: [ main ]
+    paths:
+      - frontend/**
+      - backend/**
+      - .github/workflows/production.yml
 
 jobs:
   build:
