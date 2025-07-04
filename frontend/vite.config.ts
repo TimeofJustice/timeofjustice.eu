@@ -53,7 +53,7 @@ export default defineConfig({
     },
     server: {
         origin: "http://localhost:5173",
-        port: 5173, // must be a port other than 5173
+        port: 5173,
         host: true,
         watch: {
             usePolling: true,
