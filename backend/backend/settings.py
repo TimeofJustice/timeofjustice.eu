@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import configparser
 import os
 import re
 from pathlib import Path
@@ -17,30 +16,22 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-CONFIG_FILE = BASE_DIR / ".." / 'config.ini'
-
-CONFIG_PARSER = configparser.ConfigParser(interpolation=None)
-CONFIG_PARSER.read(CONFIG_FILE)
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = CONFIG_PARSER["DEFAULT"]["DJANGO_SECRET_KEY"]
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 # Keep the url a secret, to prevent bots from accessing the admin page
-ADMIN_URL = CONFIG_PARSER["DEFAULT"]["ADMIN_URL"]
+ADMIN_URL = os.environ.get("ADMIN_URL")
 # Indicate if the project is in production or not
-IS_STABLE = CONFIG_PARSER["DEFAULT"].getboolean("IS_STABLE") if "IS_STABLE" in CONFIG_PARSER["DEFAULT"] else False
+IS_STABLE = os.getenv("IS_STABLE", 'False').lower() in ('true', '1', 't')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = CONFIG_PARSER["DEFAULT"].getboolean("DEBUG")
-LOCAL_PRODUCTION = CONFIG_PARSER["DEFAULT"].getboolean("LOCAL_PRODUCTION")
+DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
+LOCAL_PRODUCTION = os.getenv("LOCAL_PRODUCTION", 'False').lower() in ('true', '1', 't')
 PROPAGATE_EXCEPTIONS = True
 
-ALLOWED_HOSTS = ['127.0.0.1',
-                 'localhost',
-                 'timeofjustice.eu',
-                 'staging.timeofjustice.eu',]
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
 
 
 # Application definition
@@ -70,7 +61,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("redis", 6379)],
         },
     },
 }
@@ -116,12 +107,14 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': CONFIG_PARSER["DEFAULT"]["SQL_DB"],
-        'USER': CONFIG_PARSER["DEFAULT"]["SQL_USER"],
-        'PASSWORD': CONFIG_PARSER["DEFAULT"]["SQL_PASS"],
-        'HOST': 'localhost',
-        'PORT': CONFIG_PARSER["DEFAULT"]["SQL_PORT"],
+        'ENGINE': 'django.db.backends.{}'.format(
+            os.getenv('DATABASE_ENGINE', 'postgresql')
+        ),
+        'NAME': os.getenv('DATABASE_NAME', 'polls'),
+        'USER': os.getenv('DATABASE_USERNAME', 'myprojectuser'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
+        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
+        'PORT': int(os.getenv('DATABASE_PORT', 5432)),
     }
 }
 
@@ -168,9 +161,6 @@ DJANGO_VITE_DEV_MODE = DEBUG  # follow Django's dev mode
 # Where ViteJS assets are built.
 DJANGO_VITE_ASSETS_PATH = BASE_DIR / ".." / "frontend" / "dist"
 
-# If use HMR or not. We follow Django's DEBUG mode
-DJANGO_VITE_DEV_MODE = DEBUG
-
 # Vite 3 defaults to 5173. Default for django-vite is 3000, which is the default for Vite 2.
 DJANGO_VITE_DEV_SERVER_PORT = 5173
 
@@ -190,7 +180,7 @@ STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
 # Inertia settings
 INERTIA_LAYOUT = BASE_DIR / "core" / "templates" / "index.html"
 
-FILE_DESTINATION = CONFIG_PARSER["DEFAULT"]["FILE_DESTINATION"]
+FILE_DESTINATION = os.getenv('FILE_DESTINATION')
 
 if LOCAL_PRODUCTION:
     # Vite generates files with 8 hash digits
@@ -204,7 +194,7 @@ if LOCAL_PRODUCTION:
     WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 if not DEBUG:
-    LOGGING_DESTINATION = CONFIG_PARSER["DEFAULT"]["LOGGING_DESTINATION"]
+    LOGGING_DESTINATION = os.getenv('LOGGING_DESTINATION')
 
     LOGGING = {
         "version": 1,

@@ -1,0 +1,135 @@
+services:
+  db:
+    image: postgres:17
+    profiles: ["production", "dev"]
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "8002:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  redis:
+    image: redis:latest
+    profiles: ["production", "dev"]
+    ports:
+      - "8001:6379"
+    volumes:
+      - redis_data:/data
+    env_file:
+      - .env
+
+  django:
+    build:
+      context: .
+      dockerfile: .docker/dockerfile
+    container_name: timeofjustice.eu
+    profiles: ["production"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+
+      DEBUG: ${DEBUG}
+      LOCAL_PRODUCTION: ${LOCAL_PRODUCTION}
+      IS_STABLE: ${IS_STABLE}
+
+      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+
+      FILE_DESTINATION: ${FILE_DESTINATION}
+      LOGGING_DESTINATION: ${LOGGING_DESTINATION}
+      ADMIN_URL: ${ADMIN_URL}
+
+      USE_OTP: ${USE_OTP}
+
+      DATABASE_ENGINE: ${DATABASE_ENGINE}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+    env_file:
+      - .env
+    volumes:
+      - static_volume:/app/backend/staticfiles
+      - files_volume:/app/backend/files
+      - ./staticfiles:/app/backend/staticfiles
+      - ./files:/app/backend/files
+      - ./sockets:/sockets
+      - ./logs:/app/backend/logs
+
+  django-dev:
+    build:
+        context: .
+        dockerfile: .docker/dockerfile.dev
+    container_name: timeofjustice.eu-dev
+    profiles: ["dev"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+
+      DEBUG: ${DEBUG}
+      LOCAL_PRODUCTION: ${LOCAL_PRODUCTION}
+      IS_STABLE: ${IS_STABLE}
+
+      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+
+      FILE_DESTINATION: ${FILE_DESTINATION}
+      LOGGING_DESTINATION: ${LOGGING_DESTINATION}
+      ADMIN_URL: ${ADMIN_URL}
+
+      USE_OTP: ${USE_OTP}
+
+      DATABASE_ENGINE: ${DATABASE_ENGINE}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+    env_file:
+      - .env
+    volumes:
+      - static_volume:/app/backend/staticfiles
+      - files_volume:/app/backend/files
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+
+  npm-dev:
+    build:
+      context: .
+      dockerfile: .docker/dockerfile-frontend.dev
+    container_name: timeofjustice.eu-npm-dev
+    profiles: ["dev"]
+    ports:
+      - "5173:5173"
+    depends_on:
+      - django-dev
+    volumes:
+      - ./frontend:/app/frontend
+
+  nginx-dev:
+    build: .docker/.nginx-dev
+    profiles: ["dev"]
+    ports:
+      - "80:80"
+    depends_on:
+      - django-dev
+      - npm-dev
+volumes:
+  postgres_data:
+  static_volume:
+  files_volume:
+  redis_data:
