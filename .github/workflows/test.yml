@@ -3,9 +3,40 @@ on:
   push
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Test frontend
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Setup backend environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Test backend
+        working-directory: ./backend
+        run: |
+          pip install -r requirements.txt
+          python manage.py check
+
   build:
     name: Build
     runs-on: ubuntu-latest
+    needs: test
 
     permissions:
       contents: read
