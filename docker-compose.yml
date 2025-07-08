@@ -101,8 +101,8 @@ services:
     ports:
       - "8003:8000"
     depends_on:
-      - db
-      - redis
+      - db-staging
+      - redis-staging
     environment:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
 
