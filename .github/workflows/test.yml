@@ -1,0 +1,32 @@
+name: Test Workflow
+on:
+  push
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker Compose image
+        run: |
+          docker compose --profile production build
+          docker tag timeofjusticeeu-django ghcr.io/timeofjustice/timeofjustice.eu:latest
+          docker push ghcr.io/timeofjustice/timeofjustice.eu:latest
