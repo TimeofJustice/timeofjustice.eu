@@ -52,6 +52,7 @@ services:
       context: .
       dockerfile: .docker/dockerfile
     container_name: timeofjustice.eu
+    image: ghcr.io/timeofjustice/timeofjustice.eu:latest
     profiles: ["production"]
     ports:
       - "8000:8000"
@@ -94,7 +95,8 @@ services:
     build:
       context: .
       dockerfile: .docker/dockerfile
-    container_name: timeofjustice.eu
+    container_name: staging.timeofjustice.eu
+    image: ghcr.io/timeofjustice/staging.timeofjustice.eu:latest
     profiles: ["staging"]
     ports:
       - "8003:8000"
