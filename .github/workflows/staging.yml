@@ -1,6 +1,7 @@
-name: Test Workflow
+name: Staging
 on:
-  push
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   test:
