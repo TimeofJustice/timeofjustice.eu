@@ -20,9 +20,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-4!@#%&*()_+{}:<>?[];.,/\\|`~")
 # Keep the url a secret, to prevent bots from accessing the admin page
-ADMIN_URL = os.environ.get("ADMIN_URL")
+ADMIN_URL = os.environ.get("ADMIN_URL", "admin/")
 # Indicate if the project is in production or not
 IS_STABLE = os.getenv("IS_STABLE", 'False').lower() in ('true', '1', 't')
 
@@ -110,8 +110,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.{}'.format(
             os.getenv('DATABASE_ENGINE', 'postgresql')
         ),
-        'NAME': os.getenv('DATABASE_NAME', 'polls'),
-        'USER': os.getenv('DATABASE_USERNAME', 'myprojectuser'),
+        'NAME': os.getenv('DATABASE_NAME', 'timeofjustice'),
+        'USER': os.getenv('DATABASE_USERNAME', 'postgres'),
         'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
         'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
         'PORT': int(os.getenv('DATABASE_PORT', 5432)),
@@ -180,7 +180,7 @@ STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH]
 # Inertia settings
 INERTIA_LAYOUT = BASE_DIR / "core" / "templates" / "index.html"
 
-FILE_DESTINATION = os.getenv('FILE_DESTINATION')
+FILE_DESTINATION = os.getenv('FILE_DESTINATION', "files/")
 
 if LOCAL_PRODUCTION:
     # Vite generates files with 8 hash digits
@@ -193,9 +193,9 @@ if LOCAL_PRODUCTION:
 
     WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
-if not DEBUG:
-    LOGGING_DESTINATION = os.getenv('LOGGING_DESTINATION')
+LOGGING_DESTINATION = os.getenv('LOGGING_DESTINATION', "logs/")
 
+if not DEBUG and os.path.exists(LOGGING_DESTINATION):
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,

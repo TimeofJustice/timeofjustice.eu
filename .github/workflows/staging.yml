@@ -1,12 +1,7 @@
-name: Production
+name: Staging
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - frontend/**
-      - backend/**
-      - .github/workflows/production.yml
-      - .docker/**
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   test:
@@ -64,8 +59,8 @@ jobs:
 
       - name: Build and push Docker Compose image
         run: |
-          docker compose --profile production build
-          docker push ghcr.io/timeofjustice/timeofjustice.eu:latest
+          docker compose --profile staging build
+          docker push ghcr.io/timeofjustice/staging.timeofjustice.eu:latest
 
   deploy:
     name: Deploy
@@ -85,14 +80,14 @@ jobs:
 
       - name: Copy docker-compose.yml
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_PATH }}
+          scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_STAGING_PATH }}
 
       - name: Pull container and deploy on remote server
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             set -e
             echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/timeofjustice/timeofjustice.eu:latest
-            cd ${{ secrets.SSH_PATH }}
-            docker compose --profile production up -d --remove-orphans
+            docker pull ghcr.io/timeofjustice/staging.timeofjustice.eu:latest
+            cd ${{ secrets.SSH_STAGING_PATH }}
+            docker compose --profile staging up -d --remove-orphans
           EOF

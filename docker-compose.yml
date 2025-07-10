@@ -13,6 +13,20 @@ services:
     env_file:
       - .env
 
+  db-staging:
+    image: postgres:17
+    profiles: ["staging"]
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "8005:5432"
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
   redis:
     image: redis:latest
     profiles: ["production", "dev"]
@@ -23,11 +37,22 @@ services:
     env_file:
       - .env
 
+  redis-staging:
+    image: redis:latest
+    profiles: ["staging"]
+    ports:
+      - "8004:6379"
+    volumes:
+      - redis_staging_data:/data
+    env_file:
+      - .env
+
   django:
     build:
       context: .
       dockerfile: .docker/dockerfile
     container_name: timeofjustice.eu
+    image: ghcr.io/timeofjustice/timeofjustice.eu:latest
     profiles: ["production"]
     ports:
       - "8000:8000"
@@ -61,6 +86,50 @@ services:
     volumes:
       - static_volume:/app/backend/staticfiles
       - files_volume:/app/backend/files
+      - ./staticfiles:/app/backend/staticfiles
+      - ./files:/app/backend/files
+      - ./sockets:/sockets
+      - ./logs:/app/backend/logs
+
+  django-staging:
+    build:
+      context: .
+      dockerfile: .docker/dockerfile
+    container_name: staging.timeofjustice.eu
+    image: ghcr.io/timeofjustice/staging.timeofjustice.eu:latest
+    profiles: ["staging"]
+    ports:
+      - "8003:8000"
+    depends_on:
+      - db-staging
+      - redis-staging
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+
+      DEBUG: ${DEBUG}
+      LOCAL_PRODUCTION: ${LOCAL_PRODUCTION}
+      IS_STABLE: ${IS_STABLE}
+
+      DJANGO_LOGLEVEL: ${DJANGO_LOGLEVEL}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+
+      FILE_DESTINATION: ${FILE_DESTINATION}
+      LOGGING_DESTINATION: ${LOGGING_DESTINATION}
+      ADMIN_URL: ${ADMIN_URL}
+
+      USE_OTP: ${USE_OTP}
+
+      DATABASE_ENGINE: ${DATABASE_ENGINE}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_HOST: ${DATABASE_HOST}
+      DATABASE_PORT: ${DATABASE_PORT}
+    env_file:
+      - .env
+    volumes:
+      - static_staging_volume:/app/backend/staticfiles
+      - files_staging_volume:/app/backend/files
       - ./staticfiles:/app/backend/staticfiles
       - ./files:/app/backend/files
       - ./sockets:/sockets
@@ -130,6 +199,10 @@ services:
       - npm-dev
 volumes:
   postgres_data:
+  postgres_staging_data:
   static_volume:
+  static_staging_volume:
   files_volume:
+  files_staging_volume:
   redis_data:
+  redis_staging_data:
