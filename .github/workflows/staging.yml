@@ -80,7 +80,26 @@ jobs:
 
       - name: Copy docker-compose.yml
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_STAGING_PATH }}
+          scp docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_STAGING_PATH }}
+
+      - name: Copy files from production
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+              set -e
+              rsync -av --delete --quiet ${{ secrets.SSH_PATH }}/files/ ${{ secrets.SSH_STAGING_PATH }}/files/
+          EOF
+
+      - name: Copy database from production
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+          
+            docker exec ${{ secrets.DB_CONTAINER }} pg_dump -U ${{ secrets.DB_USER }} ${{ secrets.DB_NAME }} > ${{ secrets.SSH_STAGING_PATH }}/dump.sql
+          
+            docker exec ${{ secrets.DB_STAGING_CONTAINER }} psql -U ${{ secrets.DB_USER }} -c "DROP DATABASE IF EXISTS \"${{ secrets.DB_NAME }}\";"
+            docker exec ${{ secrets.DB_STAGING_CONTAINER }} psql -U ${{ secrets.DB_USER }} -c "CREATE DATABASE \"${{ secrets.DB_NAME }}\";"
+            cat ${{ secrets.SSH_STAGING_PATH }}/dump.sql | docker exec -i ${{ secrets.DB_STAGING_CONTAINER }} psql -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}
+          EOF
 
       - name: Pull container and deploy on remote server
         run: |
