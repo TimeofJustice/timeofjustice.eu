@@ -10,8 +10,8 @@
 </script>
 
 <template>
-  <a class="h-100 mx-1" :href="url" target="_blank" :title="alt" v-if="url !== ''">
-    <img class="img-fluid h-100" :src="icon" :alt="alt">
+  <a class="mx-1" style="height: 2rem;" :href="url" target="_blank" :title="alt" v-if="url">
+    <img class="h-100" :src="icon" :alt="alt">
   </a>
-  <img class="img-fluid h-100 mx-1" :src="icon" :alt="alt" v-else>
+  <img class="mx-1" style="height: 2rem;" :src="icon" :alt="alt" v-else>
 </template>
