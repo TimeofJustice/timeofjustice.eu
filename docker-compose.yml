@@ -175,28 +175,6 @@ services:
       - files_volume:/app/backend/files
       - ./backend:/app/backend
       - ./frontend:/app/frontend
-
-  npm-dev:
-    build:
-      context: .
-      dockerfile: .docker/dockerfile-frontend.dev
-    container_name: timeofjustice.eu-npm-dev
-    profiles: ["dev"]
-    ports:
-      - "5173:5173"
-    depends_on:
-      - django-dev
-    volumes:
-      - ./frontend:/app/frontend
-
-  nginx-dev:
-    build: .docker/.nginx-dev
-    profiles: ["dev"]
-    ports:
-      - "80:80"
-    depends_on:
-      - django-dev
-      - npm-dev
 volumes:
   postgres_data:
   postgres_staging_data:
