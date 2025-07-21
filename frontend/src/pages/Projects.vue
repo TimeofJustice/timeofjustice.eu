@@ -53,7 +53,7 @@ const loadProject = async (id: number) => {
         <span class="display-1 fw-bold text-grey-100">{{ $t("index.title.bottom") }}</span>
       </h1>
       <Profile :profile-picture="profile?.picture" :description="profile?.description"
-               :short-description="profile?.shortDescription" :repo="profile?.repo" :socials="socials" :known-tools="tools" class="position-sticky" style="top: 1rem;" />
+               :short-description="profile?.shortDescription" :repo="profile?.repo" :socials="socials" :known-tools="tools" class="position-sticky" style="top: 4rem;" />
     </div>
     <div class="d-flex flex-grow-1 justify-content-center d-block d-lg-none">
       <Profile :profile-picture="profile?.picture" :description="profile?.description"

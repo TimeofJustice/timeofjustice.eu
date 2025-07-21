@@ -21,8 +21,8 @@ defineProps<IBasicLayout>();
     <link rel="manifest" href="/files/global/favicon/site.webmanifest" />
   </Head>
 
-  <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column overflow-hidden">
-    <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-space-blue">
+  <div class="d-flex flex-column">
+    <div class="position-fixed top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-space-blue">
       <div class="gradient"></div>
       <div class="x-wing" v-for="i in 5" :key="i" v-if="$i18n.locale === 'yoda'">
         <i class="fi fi-x-wing"></i>
@@ -31,7 +31,7 @@ defineProps<IBasicLayout>();
 
     <Navbar />
 
-    <div class="w-100 overflow-y-auto overflow-x-hidden z-0 flex-grow-1 d-flex flex-column">
+    <div class="w-100 z-0 flex-grow-1 d-flex flex-column mt-1">
       <div class="container-xxl px-3" v-if="!stable">
         <BAlert :model-value="true" variant="info" dismissible close-variant="tertiary">
           <template #close>

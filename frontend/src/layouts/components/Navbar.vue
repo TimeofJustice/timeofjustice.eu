@@ -2,11 +2,20 @@
 import { faBars, faClose, faDice, faHome, faPaintBrush } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/vue-fontawesome";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
+import { onMounted, ref } from "vue";
+
+// Check if the page is scrolled to add a shadow to the navbar
+const isScrolled = ref(false);
+onMounted(() => {
+  window.addEventListener('scroll', () => {
+    isScrolled.value = window.scrollY > 0;
+  });
+});
 </script>
 
 <template>
-  <div class="navbar navbar-expand-lg position-sticky top-0 z-1">
-    <div class="container-xxl px-3">
+  <div class="navbar navbar-expand-lg position-sticky top-0 z-1 w-100 d-flex align-content-center justify-content-center px-2">
+    <div class="container-xxl navbar-body px-1" :class="{ 'scrolled': isScrolled }">
       <BButton variant="tertiary" class="btn-square navbar-toggler border-0 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
         <FontAwesomeIcon :icon="faBars"/>
       </BButton>
@@ -69,5 +78,30 @@ import LocaleDropdown from "@components/LocaleDropdown.vue";
   100% {
     opacity: 1;
   }
+}
+
+.navbar-body {
+  border-radius: 0.5rem;
+  transition: width 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55), backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.navbar-body.scrolled {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 45rem;
+
+  background: rgba(37, 37, 37, 0.4);
+  backdrop-filter: brightness(1.1) blur(10px);
+  -webkit-backdrop-filter: brightness(1.1) blur(10px);
+
+  -webkit-box-shadow: inset 0 2px 0 -2px rgba(118, 118, 118, 0.7),
+  inset 0 0 5px 1px rgba(118, 118, 118, 0.3);
+  box-shadow: inset 0 2px 0 -2px rgba(118, 118, 118, 0.7),
+  inset 0 0 5px 1px rgba(118, 118, 118, 0.3);
+}
+
+.navbar-body.scrolled > .navbar-nav {
+
 }
 </style>
