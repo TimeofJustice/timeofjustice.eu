@@ -17,7 +17,7 @@ import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
 
 const page = usePage();
-page.props['navbar'] = 'small';
+page.props['smallNavbar'] = true;
 
 interface PlaceState {
   playerCount: number;

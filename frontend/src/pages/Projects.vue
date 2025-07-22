@@ -53,7 +53,7 @@ const loadProject = async (id: number) => {
         <span class="display-1 fw-bold text-grey-100">{{ $t("index.title.bottom") }}</span>
       </h1>
       <Profile :profile-picture="profile?.picture" :description="profile?.description"
-               :short-description="profile?.shortDescription" :repo="profile?.repo" :socials="socials" :known-tools="tools" class="position-sticky" style="top: 4rem;" />
+               :short-description="profile?.shortDescription" :repo="profile?.repo" :socials="socials" :known-tools="tools" class="position-sticky profile" />
     </div>
     <div class="d-flex flex-grow-1 justify-content-center d-block d-lg-none">
       <Profile :profile-picture="profile?.picture" :description="profile?.description"
@@ -61,7 +61,7 @@ const loadProject = async (id: number) => {
     </div>
 
     <div class="d-flex flex-column h-100 flex-grow-1 flex-shrink-1 gap-2" style="min-width: 0">
-      <section v-motion-slide-visible-once-top v-if="true" style="max-width: 43.5rem">
+      <section v-motion-slide-visible-once-top v-if="true">
         <h1 class="display-1 fw-bold text-white" style="line-height: 50px">
           {{ $t("index.title.top") }}
           <br>
@@ -91,3 +91,13 @@ const loadProject = async (id: number) => {
     </slot>
   </BOffcanvas>
 </template>
+
+<style scoped lang="scss">
+.profile {
+  top: 0.5rem;
+
+  @media (max-width: 1400px) {
+    top: 4rem;
+  }
+}
+</style>
