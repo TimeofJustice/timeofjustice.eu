@@ -267,14 +267,14 @@ const dismissHint = () => {
     </BForm>
   </BModal>
 
-  <div class="container-xxl text-white d-flex flex-column flex-lg-row gap-2 justify-content-center pb-3">
+  <div class="container-xxl text-white d-flex flex-column flex-lg-row justify-content-center pb-3">
     <div class="col-12 col-lg-9">
       <KeepAlive>
         <component :is="gameComponent" :balance="wallet.balance" @balanceChange="onBalanceChange" />
       </KeepAlive>
     </div>
 
-    <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2">
+    <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2 ps-2">
       <div class="d-flex flex-column gap-2 col-12 col-md-6 col-lg-12">
         <BToast :model-value="showCopyReminder" variant="danger" body-class="d-flex align-items-center justify-content-between gap-2" class="w-100">
           <div>{{ $t("games.main.reminder") }}</div>

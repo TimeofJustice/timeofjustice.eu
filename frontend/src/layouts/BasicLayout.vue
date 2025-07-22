@@ -33,7 +33,7 @@ defineProps<IBasicLayout>();
     <div class="content-body w-100 z-0 flex-grow-1 d-flex flex-column overflow-y-auto overflow-x-hidden">
       <Navbar :small="smallNavbar" />
 
-      <div class="container-xxl px-3 mt-1" v-if="!stable">
+      <div class="container-xxl mt-1" v-if="!stable">
         <BAlert :model-value="true" variant="info" dismissible close-variant="tertiary">
           <template #close>
             <font-awesome-icon :icon="faClose"/>

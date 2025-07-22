@@ -21,8 +21,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="navbar navbar-expand-lg position-sticky top-0 z-1 w-100 d-flex align-content-center justify-content-center px-2">
-    <div class="container-xxl navbar-body px-1" :class="{ 'scrolled blur-box': isScrolled || small }">
+  <div class="navbar navbar-expand-lg position-sticky top-0 z-1 w-100 d-flex align-content-center justify-content-center">
+    <div class="container-xxl navbar-body" :class="{ 'scrolled blur-box': isScrolled || small }">
       <BButton variant="tertiary" class="btn-square navbar-toggler border-0 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
         <FontAwesomeIcon :icon="faBars"/>
       </BButton>
@@ -89,14 +89,17 @@ onMounted(() => {
 
 .navbar-body {
   border-radius: 0.5rem;
-  transition: backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, padding 0.3s ease-in-out;
 
   @media (min-width: 1400px) {
-    transition: width 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    transition: width 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, padding 0.3s ease-in-out;
   }
 }
 
 .navbar-body.scrolled {
+  padding-left: var(--bs-navbar-brand-padding-y);
+  padding-right: var(--bs-navbar-brand-padding-y);
+
   display: flex;
   align-items: center;
   justify-content: space-between;
