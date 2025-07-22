@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <div class="d-flex flex-column gap-2" v-if="variant === 'large'">
-    <div class="card bg-grey-100 text-light bg-opacity-50 border-0 shadow">
+    <div class="card text-light blur-box border-0">
       <div class="card-body d-flex flex-column align-items-center gap-2" style="max-width: 18rem">
         <img class="img-fluid rounded-circle w-75" :src="profilePicture || require('@assets/images/TimeofJustice.svg')" alt="TimeofJustice">
 
@@ -59,13 +59,13 @@ withDefaults(defineProps<Props>(), {
       </div>
     </div>
 
-    <div class="bg-grey-100 bg-opacity-50 rounded-1 py-2 overflow-hidden" style="height: 3rem;" v-if="knownTools.length">
+    <div class="blur-box rounded-1 py-2 overflow-hidden" style="height: 3rem;" v-if="knownTools.length">
       <Vue3Marquee class="gradient-carousel h-100" style="max-width: 18rem" pause-on-hover clone>
         <tool-container :tool="tool" v-for="tool in knownTools" />
       </Vue3Marquee>
     </div>
 
-    <div class="card bg-grey-100 text-light bg-opacity-50 border-0 shadow overflow-hidden" style="max-width: 18rem" v-if="repo">
+    <div class="card blur-box text-light border-0 overflow-hidden" style="max-width: 18rem" v-if="repo">
       <div class="card-body d-flex flex-column gap-3">
         <h5 class="mb-0">{{ $t('index.profile.working_on') }}</h5>
 

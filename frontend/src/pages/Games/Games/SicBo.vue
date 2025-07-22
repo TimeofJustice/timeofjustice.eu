@@ -225,7 +225,7 @@ const removeBet = () => {
 </script>
 
 <template>
-  <BCard class="bg-grey-100 bg-opacity-50 overflow-hidden" header-class="d-flex align-items-center justify-content-between" body-class="d-flex flex-column p-0">
+  <BCard class="blur-box border-0 overflow-hidden" header-class="d-flex align-items-center justify-content-between" body-class="d-flex flex-column p-0">
     <template #header>
       <h4 class="m-0">
         <font-awesome-icon :icon="faDice" />

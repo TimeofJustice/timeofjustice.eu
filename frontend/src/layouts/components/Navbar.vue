@@ -22,7 +22,7 @@ onMounted(() => {
 
 <template>
   <div class="navbar navbar-expand-lg position-sticky top-0 z-1 w-100 d-flex align-content-center justify-content-center px-2">
-    <div class="container-xxl navbar-body px-1" :class="{ 'scrolled': isScrolled || small }">
+    <div class="container-xxl navbar-body px-1" :class="{ 'scrolled blur-box': isScrolled || small }">
       <BButton variant="tertiary" class="btn-square navbar-toggler border-0 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
         <FontAwesomeIcon :icon="faBars"/>
       </BButton>
@@ -45,7 +45,7 @@ onMounted(() => {
             <FontAwesomeIcon :icon="faHome"/>
             <div class="ms-1 link-title">{{ $t('nav.projects') }}</div>
           </BLink>
-          <BLink class="nav-item nav-link p-0 px-2 d-flex align-items-center" to="/games/" :class="{ 'active': $page.component === 'Games/Main' }">
+          <BLink class="nav-item nav-link p-0 px-2 d-flex align-items-center" to="/games/" :class="{ 'active': $page.component === 'Games/Main' || $page.component === 'Games/Entry' || $page.component === 'Games/Login' }">
             <FontAwesomeIcon :icon="faDice"/>
             <div class="ms-1 link-title">{{ $t('nav.games') }}</div>
           </BLink>
@@ -101,15 +101,6 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   width: 26rem;
-
-  background: rgba(37, 37, 37, 0.4);
-  backdrop-filter: brightness(1.1) blur(10px);
-  -webkit-backdrop-filter: brightness(1.1) blur(10px);
-
-  -webkit-box-shadow: inset 0 2px 0 -2px rgba(118, 118, 118, 0.7),
-  inset 0 0 5px 1px rgba(118, 118, 118, 0.3);
-  box-shadow: inset 0 2px 0 -2px rgba(118, 118, 118, 0.7),
-  inset 0 0 5px 1px rgba(118, 118, 118, 0.3);
 
   @media (max-width: 1400px) {
     width: 100%;

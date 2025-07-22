@@ -18,7 +18,7 @@ defineProps<Props>();
     </BAlert>
 
     <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
-      <BCard class="bg-grey-100 bg-opacity-50" body-class="d-flex flex-column align-items-center">
+      <BCard class="blur-box border-0" body-class="d-flex flex-column align-items-center">
         <template #header>
           <h1 class="text-center">
             <font-awesome-icon :icon="faDice"/>

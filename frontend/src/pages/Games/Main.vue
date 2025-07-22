@@ -284,7 +284,7 @@ const dismissHint = () => {
           </BButton>
         </BToast>
 
-        <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between" body-class="d-flex flex-column">
+        <BCard class="blur-box border-0" header-class="d-flex align-items-center justify-content-between" body-class="d-flex flex-column">
           <template #header>
             <h4 class="m-0 text-truncate">
               <font-awesome-icon :icon="faUser" />
@@ -337,7 +337,7 @@ const dismissHint = () => {
         </BCard>
       </div>
 
-      <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
+      <BCard class="blur-box border-0" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
         <template #header>
           <h4 class="m-0">
             <font-awesome-icon :icon="faVault" />
@@ -366,7 +366,7 @@ const dismissHint = () => {
       </BCard>
 
       <div class="d-flex flex-column gap-2 col-12 flex-shrink-1">
-        <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
+        <BCard class="blur-box border-0" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
           <template #header>
             <h4 class="m-0">
               <font-awesome-icon :icon="faDice" />
@@ -387,7 +387,7 @@ const dismissHint = () => {
           </BCollapse>
         </BCard>
 
-        <BCard class="bg-grey-100 bg-opacity-50" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
+        <BCard class="blur-box border-0" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
           <template #header>
             <h4 class="m-0">
               <font-awesome-icon :icon="faTrophy" />
