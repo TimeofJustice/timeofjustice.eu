@@ -4,6 +4,12 @@ import { FontAwesomeIcon } from "@node_modules/@fortawesome/vue-fontawesome";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import { onMounted, ref } from "vue";
 
+interface IBasicLayout {
+  navbar: 'small' | 'large';
+}
+
+defineProps<IBasicLayout>();
+
 // Check if the page is scrolled to add a shadow to the navbar
 const isScrolled = ref(false);
 onMounted(() => {
@@ -15,7 +21,7 @@ onMounted(() => {
 
 <template>
   <div class="navbar navbar-expand-lg position-sticky top-0 z-1 w-100 d-flex align-content-center justify-content-center px-2">
-    <div class="container-xxl navbar-body px-1" :class="{ 'scrolled': isScrolled }">
+    <div class="container-xxl navbar-body px-1" :class="{ 'scrolled': isScrolled || navbar === 'small' }">
       <BButton variant="tertiary" class="btn-square navbar-toggler border-0 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
         <FontAwesomeIcon :icon="faBars"/>
       </BButton>

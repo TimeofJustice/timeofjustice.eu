@@ -61,7 +61,7 @@ const loadProject = async (id: number) => {
     </div>
 
     <div class="d-flex flex-column h-100 flex-grow-1 flex-shrink-1 gap-2" style="min-width: 0">
-      <section v-motion-slide-visible-once-top v-if="true">
+      <section v-motion-slide-visible-once-top v-if="true" style="max-width: 43.5rem">
         <h1 class="display-1 fw-bold text-white" style="line-height: 50px">
           {{ $t("index.title.top") }}
           <br>

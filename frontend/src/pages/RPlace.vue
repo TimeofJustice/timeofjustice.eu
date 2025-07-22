@@ -12,9 +12,12 @@ import {
   faSync
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
-import { Head } from "@node_modules/@inertiajs/vue3";
+import { Head, usePage } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
+
+const page = usePage();
+page.props['navbar'] = 'small';
 
 interface PlaceState {
   playerCount: number;

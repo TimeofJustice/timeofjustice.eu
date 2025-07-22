@@ -6,6 +6,7 @@ import { faClose } from "@node_modules/@fortawesome/free-solid-svg-icons";
 interface IBasicLayout {
   production: boolean;
   stable: boolean;
+  navbar: 'small' | 'large';
 }
 
 defineProps<IBasicLayout>();
@@ -29,7 +30,7 @@ defineProps<IBasicLayout>();
       </div>
     </div>
 
-    <Navbar />
+    <Navbar :navbar="navbar" />
 
     <div class="w-100 z-0 flex-grow-1 d-flex flex-column mt-1">
       <div class="container-xxl px-3" v-if="!stable">
