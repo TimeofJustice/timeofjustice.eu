@@ -1079,7 +1079,7 @@ watch(() => placeState.value.color.active, (newColor) => {
 <template>
   <Head :title="$t('r_place.title')" />
 
-  <div class="container-xxl h-100 overflow-hidden mb-2 place-container" :class="{ 'fullscreen': placeState.fullscreen }" ref="canvasContainer">
+  <div class="h-100 overflow-hidden place-container" :class="{ 'fullscreen': placeState.fullscreen }" ref="canvasContainer">
     <div class="w-100 rounded overflow-hidden position-relative h-100">
       <Transition>
         <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="placeState.state !== 'started' && placeState.state !== 'viewing'"

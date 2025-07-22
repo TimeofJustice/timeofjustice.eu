@@ -21,8 +21,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="navbar navbar-expand-lg position-sticky top-0 z-1 w-100 d-flex align-content-center justify-content-center">
-    <div class="container-xxl navbar-body" :class="{ 'scrolled blur-box': isScrolled || small }">
+  <div class="navbar navbar-expand-lg top-0 z-1 w-100 d-flex align-content-center justify-content-center pe-none" :class="{ 'position-absolute': small, 'position-sticky': !small }">
+    <div class="container-xxl navbar-body pe-auto" :class="{ 'scrolled blur-box': isScrolled || small}">
       <BButton variant="tertiary" class="btn-square navbar-toggler border-0 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
         <FontAwesomeIcon :icon="faBars"/>
       </BButton>
