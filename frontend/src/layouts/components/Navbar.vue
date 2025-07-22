@@ -88,17 +88,20 @@ onMounted(() => {
 }
 
 .navbar-body {
+  margin: 0;
   border-radius: 0.5rem;
-  transition: backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, padding 0.3s ease-in-out;
+  transition: backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, padding 0.3s ease-in-out, margin 0.3s ease-in-out;
 
   @media (min-width: 1400px) {
-    transition: width 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, padding 0.3s ease-in-out;
+    transition: width 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55), backdrop-filter 0.3s ease-in-out, background 0.3s ease-in-out, box-shadow 0.3s ease-in-out, padding 0.3s ease-in-out, margin 0.3s ease-in-out;
   }
 }
 
 .navbar-body.scrolled {
   padding-left: var(--bs-navbar-brand-padding-y);
   padding-right: var(--bs-navbar-brand-padding-y);
+  margin-left: calc(var(--bs-gutter-x) * 0.5 - var(--bs-navbar-brand-padding-y));
+  margin-right: calc(var(--bs-gutter-x) * 0.5 - var(--bs-navbar-brand-padding-y));
 
   display: flex;
   align-items: center;

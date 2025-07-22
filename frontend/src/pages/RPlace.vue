@@ -11,7 +11,7 @@ import {
   faPalette,
   faSync
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { Head, usePage } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
@@ -1099,19 +1099,8 @@ watch(() => placeState.value.color.active, (newColor) => {
 
       <canvas width="1000" height="1000" ref="canvas" class="field bg-grey-200"></canvas>
 
-      <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
-        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2 align-items-end">
-          <div class="d-flex gap-2">
-            <BButton class="place-button place-button-small text-light" @click="overlay.open()">
-              <font-awesome-icon :icon="faLayerGroup"/>
-            </BButton>
-            <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
-              <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
-              <font-awesome-icon :icon="faMinimize" v-else/>
-            </BButton>
-          </div>
-        </div>
-        <div class="position-absolute top-0 start-0 p-2">
+      <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none place-controls">
+        <div class="position-absolute top-0 start-0 end-0 p-2 d-flex gap-2 justify-content-between">
           <BDropdown variant="primary" class="pe-auto place-dropdown" offset="5">
             <template #button-content>
               <font-awesome-icon :icon="faBinoculars" class="me-2" />
@@ -1124,6 +1113,12 @@ watch(() => placeState.value.color.active, (newColor) => {
               </BBadge>
             </BDropdownItem>
           </BDropdown>
+
+          <div class="d-flex gap-2">
+            <BButton class="place-button place-button-small text-light" @click="overlay.open()">
+              <font-awesome-icon :icon="faLayerGroup"/>
+            </BButton>
+          </div>
         </div>
         <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative" v-if="placeState.state === 'started'">
           <BButton class="place-button place-button-small text-light" @click="view.center()">
@@ -1270,6 +1265,12 @@ watch(() => placeState.value.color.active, (newColor) => {
 <style lang="scss">
 @import "@/assets/scss/colors.scss";
 
+@media (max-width: 1400px) {
+  .place-controls {
+    margin-top: 3.5rem !important;
+  }
+}
+
 .place-container.fullscreen {
   max-width: 100%!important;
 }
@@ -1388,7 +1389,8 @@ input[type=color]::-webkit-color-swatch {
   justify-content: center;
   align-items: center;
 
-  min-width: 2.25rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
   padding: 0.5rem;
 
   --bs-btn-bg: $gray-500;
@@ -1402,6 +1404,7 @@ input[type=color]::-webkit-color-swatch {
 
   &-big {
     width: 12rem;
+    height: 4.5rem!important;
   }
 
   &:hover {
