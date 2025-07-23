@@ -16,20 +16,46 @@ const leftover = props.project.technologies.length - technologies.length;
 
 <template>
   <div class="d-flex gap-2 overflow-hidden" v-motion-slide-visible-once-right>
-    <v-lazy-image class="img-fluid object-fit-cover rounded" style="min-width: 7rem; max-width: 7rem; min-height: 7rem; max-height: 7rem;"
-                  :src="project.title_image ? project.title_image.original : require('@assets/images/MissingTexture.svg')"
-                  :src-placeholder="project.title_image ? project.title_image.lazy : ''" />
+    <v-lazy-image
+      class="img-fluid object-fit-cover rounded"
+      style="
+        min-width: 7rem;
+        max-width: 7rem;
+        min-height: 7rem;
+        max-height: 7rem;
+      "
+      :src="
+        project.title_image
+          ? project.title_image.original
+          : require('@assets/images/MissingTexture.svg')
+      "
+      :src-placeholder="project.title_image ? project.title_image.lazy : ''"
+    />
 
     <div class="d-flex w-100 justify-content-between overflow-hidden gap-1">
-      <div class="align-content-center d-flex flex-column justify-content-center overflow-hidden">
+      <div
+        class="align-content-center d-flex flex-column justify-content-center overflow-hidden"
+      >
         <div class="d-flex flex-row gap-2 align-items-center">
-          <BBadge class="d-flex align-items-center bg-opacity-50" :variant="project.status.color"
-                  v-if="project.status">{{ project.status.name[$i18n.locale as keyof TranslatedText] }}</BBadge>
+          <BBadge
+            class="d-flex align-items-center bg-opacity-50"
+            :variant="project.status.color"
+            v-if="project.status"
+            >{{
+              project.status.name[$i18n.locale as keyof TranslatedText]
+            }}</BBadge
+          >
           <h5 class="text-white mb-0 text-truncate">{{ project.title }}</h5>
         </div>
-        <p class="text-lightgray fw-semibold mb-0 text-truncate">{{ project.short_description[$i18n.locale as keyof TranslatedText] }}</p>
+        <p class="text-lightgray fw-semibold mb-0 text-truncate">
+          {{ project.short_description[$i18n.locale as keyof TranslatedText] }}
+        </p>
         <div class="d-flex gap-1 flex-wrap">
-          <BBadge v-for="technology in technologies" :key="technology.name" class="bg-opacity-50">
+          <BBadge
+            v-for="technology in technologies"
+            :key="technology.name"
+            class="bg-opacity-50"
+          >
             <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
             {{ technology.name }}
           </BBadge>
@@ -40,7 +66,11 @@ const leftover = props.project.technologies.length - technologies.length;
       </div>
 
       <div class="align-content-center text-white">
-        <BButton variant="tertiary" class="btn-square stretched-link" @click="callback(project.id)">
+        <BButton
+          variant="tertiary"
+          class="btn-square stretched-link"
+          @click="callback(project.id)"
+        >
           <font-awesome-icon icon="fa-solid fa-arrow-right" />
         </BButton>
       </div>

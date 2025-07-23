@@ -28,7 +28,10 @@
     width: 95%;
     cursor: pointer;
     opacity: 0.6;
-    transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out, width 0.3s ease-in-out;
+    transition:
+      opacity 0.3s ease-in-out,
+      height 0.3s ease-in-out,
+      width 0.3s ease-in-out;
   }
 
   .thumbnail.is-active,

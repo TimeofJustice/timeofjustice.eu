@@ -8,29 +8,39 @@
 }
 
 .btn-primary {
-  @include button-variant($gray-500, transparent, $hover-background: $gray-200, $active-background: $gray-500);
+  @include button-variant(
+    $gray-500,
+    transparent,
+    $hover-background: $gray-200,
+    $active-background: $gray-500
+  );
 }
 
 @property --myColor1 {
-  syntax: '<color>';
+  syntax: "<color>";
   initial-value: #399aed;
   inherits: false;
 }
 
 @property --myColor2 {
-  syntax: '<color>';
+  syntax: "<color>";
   initial-value: #2460d0;
   inherits: false;
 }
 
 @property --degree {
-  syntax: '<angle>';
+  syntax: "<angle>";
   initial-value: 90deg;
   inherits: false;
 }
 
 .btn-secondary {
-  @include button-variant($gray-200, transparent, $hover-background: $gray-300, $active-background: $gray-500);
+  @include button-variant(
+    $gray-200,
+    transparent,
+    $hover-background: $gray-300,
+    $active-background: $gray-500
+  );
 
   //border: unset;
   //
