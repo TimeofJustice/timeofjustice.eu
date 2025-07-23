@@ -274,7 +274,7 @@ const dismissHint = () => {
       </KeepAlive>
     </div>
 
-    <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2 ps-2">
+    <div class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2 pt-2 pt-lg-0 ps-lg-2">
       <div class="d-flex flex-column gap-2 col-12 col-md-6 col-lg-12">
         <BToast :model-value="showCopyReminder" variant="danger" body-class="d-flex align-items-center justify-content-between gap-2" class="w-100">
           <div>{{ $t("games.main.reminder") }}</div>
@@ -335,37 +335,37 @@ const dismissHint = () => {
             {{ $t("games.main.next_bonus") }}
           </small>
         </BCard>
+
+        <BCard class="blur-box border-0" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
+          <template #header>
+            <h4 class="m-0">
+              <font-awesome-icon :icon="faVault" />
+              {{ $t("games.main.vault") }}
+            </h4>
+
+            <BButton variant="tertiary" class="btn-square stretched-link" @click="showGamesAccount = !showGamesAccount">
+              <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showGamesAccount ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
+            </BButton>
+          </template>
+
+          <BCollapse v-model="showGamesAccount">
+            <BCardBody class="d-flex flex-column gap-2">
+              <div class="d-flex gap-1 align-items-center justify-content-between">
+                <div class="d-flex gap-1 align-items-center" :class="updatedVault >= 0 ? 'text-success' : 'text-danger'">
+                  <font-awesome-icon :icon="faCoins" />
+                  <strong>{{ updatedVault }} TJTs</strong>
+                </div>
+              </div>
+
+              <small class="text-blue-grey-500" v-if="vaultTimer !== ''">
+                {{ $t("games.main.vault_reset_in", { "time": vaultTimer }) }}
+              </small>
+            </BCardBody>
+          </BCollapse>
+        </BCard>
       </div>
 
-      <BCard class="blur-box border-0" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
-        <template #header>
-          <h4 class="m-0">
-            <font-awesome-icon :icon="faVault" />
-            {{ $t("games.main.vault") }}
-          </h4>
-
-          <BButton variant="tertiary" class="btn-square stretched-link" @click="showGamesAccount = !showGamesAccount">
-            <font-awesome-icon :icon="faChevronUp" :style="{ transform: !showGamesAccount ? 'rotate(180deg)' : 'rotate(0deg)' }" class="transition-transform" />
-          </BButton>
-        </template>
-
-        <BCollapse v-model="showGamesAccount">
-          <BCardBody class="d-flex flex-column gap-2">
-            <div class="d-flex gap-1 align-items-center justify-content-between">
-              <div class="d-flex gap-1 align-items-center" :class="updatedVault >= 0 ? 'text-success' : 'text-danger'">
-                <font-awesome-icon :icon="faCoins" />
-                <strong>{{ updatedVault }} TJTs</strong>
-              </div>
-            </div>
-
-            <small class="text-blue-grey-500" v-if="vaultTimer !== ''">
-              {{ $t("games.main.vault_reset_in", { "time": vaultTimer }) }}
-            </small>
-          </BCardBody>
-        </BCollapse>
-      </BCard>
-
-      <div class="d-flex flex-column gap-2 col-12 flex-shrink-1">
+      <div class="d-flex flex-column gap-2 col-12 col-md-6 col-lg-12 flex-shrink-1">
         <BCard class="blur-box border-0" header-class="d-flex align-items-center justify-content-between position-relative" no-body>
           <template #header>
             <h4 class="m-0">
