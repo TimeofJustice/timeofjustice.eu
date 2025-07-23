@@ -22,10 +22,15 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Test frontend
+      - name: Check prettier
         working-directory: ./frontend
         run: |
           npm ci
+          npx prettier --check .
+
+      - name: Test frontend
+        working-directory: ./frontend
+        run: |
           npm run build
 
       - name: Setup backend environment
