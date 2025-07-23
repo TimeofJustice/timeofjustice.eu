@@ -1080,7 +1080,7 @@ watch(() => placeState.value.color.active, (newColor) => {
   <Head :title="$t('r_place.title')" />
 
   <div class="h-100 overflow-hidden place-container" :class="{ 'fullscreen': placeState.fullscreen }" ref="canvasContainer">
-    <div class="w-100 rounded overflow-hidden position-relative h-100">
+    <div class="w-100 overflow-hidden position-relative h-100">
       <Transition>
         <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="placeState.state !== 'started' && placeState.state !== 'viewing'"
              :class="{ 'bg-opacity-75': placeState.state === 'disconnected' }">
@@ -1090,7 +1090,7 @@ watch(() => placeState.value.color.active, (newColor) => {
             </BProgressBar>
           </BProgress>
 
-          <BButton class="place-button text-light d-flex flex-column justify-content-center align-items-center rounded-0" to="/r-place/" v-if="placeState.state === 'disconnected'">
+          <BButton class="place-button place-button-big text-light d-flex flex-column justify-content-center align-items-center rounded-0" to="/r-place/" v-if="placeState.state === 'disconnected'">
             <span class="fw-bold fs-5">{{ $t("r_place.canvas.disconnected.title") }}</span>
             <span>{{ $t("r_place.canvas.disconnected.description") }}</span>
           </BButton>
@@ -1162,8 +1162,8 @@ watch(() => placeState.value.color.active, (newColor) => {
       </div>
 
       <Transition>
-        <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 p-2" :class="{ 'd-none': !placeState.overlayScreen }">
-          <div class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black overflow-auto col-md-6">
+        <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 px-2 py-3 p-md-3 overflow-auto" :class="{ 'd-none': !placeState.overlayScreen }">
+          <div class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden">
             <div class="position-relative">
               <canvas ref="previewCanvas"></canvas>
 
@@ -1247,7 +1247,7 @@ watch(() => placeState.value.color.active, (newColor) => {
               <BButton class="place-button place-button text-light" @click="placeState.overlayScreen = false">
                 <font-awesome-icon :icon="faClose" />
               </BButton>
-              <BButton class="place-button place-button-big text-light flex-grow-1" @click="overlay.calculate()">
+              <BButton class="place-button text-light flex-grow-1" @click="overlay.calculate()">
                 <font-awesome-icon :icon="faCheck" />
               </BButton>
             </div>

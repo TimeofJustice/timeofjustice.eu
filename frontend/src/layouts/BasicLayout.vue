@@ -30,10 +30,12 @@ defineProps<IBasicLayout>();
       </div>
     </div>
 
-    <div class="content-body w-100 z-0 flex-grow-1 d-flex flex-column overflow-y-auto overflow-x-hidden">
+    <div class="content-body w-100 z-0 flex-grow-1 d-flex flex-column overflow-y-auto overflow-x-hidden position-relative">
       <Navbar :small="smallNavbar" />
 
-      <div class="container-xxl" v-if="!stable">
+      <slot></slot>
+
+      <div class="container position-fixed bottom-0 start-0 end-0 z-3" v-if="!stable">
         <BAlert :model-value="true" variant="info" dismissible close-variant="tertiary">
           <template #close>
             <font-awesome-icon :icon="faClose"/>
@@ -42,8 +44,6 @@ defineProps<IBasicLayout>();
           <vue-markdown :source="$t('nav.stable_hint')" />
         </BAlert>
       </div>
-
-      <slot></slot>
     </div>
   </div>
 </template>

@@ -11,26 +11,28 @@ interface IBasicLayout {
 
 defineProps<IBasicLayout>();
 
-// Check if the page is scrolled to add a shadow to the navbar
+// Check if the page is scrolled
 const isScrolled = ref(false);
 onMounted(() => {
-  const parent: HTMLElement = document.querySelector('.content-body')!;
-  parent.addEventListener('scroll', () => {
+  const parent: HTMLElement = document.querySelector(".content-body")!;
+  parent.addEventListener("scroll", () => {
     isScrolled.value = parent.scrollTop > 0;
   });
 });
 </script>
 
 <template>
-  <div class="navbar navbar-expand-lg top-0 z-1 w-100 d-flex align-content-center justify-content-center pe-none" :class="{ 'position-absolute': small, 'position-sticky': !small }">
+  <div class="navbar navbar-expand-lg top-0 z-1 w-100 d-flex align-content-center justify-content-center pe-none"
+       :class="{ 'position-absolute': small, 'position-sticky': !small }">
     <div class="container-xxl navbar-body pe-auto" :class="{ 'scrolled blur-box': isScrolled || small}">
       <BNavbarToggle target="nav-offcanvas" class="btn btn-tertiary btn-square navbar-toggler border-0 text-white">
-        <FontAwesomeIcon :icon="faBars"/>
+        <FontAwesomeIcon :icon="faBars" />
       </BNavbarToggle>
 
       <BNavbarBrand class="d-flex me-0 me-lg-3">
-        <LocaleDropdown class="d-block d-lg-none"/>
-        <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.svg')" style="width: 2.3rem; min-width: 2.3rem; height: 2.3rem; min-height: 2.3rem;" alt="Time of Justice Logo"/>
+        <LocaleDropdown class="d-block d-lg-none" />
+        <img class="img-fluid rounded" :src="require('/assets/images/TimeofJustice.svg')" style="width: 2.3rem; min-width: 2.3rem; height: 2.3rem; min-height: 2.3rem;"
+             alt="Time of Justice Logo" />
       </BNavbarBrand>
 
       <BNavbarNav class="d-none d-lg-flex justify-content-between w-100">
@@ -38,33 +40,35 @@ onMounted(() => {
           <NavLinks />
         </div>
 
-        <LocaleDropdown/>
+        <LocaleDropdown />
       </BNavbarNav>
     </div>
 
-    <BOffcanvas
-      id="nav-offcanvas"
-      placement="start"
-      is-nav
-      class="offcanvas-small pe-auto"
-      header-close-class="btn btn-tertiary btn-square ms-0"
-      :teleport-disabled="true"
-    >
-      <template #header-close>
-        <font-awesome-icon icon="fa-solid fa-times" />
-      </template>
+    <div class="pe-auto d-flex d-lg-none">
+      <BOffcanvas
+        id="nav-offcanvas"
+        placement="start"
+        is-nav
+        class="offcanvas-small"
+        header-close-class="btn btn-tertiary btn-square ms-0"
+        :teleport-disabled="true"
+      >
+        <template #header-close>
+          <font-awesome-icon icon="fa-solid fa-times" />
+        </template>
 
-      <BNavbarNav>
-        <NavLinks />
-      </BNavbarNav>
-    </BOffcanvas>
+        <BNavbarNav>
+          <NavLinks />
+        </BNavbarNav>
+      </BOffcanvas>
+    </div>
   </div>
 </template>
 
 <style lang="scss">
 .pulse {
   animation: pulse 2s infinite;
-  padding: 0.3rem!important;
+  padding: 0.3rem !important;
 
   transition: --padding 0.2s ease-in-out, opacity 0.2s ease-in-out;
 }
