@@ -239,14 +239,11 @@ const dismissHint = () => {
   <Head :title="$t('games.title')" />
 
   <BModal
-    data-bs-theme="dark"
     v-model="showDailyBonus"
     header-class="justify-content-between align-items-center"
     body-class="d-flex flex-column gap-2"
     :hide-footer="true"
-    :no-close-on-backdrop="true"
     scrollable
-    :no-close-on-esc="true"
     size="md"
     centered
   >
@@ -286,13 +283,10 @@ const dismissHint = () => {
   </BModal>
 
   <BModal
-    data-bs-theme="dark"
     v-model="showSettings"
     header-class="justify-content-between align-items-center"
     :hide-footer="true"
-    :no-close-on-backdrop="true"
     scrollable
-    :no-close-on-esc="true"
     size="md"
     centered
   >
@@ -339,7 +333,7 @@ const dismissHint = () => {
   </BModal>
 
   <div
-    class="container-xxl text-white d-flex flex-column flex-lg-row justify-content-center pb-3"
+    class="container-xxl d-flex flex-column flex-lg-row justify-content-center pb-3"
   >
     <div class="col-12 col-lg-9">
       <KeepAlive>
@@ -427,7 +421,7 @@ const dismissHint = () => {
           </div>
 
           <small
-            class="text-blue-grey-500"
+            class="text-gray-500"
             v-if="bonusTimer !== '00:00:00' && bonusTimer !== ''"
           >
             {{ $t("games.main.next_bonus_in", { time: bonusTimer }) }}
@@ -479,7 +473,7 @@ const dismissHint = () => {
                 </div>
               </div>
 
-              <small class="text-blue-grey-500" v-if="vaultTimer !== ''">
+              <small class="text-gray-500" v-if="vaultTimer !== ''">
                 {{ $t("games.main.vault_reset_in", { time: vaultTimer }) }}
               </small>
             </BCardBody>
@@ -519,6 +513,7 @@ const dismissHint = () => {
           <BCollapse v-model="showGames">
             <BCardBody class="d-flex flex-column gap-2">
               <BButton
+                variant="secondary"
                 @click="gameComponent = Comp"
                 :active="gameComponent === Comp"
                 v-for="([name, Comp], index) in gameComponents"

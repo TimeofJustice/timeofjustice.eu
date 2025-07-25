@@ -5,3 +5,9 @@
 .offcanvas-small {
   --bs-offcanvas-width: 300px;
 }
+
+@media (min-width: 576px) {
+  .offcanvas-sm-small {
+    --bs-offcanvas-width: 300px;
+  }
+}

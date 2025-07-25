@@ -2,7 +2,7 @@
 import { faBars } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/vue-fontawesome";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import NavLinks from "@layouts/components/NavLinks.vue";
 
 interface IBasicLayout {
@@ -15,8 +15,14 @@ defineProps<IBasicLayout>();
 const isScrolled = ref(false);
 onMounted(() => {
   const parent: HTMLElement = document.querySelector(".content-body")!;
-  parent.addEventListener("scroll", () => {
+  const onScroll = () => {
     isScrolled.value = parent.scrollTop > 0;
+  };
+
+  parent.addEventListener("scroll", onScroll);
+
+  onUnmounted(() => {
+    parent.removeEventListener("scroll", onScroll);
   });
 });
 </script>
@@ -27,32 +33,37 @@ onMounted(() => {
     :class="{ 'position-absolute': small, 'position-sticky': !small }"
   >
     <div
-      class="container-xxl navbar-body pe-auto"
-      :class="{ 'scrolled blur-box': isScrolled || small }"
+      class="container-xxl navbar-body pe-auto gap-2 flex-row"
+      :class="{ 'scrolled card': isScrolled || small }"
     >
       <BNavbarToggle
         target="nav-offcanvas"
-        class="btn btn-tertiary btn-square navbar-toggler border-0 text-white"
+        class="btn btn-tertiary btn-square navbar-toggler border-0"
       >
         <FontAwesomeIcon :icon="faBars" />
       </BNavbarToggle>
 
-      <BNavbarBrand class="d-flex me-0 me-lg-3">
+      <div class="d-flex align-items-center">
         <LocaleDropdown class="d-block d-lg-none" />
-        <img
-          class="img-fluid rounded"
-          :src="require('/assets/images/TimeofJustice.svg')"
-          style="
-            width: 2.3rem;
-            min-width: 2.3rem;
-            height: 2.3rem;
-            min-height: 2.3rem;
-          "
-          alt="Time of Justice Logo"
-        />
-      </BNavbarBrand>
 
-      <BNavbarNav class="d-none d-lg-flex justify-content-between w-100">
+        <BNavbarBrand class="me-0">
+          <img
+            class="img-fluid rounded"
+            :src="require('/assets/images/TimeofJustice.svg')"
+            style="
+              width: 2.3rem;
+              min-width: 2.3rem;
+              height: 2.3rem;
+              min-height: 2.3rem;
+            "
+            alt="Time of Justice Logo"
+          />
+        </BNavbarBrand>
+      </div>
+
+      <BNavbarNav
+        class="d-none d-lg-flex justify-content-between align-items-center w-100"
+      >
         <div class="d-flex align-items-center ps-0 pt-0">
           <NavLinks />
         </div>
@@ -66,8 +77,9 @@ onMounted(() => {
         id="nav-offcanvas"
         placement="start"
         is-nav
-        class="offcanvas-small"
-        header-close-class="btn btn-tertiary btn-square ms-0"
+        class="offcanvas-sm-small"
+        header-close-variant="tertiary"
+        header-close-class="btn-square ms-0"
         :teleport-disabled="true"
       >
         <template #header-close>

@@ -13,4 +13,4 @@ The backend is powered by Django and a PostgreSQL database.
 
 - **Portfolio**: A showcase of my work and projects.
 - **Games**: A collection of mini-games.
-- **r/Place**: A recreation of Reddit’s *r/place* event.
+- **r/Place**: A recreation of Reddit’s _r/place_ event.

@@ -28,7 +28,7 @@ defineProps<Props>();
       <BBadge
         v-for="technology in project.technologies"
         :key="technology.name"
-        class="bg-opacity-50"
+        variant="primary"
       >
         <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
         {{ technology.name }}

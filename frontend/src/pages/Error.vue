@@ -12,8 +12,8 @@ defineProps<Props>();
   <Head :title="$t('general.error')" />
 
   <div class="container d-flex flex-column align-items-center">
-    <div class="text-white text-center fw-bold" style="font-size: 12rem">
-      <div class="text-grey-100" style="letter-spacing: 2rem">
+    <div class="text-center fw-bold" style="font-size: 12rem">
+      <div class="text-tertiary" style="letter-spacing: 2rem">
         {{ status_code }}
       </div>
       <div style="text-transform: uppercase; font-size: 5rem">

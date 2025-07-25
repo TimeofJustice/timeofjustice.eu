@@ -15,9 +15,9 @@ defineProps<DailyRewardProps>();
     :class="{
       'col-2': !overflow,
       'col-12': overflow,
-      'bg-grey-500': status === 'locked',
-      'bg-success': status === 'unlocked',
-      'bg-green-500': status === 'claimed',
+      'bg-dark-gray-800': status === 'locked',
+      'bg-green-400': status === 'unlocked',
+      'bg-green-700': status === 'claimed',
     }"
   >
     <span class="text-center"

@@ -53,7 +53,7 @@ const validateWalletId = computed(() => {
   <Head :title="$t('games.title')" />
 
   <div
-    class="container text-white d-flex flex-column align-items-center justify-content-center"
+    class="container d-flex flex-column align-items-center justify-content-center"
   >
     <BAlert :model-value="true" variant="danger">
       <vue-markdown :source="$t('games.entry.warning')" />
@@ -65,7 +65,7 @@ const validateWalletId = computed(() => {
         body-class="d-flex flex-column align-items-center gap-2"
       >
         <template #header>
-          <h1 class="text-center">
+          <h1 class="text-center m-0">
             <font-awesome-icon :icon="faDice" />
             {{ $t("games.login.title") }}
           </h1>

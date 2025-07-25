@@ -25,7 +25,7 @@ withDefaults(defineProps<Props>(), {
 
 <template>
   <div class="d-flex flex-column gap-2" v-if="variant === 'large'">
-    <div class="card text-light blur-box border-0">
+    <div class="card text-light blur-box">
       <div
         class="card-body d-flex flex-column align-items-center gap-2"
         style="max-width: 18rem"
@@ -38,7 +38,7 @@ withDefaults(defineProps<Props>(), {
 
         <div class="text-center">
           <h5 class="fw-bold text-center mb-0">TimeofJustice</h5>
-          <small class="text-grey-10"> Jonas Oelschner </small>
+          <small class="text-accent"> Jonas Oelschner </small>
           <i
             class="fi fi-de rounded-1"
             :title="$t('index.profile.based_in')"
@@ -67,7 +67,7 @@ withDefaults(defineProps<Props>(), {
     </div>
 
     <div
-      class="blur-box rounded-1 py-2 overflow-hidden"
+      class="card py-2 overflow-hidden"
       style="height: 3rem"
       v-if="knownTools.length"
     >
@@ -82,7 +82,7 @@ withDefaults(defineProps<Props>(), {
     </div>
 
     <div
-      class="card blur-box text-light border-0 overflow-hidden"
+      class="card blur-box text-light overflow-hidden"
       style="max-width: 18rem"
       v-if="repo"
     >
@@ -99,10 +99,7 @@ withDefaults(defineProps<Props>(), {
     </div>
   </div>
 
-  <div
-    class="card bg-grey-100 text-light bg-opacity-50 border-0 shadow d-flex w-100"
-    v-else
-  >
+  <div class="card blur-box d-flex w-100" v-else>
     <div class="card-body d-flex gap-3">
       <div
         class="d-flex justify-content-center align-items-center"
@@ -121,7 +118,7 @@ withDefaults(defineProps<Props>(), {
         <div class="d-flex flex-column gap-1">
           <div>
             <h5 class="card-title mb-0">TimeofJustice</h5>
-            <small class="text-grey-10"> Jonas Oelschner </small>
+            <small class="text-accent"> Jonas Oelschner </small>
             <i
               class="fi fi-de rounded-1"
               :title="$t('index.profile.based_in')"

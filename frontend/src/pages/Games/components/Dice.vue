@@ -13,7 +13,7 @@ withDefaults(defineProps<DiceProps>(), {
 
 <template>
   <div
-    class="dice rounded bg-red bg-opacity-100 d-flex justify-content-center align-items-center"
+    class="dice rounded bg-red-600 bg-opacity-100 d-flex justify-content-center align-items-center"
     :class="`dice-${size}`"
   >
     <div

@@ -1,0 +1,12 @@
+.card {
+  $card-blur: 10px;
+  $card-box-shadow:
+    inset 0 2px 0 -2px rgba(118, 118, 118, 0.7),
+    inset 0 0 5px 1px rgba(118, 118, 118, 0.3);
+
+  backdrop-filter: blur($card-blur);
+  -webkit-backdrop-filter: blur($card-blur);
+
+  box-shadow: $card-box-shadow;
+  -webkit-box-shadow: $card-box-shadow;
+}

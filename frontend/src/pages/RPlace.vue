@@ -1207,7 +1207,7 @@ watch(
     <div class="w-100 overflow-hidden position-relative h-100">
       <Transition>
         <div
-          class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark"
+          class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark-gray-500 bg-opacity-100"
           v-if="
             placeState.state !== 'started' && placeState.state !== 'viewing'
           "
@@ -1230,7 +1230,7 @@ watch(
           </BProgress>
 
           <BButton
-            class="place-button place-button-big text-light d-flex flex-column justify-content-center align-items-center rounded-0"
+            class="place-button place-button-big d-flex flex-column justify-content-center align-items-center rounded-0"
             to="/r-place/"
             v-if="placeState.state === 'disconnected'"
           >
@@ -1246,7 +1246,7 @@ watch(
         width="1000"
         height="1000"
         ref="canvas"
-        class="field bg-grey-200"
+        class="field bg-opacity-100 bg-dark-gray-500"
       ></canvas>
 
       <div
@@ -1279,7 +1279,7 @@ watch(
 
           <div class="d-flex gap-2">
             <BButton
-              class="place-button place-button-small text-light"
+              class="place-button place-button-small"
               @click="overlay.open()"
             >
               <font-awesome-icon :icon="faLayerGroup" />
@@ -1291,13 +1291,13 @@ watch(
           v-if="placeState.state === 'started'"
         >
           <BButton
-            class="place-button place-button-small text-light"
+            class="place-button place-button-small"
             @click="view.center()"
           >
             <font-awesome-icon :icon="faArrowsToDot" />
           </BButton>
           <BButton
-            class="place-button place-button-big text-light d-flex flex-column justify-content-center align-items-center"
+            class="place-button place-button-big d-flex flex-column justify-content-center align-items-center"
             @click="view.paint()"
           >
             <span class="fw-bold fs-5">{{
@@ -1309,7 +1309,7 @@ watch(
             >
           </BButton>
           <BButton
-            class="place-button place-button-small text-light"
+            class="place-button place-button-small"
             @click="view.pickColor()"
           >
             <font-awesome-icon :icon="faEyeDropper" />
@@ -1411,17 +1411,17 @@ watch(
           :class="{ 'd-none': !placeState.overlayScreen }"
         >
           <div
-            class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
+            class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-dark-gray-500 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
           >
             <div class="position-relative">
               <canvas ref="previewCanvas"></canvas>
 
               <Transition>
                 <div
-                  class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-grey-200 bg-opacity-75"
+                  class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-gray-800 bg-opacity-75"
                   v-if="!synced"
                 >
-                  <BButton @click="overlay.preview()" class="place-button fs-3">
+                  <BButton @click="overlay.preview()" class="place-button fs-5">
                     <font-awesome-icon :icon="faSync" />
                   </BButton>
                 </div>
@@ -1510,13 +1510,13 @@ watch(
 
             <div class="d-flex gap-2 w-100">
               <BButton
-                class="place-button place-button text-light"
+                class="place-button place-button"
                 @click="placeState.overlayScreen = false"
               >
                 <font-awesome-icon :icon="faClose" />
               </BButton>
               <BButton
-                class="place-button text-light flex-grow-1"
+                class="place-button flex-grow-1"
                 @click="overlay.calculate()"
               >
                 <font-awesome-icon :icon="faCheck" />
@@ -1534,7 +1534,8 @@ watch(
 </template>
 
 <style lang="scss">
-@import "@/assets/scss/colors.scss";
+$theme-primary: #1a1a1a;
+$theme-secondary: #454545;
 
 @media (max-width: 1400px) {
   .place-controls {
@@ -1573,8 +1574,8 @@ watch(
   max-height: 8rem;
   margin-bottom: -2px;
 
-  background: $lightgray-200;
-  border-top: 2px solid $black;
+  background: var(--bs-gray-100);
+  border-top: 2px solid var(--bs-black);
 
   transition:
     height 0.5s ease-in-out,
@@ -1616,14 +1617,14 @@ watch(
 
   cursor: pointer;
 
-  border: 2px solid $black;
+  border: 2px solid var(--bs-black);
 
   transition:
     border 0.2s ease-in-out,
     transform 0.2s ease-in-out;
 
   &:hover {
-    border: 2px solid $gray-10;
+    border: 2px solid var(--bs-gray-500);
   }
 
   @media (max-width: 576px) {
@@ -1632,7 +1633,7 @@ watch(
   }
 
   &-big {
-    border: 2px solid $black !important;
+    border: 2px solid var(--bs-black) !important;
     height: 4.75rem !important;
     width: 4.75rem !important;
 
@@ -1642,17 +1643,17 @@ watch(
     outline: none !important;
 
     &:hover {
-      border: 2px solid $gray-10 !important;
+      border: 2px solid var(--bs-gray-500) !important;
     }
 
     &.active {
-      border: 4px solid $black !important;
+      border: 4px solid var(--bs-black) !important;
       transform: scale(1.05) !important;
     }
   }
 
   &.active {
-    border: 4px solid $black;
+    border: 4px solid var(--bs-black);
     transform: scale(1.05);
   }
 }
@@ -1672,10 +1673,13 @@ input[type="color"]::-webkit-color-swatch {
   min-width: 2.5rem;
   padding: 0.5rem;
 
-  --bs-btn-bg: $gray-500;
-  --bs-btn-hover-bg: #{$gray-500};
-  background: $gray-500;
-  border: 2px solid $black;
+  --bs-btn-bg: #{$theme-primary};
+  --bs-btn-hover-bg: #{$theme-primary};
+  --bs-btn-active-bg: #{$theme-primary};
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-hover-color: var(--bs-light);
+  background: #{$theme-primary};
+  border: 2px solid var(--bs-black);
   border-radius: 0;
 
   pointer-events: all;
@@ -1687,58 +1691,61 @@ input[type="color"]::-webkit-color-swatch {
   }
 
   &:hover {
-    border: 2px solid $gray-10;
+    border: 2px solid var(--bs-gray-500);
   }
 }
 
 .place-dropdown > .dropdown-menu {
-  background: $gray-500;
-  border: 2px solid $black;
+  background: #{$theme-primary};
+  border: 2px solid var(--bs-black);
   border-radius: 0;
-  --bs-dropdown-link-color: #{$white};
 
-  --bs-dropdown-link-hover-color: #{$white};
-  --bs-dropdown-link-hover-bg: #{$gray-300};
+  --bs-dropdown-link-color: var(--bs-light);
+  --bs-dropdown-link-hover-color: var(--bs-light);
 }
 
 .place-input {
   width: 100%;
 
-  background: $gray-500 !important;
-  border: 2px solid $black !important;
+  background: #{$theme-primary} !important;
+  border: 2px solid var(--bs-black) !important;
   border-radius: 0 !important;
 
   outline: none !important;
   transition: border 0.2s ease-in-out !important;
 
   &::file-selector-button {
-    background: $gray-300 !important;
+    background: #{$theme-secondary} !important;
   }
 
   &:hover {
-    border: 2px solid $gray-10 !important;
+    border: 2px solid var(--bs-gray-500) !important;
   }
 }
 
+.place-range:hover > .place-range::-webkit-slider-thumb {
+  border: 2px solid var(--bs-gray-500) !important;
+}
+
 .place-range::-webkit-slider-thumb {
-  background: $gray-500 !important;
+  background: #{$theme-primary} !important;
   border-radius: 0 !important;
-  border: 2px solid $black !important;
+  border: 2px solid var(--bs-black) !important;
 }
 
 .place-range::-moz-range-thumb {
-  background: $gray-500 !important;
+  background: #{$theme-primary} !important;
   border-radius: 0 !important;
-  border: 2px solid $black !important;
+  border: 2px solid var(--bs-black) !important;
 }
 
 .place-range::-webkit-slider-runnable-track {
-  background: $gray-500 !important;
+  background: #{$theme-primary} !important;
   border-radius: 0 !important;
 }
 
 .place-range::-moz-range-track {
-  background: $gray-500 !important;
+  background: #{$theme-primary} !important;
   border-radius: 0 !important;
 }
 
@@ -1750,13 +1757,13 @@ input[type="color"]::-webkit-color-swatch {
   padding: 0.5rem;
 
   cursor: pointer;
-  color: $black;
+  color: var(--bs-black);
   opacity: 1;
 
   transition: opacity 0.2s ease-in-out;
 
   &:hover {
-    color: $gray-10;
+    color: var(--bs-gray-500);
   }
 }
 </style>

@@ -45,9 +45,9 @@ const leftover = props.project.technologies.length - technologies.length;
               project.status.name[$i18n.locale as keyof TranslatedText]
             }}</BBadge
           >
-          <h5 class="text-white mb-0 text-truncate">{{ project.title }}</h5>
+          <h5 class="mb-0 text-truncate">{{ project.title }}</h5>
         </div>
-        <p class="text-lightgray fw-semibold mb-0 text-truncate">
+        <p class="text-accent fw-semibold mb-0 text-truncate">
           {{ project.short_description[$i18n.locale as keyof TranslatedText] }}
         </p>
         <div class="d-flex gap-1 flex-wrap">
@@ -55,17 +55,18 @@ const leftover = props.project.technologies.length - technologies.length;
             v-for="technology in technologies"
             :key="technology.name"
             class="bg-opacity-50"
+            variant="primary"
           >
             <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
             {{ technology.name }}
           </BBadge>
-          <BBadge v-if="leftover > 0" class="bg-opacity-50">
+          <BBadge v-if="leftover > 0" class="bg-opacity-50" variant="primary">
             +{{ leftover }}
           </BBadge>
         </div>
       </div>
 
-      <div class="align-content-center text-white">
+      <div class="align-content-center">
         <BButton
           variant="tertiary"
           class="btn-square stretched-link"

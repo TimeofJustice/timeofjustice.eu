@@ -135,7 +135,7 @@ const forceSlideUpdate = (index: number) => {
         </div>
 
         <BButton
-          variant="secondary"
+          variant="primary"
           class="btn-circle position-absolute top-0 end-0 m-2"
           @click="openFullscreen()"
         >
@@ -144,7 +144,11 @@ const forceSlideUpdate = (index: number) => {
       </Slide>
     </Carousel>
 
-    <Carousel v-bind="thumbnailsConfig" v-model="currentSlide">
+    <Carousel
+      v-bind="thumbnailsConfig"
+      v-model="currentSlide"
+      class="carousel-gradient"
+    >
       <Slide v-for="(image, i) in items" :key="i">
         <template #default="{ currentIndex, isActive, isClone }">
           <div
@@ -174,14 +178,14 @@ const forceSlideUpdate = (index: number) => {
 
       <template #addons>
         <BButton
-          variant="secondary"
+          variant="primary"
           class="btn-circle ms-1 carousel__prev"
           @click="forceSlideUpdate(currentSlide - 1)"
         >
           <font-awesome-icon :icon="faArrowLeft" />
         </BButton>
         <BButton
-          variant="secondary"
+          variant="primary"
           class="btn-circle me-1 carousel__next"
           @click="forceSlideUpdate(currentSlide + 1)"
         >
@@ -192,14 +196,11 @@ const forceSlideUpdate = (index: number) => {
   </div>
 
   <BModal
-    data-bs-theme="dark"
     v-model="isFullscreenOpen"
     header-class="justify-content-end"
     body-class="overflow-hidden d-flex justify-content-center"
     :hide-footer="true"
-    :no-close-on-backdrop="true"
     scrollable
-    :no-close-on-esc="true"
     size="xl"
     centered
   >

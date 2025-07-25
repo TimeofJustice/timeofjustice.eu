@@ -1,7 +1,7 @@
 name: Production
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - frontend/**
       - backend/**
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Check prettier
         working-directory: ./frontend
@@ -36,7 +36,7 @@ jobs:
       - name: Setup backend environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Test backend
         working-directory: ./backend

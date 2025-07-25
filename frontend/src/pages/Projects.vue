@@ -49,13 +49,10 @@ const loadProject = async (id: number) => {
       class="col-md-4 flex-grow-0 justify-content-start align-items-end d-none d-lg-flex flex-column"
     >
       <!-- If you found this, keep this our dirty little secret -->
-      <h1
-        class="display-1 fw-bold text-white invisible"
-        style="line-height: 50px"
-      >
+      <h1 class="display-1 fw-bold invisible" style="line-height: 50px">
         {{ $t("index.title.top") }}
         <br />
-        <span class="display-1 fw-bold text-grey-100">{{
+        <span class="display-1 fw-bold text-tertiary">{{
           $t("index.title.bottom")
         }}</span>
       </h1>
@@ -86,10 +83,10 @@ const loadProject = async (id: number) => {
       style="min-width: 0"
     >
       <section v-motion-slide-visible-once-top v-if="true">
-        <h1 class="display-1 fw-bold text-white" style="line-height: 50px">
+        <h1 class="display-1 fw-bold" style="line-height: 50px">
           {{ $t("index.title.top") }}
           <br />
-          <span class="display-1 fw-bold text-grey-100">{{
+          <span class="display-1 fw-bold text-tertiary">{{
             $t("index.title.bottom")
           }}</span>
         </h1>
@@ -105,7 +102,7 @@ const loadProject = async (id: number) => {
     </div>
   </div>
 
-  <BOffcanvas data-bs-theme="dark" v-model="showOffcanvas" placement="end">
+  <BOffcanvas v-model="showOffcanvas" placement="end">
     <template #header>
       <div class="d-flex w-100 gap-2">
         <BButton

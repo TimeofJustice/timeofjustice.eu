@@ -215,6 +215,7 @@ onBeforeUnmount(() => {
       class="w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 position-relative p-3"
     >
       <BButton
+        variant="primary"
         class="btn-circle position-absolute top-0 end-0 m-2 z-3"
         @click="areRulesOpen = true"
       >
@@ -222,13 +223,10 @@ onBeforeUnmount(() => {
       </BButton>
 
       <BModal
-        data-bs-theme="dark"
         v-model="areRulesOpen"
         header-class="justify-content-between align-items-center"
         :hide-footer="true"
-        :no-close-on-backdrop="true"
         scrollable
-        :no-close-on-esc="true"
         size="xl"
         centered
       >
@@ -256,12 +254,9 @@ onBeforeUnmount(() => {
           "
         >
           <div
-            class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2"
+            class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-dark-gray-600 bg-opacity-100 rounded-3 p-2 gap-2"
           >
-            <h1
-              class="text-white text-center"
-              v-if="gameSession.state !== 'not_started'"
-            >
+            <h1 class="text-center" v-if="gameSession.state !== 'not_started'">
               {{
                 gameSession.state === "lost"
                   ? $t("games.game.higher_lower.outcomes.lost")
@@ -270,7 +265,7 @@ onBeforeUnmount(() => {
             </h1>
 
             <BFormGroup id="input-group-2" label-for="input-2" v-else>
-              <span class="text-white text-center">
+              <span class="text-center">
                 {{ $t("games.game.higher_lower.bet") }}: {{ gameSession.bet }}
               </span>
               <BInput
@@ -388,13 +383,13 @@ onBeforeUnmount(() => {
 
         <div class="d-flex gap-2">
           <h3
-            class="bg-grey-100 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0"
+            class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0"
           >
             {{ gameSession.state === "not_started" ? 0 : gameSession.bet }}
           </h3>
 
           <h3
-            class="bg-grey-100 rounded-3 p-2 d-flex text-center align-items-center text-light col-3 mb-0"
+            class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex text-center align-items-center text-light col-3 mb-0"
           >
             <Icon icon="playing-cards" />
             {{ gameSession.leftOverCards }}

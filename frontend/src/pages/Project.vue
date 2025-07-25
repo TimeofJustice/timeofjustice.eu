@@ -13,7 +13,7 @@ defineProps<Props>();
 <template>
   <Head :title="project.title" />
 
-  <div class="container text-white">
+  <div class="container">
     <ProjectDetails :project="project" />
   </div>
 </template>

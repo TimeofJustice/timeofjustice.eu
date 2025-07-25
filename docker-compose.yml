@@ -137,8 +137,8 @@ services:
 
   django-dev:
     build:
-        context: .
-        dockerfile: .docker/dockerfile.dev
+      context: .
+      dockerfile: .docker/dockerfile.dev
     container_name: timeofjustice.eu-dev
     profiles: ["dev"]
     ports:

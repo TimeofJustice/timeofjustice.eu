@@ -283,6 +283,7 @@ const removeBet = () => {
       class="w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 position-relative p-3"
     >
       <BButton
+        variant="primary"
         class="btn-circle position-absolute top-0 end-0 m-2 z-3"
         @click="areRulesOpen = true"
       >
@@ -290,13 +291,10 @@ const removeBet = () => {
       </BButton>
 
       <BModal
-        data-bs-theme="dark"
         v-model="areRulesOpen"
         header-class="justify-content-between align-items-center"
         :hide-footer="true"
-        :no-close-on-backdrop="true"
         scrollable
-        :no-close-on-esc="true"
         size="xl"
         centered
       >
@@ -323,12 +321,9 @@ const removeBet = () => {
           "
         >
           <div
-            class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-grey-100 bg-opacity-100 rounded-3 p-2 gap-2"
+            class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-dark-gray-600 bg-opacity-100 rounded-3 p-2 gap-2"
           >
-            <h1
-              class="text-white text-center"
-              v-if="gameSession.state !== 'settingBet'"
-            >
+            <h1 class="text-center" v-if="gameSession.state !== 'settingBet'">
               {{
                 gameSession.bet - gameSession.initialBet >= 0
                   ? $t("games.game.sic_bo.outcomes.won")
@@ -350,7 +345,7 @@ const removeBet = () => {
             </h5>
 
             <BFormGroup id="input-group-2" label-for="input-2" v-else>
-              <span class="text-white text-center">
+              <span class="text-center">
                 {{ $t("games.game.sic_bo.bet") }}: {{ currentBet }}
               </span>
               <BInput
@@ -416,6 +411,7 @@ const removeBet = () => {
           >
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('small')"
                 :disabled="
@@ -439,7 +435,11 @@ const removeBet = () => {
                 <div>4 - 10</div>
                 <div>{{ $t("games.game.sic_bo.loss_3") }}</div>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">1:1</div>
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
+                1:1
+              </div>
             </div>
 
             <div
@@ -449,6 +449,7 @@ const removeBet = () => {
                 class="d-flex gap-2 justify-content-center align-items-stretch w-100 h-100"
               >
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('double-1')"
                   :disabled="
@@ -474,6 +475,7 @@ const removeBet = () => {
                   <Dice :value="1" size="md" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('double-2')"
                   :disabled="
@@ -499,6 +501,7 @@ const removeBet = () => {
                   <Dice :value="2" size="md" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('double-3')"
                   :disabled="
@@ -519,7 +522,9 @@ const removeBet = () => {
                   <Dice :value="3" size="md" />
                 </BButton>
               </div>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:11
               </div>
             </div>
@@ -531,6 +536,7 @@ const removeBet = () => {
                 class="d-flex flex-column gap-2 justify-content-center align-items-stretch w-100 h-100"
               >
                 <BButton
+                  variant="secondary"
                   class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center position-relative overflow-hidden"
                   @click="startBet('triple-1')"
                   :disabled="
@@ -557,6 +563,7 @@ const removeBet = () => {
                   <Dice :value="1" size="sm" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center position-relative overflow-hidden"
                   @click="startBet('triple-2')"
                   :disabled="
@@ -583,6 +590,7 @@ const removeBet = () => {
                   <Dice :value="2" size="sm" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center position-relative overflow-hidden"
                   @click="startBet('triple-3')"
                   :disabled="
@@ -609,13 +617,16 @@ const removeBet = () => {
                   <Dice :value="3" size="sm" />
                 </BButton>
               </div>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:180
               </div>
             </div>
 
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 position-relative overflow-hidden"
                 @click="startBet('triple-any')"
                 :disabled="
@@ -680,7 +691,9 @@ const removeBet = () => {
                   <Dice :value="6" size="sm" />
                 </div>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:30
               </div>
             </div>
@@ -692,6 +705,7 @@ const removeBet = () => {
                 class="d-flex flex-column gap-2 justify-content-center align-items-stretch w-100 h-100"
               >
                 <BButton
+                  variant="secondary"
                   class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center position-relative overflow-hidden"
                   @click="startBet('triple-4')"
                   :disabled="
@@ -718,6 +732,7 @@ const removeBet = () => {
                   <Dice :value="4" size="sm" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center position-relative overflow-hidden"
                   @click="startBet('triple-5')"
                   :disabled="
@@ -744,6 +759,7 @@ const removeBet = () => {
                   <Dice :value="5" size="sm" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex gap-2 p-2 h-100 justify-content-center align-items-center position-relative overflow-hidden"
                   @click="startBet('triple-6')"
                   :disabled="
@@ -770,7 +786,9 @@ const removeBet = () => {
                   <Dice :value="6" size="sm" />
                 </BButton>
               </div>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:180
               </div>
             </div>
@@ -782,6 +800,7 @@ const removeBet = () => {
                 class="d-flex gap-2 justify-content-center align-items-stretch w-100 h-100"
               >
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('double-4')"
                   :disabled="
@@ -807,6 +826,7 @@ const removeBet = () => {
                   <Dice :value="4" size="md" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('double-5')"
                   :disabled="
@@ -832,6 +852,7 @@ const removeBet = () => {
                   <Dice :value="5" size="md" />
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('double-6')"
                   :disabled="
@@ -857,13 +878,16 @@ const removeBet = () => {
                   <Dice :value="6" size="md" />
                 </BButton>
               </div>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:11
               </div>
             </div>
 
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('big')"
                 :disabled="
@@ -887,7 +911,11 @@ const removeBet = () => {
                 <div>11 - 17</div>
                 <div>{{ $t("games.game.sic_bo.loss_3") }}</div>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">1:1</div>
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
+                1:1
+              </div>
             </div>
           </div>
 
@@ -896,6 +924,7 @@ const removeBet = () => {
           >
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-4')"
                 :disabled="
@@ -917,12 +946,15 @@ const removeBet = () => {
                 </div>
                 <h3>4</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:60
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-5')"
                 :disabled="
@@ -944,12 +976,15 @@ const removeBet = () => {
                 </div>
                 <h3>5</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:20
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-6')"
                 :disabled="
@@ -971,12 +1006,15 @@ const removeBet = () => {
                 </div>
                 <h3>6</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:18
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-7')"
                 :disabled="
@@ -998,12 +1036,15 @@ const removeBet = () => {
                 </div>
                 <h3>7</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:12
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-8')"
                 :disabled="
@@ -1025,13 +1066,18 @@ const removeBet = () => {
                 </div>
                 <h3>8</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">1:8</div>
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
+                1:8
+              </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <div
                 class="d-flex gap-2 justify-content-center align-items-center"
               >
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('total-9')"
                   :disabled="
@@ -1056,6 +1102,7 @@ const removeBet = () => {
                   <h3>9</h3>
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('total-10')"
                   :disabled="
@@ -1080,6 +1127,7 @@ const removeBet = () => {
                   <h3>10</h3>
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('total-11')"
                   :disabled="
@@ -1104,6 +1152,7 @@ const removeBet = () => {
                   <h3>11</h3>
                 </BButton>
                 <BButton
+                  variant="secondary"
                   class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                   @click="startBet('total-12')"
                   :disabled="
@@ -1128,10 +1177,15 @@ const removeBet = () => {
                   <h3>12</h3>
                 </BButton>
               </div>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">1:6</div>
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
+                1:6
+              </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-13')"
                 :disabled="
@@ -1155,10 +1209,15 @@ const removeBet = () => {
                 </div>
                 <h3>13</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">1:8</div>
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
+                1:8
+              </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-14')"
                 :disabled="
@@ -1182,12 +1241,15 @@ const removeBet = () => {
                 </div>
                 <h3>14</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:12
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-15')"
                 :disabled="
@@ -1211,12 +1273,15 @@ const removeBet = () => {
                 </div>
                 <h3>15</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:18
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-16')"
                 :disabled="
@@ -1240,12 +1305,15 @@ const removeBet = () => {
                 </div>
                 <h3>16</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:20
               </div>
             </div>
             <div class="d-flex flex-column gap-2 flex-grow-1">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center w-100 position-relative overflow-hidden"
                 @click="startBet('total-17')"
                 :disabled="
@@ -1269,7 +1337,9 @@ const removeBet = () => {
                 </div>
                 <h3>17</h3>
               </BButton>
-              <div class="bg-grey-100 rounded-3 p-1 text-center w-100">
+              <div
+                class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+              >
                 1:60
               </div>
             </div>
@@ -1279,6 +1349,7 @@ const removeBet = () => {
             class="d-flex justify-content-between align-items-stretch gap-2 w-100 flex-wrap"
           >
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-1-2')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1300,6 +1371,7 @@ const removeBet = () => {
               <Dice :value="2" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-1-3')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1321,6 +1393,7 @@ const removeBet = () => {
               <Dice :value="3" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-1-4')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1342,6 +1415,7 @@ const removeBet = () => {
               <Dice :value="4" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-1-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1363,6 +1437,7 @@ const removeBet = () => {
               <Dice :value="5" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-1-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1384,6 +1459,7 @@ const removeBet = () => {
               <Dice :value="6" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-2-3')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1405,6 +1481,7 @@ const removeBet = () => {
               <Dice :value="3" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-2-4')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1426,6 +1503,7 @@ const removeBet = () => {
               <Dice :value="4" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-2-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1447,6 +1525,7 @@ const removeBet = () => {
               <Dice :value="5" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-2-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1468,6 +1547,7 @@ const removeBet = () => {
               <Dice :value="6" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-3-4')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1489,6 +1569,7 @@ const removeBet = () => {
               <Dice :value="4" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-3-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1510,6 +1591,7 @@ const removeBet = () => {
               <Dice :value="5" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-3-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1531,6 +1613,7 @@ const removeBet = () => {
               <Dice :value="6" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-4-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1552,6 +1635,7 @@ const removeBet = () => {
               <Dice :value="5" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-4-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1573,6 +1657,7 @@ const removeBet = () => {
               <Dice :value="6" size="md" />
             </BButton>
             <BButton
+              variant="secondary"
               class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center position-relative overflow-hidden"
               @click="startBet('pair-5-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
@@ -1595,11 +1680,16 @@ const removeBet = () => {
             </BButton>
           </div>
 
-          <div class="bg-grey-100 rounded-3 p-1 text-center w-100">1:6</div>
+          <div
+            class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
+          >
+            1:6
+          </div>
 
           <div class="d-flex flex-column justify-content-between gap-2 w-100">
             <div class="d-flex flex-grow-1 gap-2 flex-wrap">
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('face-1')"
                 :disabled="
@@ -1622,6 +1712,7 @@ const removeBet = () => {
                 <Dice :value="1" size="md" />
               </BButton>
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('face-2')"
                 :disabled="
@@ -1644,6 +1735,7 @@ const removeBet = () => {
                 <Dice :value="2" size="md" />
               </BButton>
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('face-3')"
                 :disabled="
@@ -1666,6 +1758,7 @@ const removeBet = () => {
                 <Dice :value="3" size="md" />
               </BButton>
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('face-4')"
                 :disabled="
@@ -1688,6 +1781,7 @@ const removeBet = () => {
                 <Dice :value="4" size="md" />
               </BButton>
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('face-5')"
                 :disabled="
@@ -1710,6 +1804,7 @@ const removeBet = () => {
                 <Dice :value="5" size="md" />
               </BButton>
               <BButton
+                variant="secondary"
                 class="d-flex flex-column gap-2 p-2 justify-content-center align-items-center flex-grow-1 position-relative overflow-hidden"
                 @click="startBet('face-6')"
                 :disabled="
@@ -1733,13 +1828,13 @@ const removeBet = () => {
               </BButton>
             </div>
             <div class="d-flex flex-grow-1 rounded-3 overflow-hidden">
-              <div class="bg-grey-100 p-1 text-center w-100">
+              <div class="bg-dark-gray-600 bg-opacity-50 p-1 text-center w-100">
                 1:1 {{ $t("games.game.sic_bo.on_one_die") }}
               </div>
-              <div class="bg-grey-100 p-1 text-center w-100">
+              <div class="bg-dark-gray-600 bg-opacity-50 p-1 text-center w-100">
                 1:2 {{ $t("games.game.sic_bo.on_two_dice") }}
               </div>
-              <div class="bg-grey-100 p-1 text-center w-100">
+              <div class="bg-dark-gray-600 bg-opacity-50 p-1 text-center w-100">
                 1:3 {{ $t("games.game.sic_bo.on_three_dice") }}
               </div>
             </div>
