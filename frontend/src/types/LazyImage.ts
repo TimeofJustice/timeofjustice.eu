@@ -1,4 +1,4 @@
 export interface LazyImage {
-  lazy: string,
-  original: string,
+  lazy: string;
+  original: string;
 }

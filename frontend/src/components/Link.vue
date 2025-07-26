@@ -10,10 +10,7 @@ defineProps<LinkProps>();
 </script>
 
 <template>
-  <component
-    :is="external ? 'a' : Link"
-    :href="href"
-  >
+  <component :is="external ? 'a' : Link" :href="href">
     <slot />
   </component>
 </template>

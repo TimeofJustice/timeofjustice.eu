@@ -1,13 +1,114 @@
-// Import variables
-@import 'colors';
-@import 'variables';
+@import "colors";
 
 // Import Bootstrap
+@import "bootstrap/scss/_functions";
+@import "bootstrap/scss/_variables";
+
+$body-bg: $dark-gray-600;
+$body-color: $light;
+
+$card-bg: rgba(37, 37, 37, 0.5);
+$card-border-width: 0;
+
+$dropdown-bg: $light;
+$dropdown-link-color: $dark;
+$dropdown-link-hover-color: $dark;
+$dropdown-link-hover-bg: color-mix(in srgb, currentColor 20%, transparent);
+
+$input-placeholder-color: $gray-500;
+
+$link-color: $gray-300;
+$link-hover-color: $gray-500;
+
+$navbar-light-color: $light;
+$navbar-light-hover-color: $gray-500;
+$navbar-light-active-color: $light;
+$navbar-toggler-focus-width: unset;
+
+$progress-bg: $dark-gray-600;
+
+$primary: $dark-gray-800;
+$secondary: $dark-gray-500;
+$tertiary: $gray-800;
+$accent: $gray-500;
+
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "tertiary": $tertiary,
+  "accent": $accent,
+  "success": $success,
+  "info": $info,
+  "warning": $warning,
+  "danger": $danger,
+  "light": $light,
+  "dark": $dark,
+);
+
+$custom-theme-colors: (
+  "space-blue": $space-blue,
+  "aquamarin": $aquamarin,
+  "blue-grey": $blue-grey,
+  "brown": $brown,
+  "dark-green": $dark-green,
+  "dark-red": $dark-red,
+);
+
+$theme-colors: map-merge($theme-colors, $custom-theme-colors);
+
+$colors-shades: (
+  "blue": $blues,
+  "indigo": $indigos,
+  "purple": $purples,
+  "pink": $pinks,
+  "red": $reds,
+  "orange": $oranges,
+  "yellow": $yellows,
+  "green": $greens,
+  "teal": $teals,
+  "cyan": $cyans,
+  "dark-gray": $dark-grays,
+);
+
+@each $color, $shades in $colors-shades {
+  @each $shade, $shade-value in $shades {
+    .bg-#{$shade} {
+      --bs-bg-opacity: 1;
+      background-color: rgba($shade-value, var(--bs-bg-opacity)) !important;
+    }
+
+    .text-#{$shade} {
+      color: $shade-value !important;
+    }
+
+    .border-#{$shade} {
+      border-color: $shade-value !important;
+    }
+  }
+}
+
+@each $shade, $shade-value in $grays {
+  .bg-gray-#{$shade} {
+    --bs-bg-opacity: 1;
+    background-color: rgba($shade-value, var(--bs-bg-opacity)) !important;
+  }
+
+  .text-gray-#{$shade} {
+    color: $shade-value !important;
+  }
+
+  .border-gray-#{$shade} {
+    border-color: $shade-value !important;
+    --bs-border-color: #{$shade-value} !important;
+  }
+}
+
 @import "bootstrap/scss/bootstrap";
-@import 'bootstrap-custom';
+
+@import "bootstrap-custom";
 
 // Import custom styles
-@import 'custom';
+@import "custom";
 
 // Import libraries
-@import 'vue3-carousel/carousel.css';
+@import "vue3-carousel/carousel.css";

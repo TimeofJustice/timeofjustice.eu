@@ -5,18 +5,18 @@ import { LazyImage } from "./LazyImage.ts";
 
 interface Status {
   name: TranslatedText;
-  color: 'aquamarin' | 'blue-grey' | 'brown' | 'dark-green' | 'dark-red';
+  color: "aquamarin" | "blue-grey" | "brown" | "dark-green" | "dark-red";
 }
 
 export interface Project {
   id: number;
   title: string;
   status: Status;
-  short_description: TranslatedText,
-  description: TranslatedText,
-  title_image: LazyImage,
-  images: ProjectImage[],
-  technologies: Technology[],
-  github: string,
-  website: string,
+  short_description: TranslatedText;
+  description: TranslatedText;
+  title_image: LazyImage;
+  images: ProjectImage[];
+  technologies: Technology[];
+  github: string;
+  website: string;
 }

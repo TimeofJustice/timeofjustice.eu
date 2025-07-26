@@ -15,18 +15,23 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
+
+      - name: Check prettier
+        working-directory: ./frontend
+        run: |
+          npm ci
+          npx prettier --check .
 
       - name: Test frontend
         working-directory: ./frontend
         run: |
-          npm ci
           npm run build
 
       - name: Setup backend environment
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Test backend
         working-directory: ./backend
@@ -93,9 +98,9 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             set -e
-          
+
             docker exec ${{ secrets.DB_CONTAINER }} pg_dump -U ${{ secrets.DB_USER }} ${{ secrets.DB_NAME }} > ${{ secrets.SSH_STAGING_PATH }}/dump.sql
-          
+
             docker exec ${{ secrets.DB_STAGING_CONTAINER }} psql -U ${{ secrets.DB_USER }} -c "DROP DATABASE IF EXISTS \"${{ secrets.DB_NAME }}\";"
             docker exec ${{ secrets.DB_STAGING_CONTAINER }} psql -U ${{ secrets.DB_USER }} -c "CREATE DATABASE \"${{ secrets.DB_NAME }}\";"
             cat ${{ secrets.SSH_STAGING_PATH }}/dump.sql | docker exec -i ${{ secrets.DB_STAGING_CONTAINER }} psql -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}

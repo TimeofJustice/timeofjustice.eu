@@ -9,12 +9,15 @@ import {
   faEyeDropper,
   faLayerGroup,
   faPalette,
-  faSync
+  faSync,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { faClose, faMaximize, faMinimize } from "@fortawesome/free-solid-svg-icons";
-import { Head } from "@node_modules/@inertiajs/vue3";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { Head, usePage } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
+
+const page = usePage();
+page.props["smallNavbar"] = true;
 
 interface PlaceState {
   playerCount: number;
@@ -24,7 +27,7 @@ interface PlaceState {
   inOverlay: boolean;
   colors: string[][];
   colorsPage: number;
-  state: 'loading' | 'viewing' | 'started' | 'disconnected';
+  state: "loading" | "viewing" | "started" | "disconnected";
   chunks: {
     number: number;
     loaded: number;
@@ -32,12 +35,11 @@ interface PlaceState {
   color: {
     active: string;
     custom: string;
-  }
+  };
 }
 
 function rgbToHex(r: number, g: number, b: number) {
-  if (r > 255 || g > 255 || b > 255)
-    throw "Invalid color component";
+  if (r > 255 || g > 255 || b > 255) throw "Invalid color component";
   return ((r << 16) | (g << 8) | b).toString(16);
 }
 
@@ -55,13 +57,13 @@ class Overlay {
 
   constructor(image: HTMLCanvasElement, x: number, y: number) {
     this.image = image;
-    this.ctx = image.getContext('2d')!;
+    this.ctx = image.getContext("2d")!;
     this.x = x;
     this.y = y;
     this.width = image.width;
     this.height = image.height;
 
-    this.overlayImage = document.createElement('canvas');
+    this.overlayImage = document.createElement("canvas");
     this.overlayImage.width = this.image.width * 5;
     this.overlayImage.height = this.image.height * 5;
 
@@ -70,21 +72,27 @@ class Overlay {
     this.initialized = true;
   }
   calculateOverlay(color?: string) {
-    if (this.cache.has(color || 'default')) {
-      this.overlayImage = this.cache.get(color || 'default')!;
+    if (this.cache.has(color || "default")) {
+      this.overlayImage = this.cache.get(color || "default")!;
       return;
     }
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d')!;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = false;
     canvas.width = this.overlayImage.width;
     canvas.height = this.overlayImage.height;
 
     for (let x = 0; x < this.image.width; x++) {
       for (let y = 0; y < this.image.height; y++) {
-        const pixelColor = this.image.getContext('2d')!.getImageData(x, y, 1, 1).data;
-        const hexColor = "#" + ("000000" + rgbToHex(pixelColor[0], pixelColor[1], pixelColor[2])).slice(-6);
+        const pixelColor = this.image
+          .getContext("2d")!
+          .getImageData(x, y, 1, 1).data;
+        const hexColor =
+          "#" +
+          (
+            "000000" + rgbToHex(pixelColor[0], pixelColor[1], pixelColor[2])
+          ).slice(-6);
 
         if (color && hexColor !== color) continue;
         if (pixelColor[3] === 0) continue;
@@ -100,12 +108,12 @@ class Overlay {
     }
 
     this.overlayImage = canvas;
-    this.cache.set(color || 'default', this.overlayImage);
+    this.cache.set(color || "default", this.overlayImage);
 
     if (this.initialized) return;
     this.colors.sort((a, b) => {
-      const aNum = parseInt(a.replace('#', ''), 16);
-      const bNum = parseInt(b.replace('#', ''), 16);
+      const aNum = parseInt(a.replace("#", ""), 16);
+      const bNum = parseInt(b.replace("#", ""), 16);
       return aNum - bNum;
     });
   }
@@ -116,12 +124,12 @@ class Chunk {
   ctx: CanvasRenderingContext2D;
 
   constructor(width: number, height: number) {
-    this.canvas = document.createElement('canvas');
+    this.canvas = document.createElement("canvas");
     this.canvas.width = width + 1;
     this.canvas.height = height + 1;
-    this.ctx = this.canvas.getContext('2d')!;
+    this.ctx = this.canvas.getContext("2d")!;
 
-    this.ctx.fillStyle = 'white';
+    this.ctx.fillStyle = "white";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
@@ -136,11 +144,11 @@ class Chunk {
     } else {
       this.ctx.fillRect(x, y, 1, 1);
     }
-  };
-  getColor (x: number, y: number) {
+  }
+  getColor(x: number, y: number) {
     const p = this.ctx.getImageData(x, y, 1, 1).data;
     return "#" + ("000000" + rgbToHex(p[0], p[1], p[2])).slice(-6);
-  };
+  }
 }
 
 interface Canvas {
@@ -163,38 +171,38 @@ const cursorImage = ref<HTMLImageElement | null>(null);
 const canvasContainer = ref<HTMLDivElement | null>(null);
 
 const colors = [
-  '#6d001a',
-  '#ff4500',
-  '#ffd635',
-  '#00a368',
-  '#7eed56',
-  '#009eaa',
-  '#2450a4',
-  '#51e9f4',
-  '#6a5cff',
-  '#811e9f',
-  '#e4abff',
-  '#ff3881',
-  '#6d482f',
-  '#ffb470',
-  '#515252',
-  '#d4d7d9',
-  '#be0039',
-  '#ffa800',
-  '#fff8b8',
-  '#00cc78',
-  '#00756f',
-  '#00ccc0',
-  '#3690ea',
-  '#493ac1',
-  '#94b3ff',
-  '#b44ac0',
-  '#de107f',
-  '#ff99aa',
-  '#9c6926',
-  '#000000',
-  '#898d90',
-  '#ffffff'
+  "#6d001a",
+  "#ff4500",
+  "#ffd635",
+  "#00a368",
+  "#7eed56",
+  "#009eaa",
+  "#2450a4",
+  "#51e9f4",
+  "#6a5cff",
+  "#811e9f",
+  "#e4abff",
+  "#ff3881",
+  "#6d482f",
+  "#ffb470",
+  "#515252",
+  "#d4d7d9",
+  "#be0039",
+  "#ffa800",
+  "#fff8b8",
+  "#00cc78",
+  "#00756f",
+  "#00ccc0",
+  "#3690ea",
+  "#493ac1",
+  "#94b3ff",
+  "#b44ac0",
+  "#de107f",
+  "#ff99aa",
+  "#9c6926",
+  "#000000",
+  "#898d90",
+  "#ffffff",
 ];
 
 const rectWidth = activeCanvas.width;
@@ -213,27 +221,33 @@ const placeState = ref<PlaceState>({
   inOverlay: false,
   colors: [colors],
   colorsPage: 0,
-  state: 'loading',
+  state: "loading",
   chunks: {
     number: 0,
-    loaded: 0
+    loaded: 0,
   },
   color: {
-    active: '#6d001a',
-    custom: '#00156b'
-  }
+    active: "#6d001a",
+    custom: "#00156b",
+  },
 });
 
 const setUpCanvasSize = (canvas: HTMLCanvasElement) => {
   const parent = canvas.parentElement;
   if (!parent) {
-    console.error('Canvas parent element not found');
+    console.error("Canvas parent element not found");
     return;
   }
   const oldWidth = canvas.width;
   const oldHeight = canvas.height;
-  const newWidth = parent.clientWidth - (parseFloat(getComputedStyle(parent).paddingLeft) || 0) - (parseFloat(getComputedStyle(parent).paddingRight) || 0);
-  const newHeight = parent.clientHeight - (parseFloat(getComputedStyle(parent).paddingTop) || 0) - (parseFloat(getComputedStyle(parent).paddingBottom) || 0);
+  const newWidth =
+    parent.clientWidth -
+    (parseFloat(getComputedStyle(parent).paddingLeft) || 0) -
+    (parseFloat(getComputedStyle(parent).paddingRight) || 0);
+  const newHeight =
+    parent.clientHeight -
+    (parseFloat(getComputedStyle(parent).paddingTop) || 0) -
+    (parseFloat(getComputedStyle(parent).paddingBottom) || 0);
   const deltaWidth = newWidth - oldWidth;
   const deltaHeight = newHeight - oldHeight;
   canvas.width = newWidth;
@@ -257,7 +271,11 @@ const view = {
   chunks: [] as Chunk[],
   overlay: null as Overlay | null,
 
-  init(canvas: HTMLCanvasElement, cursor: HTMLImageElement, socket?: WebSocket) {
+  init(
+    canvas: HTMLCanvasElement,
+    cursor: HTMLImageElement,
+    socket?: WebSocket,
+  ) {
     this.canvas = canvas;
     this.cursor = cursor;
     this.socket = socket || null;
@@ -265,12 +283,15 @@ const view = {
     this.width = canvas.width;
     this.height = canvas.height;
 
-    this.position = { x: (canvas.width - rectWidth) / 2, y: (canvas.height - rectHeight) / 2 };
+    this.position = {
+      x: (canvas.width - rectWidth) / 2,
+      y: (canvas.height - rectHeight) / 2,
+    };
     this.cursorPosition = { x: rectWidth / 2, y: rectHeight / 2 };
 
     placeState.value.coordinates = {
       x: this.cursorPosition.x,
-      y: this.cursorPosition.y
+      y: this.cursorPosition.y,
     };
 
     this.initChunks();
@@ -293,12 +314,15 @@ const view = {
     const chunkX = (index % numberOfChunks) * chunkWidth;
     const chunkY = Math.floor(index / numberOfChunks) * chunkHeight;
 
-    axios.get(`/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/${activeCanvas.name}/`)
-      .then(response => {
+    axios
+      .get(
+        `/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/${activeCanvas.name}/`,
+      )
+      .then((response) => {
         const data = response.data;
         this.drawChunk(data.cells);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(`Error loading chunk ${index}:`, error);
       })
       .finally(() => {
@@ -308,9 +332,9 @@ const view = {
           setTimeout(() => this.loadChunk(index + 1), 100);
         } else {
           if (activeCanvas.active) {
-            placeState.value.state = 'started';
+            placeState.value.state = "started";
           } else {
-            placeState.value.state = 'viewing';
+            placeState.value.state = "viewing";
           }
 
           this.refresh();
@@ -318,7 +342,7 @@ const view = {
       });
   },
   drawChunk(cells: { x: number; y: number; color: string }[]) {
-    cells.forEach(cell => {
+    cells.forEach((cell) => {
       this.drawCell(cell.x, cell.y, cell.color);
     });
   },
@@ -326,7 +350,7 @@ const view = {
     const chunkX = Math.floor(x / chunkWidth);
     const chunkY = Math.floor(y / chunkHeight);
 
-    const chunkIndex = (chunkY * numberOfChunks) + chunkX;
+    const chunkIndex = chunkY * numberOfChunks + chunkX;
     if (chunkIndex < 0 || chunkIndex >= this.chunks.length) {
       throw new Error(`Chunk index out of bounds: ${chunkIndex}`);
     }
@@ -355,25 +379,34 @@ const view = {
   },
   paint() {
     if (!this.socket || !this.canvas) {
-      console.error('Socket or canvas not initialized');
+      console.error("Socket or canvas not initialized");
       return;
     }
 
     const color = placeState.value.color.active;
 
-    this.socket.send(JSON.stringify({
-      type: 'cell_update',
-      x: this.cursorPosition.x,
-      y: this.cursorPosition.y,
-      color: color
-    }));
+    this.socket.send(
+      JSON.stringify({
+        type: "cell_update",
+        x: this.cursorPosition.x,
+        y: this.cursorPosition.y,
+        color: color,
+      }),
+    );
   },
   apply(ctx: CanvasRenderingContext2D) {
-    ctx.setTransform(this.scale, 0, 0, this.scale, this.position.x, this.position.y);
+    ctx.setTransform(
+      this.scale,
+      0,
+      0,
+      this.scale,
+      this.position.x,
+      this.position.y,
+    );
   },
   resize() {
     if (!this.canvas) {
-      console.error('Canvas not initialized');
+      console.error("Canvas not initialized");
       return;
     }
     const delta = setUpCanvasSize(this.canvas);
@@ -393,16 +426,16 @@ const view = {
     const oldScale = this.scale;
     this.scale *= amount;
     this.scale = Math.max(0.1, Math.min(this.scale, 10));
-    this.position.x = at.x - ((at.x - this.position.x) * (this.scale / oldScale));
-    this.position.y = at.y - ((at.y - this.position.y) * (this.scale / oldScale));
+    this.position.x = at.x - (at.x - this.position.x) * (this.scale / oldScale);
+    this.position.y = at.y - (at.y - this.position.y) * (this.scale / oldScale);
   },
   refresh() {
     if (!this.canvas || !this.cursor) {
-      console.error('Canvas or cursor image not initialized');
+      console.error("Canvas or cursor image not initialized");
       return;
     }
 
-    const ctx = this.canvas.getContext('2d')!;
+    const ctx = this.canvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = false;
     ctx.save();
     ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -411,7 +444,7 @@ const view = {
 
     view.apply(ctx);
 
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = "white";
     ctx.fillRect(0, 0, rectWidth * cellSize, rectHeight * cellSize);
 
     for (let i = 0; i < view.chunks.length; i++) {
@@ -420,23 +453,33 @@ const view = {
       const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
       ctx.drawImage(
         chunk.canvas,
-        ((chunkX * 10)),
-        ((chunkY * 10)),
-        ((chunkWidth + 1) * 10),
-        ((chunkHeight + 1) * 10)
+        chunkX * 10,
+        chunkY * 10,
+        (chunkWidth + 1) * 10,
+        (chunkHeight + 1) * 10,
       );
     }
 
-    ctx.clearRect(rectWidth * cellSize, -cellSize * 1.5, cellSize * 1.5, (rectWidth * cellSize) + cellSize * 3);
-    ctx.clearRect(-cellSize * 1.5, rectHeight * cellSize, (rectHeight * cellSize) + cellSize * 3, cellSize * 1.5);
+    ctx.clearRect(
+      rectWidth * cellSize,
+      -cellSize * 1.5,
+      cellSize * 1.5,
+      rectWidth * cellSize + cellSize * 3,
+    );
+    ctx.clearRect(
+      -cellSize * 1.5,
+      rectHeight * cellSize,
+      rectHeight * cellSize + cellSize * 3,
+      cellSize * 1.5,
+    );
 
     if (this.overlay) {
       ctx.drawImage(
         this.overlay.overlayImage,
         this.overlay.x * cellSize,
         this.overlay.y * cellSize,
-        this.overlay.overlayImage.width * cellSize / 5,
-        this.overlay.overlayImage.height * cellSize / 5
+        (this.overlay.overlayImage.width * cellSize) / 5,
+        (this.overlay.overlayImage.height * cellSize) / 5,
       );
     }
 
@@ -444,7 +487,7 @@ const view = {
       const alpha = Math.min(1, (view.scale - 2) / 2);
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.strokeStyle = 'rgb(144,144,144)';
+      ctx.strokeStyle = "rgb(144,144,144)";
       ctx.lineWidth = 0.1;
       for (let x = 0; x < rectWidth * cellSize; x += cellSize) {
         ctx.beginPath();
@@ -461,16 +504,23 @@ const view = {
       ctx.restore();
     }
 
-    ctx.drawImage(this.cursor,
+    ctx.drawImage(
+      this.cursor,
       this.cursorPosition.x * cellSize - 0.1,
       this.cursorPosition.y * cellSize - 0.1,
       cellSize + 0.2,
-      cellSize + 0.2
+      cellSize + 0.2,
     );
   },
   center() {
-    const targetX = (this.width / 2) - ((this.cursorPosition.x * cellSize * this.scale) + (cellSize * this.scale / 2));
-    const targetY = (this.height / 2) - ((this.cursorPosition.y * cellSize * this.scale) + (cellSize * this.scale / 2));
+    const targetX =
+      this.width / 2 -
+      (this.cursorPosition.x * cellSize * this.scale +
+        (cellSize * this.scale) / 2);
+    const targetY =
+      this.height / 2 -
+      (this.cursorPosition.y * cellSize * this.scale +
+        (cellSize * this.scale) / 2);
     const duration = 300;
     const startX = this.position.x;
     const startY = this.position.y;
@@ -489,7 +539,9 @@ const view = {
   },
   moveTo(x: number, y: number) {
     if (x < 0 || x >= rectWidth || y < 0 || y >= rectHeight) {
-      console.warn(`Attempted to move to out-of-bounds coordinates: (${x}, ${y})`);
+      console.warn(
+        `Attempted to move to out-of-bounds coordinates: (${x}, ${y})`,
+      );
       return;
     }
 
@@ -498,8 +550,13 @@ const view = {
     placeState.value.coordinates = { x, y };
     this.center();
 
-    if (this.overlay && (this.overlay.x <= x && x < this.overlay.x + this.overlay.width) &&
-        (this.overlay.y <= y && y < this.overlay.y + this.overlay.height)) {
+    if (
+      this.overlay &&
+      this.overlay.x <= x &&
+      x < this.overlay.x + this.overlay.width &&
+      this.overlay.y <= y &&
+      y < this.overlay.y + this.overlay.height
+    ) {
       if (!placeState.value.inOverlay) {
         placeState.value.colors = [];
         for (let i = 0; i < this.overlay.colors.length; i += 32) {
@@ -527,16 +584,21 @@ const view = {
   click(e: MouseEvent) {
     const bounds = this.canvas!.getBoundingClientRect();
     const pos = {
-      x: Math.floor((e.clientX - bounds.left - this.position.x) / (cellSize * this.scale)),
-      y: Math.floor((e.clientY - bounds.top - this.position.y) / (cellSize * this.scale))
+      x: Math.floor(
+        (e.clientX - bounds.left - this.position.x) / (cellSize * this.scale),
+      ),
+      y: Math.floor(
+        (e.clientY - bounds.top - this.position.y) / (cellSize * this.scale),
+      ),
     };
-    if (pos.x < 0 || pos.x >= rectWidth || pos.y < 0 || pos.y >= rectHeight) return;
+    if (pos.x < 0 || pos.x >= rectWidth || pos.y < 0 || pos.y >= rectHeight)
+      return;
     this.moveTo(pos.x, pos.y);
     return pos;
   },
   calculateOverlay(color: string) {
     if (!this.overlay) {
-      console.error('Overlay not initialized');
+      console.error("Overlay not initialized");
       return;
     }
     this.overlay.calculateOverlay(color);
@@ -546,8 +608,8 @@ const view = {
       placeState.value.color.custom = color;
     }
     placeState.value.color.active = color;
-  }
-}
+  },
+};
 
 let isDragging = false;
 let lastMouse = { x: 0, y: 0 };
@@ -558,40 +620,53 @@ function keydownHandler(e: KeyboardEvent) {
     return;
   }
 
-  if (e.key === 'ArrowUp') {
+  if (e.key === "ArrowUp") {
     e.preventDefault();
     view.moveTo(view.cursorPosition.x, view.cursorPosition.y - 1);
-  } else if (e.key === 'ArrowDown') {
+  } else if (e.key === "ArrowDown") {
     e.preventDefault();
     view.moveTo(view.cursorPosition.x, view.cursorPosition.y + 1);
-  } else if (e.key === 'ArrowLeft') {
+  } else if (e.key === "ArrowLeft") {
     e.preventDefault();
     view.moveTo(view.cursorPosition.x - 1, view.cursorPosition.y);
-  } else if (e.key === 'ArrowRight') {
+  } else if (e.key === "ArrowRight") {
     e.preventDefault();
     view.moveTo(view.cursorPosition.x + 1, view.cursorPosition.y);
-  } else if (e.key === 'r' || e.key === 'R') {
+  } else if (e.key === "r" || e.key === "R") {
     e.preventDefault();
     view.center();
   }
 
-  if (placeState.value.state !== 'started') return;
+  if (placeState.value.state !== "started") return;
 
-  if (e.key === ' ') {
+  if (e.key === " ") {
     e.preventDefault();
     view.paint();
-  } else if (e.key === 'c' || e.key === 'C') {
+  } else if (e.key === "c" || e.key === "C") {
     e.preventDefault();
     view.pickColor();
-  } else if (e.key === 'Tab') {
+  } else if (e.key === "Tab") {
     e.preventDefault();
-    const currentIndex = placeState.value.colors[placeState.value.colorsPage].indexOf(placeState.value.color.active);
-    if (currentIndex === -1 || (placeState.value.inOverlay && currentIndex === placeState.value.colors[placeState.value.colorsPage].length - 1)) {
-      placeState.value.color.active = placeState.value.colors[placeState.value.colorsPage][0];
-    } else if (currentIndex === placeState.value.colors[placeState.value.colorsPage].length - 1 && !placeState.value.inOverlay) {
+    const currentIndex = placeState.value.colors[
+      placeState.value.colorsPage
+    ].indexOf(placeState.value.color.active);
+    if (
+      currentIndex === -1 ||
+      (placeState.value.inOverlay &&
+        currentIndex ===
+          placeState.value.colors[placeState.value.colorsPage].length - 1)
+    ) {
+      placeState.value.color.active =
+        placeState.value.colors[placeState.value.colorsPage][0];
+    } else if (
+      currentIndex ===
+        placeState.value.colors[placeState.value.colorsPage].length - 1 &&
+      !placeState.value.inOverlay
+    ) {
       placeState.value.color.active = placeState.value.color.custom;
     } else {
-      placeState.value.color.active = placeState.value.colors[placeState.value.colorsPage][currentIndex + 1];
+      placeState.value.color.active =
+        placeState.value.colors[placeState.value.colorsPage][currentIndex + 1];
     }
   }
 }
@@ -628,25 +703,25 @@ function mouseDownHandler(e: MouseEvent) {
 
   const onMouseUp = () => {
     isDragging = false;
-    window.removeEventListener('mousemove', onMouseMove);
-    window.removeEventListener('mouseup', onMouseUp);
+    window.removeEventListener("mousemove", onMouseMove);
+    window.removeEventListener("mouseup", onMouseUp);
   };
 
-  window.addEventListener('mousemove', onMouseMove);
-  window.addEventListener('mouseup', onMouseUp);
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mouseup", onMouseUp);
 }
 
 function wheelHandler(e: WheelEvent) {
   e.preventDefault();
   if (!canvas.value || !cursorImage.value) {
-    console.error('Canvas element not found');
+    console.error("Canvas element not found");
     return;
   }
 
   const rect = canvas.value.getBoundingClientRect();
   const mouse = {
-    x: (e.clientX - rect.left),
-    y: (e.clientY - rect.top)
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top,
   };
   const zoomFactor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
   view.scaleAt(mouse, zoomFactor);
@@ -675,7 +750,7 @@ function touchMoveHandler(e: TouchEvent) {
   }
 
   if (!canvas.value || !cursorImage.value) {
-    console.error('Canvas element not found');
+    console.error("Canvas element not found");
     return;
   }
 
@@ -688,7 +763,7 @@ function touchMoveHandler(e: TouchEvent) {
       const rect = canvas.value.getBoundingClientRect();
       const center = {
         x: (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left,
-        y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top
+        y: (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top,
       };
       view.scaleAt(center, zoomFactor);
       view.refresh();
@@ -731,7 +806,7 @@ function touchCancelHandler() {
 
 onMounted(() => {
   if (!canvas.value || !cursorImage.value) {
-    console.error('Canvas element not found');
+    console.error("Canvas element not found");
     return;
   }
   setUpCanvasSize(canvas.value);
@@ -747,30 +822,38 @@ onMounted(() => {
   resizeObserver.observe(canvasContainer.value!);
 
   // Desktop: Keyboard controls
-  window.addEventListener('keydown', keydownHandler);
+  window.addEventListener("keydown", keydownHandler);
   // Desktop: Mouse controls
-  canvas.value.addEventListener('click', clickBeforeHandler, true);
-  canvas.value.addEventListener('click', clickAfterHandler, false);
-  canvas.value.addEventListener('mousedown', mouseDownHandler);
-  canvas.value.addEventListener('wheel', wheelHandler);
+  canvas.value.addEventListener("click", clickBeforeHandler, true);
+  canvas.value.addEventListener("click", clickAfterHandler, false);
+  canvas.value.addEventListener("mousedown", mouseDownHandler);
+  canvas.value.addEventListener("wheel", wheelHandler);
 
   // Mobile: Touch-controls
-  canvas.value.addEventListener('touchstart', touchStartHandler, { passive: false });
-  canvas.value.addEventListener('touchmove', touchMoveHandler, { passive: false });
-  canvas.value.addEventListener('touchend', touchEndHandler, { passive: false });
-  canvas.value.addEventListener('touchcancel', touchCancelHandler, { passive: false });
+  canvas.value.addEventListener("touchstart", touchStartHandler, {
+    passive: false,
+  });
+  canvas.value.addEventListener("touchmove", touchMoveHandler, {
+    passive: false,
+  });
+  canvas.value.addEventListener("touchend", touchEndHandler, {
+    passive: false,
+  });
+  canvas.value.addEventListener("touchcancel", touchCancelHandler, {
+    passive: false,
+  });
 
   onBeforeUnmount(() => {
-    console.log('Cleaning up event listeners');
-    window.removeEventListener('keydown', keydownHandler);
-    canvas.value?.removeEventListener('click', clickBeforeHandler, true);
-    canvas.value?.removeEventListener('click', clickAfterHandler, false);
-    canvas.value?.removeEventListener('mousedown', mouseDownHandler);
-    canvas.value?.removeEventListener('wheel', wheelHandler);
-    canvas.value?.removeEventListener('touchstart', touchStartHandler);
-    canvas.value?.removeEventListener('touchmove', touchMoveHandler);
-    canvas.value?.removeEventListener('touchend', touchEndHandler);
-    canvas.value?.removeEventListener('touchcancel', touchCancelHandler);
+    console.log("Cleaning up event listeners");
+    window.removeEventListener("keydown", keydownHandler);
+    canvas.value?.removeEventListener("click", clickBeforeHandler, true);
+    canvas.value?.removeEventListener("click", clickAfterHandler, false);
+    canvas.value?.removeEventListener("mousedown", mouseDownHandler);
+    canvas.value?.removeEventListener("wheel", wheelHandler);
+    canvas.value?.removeEventListener("touchstart", touchStartHandler);
+    canvas.value?.removeEventListener("touchmove", touchMoveHandler);
+    canvas.value?.removeEventListener("touchend", touchEndHandler);
+    canvas.value?.removeEventListener("touchcancel", touchCancelHandler);
     resizeObserver.disconnect();
   });
 
@@ -782,37 +865,34 @@ onMounted(() => {
   const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
 
   const socket = new WebSocket(
-    wsScheme
-    + '://'
-    + window.location.host
-    + '/ws/r-place/'
+    wsScheme + "://" + window.location.host + "/ws/r-place/",
   );
   socket.onopen = () => {
-    console.log('WebSocket connection established');
+    console.log("WebSocket connection established");
 
     if (!canvas.value || !cursorImage.value) {
-      console.error('Canvas element not found');
+      console.error("Canvas element not found");
       return;
     }
     view.init(canvas.value, cursorImage.value, socket);
   };
   socket.onmessage = (e: MessageEvent) => {
     const data = JSON.parse(e.data);
-    if (data.type === 'cell_update') {
+    if (data.type === "cell_update") {
       const cell = data.cell;
       view.drawCell(cell.x, cell.y, cell.color);
       view.refresh();
-    } else if (data.type === 'player_update') {
+    } else if (data.type === "player_update") {
       placeState.value.playerCount = data.count;
     }
   };
   socket.onclose = () => {
-    console.log('WebSocket connection closed');
-    placeState.value.state = 'disconnected';
+    console.log("WebSocket connection closed");
+    placeState.value.state = "disconnected";
   };
 
   onBeforeUnmount(() => {
-    socket.close()
+    socket.close();
   });
 });
 
@@ -834,17 +914,17 @@ const numberColors = ref(10);
 const synced = ref(true);
 
 const overlay = {
-  fieldCanvas: document.createElement('canvas'),
-  originalCanvas: document.createElement('canvas'),
-  reducedCanvas: document.createElement('canvas'),
-  resizeCanvas: document.createElement('canvas'),
+  fieldCanvas: document.createElement("canvas"),
+  originalCanvas: document.createElement("canvas"),
+  reducedCanvas: document.createElement("canvas"),
+  resizeCanvas: document.createElement("canvas"),
   initialized: false,
   imageLoaded: false,
   x: 0,
   y: 0,
   init() {
     if (!this.fieldCanvas || !previewCanvas.value) {
-      console.error('Field ord preview canvas not found');
+      console.error("Field ord preview canvas not found");
       return;
     }
 
@@ -859,19 +939,19 @@ const overlay = {
   },
   loadChunks() {
     if (!this.fieldCanvas) {
-      console.error('Field canvas not found');
+      console.error("Field canvas not found");
       return;
     }
-    const ctx = this.fieldCanvas.getContext('2d');
+    const ctx = this.fieldCanvas.getContext("2d");
     if (!ctx) {
-      console.error('Failed to get canvas context');
+      console.error("Failed to get canvas context");
       return;
     }
 
     const multiplierWidth = this.fieldCanvas.width / activeCanvas.width;
     const multiplierHeight = this.fieldCanvas.height / activeCanvas.height;
 
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = "white";
     ctx.fillRect(0, 0, this.fieldCanvas.width, this.fieldCanvas.height);
     for (let i = 0; i < view.chunks.length; i++) {
       const chunk = view.chunks[i];
@@ -882,7 +962,7 @@ const overlay = {
         chunkX * multiplierWidth,
         chunkY * multiplierHeight,
         (chunkWidth + 1) * multiplierWidth,
-        (chunkHeight + 1) * multiplierHeight
+        (chunkHeight + 1) * multiplierHeight,
       );
     }
   },
@@ -893,23 +973,29 @@ const overlay = {
     this.loadChunks();
 
     if (!previewCanvas.value || !this.reducedCanvas || !this.fieldCanvas) {
-      console.error('Preview, temp or field canvas not found');
+      console.error("Preview, temp or field canvas not found");
       return;
     }
     previewCanvas.value.width = this.fieldCanvas.width;
     previewCanvas.value.height = this.fieldCanvas.height;
-    const ctx = previewCanvas.value.getContext('2d');
+    const ctx = previewCanvas.value.getContext("2d");
     if (!ctx) {
-      console.error('Failed to get preview canvas context');
+      console.error("Failed to get preview canvas context");
       return;
     }
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
-    ctx.drawImage(this.fieldCanvas, 0, 0, previewCanvas.value.width, previewCanvas.value.height);
+    ctx.drawImage(
+      this.fieldCanvas,
+      0,
+      0,
+      previewCanvas.value.width,
+      previewCanvas.value.height,
+    );
 
     placeState.value.overlayScreen = true;
 
-    if(!this.imageLoaded) return;
+    if (!this.imageLoaded) return;
 
     this.preview();
   },
@@ -918,12 +1004,12 @@ const overlay = {
       this.init();
     }
     if (!this.originalCanvas) {
-      console.error('canvas not found');
+      console.error("canvas not found");
       return;
     }
-    const ctx = this.originalCanvas.getContext('2d');
+    const ctx = this.originalCanvas.getContext("2d");
     if (!ctx) {
-      console.error('Failed to get original canvas context');
+      console.error("Failed to get original canvas context");
       return;
     }
 
@@ -933,7 +1019,12 @@ const overlay = {
       img.onload = () => {
         this.originalCanvas.width = img.width;
         this.originalCanvas.height = img.height;
-        ctx.clearRect(0, 0, this.originalCanvas.width, this.originalCanvas.height);
+        ctx.clearRect(
+          0,
+          0,
+          this.originalCanvas.width,
+          this.originalCanvas.height,
+        );
         ctx.drawImage(img, 0, 0, img.width, img.height);
         this.imageLoaded = true;
         this.preview();
@@ -947,26 +1038,30 @@ const overlay = {
       this.init();
     }
     if (!this.resizeCanvas || !this.reducedCanvas) {
-      console.error('Original or reduced canvas not found');
+      console.error("Original or reduced canvas not found");
       return;
     }
 
     this.reducedCanvas.width = this.resizeCanvas.width;
     this.reducedCanvas.height = this.resizeCanvas.height;
-    const ctx = this.reducedCanvas.getContext('2d');
+    const ctx = this.reducedCanvas.getContext("2d");
     if (!ctx) {
-      console.error('Failed to get resize canvas context');
+      console.error("Failed to get resize canvas context");
       return;
     }
     ctx.imageSmoothingEnabled = false;
 
-    const RgbQuant = require('rgbquant');
-    const q = new RgbQuant({colors: amount})
+    const RgbQuant = require("rgbquant");
+    const q = new RgbQuant({ colors: amount });
     q.sample(this.resizeCanvas);
     q.palette();
     const out = q.reduce(this.resizeCanvas);
 
-    const imageData = new ImageData(new Uint8ClampedArray(out), this.reducedCanvas.width, this.reducedCanvas.height);
+    const imageData = new ImageData(
+      new Uint8ClampedArray(out),
+      this.reducedCanvas.width,
+      this.reducedCanvas.height,
+    );
     ctx.putImageData(imageData, 0, 0);
   },
   resizeImage(width: number) {
@@ -974,7 +1069,10 @@ const overlay = {
     let pixelW = width;
     let pixelH = Math.round(pixelW / imgRatio);
 
-    limitSizeOnCanvasX.value = Math.min(Math.min(1000, this.originalCanvas.width), Math.floor(1000 / pixelH * pixelW));
+    limitSizeOnCanvasX.value = Math.min(
+      Math.min(1000, this.originalCanvas.width),
+      Math.floor((1000 / pixelH) * pixelW),
+    );
     if (sizeOnCanvasX.value > limitSizeOnCanvasX.value) {
       sizeOnCanvasX.value = limitSizeOnCanvasX.value;
 
@@ -984,9 +1082,9 @@ const overlay = {
 
     this.resizeCanvas.width = pixelW;
     this.resizeCanvas.height = pixelH;
-    const tempCtx = this.resizeCanvas.getContext('2d');
+    const tempCtx = this.resizeCanvas.getContext("2d");
     if (!tempCtx) {
-      console.error('Failed to get temp canvas context');
+      console.error("Failed to get temp canvas context");
       return;
     }
     tempCtx.clearRect(0, 0, this.resizeCanvas.width, this.resizeCanvas.height);
@@ -1003,19 +1101,25 @@ const overlay = {
       this.init();
     }
     if (!previewCanvas.value || !this.reducedCanvas || !this.fieldCanvas) {
-      console.error('Preview, temp or field canvas not found');
+      console.error("Preview, temp or field canvas not found");
       return;
     }
     previewCanvas.value.width = this.fieldCanvas.width;
     previewCanvas.value.height = this.fieldCanvas.height;
-    const ctx = previewCanvas.value.getContext('2d');
+    const ctx = previewCanvas.value.getContext("2d");
     if (!ctx) {
-      console.error('Failed to get preview canvas context');
+      console.error("Failed to get preview canvas context");
       return;
     }
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, previewCanvas.value.width, previewCanvas.value.height);
-    ctx.drawImage(this.fieldCanvas, 0, 0, previewCanvas.value.width, previewCanvas.value.height);
+    ctx.drawImage(
+      this.fieldCanvas,
+      0,
+      0,
+      previewCanvas.value.width,
+      previewCanvas.value.height,
+    );
 
     const previewWidth = 300;
     const previewHeight = 300;
@@ -1026,8 +1130,14 @@ const overlay = {
 
     ctx.drawImage(
       this.reducedCanvas,
-      0, 0, this.reducedCanvas.width, this.reducedCanvas.height,
-      this.x * multiplierWidth, this.y * multiplierHeight, this.reducedCanvas.width * multiplierWidth, this.reducedCanvas.height * multiplierHeight
+      0,
+      0,
+      this.reducedCanvas.width,
+      this.reducedCanvas.height,
+      this.x * multiplierWidth,
+      this.y * multiplierHeight,
+      this.reducedCanvas.width * multiplierWidth,
+      this.reducedCanvas.height * multiplierHeight,
     );
 
     synced.value = true;
@@ -1041,122 +1151,254 @@ const overlay = {
       this.init();
     }
     if (!this.reducedCanvas) {
-      console.error('Reduced canvas not found');
+      console.error("Reduced canvas not found");
       return;
     }
     this.preview();
-    view.overlay = new Overlay(this.reducedCanvas, Number(positionOnCanvasX.value), Number(positionOnCanvasY.value));
+    view.overlay = new Overlay(
+      this.reducedCanvas,
+      Number(positionOnCanvasX.value),
+      Number(positionOnCanvasY.value),
+    );
     view.refresh();
     placeState.value.overlayScreen = false;
-  }
-}
+  },
+};
 
 watch(file, (newFile) => {
   if (!newFile) return;
   overlay.loadImage(newFile);
 });
 
-watch([positionOnCanvasX, positionOnCanvasY], ([newPositionX, newPositionY]) => {
-  overlay.x = newPositionX;
-  overlay.y = newPositionY;
-});
+watch(
+  [positionOnCanvasX, positionOnCanvasY],
+  ([newPositionX, newPositionY]) => {
+    overlay.x = newPositionX;
+    overlay.y = newPositionY;
+  },
+);
 
-watch([positionOnCanvasX, positionOnCanvasY, numberColors, sizeOnCanvasX], () => {
-  synced.value = false;
-});
+watch(
+  [positionOnCanvasX, positionOnCanvasY, numberColors, sizeOnCanvasX],
+  () => {
+    synced.value = false;
+  },
+);
 
-watch(() => placeState.value.color.active, (newColor) => {
-  if (placeState.value.inOverlay) {
-    view.calculateOverlay(newColor);
-    view.refresh();
-  }
-});
+watch(
+  () => placeState.value.color.active,
+  (newColor) => {
+    if (placeState.value.inOverlay) {
+      view.calculateOverlay(newColor);
+      view.refresh();
+    }
+  },
+);
 </script>
 
 <template>
   <Head :title="$t('r_place.title')" />
 
-  <div class="container-xxl h-100 overflow-hidden mb-2 place-container" :class="{ 'fullscreen': placeState.fullscreen }" ref="canvasContainer">
-    <div class="w-100 rounded overflow-hidden position-relative h-100">
+  <div
+    class="h-100 overflow-hidden place-container"
+    :class="{ fullscreen: placeState.fullscreen }"
+    ref="canvasContainer"
+  >
+    <div class="w-100 overflow-hidden position-relative h-100">
       <Transition>
-        <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark" v-if="placeState.state !== 'started' && placeState.state !== 'viewing'"
-             :class="{ 'bg-opacity-75': placeState.state === 'disconnected' }">
-          <BProgress :max="placeState.chunks.number" class="col-5" v-if="placeState.state === 'loading'">
+        <div
+          class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark-gray-500 bg-opacity-100"
+          v-if="
+            placeState.state !== 'started' && placeState.state !== 'viewing'
+          "
+          :class="{ 'bg-opacity-75': placeState.state === 'disconnected' }"
+        >
+          <BProgress
+            :max="placeState.chunks.number"
+            class="col-5"
+            v-if="placeState.state === 'loading'"
+          >
             <BProgressBar :value="placeState.chunks.loaded" striped animated>
-              <small>{{ Math.round((placeState.chunks.loaded / placeState.chunks.number) * 100) }}%</small>
+              <small
+                >{{
+                  Math.round(
+                    (placeState.chunks.loaded / placeState.chunks.number) * 100,
+                  )
+                }}%</small
+              >
             </BProgressBar>
           </BProgress>
 
-          <BButton class="place-button text-light d-flex flex-column justify-content-center align-items-center rounded-0" to="/r-place/" v-if="placeState.state === 'disconnected'">
-            <span class="fw-bold fs-5">{{ $t("r_place.canvas.disconnected.title") }}</span>
+          <BButton
+            class="place-button place-button-big d-flex flex-column justify-content-center align-items-center rounded-0"
+            to="/r-place/"
+            v-if="placeState.state === 'disconnected'"
+          >
+            <span class="fw-bold fs-5">{{
+              $t("r_place.canvas.disconnected.title")
+            }}</span>
             <span>{{ $t("r_place.canvas.disconnected.description") }}</span>
           </BButton>
         </div>
       </Transition>
 
-      <canvas width="1000" height="1000" ref="canvas" class="field bg-grey-200"></canvas>
+      <canvas
+        width="1000"
+        height="1000"
+        ref="canvas"
+        class="field bg-opacity-100 bg-dark-gray-500"
+      ></canvas>
 
-      <div class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none">
-        <div class="position-absolute top-0 end-0 p-2 d-flex flex-column gap-2 align-items-end">
-          <div class="d-flex gap-2">
-            <BButton class="place-button place-button-small text-light" @click="overlay.open()">
-              <font-awesome-icon :icon="faLayerGroup"/>
-            </BButton>
-            <BButton class="place-button place-button-small text-light d-none d-xxl-flex" @click="placeState.fullscreen = !placeState.fullscreen;">
-              <font-awesome-icon :icon="faMaximize" v-if="!placeState.fullscreen"/>
-              <font-awesome-icon :icon="faMinimize" v-else/>
-            </BButton>
-          </div>
-        </div>
-        <div class="position-absolute top-0 start-0 p-2">
-          <BDropdown variant="primary" class="pe-auto place-dropdown" offset="5">
+      <div
+        class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none place-controls"
+      >
+        <div
+          class="position-absolute top-0 start-0 end-0 p-2 d-flex gap-2 justify-content-between"
+        >
+          <BDropdown
+            variant="primary"
+            class="pe-auto place-dropdown"
+            offset="5"
+          >
             <template #button-content>
               <font-awesome-icon :icon="faBinoculars" class="me-2" />
               <span>{{ activeCanvas.name }}</span>
             </template>
-            <BDropdownItem v-for="canvas in canvases" :key="canvas.name" :to="'/r-place/' + canvas.name + '/'" link-class="d-flex align-items-center justify-content-between gap-2">
+            <BDropdownItem
+              v-for="canvas in canvases"
+              :key="canvas.name"
+              :to="'/r-place/' + canvas.name + '/'"
+              link-class="d-flex align-items-center justify-content-between gap-2"
+            >
               {{ canvas.name }}
               <BBadge variant="success" v-if="canvas.active">
-                {{ $t('r_place.canvas.canvas_select.ongoing') }}
+                {{ $t("r_place.canvas.canvas_select.ongoing") }}
               </BBadge>
             </BDropdownItem>
           </BDropdown>
-        </div>
-        <div class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative" v-if="placeState.state === 'started'">
-          <BButton class="place-button place-button-small text-light" @click="view.center()">
-            <font-awesome-icon :icon="faArrowsToDot"/>
-          </BButton>
-          <BButton class="place-button place-button-big text-light d-flex flex-column justify-content-center align-items-center" @click="view.paint()">
-            <span class="fw-bold fs-5">{{ $t("r_place.canvas.place_pixel") }}</span>
-            <span>X: {{placeState.coordinates.x}} Y: {{placeState.coordinates.y}}</span>
-          </BButton>
-          <BButton class="place-button place-button-small text-light" @click="view.pickColor()">
-            <font-awesome-icon :icon="faEyeDropper"/>
-          </BButton>
-          <div class="position-absolute bottom-0 end-0 p-2 text-black fw-bold d-none d-sm-block">
-            {{ $t('r_place.canvas.players_online', {"player_count": placeState.playerCount}) }}
+
+          <div class="d-flex gap-2">
+            <BButton
+              class="place-button place-button-small"
+              @click="overlay.open()"
+            >
+              <font-awesome-icon :icon="faLayerGroup" />
+            </BButton>
           </div>
         </div>
-        <div class="place-colors-container" :class="{ active: placeState.state === 'started' }">
+        <div
+          class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative"
+          v-if="placeState.state === 'started'"
+        >
+          <BButton
+            class="place-button place-button-small"
+            @click="view.center()"
+          >
+            <font-awesome-icon :icon="faArrowsToDot" />
+          </BButton>
+          <BButton
+            class="place-button place-button-big d-flex flex-column justify-content-center align-items-center"
+            @click="view.paint()"
+          >
+            <span class="fw-bold fs-5">{{
+              $t("r_place.canvas.place_pixel")
+            }}</span>
+            <span
+              >X: {{ placeState.coordinates.x }} Y:
+              {{ placeState.coordinates.y }}</span
+            >
+          </BButton>
+          <BButton
+            class="place-button place-button-small"
+            @click="view.pickColor()"
+          >
+            <font-awesome-icon :icon="faEyeDropper" />
+          </BButton>
+          <div
+            class="position-absolute bottom-0 end-0 p-2 text-black fw-bold d-none d-sm-block"
+          >
+            {{
+              $t("r_place.canvas.players_online", {
+                player_count: placeState.playerCount,
+              })
+            }}
+          </div>
+        </div>
+        <div
+          class="place-colors-container"
+          :class="{ active: placeState.state === 'started' }"
+        >
           <div class="d-flex justify-content-center align-items-center gap-1">
-            <div @click="placeState.colorsPage = Math.max(0, placeState.colorsPage - 1)" class="place-colors-arrow" :class="{ 'opacity-0': placeState.colorsPage === 0 }" v-if="placeState.inOverlay">
+            <div
+              @click="
+                placeState.colorsPage = Math.max(0, placeState.colorsPage - 1)
+              "
+              class="place-colors-arrow"
+              :class="{ 'opacity-0': placeState.colorsPage === 0 }"
+              v-if="placeState.inOverlay"
+            >
               <font-awesome-icon :icon="faChevronLeft" />
             </div>
-            <div class="place-colors-grid" v-for="(page, index) in placeState.colors" :key="index" v-show="placeState.colorsPage === index">
-              <div class="col place-color" :class="{ active: placeState.color.active === color }" :style="{ backgroundColor: color }" @click="placeState.color.active = color" v-for="color in page"></div>
-              <div class="col place-color d-flex justify-content-center align-items-center" v-for="i in (32 - page.length)" :key="i" style="background-color: white;">
+            <div
+              class="place-colors-grid"
+              v-for="(page, index) in placeState.colors"
+              :key="index"
+              v-show="placeState.colorsPage === index"
+            >
+              <div
+                class="col place-color"
+                :class="{ active: placeState.color.active === color }"
+                :style="{ backgroundColor: color }"
+                @click="placeState.color.active = color"
+                v-for="color in page"
+              ></div>
+              <div
+                class="col place-color d-flex justify-content-center align-items-center"
+                v-for="i in 32 - page.length"
+                :key="i"
+                style="background-color: white"
+              >
                 <font-awesome-icon :icon="faClose" class="text-black" />
               </div>
             </div>
-            <div @click="placeState.colorsPage = Math.min(placeState.colors.length - 1, placeState.colorsPage + 1)" class="place-colors-arrow" :class="{ 'opacity-0': placeState.colorsPage === placeState.colors.length - 1 }" v-if="placeState.inOverlay">
+            <div
+              @click="
+                placeState.colorsPage = Math.min(
+                  placeState.colors.length - 1,
+                  placeState.colorsPage + 1,
+                )
+              "
+              class="place-colors-arrow"
+              :class="{
+                'opacity-0':
+                  placeState.colorsPage === placeState.colors.length - 1,
+              }"
+              v-if="placeState.inOverlay"
+            >
               <font-awesome-icon :icon="faChevronRight" />
             </div>
 
-            <div class="position-relative d-none d-sm-block" v-if="!placeState.inOverlay">
-              <BInput type="color" v-model="placeState.color.custom" class="place-color place-color-big" :class="{ active: placeState.color.active === placeState.color.custom && !placeState.colors[placeState.colorsPage].includes(placeState.color.active) }"
-                      @blur="placeState.color.active = placeState.color.custom" />
-              <div class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none">
-                <font-awesome-icon :icon="faPalette"/>
+            <div
+              class="position-relative d-none d-sm-block"
+              v-if="!placeState.inOverlay"
+            >
+              <BInput
+                type="color"
+                v-model="placeState.color.custom"
+                class="place-color place-color-big"
+                :class="{
+                  active:
+                    placeState.color.active === placeState.color.custom &&
+                    !placeState.colors[placeState.colorsPage].includes(
+                      placeState.color.active,
+                    ),
+                }"
+                @blur="placeState.color.active = placeState.color.custom"
+              />
+              <div
+                class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none"
+              >
+                <font-awesome-icon :icon="faPalette" />
               </div>
             </div>
           </div>
@@ -1164,14 +1406,22 @@ watch(() => placeState.value.color.active, (newColor) => {
       </div>
 
       <Transition>
-        <div class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 p-2" :class="{ 'd-none': !placeState.overlayScreen }">
-          <div class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-grey-200 bg-opacity-100 border border-2 border-black overflow-auto col-md-6">
+        <div
+          class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 px-2 py-3 p-md-3 overflow-auto"
+          :class="{ 'd-none': !placeState.overlayScreen }"
+        >
+          <div
+            class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-dark-gray-500 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
+          >
             <div class="position-relative">
               <canvas ref="previewCanvas"></canvas>
 
               <Transition>
-                <div class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-grey-200 bg-opacity-75" v-if="!synced">
-                  <BButton @click="overlay.preview()" class="place-button fs-3">
+                <div
+                  class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-gray-800 bg-opacity-75"
+                  v-if="!synced"
+                >
+                  <BButton @click="overlay.preview()" class="place-button fs-5">
                     <font-awesome-icon :icon="faSync" />
                   </BButton>
                 </div>
@@ -1179,15 +1429,20 @@ watch(() => placeState.value.color.active, (newColor) => {
             </div>
 
             <BFormGroup label-for="file-input">
-              <BFormFile id="file-input" v-model="file" accept="image/png,image/jpeg,image/gif"
-                         class="place-input" :state="validateFile" />
+              <BFormFile
+                id="file-input"
+                v-model="file"
+                accept="image/png,image/jpeg,image/gif"
+                class="place-input"
+                :state="validateFile"
+              />
               <BFormInvalidFeedback :state="validateFile">
-                {{ $t('r_place.canvas.overlay.invalid_file') }}
+                {{ $t("r_place.canvas.overlay.invalid_file") }}
               </BFormInvalidFeedback>
             </BFormGroup>
 
             <BFormGroup
-              :label="$t('r_place.canvas.overlay.x', { 'x': positionOnCanvasX })"
+              :label="$t('r_place.canvas.overlay.x', { x: positionOnCanvasX })"
               label-for="position-x-input"
               label-class="mb-1"
               class="w-100"
@@ -1196,12 +1451,13 @@ watch(() => placeState.value.color.active, (newColor) => {
                 id="position-x-input"
                 type="range"
                 v-model="positionOnCanvasX"
-                min="0" :max="activeCanvas.width"
+                min="0"
+                :max="activeCanvas.width"
                 class="place-range"
               />
             </BFormGroup>
             <BFormGroup
-              :label="$t('r_place.canvas.overlay.y', { 'y': positionOnCanvasY })"
+              :label="$t('r_place.canvas.overlay.y', { y: positionOnCanvasY })"
               label-for="position-y-input"
               label-class="mb-1"
               class="w-100"
@@ -1210,13 +1466,16 @@ watch(() => placeState.value.color.active, (newColor) => {
                 id="position-y-input"
                 type="range"
                 v-model="positionOnCanvasY"
-                min="0" :max="activeCanvas.height"
+                min="0"
+                :max="activeCanvas.height"
                 class="place-range"
               />
             </BFormGroup>
 
             <BFormGroup
-              :label="$t('r_place.canvas.overlay.width', { 'width': sizeOnCanvasX })"
+              :label="
+                $t('r_place.canvas.overlay.width', { width: sizeOnCanvasX })
+              "
               label-for="width-input"
               label-class="mb-1"
               class="w-100"
@@ -1225,13 +1484,16 @@ watch(() => placeState.value.color.active, (newColor) => {
                 id="width-input"
                 type="range"
                 v-model="sizeOnCanvasX"
-                min="1" :max="limitSizeOnCanvasX"
+                min="1"
+                :max="limitSizeOnCanvasX"
                 class="place-range"
               />
             </BFormGroup>
 
             <BFormGroup
-              :label="$t('r_place.canvas.overlay.colors', { 'colors': numberColors })"
+              :label="
+                $t('r_place.canvas.overlay.colors', { colors: numberColors })
+              "
               label-for="width-input"
               label-class="mb-1"
               class="w-100"
@@ -1240,16 +1502,23 @@ watch(() => placeState.value.color.active, (newColor) => {
                 id="width-input"
                 type="range"
                 v-model="numberColors"
-                :min="2" :max="200"
+                :min="2"
+                :max="200"
                 class="place-range"
               />
             </BFormGroup>
 
             <div class="d-flex gap-2 w-100">
-              <BButton class="place-button place-button text-light" @click="placeState.overlayScreen = false">
+              <BButton
+                class="place-button place-button"
+                @click="placeState.overlayScreen = false"
+              >
                 <font-awesome-icon :icon="faClose" />
               </BButton>
-              <BButton class="place-button place-button-big text-light flex-grow-1" @click="overlay.calculate()">
+              <BButton
+                class="place-button flex-grow-1"
+                @click="overlay.calculate()"
+              >
                 <font-awesome-icon :icon="faCheck" />
               </BButton>
             </div>
@@ -1265,14 +1534,23 @@ watch(() => placeState.value.color.active, (newColor) => {
 </template>
 
 <style lang="scss">
-@import "@/assets/scss/colors.scss";
+$theme-primary: #1a1a1a;
+$theme-secondary: #454545;
+
+@media (max-width: 1400px) {
+  .place-controls {
+    margin-top: 3.5rem !important;
+  }
+}
 
 .place-container.fullscreen {
-  max-width: 100%!important;
+  max-width: 100% !important;
 }
 
 .place-container {
-  transition: max-width .5s ease-in-out, height .5s ease-in-out;
+  transition:
+    max-width 0.5s ease-in-out,
+    height 0.5s ease-in-out;
 }
 
 .v-enter-active,
@@ -1296,10 +1574,12 @@ watch(() => placeState.value.color.active, (newColor) => {
   max-height: 8rem;
   margin-bottom: -2px;
 
-  background: $lightgray-200;
-  border-top: 2px solid $black;
+  background: var(--bs-gray-100);
+  border-top: 2px solid var(--bs-black);
 
-  transition: height .5s ease-in-out, min-height .5s ease-in-out;
+  transition:
+    height 0.5s ease-in-out,
+    min-height 0.5s ease-in-out;
 
   pointer-events: all;
   overflow: hidden;
@@ -1337,12 +1617,14 @@ watch(() => placeState.value.color.active, (newColor) => {
 
   cursor: pointer;
 
-  border: 2px solid $black;
+  border: 2px solid var(--bs-black);
 
-  transition: border .2s ease-in-out, transform .2s ease-in-out;
+  transition:
+    border 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
 
   &:hover {
-    border: 2px solid $gray-10;
+    border: 2px solid var(--bs-gray-500);
   }
 
   @media (max-width: 576px) {
@@ -1351,110 +1633,120 @@ watch(() => placeState.value.color.active, (newColor) => {
   }
 
   &-big {
-    border: 2px solid $black!important;
-    height: 4.75rem!important;
-    width: 4.75rem!important;
+    border: 2px solid var(--bs-black) !important;
+    height: 4.75rem !important;
+    width: 4.75rem !important;
 
-    border-radius: 0!important;
-    padding: 0!important;
+    border-radius: 0 !important;
+    padding: 0 !important;
 
-    outline: none!important;
+    outline: none !important;
 
     &:hover {
-      border: 2px solid $gray-10!important;
+      border: 2px solid var(--bs-gray-500) !important;
     }
 
     &.active {
-      border: 4px solid $black!important;
-      transform: scale(1.05)!important;
+      border: 4px solid var(--bs-black) !important;
+      transform: scale(1.05) !important;
     }
   }
 
   &.active {
-    border: 4px solid $black;
+    border: 4px solid var(--bs-black);
     transform: scale(1.05);
   }
 }
 
-input[type=color]::-webkit-color-swatch {
+input[type="color"]::-webkit-color-swatch {
   border-radius: 0;
 }
 
-.place-button, .place-dropdown > .btn, .place-button.btn {
+.place-button,
+.place-dropdown > .btn,
+.place-button.btn {
   display: flex;
   justify-content: center;
   align-items: center;
 
-  min-width: 2.25rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
   padding: 0.5rem;
 
-  --bs-btn-bg: $gray-500;
-  --bs-btn-hover-bg: #{$gray-500};
-  background: $gray-500;
-  border: 2px solid $black;
+  --bs-btn-bg: #{$theme-primary};
+  --bs-btn-hover-bg: #{$theme-primary};
+  --bs-btn-active-bg: #{$theme-primary};
+  --bs-btn-color: var(--bs-light);
+  --bs-btn-hover-color: var(--bs-light);
+  background: #{$theme-primary};
+  border: 2px solid var(--bs-black);
   border-radius: 0;
 
   pointer-events: all;
-  transition: border .2s ease-in-out;
+  transition: border 0.2s ease-in-out;
 
   &-big {
     width: 12rem;
+    height: 4.5rem !important;
   }
 
   &:hover {
-    border: 2px solid $gray-10;
+    border: 2px solid var(--bs-gray-500);
   }
 }
 
 .place-dropdown > .dropdown-menu {
-  background: $gray-500;
-  border: 2px solid $black;
+  background: #{$theme-primary};
+  border: 2px solid var(--bs-black);
   border-radius: 0;
-  --bs-dropdown-link-color: #{$white};
 
-  --bs-dropdown-link-hover-color: #{$white};
-  --bs-dropdown-link-hover-bg: #{$gray-300};
+  --bs-dropdown-link-color: var(--bs-light);
+  --bs-dropdown-link-hover-color: var(--bs-light);
 }
 
 .place-input {
   width: 100%;
 
-  background: $gray-500!important;
-  border: 2px solid $black!important;
-  border-radius: 0!important;
+  background: #{$theme-primary} !important;
+  border: 2px solid var(--bs-black) !important;
+  border-radius: 0 !important;
 
-  outline: none!important;
-  transition: border .2s ease-in-out!important;
+  outline: none !important;
+  transition: border 0.2s ease-in-out !important;
 
   &::file-selector-button {
-    background: $gray-300!important;
+    background: #{$theme-secondary} !important;
   }
 
   &:hover {
-    border: 2px solid $gray-10!important;
+    border: 2px solid var(--bs-gray-500) !important;
   }
 }
 
+.place-range:hover > .place-range::-webkit-slider-thumb {
+  border: 2px solid var(--bs-gray-500) !important;
+}
+
 .place-range::-webkit-slider-thumb {
-  background: $gray-500!important;
-  border-radius: 0!important;
-  border: 2px solid $black!important;
+  background: #{$theme-primary} !important;
+  border-radius: 0 !important;
+  border: 2px solid var(--bs-black) !important;
 }
 
 .place-range::-moz-range-thumb {
-  background: $gray-500!important;
-  border-radius: 0!important;
-  border: 2px solid $black!important;
+  background: #{$theme-primary} !important;
+  border-radius: 0 !important;
+  border: 2px solid var(--bs-black) !important;
 }
 
 .place-range::-webkit-slider-runnable-track {
-  background: $gray-500!important;
-  border-radius: 0!important;
+  background: #{$theme-primary} !important;
+  border-radius: 0 !important;
 }
 
 .place-range::-moz-range-track {
-  background: $gray-500!important;
-  border-radius: 0!important;
+  background: #{$theme-primary} !important;
+  border-radius: 0 !important;
 }
 
 .place-colors-arrow {
@@ -1465,13 +1757,13 @@ input[type=color]::-webkit-color-swatch {
   padding: 0.5rem;
 
   cursor: pointer;
-  color: $black;
+  color: var(--bs-black);
   opacity: 1;
 
-  transition: opacity .2s ease-in-out;
+  transition: opacity 0.2s ease-in-out;
 
   &:hover {
-    color: $gray-10;
+    color: var(--bs-gray-500);
   }
 }
 </style>

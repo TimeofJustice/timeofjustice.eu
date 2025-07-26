@@ -1,45 +1,19 @@
-.btn-close {
-  --bs-btn-close-color: #fff;
-  --bs-btn-close-bg: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-}
-
 .btn-primary {
-  @include button-variant($gray-500, transparent, $hover-background: $gray-200, $active-background: $gray-500);
-}
-
-@property --myColor1 {
-  syntax: '<color>';
-  initial-value: #399aed;
-  inherits: false;
-}
-
-@property --myColor2 {
-  syntax: '<color>';
-  initial-value: #2460d0;
-  inherits: false;
-}
-
-@property --degree {
-  syntax: '<angle>';
-  initial-value: 90deg;
-  inherits: false;
+  @include button-variant(
+    $primary,
+    transparent,
+    $hover-background: $dark-gray-700,
+    $active-background: $dark-gray-900
+  );
 }
 
 .btn-secondary {
-  @include button-variant($gray-200, transparent, $hover-background: $gray-300, $active-background: $gray-500);
-
-  //border: unset;
-  //
-  //background: linear-gradient(var(--degree), var(--myColor1) 50%, var(--myColor2) 110%);
-  //transition: --myColor1 .35s, --myColor2 .35s, --degree 3s ease;
-  //
-  //&:hover {
-  //  --degree: -90deg;
-  //}
+  @include button-variant(
+    $secondary,
+    transparent,
+    $hover-background: $gray-900,
+    $active-background: $dark-gray-700
+  );
 }
 
 .btn-tertiary {
@@ -56,6 +30,8 @@
 
   --bs-btn-disabled-bg: var(--bs-btn-bg);
   --bs-btn-disabled-border-color: var(--bs-btn-border-color);
+
+  --bs-btn-border-width: 0;
 }
 
 .button-on-hover .btn {
