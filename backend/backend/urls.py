@@ -14,13 +14,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import os
 from django.contrib import admin
-from django.template.defaulttags import url
 from django.urls import path, include
 from django_otp.admin import OTPAdminSite
-from django.conf import settings
 from django.shortcuts import redirect
-import os
 
 if os.getenv("USE_OTP", 'False').lower() in ('true', '1', 't'):
     admin.site.__class__ = OTPAdminSite
