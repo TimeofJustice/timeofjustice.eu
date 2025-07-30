@@ -1,5 +1,6 @@
 target-version = "py312"
 line-length = 170
+exclude = ["migrations"]
 
 [lint]
 extend-select = [
@@ -26,7 +27,6 @@ extend-select = [
     "PTH",      # Use pathlib instead of os.path
     "TD",       # Be diligent with TODO comments
     "NPY",      # Some numpy-specific things
-    "D",        # Docstrings
 ]
 
 [lint.pydocstyle]

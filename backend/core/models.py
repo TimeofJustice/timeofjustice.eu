@@ -1,9 +1,8 @@
-import os
+from pathlib import Path
+
 import PIL.Image
-
-from django.db import models
-
 from django.conf import settings
+from django.db import models
 
 
 def get_or_none(model, **kwargs):
@@ -16,11 +15,11 @@ def get_or_none(model, **kwargs):
 def generate_lazy_image(image, directory):
     img = PIL.Image.open(image)
 
-    image_name = os.path.basename(image.path)
+    image_name = Path(image.path).name
     image_path = settings.FILE_DESTINATION + f'images/lazy/{directory}/{image_name}'
 
-    if not os.path.exists(os.path.dirname(image_path)):
-        os.makedirs(os.path.dirname(image_path))
+    if not Path(Path(image_path).parent).exists():
+        Path.mkdir(Path(image_path).parent)
 
     width, height = img.size
     target_width = 100
@@ -37,7 +36,7 @@ def generate_lazy_image(image, directory):
 def compress(image, directory, size=480, quality=50):
     img = PIL.Image.open(image)
 
-    image_name = os.path.basename(image.path)
+    image_name = Path(image.path).name
     image_path = settings.FILE_DESTINATION + f'images/{directory}/{image_name}'
 
     width, height = img.size
@@ -54,8 +53,8 @@ def compress(image, directory, size=480, quality=50):
 
 def lazy_image_to_json(image, base_url):
     return {
-        'lazy': f"/files/images/lazy/{base_url}/{os.path.basename(image.file.name)}",
-        'original': f"/files/images/{base_url}/{os.path.basename(image.file.name)}"
+        'lazy': f"/files/images/lazy/{base_url}/{Path(image.file.name).name}",
+        'original': f"/files/images/{base_url}/{Path(image.file.name).name}",
     }
 
 
@@ -82,7 +81,7 @@ def get_translation(name):
     return {
         'de': de.text if de is not None else fallback,
         'en': en.text if en is not None else fallback,
-        'yoda': yoda.text if yoda is not None else fallback
+        'yoda': yoda.text if yoda is not None else fallback,
     }
 
 
@@ -98,10 +97,10 @@ class Profile(models.Model):
 
     def json(self):
         return {
-            'picture': f"/files/images/profile/{os.path.basename(self.picture.file.name)}" if self.picture else None,
+            'picture': f"/files/images/profile/{Path(self.picture.file.name).name}" if self.picture else None,
             'description': get_translation(self.description),
             'short_description': get_translation(self.short_description),
-            'repo': self.repo if self.repo else None
+            'repo': self.repo if self.repo else None,
         }
 
 
@@ -116,9 +115,9 @@ class Tool(models.Model):
 
     def json(self):
         return {
-            'icon': f"/files/images/tool/{os.path.basename(self.icon.file.name)}" if self.icon else None,
+            'icon': f"/files/images/tool/{Path(self.icon.file.name).name}" if self.icon else None,
             'alt': self.alt,
-            'url': self.url
+            'url': self.url,
         }
 
 
@@ -133,7 +132,7 @@ class Technology(models.Model):
     def json(self):
         return {
             'name': self.name,
-            'icon': self.icon
+            'icon': self.icon,
         }
 
 
@@ -152,7 +151,7 @@ class Status(models.Model):
     def json(self):
         return {
             'name': get_translation(self.name),
-            'color': self.color
+            'color': self.color,
         }
 
 
@@ -193,7 +192,7 @@ class Project(models.Model):
             'alt': get_translation(self.alt),
             'github': self.github,
             'website': self.webpage,
-            'images': [image.json() for image in Image.objects.filter(project=self)]
+            'images': [image.json() for image in Image.objects.filter(project=self)],
         }
 
 
@@ -217,6 +216,6 @@ class Image(models.Model):
     def json(self):
         return {
             'image': lazy_image_to_json(self.image, 'project') if self.image else None,
-            'video': f"/files/video/project/{os.path.basename(self.video.file.name)}" if self.video else None,
-            'alt': get_translation(self.alt)
+            'video': f"/files/video/project/{Path(self.video.file.name).name}" if self.video else None,
+            'alt': get_translation(self.alt),
         }

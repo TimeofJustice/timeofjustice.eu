@@ -1,8 +1,8 @@
-"""
-URL configuration for backend project.
+"""URL configuration for backend project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
+
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -15,10 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import os
+
 from django.contrib import admin
-from django.urls import path, include
-from django_otp.admin import OTPAdminSite
 from django.shortcuts import redirect
+from django.urls import include, path
+from django_otp.admin import OTPAdminSite
 
 if os.getenv("USE_OTP", 'False').lower() in ('true', '1', 't'):
     admin.site.__class__ = OTPAdminSite

@@ -1,6 +1,6 @@
-from django.urls import path, include
+from django.urls import include, path
 
-from .api import update, redeem, leaderboard, vault, dismiss
+from .api import dismiss, leaderboard, redeem, update, vault
 
 urlpatterns = [
     path("higher-lower/", include("games.views.api.higher_lower.urls")),

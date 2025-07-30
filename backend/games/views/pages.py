@@ -1,15 +1,15 @@
 import uuid
 
 from django.http.response import HttpResponseRedirect
+from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from inertia import render
-from django.utils import timezone
 
 from core.helpers import BodyContent, props
 from core.models import get_or_none
-from .api.api import days_since_last_login, get_vault, get_leaderboard
-from .. import models
-from ..decorators import wallet_required
+from games import models
+from games.decorators import wallet_required
+from games.views.api.api import days_since_last_login, get_leaderboard, get_vault
 
 
 @ensure_csrf_cookie
@@ -33,8 +33,7 @@ def login(request):
             if wallet:
                 request.session['wallet_id'] = wallet.wallet_id
                 return HttpResponseRedirect('/games/')
-            else:
-                error_text = "games.login.error.invalid_wallet"
+            error_text = "games.login.error.invalid_wallet"
         else:
             error_text = "games.login.error.invalid_request"
     else:

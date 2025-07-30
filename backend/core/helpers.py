@@ -11,8 +11,8 @@ class BodyContent:
 
         try:
             self.body = json.loads(body_unicode)
-        except:
-            pass
+        except json.JSONDecodeError:
+            self.body = {}
 
     def get(self, key):
         if self.body is None:
@@ -25,5 +25,5 @@ def props(props):
     return {
         "production": settings.DEBUG is False,
         "stable": settings.IS_STABLE,
-        **props
+        **props,
     }

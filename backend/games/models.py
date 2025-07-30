@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 class Wallet(models.Model):
     wallet_id = models.CharField(primary_key=True, max_length=32, editable=False)
     name = models.CharField(max_length=32, default="Anonymous")
@@ -17,7 +18,7 @@ class Wallet(models.Model):
         if self.last_visit is None:
             self.last_visit = timezone.now().date()
             self.save()
-        elif 2 <= (timezone.now().date() - self.last_visit).days:
+        elif (timezone.now().date() - self.last_visit).days >= 2:
             self.days_played = 0
             self.save()
 
@@ -33,7 +34,7 @@ class Wallet(models.Model):
         if self.last_visit is None:
             self.last_visit = timezone.now().date()
             self.save()
-        elif 2 <= (timezone.now().date() - self.last_visit).days:
+        elif (timezone.now().date() - self.last_visit).days >= 2:
             self.days_played = 0
             self.save()
 

@@ -1,14 +1,14 @@
 import uuid
-from random import shuffle
+
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 
 from core.helpers import BodyContent
 from core.models import get_or_none
-from ..cards import card_to_string, CardDeck, is_higher, is_lower, is_inside, is_outside
-from ..api import get_vault
-from .... import models
-from ....decorators import wallet_required
+from games import models
+from games.decorators import wallet_required
+from games.views.api.api import get_vault
+from games.views.api.cards import CardDeck, card_to_string, is_higher, is_inside, is_lower, is_outside
 
 
 def create_session(session_id=None, round_index=None, deck=None, cards=None, bet=None, initial_bet=None, session=None):
@@ -51,7 +51,7 @@ def start(request):
 
     bet = post_data.get('bet')
 
-    if bet <= 0 or bet > wallet.balance or 500 < bet:
+    if bet <= 0 or bet > wallet.balance or bet > 500:
         return JsonResponse({"error": "games.game.ride_the_bus.errors.invalid_bet"}, status=400)
 
     update_wallet(wallet, -bet)
@@ -179,10 +179,7 @@ def leave(request):
     deck = CardDeck(session['deck'])
     card = deck.draw()
 
-    if card is not None:
-        cards = session['cards'] + [card] if session['cards'] else [card]
-    else:
-        cards = session['cards']
+    cards = (session['cards'] + [card] if session['cards'] else [card]) if card is not None else session['cards']
 
     request.session['ride_the_bus_session'] = create_session(deck=deck.remaining(), cards=cards, session=session)
 

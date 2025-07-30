@@ -1,13 +1,13 @@
 from django.urls import path
 
-from .views import api, errors, helpers, pages
+from .views import api, helpers, pages
 
 urlpatterns = [
     path("", pages.index, name="index"),
-    path("project/<int:id>", pages.project_details, name="project_details"),
+    path("project/<int:project_id>", pages.project_details, name="project_details"),
     path("error/<int:status_code>", pages.error, name="error"),
 
-    path("api/project/<int:id>", api.project, name="project"),
+    path("api/project/<int:project_id>", api.project, name="project"),
 
     # Serving static files in development
     path("files/global/favicon/<str:name>", helpers.favicon_images, name="favicon_images"),
