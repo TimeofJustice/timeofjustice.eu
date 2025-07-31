@@ -1,3 +1,5 @@
+from itertools import repeat
+
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from inertia import render
@@ -5,7 +7,10 @@ from inertia import render
 from core.helpers import props
 
 from .models import Canvas, Cell
+from .tasks import notify_user
 
+
+notify_user(repeat=20, schedule=10)
 
 def index(request, canvas=None):
     selected_canvas = Canvas.objects.filter(active=True).first() if canvas is None else Canvas.objects.filter(name=canvas).first()
