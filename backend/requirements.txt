@@ -39,6 +39,7 @@ pyOpenSSL==25.1.0
 qrcode==8.0
 redis==6.2.0
 requests==2.32.3
+ruff==0.12.5
 service-identity==24.2.0
 setuptools==80.9.0
 six==1.17.0

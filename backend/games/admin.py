@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from games.models import Wallet, Vault
+from games.models import Vault, Wallet
 
 
 # Register your models here.

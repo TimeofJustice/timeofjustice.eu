@@ -59,7 +59,7 @@ COPY --chown=appuser:appuser backend/ backend/
 RUN mkdir -p /app/backend/staticfiles && \
     chown -R appuser:appuser /app/backend/staticfiles
 
-# Create the staticfiles directory
+# Create the files directory
 RUN mkdir -p /app/backend/files && \
     chown -R appuser:appuser /app/backend/files
 

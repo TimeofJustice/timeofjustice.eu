@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .api import start, hit, stand
+from .api import hit, stand, start
 
 urlpatterns = [
     path("start/", start, name="start"),

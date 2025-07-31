@@ -59,8 +59,7 @@ class CardDeck:
     def draw(self):
         if self.cards:
             return self.cards.pop()
-        else:
-            return None
+        return None
 
     def remaining(self):
         return self.cards

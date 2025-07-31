@@ -1,11 +1,11 @@
-from django.http.response import JsonResponse, HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, JsonResponse
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from games import models
-from games.decorators import wallet_required
 from core.helpers import BodyContent
 from core.models import get_or_none
-from django.utils import timezone
+from games import models
+from games.decorators import wallet_required
 
 
 @wallet_required
@@ -59,9 +59,7 @@ def redeem(request):
         wallet.last_visit = timezone.now().date()
         reward = 50
 
-        if wallet.days_played == 3:
-            reward = 100
-        elif wallet.days_played == 4:
+        if wallet.days_played == 3 or wallet.days_played == 4:
             reward = 100
         elif wallet.days_played > 4:
             reward = 200
@@ -81,7 +79,7 @@ def days_since_last_login(wallet):
     if wallet.last_visit is None:
         wallet.last_visit = timezone.now().date()
         wallet.save()
-    elif 2 <= (timezone.now().date() - wallet.last_visit).days:
+    elif (timezone.now().date() - wallet.last_visit).days >= 2:
         wallet.days_played = 0
         wallet.save()
 
@@ -90,7 +88,7 @@ def days_since_last_login(wallet):
 
 def get_leaderboard(wallet):
     leaderboard = models.Wallet.objects.order_by('-balance')
-    leaderboard = [wallet for wallet in leaderboard]
+    leaderboard = list(leaderboard)
     own_index = leaderboard.index(wallet)
 
     return leaderboard, own_index

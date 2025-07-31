@@ -12,7 +12,7 @@ months = [
     ('september', 'september'),
     ('october', 'october'),
     ('november', 'november'),
-    ('december', 'december')
+    ('december', 'december'),
 ]
 
 # Create your models here.
@@ -56,7 +56,7 @@ class Crop(models.Model):
             'september': self.price_sep,
             'october': self.price_oct,
             'november': self.price_nov,
-            'december': self.price_dec
+            'december': self.price_dec,
         }
 
         best_selling_month = max(prices, key=prices.get)
@@ -71,15 +71,15 @@ class Crop(models.Model):
             'name': {
                 'de': self.name_de,
                 'en': self.name_eng,
-                'yoda': self.name_eng
+                'yoda': self.name_eng,
             },
             'harvest_month': {
                 'start': list(prices.keys())[start_harvest_month],
-                'end': list(prices.keys())[end_harvest_month] if end_harvest_month < 11 else 'end_of_december'
+                'end': list(prices.keys())[end_harvest_month] if end_harvest_month < 11 else 'end_of_december',
             },
             'planting_month': {
                 'start': list(prices.keys())[start_planting_month],
-                'end': list(prices.keys())[end_planting_month] if end_planting_month > 0 else 'end_of_december'
+                'end': list(prices.keys())[end_planting_month] if end_planting_month > 0 else 'end_of_december',
             },
             'prices': [
                 self.price_jan,
@@ -94,16 +94,16 @@ class Crop(models.Model):
                 self.price_oct,
                 self.price_nov,
                 self.price_dec,
-                self.price_dec
+                self.price_dec,
             ],
             'best_selling_month': {
                 'month': best_selling_month,
-                'price': prices[best_selling_month]
+                'price': prices[best_selling_month],
             },
             'best_buying_month': {
                 'month': best_buying_month,
-                'price': prices[best_buying_month]
-            }
+                'price': prices[best_buying_month],
+            },
         }
 
 
@@ -143,7 +143,7 @@ class Commodity(models.Model):
             'september': self.price_sep,
             'october': self.price_oct,
             'november': self.price_nov,
-            'december': self.price_dec
+            'december': self.price_dec,
         }
 
         best_selling_month = max(prices, key=prices.get)
@@ -153,7 +153,7 @@ class Commodity(models.Model):
             'name': {
                 'de': self.name_de,
                 'en': self.name_eng,
-                'yoda': self.name_eng
+                'yoda': self.name_eng,
             },
             'prices': [
                 self.price_jan,
@@ -168,14 +168,14 @@ class Commodity(models.Model):
                 self.price_oct,
                 self.price_nov,
                 self.price_dec,
-                self.price_dec
+                self.price_dec,
             ],
             'best_selling_month': {
                 'month': best_selling_month,
-                'price': prices[best_selling_month]
+                'price': prices[best_selling_month],
             },
             'best_buying_month': {
                 'month': best_buying_month,
-                'price': prices[best_buying_month]
-            }
+                'price': prices[best_buying_month],
+            },
         }
