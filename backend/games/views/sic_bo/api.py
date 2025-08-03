@@ -1,14 +1,13 @@
-import random
+import secrets
+
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from core.helpers import BodyContent
-from core.models import get_or_none
-from ..dice import get_wins
-from ..api import get_vault
-from .... import models
-from ....decorators import wallet_required
-
+from core.helpers import BodyContent, get_or_none
+from games import models
+from games.decorators import wallet_required
+from games.views.core.api import get_vault
+from games.views.dice import get_wins
 
 wins = {
     'small': 1,
@@ -54,7 +53,7 @@ wins = {
     'pair-3-6': 6,
     'pair-4-5': 6,
     'pair-4-6': 6,
-    'pair-5-6': 6
+    'pair-5-6': 6,
 }
 
 
@@ -113,7 +112,7 @@ def start(request):
 
     update_wallet(wallet, -total_bet)
 
-    dice = [ random.randint(1, 6) for _ in range(3) ]
+    dice = [secrets.randbelow(6) + 1 for _ in range(3)]
     possible_wins = get_wins(dice)
 
     won = 0

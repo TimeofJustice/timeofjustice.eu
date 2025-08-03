@@ -1,15 +1,14 @@
 import uuid
 
 from django.http.response import HttpResponseRedirect
+from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from inertia import render
-from django.utils import timezone
 
-from core.helpers import BodyContent, props
-from core.models import get_or_none
-from .api.api import days_since_last_login, get_vault, get_leaderboard
-from .. import models
-from ..decorators import wallet_required
+from core.helpers import BodyContent, default_props, get_or_none
+from games import models
+from games.decorators import wallet_required
+from games.views.core.api import days_since_last_login, get_leaderboard, get_vault
 
 
 @ensure_csrf_cookie
@@ -17,7 +16,7 @@ def index(request):
     wallet = request.session.get('wallet_id', None)
 
     if not wallet:
-        return render(request, "Games/Entry", props=props({}))
+        return render(request, "Games/Entry", props=default_props({}))
 
     return main(request)
 
@@ -33,8 +32,7 @@ def login(request):
             if wallet:
                 request.session['wallet_id'] = wallet.wallet_id
                 return HttpResponseRedirect('/games/')
-            else:
-                error_text = "games.login.error.invalid_wallet"
+            error_text = "games.login.error.invalid_wallet"
         else:
             error_text = "games.login.error.invalid_request"
     else:
@@ -44,7 +42,7 @@ def login(request):
         "error": error_text,
     }
 
-    return render(request, "Games/Login", props=props(page_props))
+    return render(request, "Games/Login", props=default_props(page_props))
 
 
 def register(request):
@@ -105,4 +103,4 @@ def main(request):
         "hintDismissed": wallet.hint_dismissed,
     }
 
-    return render(request, "Games/Main", props=props(page_props))
+    return render(request, "Games/Main", props=default_props(page_props))

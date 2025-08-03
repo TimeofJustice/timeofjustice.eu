@@ -2,7 +2,7 @@
 import { Link, Head } from "@inertiajs/vue3";
 
 interface Props {
-  status_code: number;
+  statusCode: number;
 }
 
 defineProps<Props>();
@@ -14,7 +14,7 @@ defineProps<Props>();
   <div class="container d-flex flex-column align-items-center">
     <div class="text-center fw-bold" style="font-size: 12rem">
       <div class="text-tertiary" style="letter-spacing: 2rem">
-        {{ status_code }}
+        {{ statusCode }}
       </div>
       <div style="text-transform: uppercase; font-size: 5rem">
         {{ $t("general.error") }}

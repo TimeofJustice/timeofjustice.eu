@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
-from .models import Technology, Project, Image, Status, Tool, Translation, Profile
+from core.models import Image, Profile, Project, Status, Technology, Tool, Translation
+
 
 @admin.register(Translation)
 class TranslationAdmin(admin.ModelAdmin):
@@ -42,4 +42,4 @@ class ProjectAdmin(admin.ModelAdmin):
 class ImageAdmin(admin.ModelAdmin):
     list_display = ('id', 'project', 'image', 'alt')
     search_fields = ('alt',)
-    ordering = ('id', 'project',)
+    ordering = ('id', 'project')

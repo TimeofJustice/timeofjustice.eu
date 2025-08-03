@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .api import start, red, black, higher, lower, inside, outside, hearts, clubs, diamonds, spades, leave
+from games.views.ride_the_bus.api import black, clubs, diamonds, hearts, higher, inside, leave, lower, outside, red, spades, start
 
 urlpatterns = [
     path("start/", start, name="start"),

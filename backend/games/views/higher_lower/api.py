@@ -1,13 +1,13 @@
 import uuid
+
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from core.helpers import BodyContent
-from core.models import get_or_none
-from ..cards import CardDeck, is_higher, is_lower, is_equal, card_to_string
-from ..api import get_vault
-from .... import models
-from ....decorators import wallet_required
+from core.helpers import BodyContent, get_or_none
+from games import models
+from games.decorators import wallet_required
+from games.views.cards import CardDeck, card_to_string, is_equal, is_higher, is_lower
+from games.views.core.api import get_vault
 
 
 def create_session(session_id=None, deck=None, card=None, bet=None, initial_bet=None, session=None):
@@ -53,7 +53,7 @@ def start(request):
 
     bet = post_data.get('bet')
 
-    if bet <= 0 or bet > wallet.balance or 100 < bet:
+    if bet <= 0 or bet > wallet.balance or bet > 100:
         return JsonResponse({"error": "games.game.higher_lower.errors.invalid_bet"}, status=400)
 
     update_wallet(wallet, -bet)

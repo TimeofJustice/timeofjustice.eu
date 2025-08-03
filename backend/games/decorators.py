@@ -2,8 +2,8 @@ from functools import wraps
 
 from django.http.response import HttpResponseRedirect
 
+from core.helpers import get_or_none
 from games import models
-from core.models import get_or_none
 
 
 def wallet_required(view_func):

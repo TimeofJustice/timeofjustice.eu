@@ -78,16 +78,16 @@ const getOptions = (index: number) => {
         annotations: {
           xaxis: [
             {
-              x: i18n.t("farming_stats.month." + crop.harvest_month.start),
-              x2: i18n.t("farming_stats.month." + crop.harvest_month.end),
+              x: i18n.t("farming_stats.month." + crop.harvestMonth.start),
+              x2: i18n.t("farming_stats.month." + crop.harvestMonth.end),
               fillColor: "#c1470d",
               label: {
                 text: i18n.t("farming_stats.harvest_season"),
               },
             },
             {
-              x: i18n.t("farming_stats.month." + crop.planting_month.start),
-              x2: i18n.t("farming_stats.month." + crop.planting_month.end),
+              x: i18n.t("farming_stats.month." + crop.plantingMonth.start),
+              x2: i18n.t("farming_stats.month." + crop.plantingMonth.end),
               fillColor: "#82ab0d",
               opacity: 0.4,
               label: {
@@ -97,8 +97,8 @@ const getOptions = (index: number) => {
           ],
           points: [
             {
-              x: i18n.t("farming_stats.month." + crop.best_selling_month.month),
-              y: crop.best_selling_month.price,
+              x: i18n.t("farming_stats.month." + crop.bestSellingMonth.month),
+              y: crop.bestSellingMonth.price,
               marker: {
                 size: 8,
               },
@@ -108,8 +108,8 @@ const getOptions = (index: number) => {
               },
             },
             {
-              x: i18n.t("farming_stats.month." + crop.best_buying_month.month),
-              y: crop.best_buying_month.price,
+              x: i18n.t("farming_stats.month." + crop.bestBuyingMonth.month),
+              y: crop.bestBuyingMonth.price,
               marker: {
                 size: 8,
               },
@@ -132,9 +132,9 @@ const getOptions = (index: number) => {
           points: [
             {
               x: i18n.t(
-                "farming_stats.month." + commodity.best_selling_month.month,
+                "farming_stats.month." + commodity.bestSellingMonth.month,
               ),
-              y: commodity.best_selling_month.price,
+              y: commodity.bestSellingMonth.price,
               marker: {
                 size: 8,
               },
@@ -145,9 +145,9 @@ const getOptions = (index: number) => {
             },
             {
               x: i18n.t(
-                "farming_stats.month." + commodity.best_buying_month.month,
+                "farming_stats.month." + commodity.bestBuyingMonth.month,
               ),
-              y: commodity.best_buying_month.price,
+              y: commodity.bestBuyingMonth.price,
               marker: {
                 size: 8,
               },

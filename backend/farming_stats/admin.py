@@ -1,7 +1,12 @@
 from django.contrib import admin
 
-# Register your models here.
-from .models import Crop, Commodity
+from farming_stats.models import Commodity, Crop
 
-admin.site.register(Crop)
-admin.site.register(Commodity)
+
+@admin.register(Commodity)
+class CommodityAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Crop)
+class CropAdmin(admin.ModelAdmin):
+    pass

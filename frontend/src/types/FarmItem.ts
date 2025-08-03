@@ -12,18 +12,18 @@ interface MonthPhase {
 
 export interface Crop {
   name: TranslatedText;
-  harvest_month: MonthPhase;
-  planting_month: MonthPhase;
+  harvestMonth: MonthPhase;
+  plantingMonth: MonthPhase;
   prices: number[];
-  best_selling_month: MonthPrice;
-  best_buying_month: MonthPrice;
+  bestSellingMonth: MonthPrice;
+  bestBuyingMonth: MonthPrice;
 }
 
 export interface Commodity {
   name: TranslatedText;
   prices: number[];
-  best_selling_month: MonthPrice;
-  best_buying_month: MonthPrice;
+  bestSellingMonth: MonthPrice;
+  bestBuyingMonth: MonthPrice;
 }
 
 export interface FarmItems {

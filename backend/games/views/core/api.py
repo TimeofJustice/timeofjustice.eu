@@ -1,11 +1,10 @@
-from django.http.response import JsonResponse, HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, JsonResponse
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
+from core.helpers import BodyContent, get_or_none
 from games import models
 from games.decorators import wallet_required
-from core.helpers import BodyContent
-from core.models import get_or_none
-from django.utils import timezone
 
 
 @wallet_required
@@ -38,7 +37,7 @@ def dismiss(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/games/login/')
+        return HttpResponseRedirect('/core/login/')
 
     wallet.hint_dismissed = True
     wallet.save()
@@ -52,16 +51,14 @@ def redeem(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/games/login/')
+        return HttpResponseRedirect('/core/login/')
 
     if days_since_last_login(wallet) >= 1:
         wallet.days_played += 1
         wallet.last_visit = timezone.now().date()
         reward = 50
 
-        if wallet.days_played == 3:
-            reward = 100
-        elif wallet.days_played == 4:
+        if wallet.days_played in [3, 4]:
             reward = 100
         elif wallet.days_played > 4:
             reward = 200
@@ -81,7 +78,7 @@ def days_since_last_login(wallet):
     if wallet.last_visit is None:
         wallet.last_visit = timezone.now().date()
         wallet.save()
-    elif 2 <= (timezone.now().date() - wallet.last_visit).days:
+    elif (timezone.now().date() - wallet.last_visit).days >= 2:
         wallet.days_played = 0
         wallet.save()
 
@@ -90,7 +87,7 @@ def days_since_last_login(wallet):
 
 def get_leaderboard(wallet):
     leaderboard = models.Wallet.objects.order_by('-balance')
-    leaderboard = [wallet for wallet in leaderboard]
+    leaderboard = list(leaderboard)
     own_index = leaderboard.index(wallet)
 
     return leaderboard, own_index
@@ -101,7 +98,7 @@ def leaderboard(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/games/login/')
+        return HttpResponseRedirect('/core/login/')
 
     leaderboard, own_index = get_leaderboard(wallet)
 
