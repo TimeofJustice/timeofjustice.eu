@@ -3,12 +3,15 @@ from django.shortcuts import redirect
 from inertia import render
 
 from core.helpers import default_props
-
-from .models import Canvas, Cell
+from r_place.models import Canvas, Cell
 
 
 def index(request, canvas=None):
-    selected_canvas = Canvas.objects.filter(active=True).first() if canvas is None else Canvas.objects.filter(name=canvas).first()
+    selected_canvas = (
+        Canvas.objects.filter(active=True).first()
+        if canvas is None
+        else Canvas.objects.filter(name=canvas).first()
+    )
 
     if not selected_canvas:
         return redirect("/")
@@ -28,8 +31,10 @@ def index(request, canvas=None):
 
 def load_chunk(request, x, y, canvas, size=100):
     cells = Cell.objects.filter(
-        x__gte=x, x__lt=x + size,
-        y__gte=y, y__lt=y + size,
+        x__gte=x,
+        x__lt=x + size,
+        y__gte=y,
+        y__lt=y + size,
         canvas__name=canvas,
     ).values("x", "y", "color")
 

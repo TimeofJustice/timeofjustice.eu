@@ -4,7 +4,7 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.cache import cache
 
-from .models import Canvas, Cell
+from r_place.models import Canvas, Cell
 
 
 class RPlaceConsumer(AsyncWebsocketConsumer):
@@ -29,7 +29,7 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         cache.set("r_place_user_count", count, timeout=None)
 
         await self.channel_layer.group_send("r_place", {
-            "type": "player.update",
+            "type": "player_update",
             "count": count,
         })
 

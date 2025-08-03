@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Canvas, Cell
+from r_place.models import Canvas, Cell
 
 
 @admin.register(Canvas)
