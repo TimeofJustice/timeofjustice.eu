@@ -6,8 +6,8 @@ from django.views.decorators.http import require_http_methods
 from core.helpers import BodyContent, get_or_none
 from games import models
 from games.decorators import wallet_required
-from games.views.api.api import get_vault
-from games.views.api.dice import get_wins
+from games.views.core.api import get_vault
+from games.views.dice import get_wins
 
 wins = {
     'small': 1,

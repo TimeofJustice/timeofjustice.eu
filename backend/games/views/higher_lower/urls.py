@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .api import draw, higher, leave, lower, start
+from games.views.higher_lower.api import draw, higher, leave, lower, start
 
 urlpatterns = [
     path("start/", start, name="start"),

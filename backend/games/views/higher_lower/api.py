@@ -6,8 +6,8 @@ from django.views.decorators.http import require_http_methods
 from core.helpers import BodyContent, get_or_none
 from games import models
 from games.decorators import wallet_required
-from games.views.api.api import get_vault
-from games.views.api.cards import CardDeck, card_to_string, is_equal, is_higher, is_lower
+from games.views.cards import CardDeck, card_to_string, is_equal, is_higher, is_lower
+from games.views.core.api import get_vault
 
 
 def create_session(session_id=None, deck=None, card=None, bet=None, initial_bet=None, session=None):

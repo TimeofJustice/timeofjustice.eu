@@ -8,7 +8,7 @@ from inertia import render
 from core.helpers import BodyContent, default_props, get_or_none
 from games import models
 from games.decorators import wallet_required
-from games.views.api.api import days_since_last_login, get_leaderboard, get_vault
+from games.views.core.api import days_since_last_login, get_leaderboard, get_vault
 
 
 @ensure_csrf_cookie

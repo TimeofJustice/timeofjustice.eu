@@ -37,7 +37,7 @@ def dismiss(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/games/login/')
+        return HttpResponseRedirect('/core/login/')
 
     wallet.hint_dismissed = True
     wallet.save()
@@ -51,14 +51,14 @@ def redeem(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/games/login/')
+        return HttpResponseRedirect('/core/login/')
 
     if days_since_last_login(wallet) >= 1:
         wallet.days_played += 1
         wallet.last_visit = timezone.now().date()
         reward = 50
 
-        if wallet.days_played == 3 or wallet.days_played == 4:
+        if wallet.days_played in [3, 4]:
             reward = 100
         elif wallet.days_played > 4:
             reward = 200
@@ -98,7 +98,7 @@ def leaderboard(request):
     wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
 
     if not wallet:
-        return HttpResponseRedirect('/games/login/')
+        return HttpResponseRedirect('/core/login/')
 
     leaderboard, own_index = get_leaderboard(wallet)
 

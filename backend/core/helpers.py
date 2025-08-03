@@ -16,7 +16,7 @@ class BodyContent:
             self.body = json.loads(body_unicode)
         except json.JSONDecodeError as e:
             self.body = {}
-            logger.error(f"Invalid JSON body in request. Error: {e}")
+            logger.warning(f"Invalid JSON body in request. Error: {e}")
 
     def get(self, key, default=None):
         if self.body is None:

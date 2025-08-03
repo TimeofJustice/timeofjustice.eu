@@ -6,8 +6,8 @@ from django.views.decorators.http import require_http_methods
 from core.helpers import BodyContent, get_or_none
 from games import models
 from games.decorators import wallet_required
-from games.views.api.api import get_vault
-from games.views.api.cards import CardDeck, card_to_string, cards_score
+from games.views.cards import CardDeck, card_to_string, cards_score
+from games.views.core.api import get_vault
 
 
 def create_session(session_id=None, deck=None, cards=None, dealer_cards=None, bet=None, initial_bet=None, status=None, session=None):
@@ -96,6 +96,7 @@ def start(request):
                                                                [player_card1, player_card2], [dealer_card1, dealer_card2], new_bet, bet, status)
 
         return end(request)
+
     status = "playing"
     request.session['black_jack_session'] = create_session(uuid.uuid4().hex, deck.remaining(),
                                                            [player_card1, player_card2], [dealer_card1, dealer_card2], bet, bet, status)
@@ -162,28 +163,18 @@ def stand(request):
             return JsonResponse({"error": "games.game.black_jack.errors.deck_empty"}, status=400)
         dealer_cards.append(dealer_card)
 
-    if cards_score(dealer_cards) > 21 and cards_score(session['cards']) > 21:
+    if (cards_score(dealer_cards) > 21 and cards_score(session['cards']) > 21) or cards_score(dealer_cards) == cards_score(session['cards']):
         status = "push"
         request.session['black_jack_session'] = create_session(deck=deck.remaining(), dealer_cards=dealer_cards, status=status, session=session)
 
         return end(request)
-    if cards_score(dealer_cards) > 21:
+    if cards_score(dealer_cards) > 21 or cards_score(session['cards']) > cards_score(dealer_cards):
         status = "won"
         bet = session['bet'] * 2
         request.session['black_jack_session'] = create_session(deck=deck.remaining(), dealer_cards=dealer_cards, bet=bet, status=status, session=session)
 
         return end(request)
-    if cards_score(dealer_cards) == cards_score(session['cards']):
-        status = "push"
-        request.session['black_jack_session'] = create_session(deck=deck.remaining(), dealer_cards=dealer_cards, status=status, session=session)
 
-        return end(request)
-    if cards_score(session['cards']) > cards_score(dealer_cards):
-        status = "won"
-        bet = session['bet'] * 2
-        request.session['black_jack_session'] = create_session(deck=deck.remaining(), dealer_cards=dealer_cards, bet=bet, status=status, session=session)
-
-        return end(request)
     status = "lost"
     bet = 0
     request.session['black_jack_session'] = create_session(deck=deck.remaining(), dealer_cards=dealer_cards, bet=bet, status=status, session=session)

@@ -5,16 +5,22 @@ from django.http import HttpResponse
 from django.http.response import FileResponse
 
 
-# For serving static files in development, use the following views.
+# For serving static files in development.
+# In production, use a proper web server like Nginx or Apache to serve static files.
 def static_files(path):
-    if not Path(path).exists():
+    base_dir = Path(settings.FILE_DESTINATION).resolve()
+    requested_path = Path(path).resolve()
+
+    if not str(requested_path).startswith(str(base_dir)) or not requested_path.exists():
         return HttpResponse(status=404)
 
-    return FileResponse(Path(path).open('rb'))
+    return FileResponse(requested_path.open("rb"))
+
 
 def favicon_images(request, name):
     path = f"{settings.FILE_DESTINATION}global/favicon/{name}"
     return static_files(path)
+
 
 def project_images(request, name):
     path = f"{settings.FILE_DESTINATION}images/project/{name}"

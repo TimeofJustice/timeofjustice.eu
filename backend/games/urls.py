@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from .views import pages
+from games.views import pages
 
 urlpatterns = [
     path("", pages.index, name="index"),
@@ -8,5 +8,10 @@ urlpatterns = [
     path("register/", pages.register, name="register"),
     path("logout/", pages.logout, name="logout"),
 
-    path("api/", include("games.views.api.urls")),
+    path("api/", include("games.views.core.urls")),
+
+    path("api/higher-lower/", include("games.views.higher_lower.urls")),
+    path("api/ride-the-bus/", include("games.views.ride_the_bus.urls")),
+    path("api/black-jack/", include("games.views.black_jack.urls")),
+    path("api/sic-bo/", include("games.views.sic_bo.urls")),
 ]
