@@ -1,8 +1,7 @@
 from inertia import render
 
 from core import models
-from core.helpers import props
-from core.models import get_or_none
+from core.helpers import default_props, get_or_none
 
 
 def error(request, status_code):
@@ -10,7 +9,7 @@ def error(request, status_code):
         "status_code": status_code,
     }
 
-    return render(request, "Error", props=props(page_props))
+    return render(request, "Error", props=default_props(page_props))
 
 
 def index(request):
@@ -39,7 +38,7 @@ def index(request):
         "tools": [tool.json() for tool in models.Tool.objects.all()],
     }
 
-    return render(request, "Projects", props=props(page_props))
+    return render(request, "Projects", props=default_props(page_props))
 
 
 def project_details(request, project_id):
@@ -52,4 +51,4 @@ def project_details(request, project_id):
         "project": project.json(),
     }
 
-    return render(request, "Project", props=props(page_props))
+    return render(request, "Project", props=default_props(page_props))

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import api, helpers, pages
+from core.views import api, helpers, pages
 
 urlpatterns = [
     path("", pages.index, name="index"),

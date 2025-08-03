@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 
 from core import models
-from core.models import get_or_none
+from core.helpers import get_or_none
 
 
 def project(request, project_id):

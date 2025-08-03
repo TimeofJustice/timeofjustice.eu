@@ -5,8 +5,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from inertia import render
 
-from core.helpers import BodyContent, props
-from core.models import get_or_none
+from core.helpers import BodyContent, default_props, get_or_none
 from games import models
 from games.decorators import wallet_required
 from games.views.api.api import days_since_last_login, get_leaderboard, get_vault
@@ -17,7 +16,7 @@ def index(request):
     wallet = request.session.get('wallet_id', None)
 
     if not wallet:
-        return render(request, "Games/Entry", props=props({}))
+        return render(request, "Games/Entry", props=default_props({}))
 
     return main(request)
 
@@ -43,7 +42,7 @@ def login(request):
         "error": error_text,
     }
 
-    return render(request, "Games/Login", props=props(page_props))
+    return render(request, "Games/Login", props=default_props(page_props))
 
 
 def register(request):
@@ -104,4 +103,4 @@ def main(request):
         "hintDismissed": wallet.hint_dismissed,
     }
 
-    return render(request, "Games/Main", props=props(page_props))
+    return render(request, "Games/Main", props=default_props(page_props))

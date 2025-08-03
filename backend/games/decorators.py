@@ -2,7 +2,7 @@ from functools import wraps
 
 from django.http.response import HttpResponseRedirect
 
-from core.models import get_or_none
+from core.helpers import get_or_none
 from games import models
 
 

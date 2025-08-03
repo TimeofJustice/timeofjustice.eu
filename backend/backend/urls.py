@@ -24,7 +24,7 @@ from django_otp.admin import OTPAdminSite
 if os.getenv("USE_OTP", 'False').lower() in ('true', '1', 't'):
     admin.site.__class__ = OTPAdminSite
 
-from . import settings
+from backend import settings
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
@@ -35,7 +35,7 @@ urlpatterns = [
     path("r-place/", include("r_place.urls")),
 ]
 
+handler400 = "core.views.errors.bad_request"
+handler403 = "core.views.errors.permission_denied"
 handler404 = "core.views.errors.page_not_found"
 handler500 = "core.views.errors.server_error"
-handler403 = "core.views.errors.permission_denied"
-handler400 = "core.views.errors.bad_request"

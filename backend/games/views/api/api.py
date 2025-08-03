@@ -2,8 +2,7 @@ from django.http.response import HttpResponseRedirect, JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
-from core.helpers import BodyContent
-from core.models import get_or_none
+from core.helpers import BodyContent, get_or_none
 from games import models
 from games.decorators import wallet_required
 

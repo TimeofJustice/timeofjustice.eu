@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-# Register your models here.
-from .models import Image, Profile, Project, Status, Technology, Tool, Translation
+from core.models import Image, Profile, Project, Status, Technology, Tool, Translation
 
 
 @admin.register(Translation)

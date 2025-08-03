@@ -1,19 +1,9 @@
 from inertia import render
 
-from core.helpers import props
-
-from . import models
-
-
-def error(request, status_code):
-    page_props = {
-        "status_code": status_code,
-    }
-
-    return render(request, "Error", props=props(page_props))
+from core.helpers import default_props
+from farming_stats import models
 
 
-# Create your views here.
 def index(request):
     page_props = {
         'farmItems': {
@@ -22,4 +12,4 @@ def index(request):
         },
     }
 
-    return render(request, "FarmingStats", props=props(page_props))
+    return render(request, "FarmingStats", props=default_props(page_props))

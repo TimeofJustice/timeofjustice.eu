@@ -4,12 +4,7 @@ import PIL.Image
 from django.conf import settings
 from django.db import models
 
-
-def get_or_none(model, **kwargs):
-    try:
-        return model.objects.get(**kwargs)
-    except model.DoesNotExist:
-        return None
+from core.helpers import get_or_none
 
 
 def generate_lazy_image(image, directory):

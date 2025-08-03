@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from inertia import render
 
-from core.helpers import props
+from core.helpers import default_props
 
 from .models import Canvas, Cell
 
@@ -23,7 +23,7 @@ def index(request, canvas=None):
         "canvases": list(Canvas.objects.all().values("name", "width", "height", "active")),
     }
 
-    return render(request, "RPlace", props=props(page_props))
+    return render(request, "RPlace", props=default_props(page_props))
 
 
 def load_chunk(request, x, y, canvas, size=100):
