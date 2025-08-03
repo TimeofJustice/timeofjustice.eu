@@ -11,10 +11,10 @@ def generate_lazy_image(image, directory):
     img = PIL.Image.open(image)
 
     image_name = Path(image.path).name
-    image_path = settings.FILE_DESTINATION + f'images/lazy/{directory}/{image_name}'
+    image_path =  f'{settings.FILE_DESTINATION}images/lazy/{directory}/{image_name}'
 
     if not Path(Path(image_path).parent).exists():
-        Path.mkdir(Path(image_path).parent)
+        Path(image_path).parent.mkdir(parents=True, exist_ok=True)
 
     width, height = img.size
     target_width = 100
@@ -32,7 +32,7 @@ def compress(image, directory, size=480, quality=50):
     img = PIL.Image.open(image)
 
     image_name = Path(image.path).name
-    image_path = settings.FILE_DESTINATION + f'images/{directory}/{image_name}'
+    image_path = f'{settings.FILE_DESTINATION}images/{directory}/{image_name}'
 
     width, height = img.size
 
@@ -48,8 +48,8 @@ def compress(image, directory, size=480, quality=50):
 
 def lazy_image_to_json(image, base_url):
     return {
-        'lazy': f"/files/images/lazy/{base_url}/{Path(image.file.name).name}",
-        'original': f"/files/images/{base_url}/{Path(image.file.name).name}",
+        'lazy': f"/{settings.FILE_DESTINATION}images/lazy/{base_url}/{Path(image.file.name).name}",
+        'original': f"/{settings.FILE_DESTINATION}images/{base_url}/{Path(image.file.name).name}",
     }
 
 
@@ -82,7 +82,7 @@ def get_translation(name):
 
 class Profile(models.Model):
     id = models.AutoField(primary_key=True)
-    picture = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/profile/', max_length=1000, null=True, blank=True)
+    picture = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/profile/', max_length=1000, null=True, blank=True)
     description = models.CharField(max_length=100, null=True, blank=True)
     short_description = models.CharField(max_length=100, null=True, blank=True)
     repo = models.URLField(max_length=255, null=True, blank=True)
@@ -92,7 +92,7 @@ class Profile(models.Model):
 
     def json(self):
         return {
-            'picture': f"/files/images/profile/{Path(self.picture.file.name).name}" if self.picture else None,
+            'picture': f"/{settings.FILE_DESTINATION}images/profile/{Path(self.picture.file.name).name}" if self.picture else None,
             'description': get_translation(self.description),
             'short_description': get_translation(self.short_description),
             'repo': self.repo if self.repo else None,
@@ -101,7 +101,7 @@ class Profile(models.Model):
 
 class Tool(models.Model):
     id = models.AutoField(primary_key=True)
-    icon = models.FileField(upload_to=settings.FILE_DESTINATION + 'images/tool/', max_length=1000)
+    icon = models.FileField(upload_to=f'{settings.FILE_DESTINATION}images/tool/', max_length=1000)
     alt = models.CharField(max_length=20, null=True, blank=True)
     url = models.URLField(max_length=100, null=True, blank=True)
 
@@ -110,7 +110,7 @@ class Tool(models.Model):
 
     def json(self):
         return {
-            'icon': f"/files/images/tool/{Path(self.icon.file.name).name}" if self.icon else None,
+            'icon': f"/{settings.FILE_DESTINATION}images/tool/{Path(self.icon.file.name).name}" if self.icon else None,
             'alt': self.alt,
             'url': self.url,
         }
@@ -157,7 +157,7 @@ class Project(models.Model):
     short_description = models.CharField(max_length=100, null=True, blank=True)
     description = models.CharField(max_length=100, null=True, blank=True)
     technology = models.ManyToManyField('Technology', blank=True)
-    title_image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', null=True, blank=True, max_length=1000)
+    title_image = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/project/', null=True, blank=True, max_length=1000)
     alt = models.CharField(max_length=100, null=True, blank=True)
     github = models.URLField(max_length=100, null=True, blank=True)
     webpage = models.URLField(max_length=100, null=True, blank=True)
@@ -194,8 +194,8 @@ class Project(models.Model):
 class Image(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=settings.FILE_DESTINATION + 'images/project/', max_length=1000, null=True, blank=True)
-    video = models.FileField(upload_to=settings.FILE_DESTINATION + 'video/project/', max_length=1000, null=True, blank=True)
+    image = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/project/', max_length=1000, null=True, blank=True)
+    video = models.FileField(upload_to=f'{settings.FILE_DESTINATION}video/project/', max_length=1000, null=True, blank=True)
     alt = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
@@ -211,6 +211,6 @@ class Image(models.Model):
     def json(self):
         return {
             'image': lazy_image_to_json(self.image, 'project') if self.image else None,
-            'video': f"/files/video/project/{Path(self.video.file.name).name}" if self.video else None,
+            'video': f"/{settings.FILE_DESTINATION}video/project/{Path(self.video.file.name).name}" if self.video else None,
             'alt': get_translation(self.alt),
         }

@@ -10,4 +10,4 @@ def project(request, project_id):
     if not project:
         return JsonResponse({"error": "Project not found"}, status=404)
 
-    return JsonResponse(project)
+    return JsonResponse(project.json())

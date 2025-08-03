@@ -5,9 +5,10 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
+
 class BodyContent:
     def __init__(self, request):
-        body_unicode = request.body.decode('utf-8')
+        body_unicode = request.body.decode("utf-8")
 
         self.body = None
 
@@ -15,11 +16,11 @@ class BodyContent:
             self.body = json.loads(body_unicode)
         except json.JSONDecodeError as e:
             self.body = {}
-            logger.error(f"Invalid JSON body in request: {body_unicode} | Error: {e}")
+            logger.error(f"Invalid JSON body in request. Error: {e}")
 
     def get(self, key, default=None):
         if self.body is None:
-            return None
+            return default
 
         return self.body.get(key, default)
 

@@ -6,7 +6,7 @@ from core.helpers import default_props, get_or_none
 
 def error(request, status_code):
     page_props = {
-        "status_code": status_code,
+        "statusCode": status_code,
     }
 
     return render(request, "Error", props=default_props(page_props))
