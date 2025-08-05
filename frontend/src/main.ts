@@ -31,7 +31,6 @@ const i18n = createI18n({
 });
 
 import BasicLayout from "@layouts/BasicLayout.vue";
-import { wip } from "@/directives/wip.ts";
 import VueApexCharts from "@node_modules/vue3-apexcharts";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -57,7 +56,6 @@ createInertiaApp({
       .use(i18n)
       .use(VueApexCharts as any)
       .use(Vue3Marquee)
-      .directive("wip", wip)
       .component("Link", Link)
       .provide("$router", "fake")
       .mount(el);
