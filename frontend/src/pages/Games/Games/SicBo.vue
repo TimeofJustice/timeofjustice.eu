@@ -13,7 +13,7 @@ import { computed } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
 import { useI18n } from "@node_modules/vue-i18n";
 import axios from "@node_modules/axios";
-import Dice from "@pages/Games/components/Dice.vue";
+import GamesDice from "@pages/Games/components/GamesDice.vue";
 
 interface HigherLowerProps {
   balance: number;
@@ -202,7 +202,7 @@ const currentBet = ref<number>(0);
 const getTotalBet = () => {
   let total = 0;
 
-  for (const [_, value] of Object.entries(gameSession.value.bets)) {
+  for (const value of Object.values(gameSession.value.bets)) {
     total += Number(value);
   }
 
@@ -232,7 +232,7 @@ const validateTotalBet = computed(() => {
 
 const startBet = (type: turnType) => {
   if (type in gameSession.value.bets) {
-    currentBet.value = Number(gameSession.value.bets[type]) ?? 10;
+    currentBet.value = gameSession.value.bets[type];
   } else {
     currentBet.value = 10;
   }
@@ -401,9 +401,9 @@ const removeBet = () => {
         <div
           class="d-flex justify-content-center align-items-center gap-2 w-100"
         >
-          <Dice :value="diceValues[0]" />
-          <Dice :value="diceValues[1]" />
-          <Dice :value="diceValues[2]" />
+          <GamesDice :value="diceValues[0]" />
+          <GamesDice :value="diceValues[1]" />
+          <GamesDice :value="diceValues[2]" />
         </div>
         <div class="d-flex flex-column gap-2 w-100">
           <div
@@ -471,8 +471,8 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["double-1"] }}
                   </div>
-                  <Dice :value="1" size="md" />
-                  <Dice :value="1" size="md" />
+                  <GamesDice :value="1" size="md" />
+                  <GamesDice :value="1" size="md" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -497,8 +497,8 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["double-2"] }}
                   </div>
-                  <Dice :value="2" size="md" />
-                  <Dice :value="2" size="md" />
+                  <GamesDice :value="2" size="md" />
+                  <GamesDice :value="2" size="md" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -518,8 +518,8 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["double-3"] }}
                   </div>
-                  <Dice :value="3" size="md" />
-                  <Dice :value="3" size="md" />
+                  <GamesDice :value="3" size="md" />
+                  <GamesDice :value="3" size="md" />
                 </BButton>
               </div>
               <div
@@ -558,9 +558,9 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["triple-1"] }}
                   </div>
-                  <Dice :value="1" size="sm" />
-                  <Dice :value="1" size="sm" />
-                  <Dice :value="1" size="sm" />
+                  <GamesDice :value="1" size="sm" />
+                  <GamesDice :value="1" size="sm" />
+                  <GamesDice :value="1" size="sm" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -585,9 +585,9 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["triple-2"] }}
                   </div>
-                  <Dice :value="2" size="sm" />
-                  <Dice :value="2" size="sm" />
-                  <Dice :value="2" size="sm" />
+                  <GamesDice :value="2" size="sm" />
+                  <GamesDice :value="2" size="sm" />
+                  <GamesDice :value="2" size="sm" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -612,9 +612,9 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["triple-3"] }}
                   </div>
-                  <Dice :value="3" size="sm" />
-                  <Dice :value="3" size="sm" />
-                  <Dice :value="3" size="sm" />
+                  <GamesDice :value="3" size="sm" />
+                  <GamesDice :value="3" size="sm" />
+                  <GamesDice :value="3" size="sm" />
                 </BButton>
               </div>
               <div
@@ -651,44 +651,44 @@ const removeBet = () => {
                 <div
                   class="d-flex gap-2 justify-content-center align-items-center w-100"
                 >
-                  <Dice :value="1" size="sm" />
-                  <Dice :value="1" size="sm" />
-                  <Dice :value="1" size="sm" />
+                  <GamesDice :value="1" size="sm" />
+                  <GamesDice :value="1" size="sm" />
+                  <GamesDice :value="1" size="sm" />
                 </div>
                 <div
                   class="d-flex gap-2 justify-content-center align-items-center w-100"
                 >
-                  <Dice :value="2" size="sm" />
-                  <Dice :value="2" size="sm" />
-                  <Dice :value="2" size="sm" />
+                  <GamesDice :value="2" size="sm" />
+                  <GamesDice :value="2" size="sm" />
+                  <GamesDice :value="2" size="sm" />
                 </div>
                 <div
                   class="d-flex gap-2 justify-content-center align-items-center w-100"
                 >
-                  <Dice :value="3" size="sm" />
-                  <Dice :value="3" size="sm" />
-                  <Dice :value="3" size="sm" />
+                  <GamesDice :value="3" size="sm" />
+                  <GamesDice :value="3" size="sm" />
+                  <GamesDice :value="3" size="sm" />
                 </div>
                 <div
                   class="d-flex gap-2 justify-content-center align-items-center w-100"
                 >
-                  <Dice :value="4" size="sm" />
-                  <Dice :value="4" size="sm" />
-                  <Dice :value="4" size="sm" />
+                  <GamesDice :value="4" size="sm" />
+                  <GamesDice :value="4" size="sm" />
+                  <GamesDice :value="4" size="sm" />
                 </div>
                 <div
                   class="d-flex gap-2 justify-content-center align-items-center w-100"
                 >
-                  <Dice :value="5" size="sm" />
-                  <Dice :value="5" size="sm" />
-                  <Dice :value="5" size="sm" />
+                  <GamesDice :value="5" size="sm" />
+                  <GamesDice :value="5" size="sm" />
+                  <GamesDice :value="5" size="sm" />
                 </div>
                 <div
                   class="d-flex gap-2 justify-content-center align-items-center w-100"
                 >
-                  <Dice :value="6" size="sm" />
-                  <Dice :value="6" size="sm" />
-                  <Dice :value="6" size="sm" />
+                  <GamesDice :value="6" size="sm" />
+                  <GamesDice :value="6" size="sm" />
+                  <GamesDice :value="6" size="sm" />
                 </div>
               </BButton>
               <div
@@ -727,9 +727,9 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["triple-4"] }}
                   </div>
-                  <Dice :value="4" size="sm" />
-                  <Dice :value="4" size="sm" />
-                  <Dice :value="4" size="sm" />
+                  <GamesDice :value="4" size="sm" />
+                  <GamesDice :value="4" size="sm" />
+                  <GamesDice :value="4" size="sm" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -754,9 +754,9 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["triple-5"] }}
                   </div>
-                  <Dice :value="5" size="sm" />
-                  <Dice :value="5" size="sm" />
-                  <Dice :value="5" size="sm" />
+                  <GamesDice :value="5" size="sm" />
+                  <GamesDice :value="5" size="sm" />
+                  <GamesDice :value="5" size="sm" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -781,9 +781,9 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["triple-6"] }}
                   </div>
-                  <Dice :value="6" size="sm" />
-                  <Dice :value="6" size="sm" />
-                  <Dice :value="6" size="sm" />
+                  <GamesDice :value="6" size="sm" />
+                  <GamesDice :value="6" size="sm" />
+                  <GamesDice :value="6" size="sm" />
                 </BButton>
               </div>
               <div
@@ -822,8 +822,8 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["double-4"] }}
                   </div>
-                  <Dice :value="4" size="md" />
-                  <Dice :value="4" size="md" />
+                  <GamesDice :value="4" size="md" />
+                  <GamesDice :value="4" size="md" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -848,8 +848,8 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["double-5"] }}
                   </div>
-                  <Dice :value="5" size="md" />
-                  <Dice :value="5" size="md" />
+                  <GamesDice :value="5" size="md" />
+                  <GamesDice :value="5" size="md" />
                 </BButton>
                 <BButton
                   variant="secondary"
@@ -874,8 +874,8 @@ const removeBet = () => {
                   >
                     {{ gameSession.bets["double-6"] }}
                   </div>
-                  <Dice :value="6" size="md" />
-                  <Dice :value="6" size="md" />
+                  <GamesDice :value="6" size="md" />
+                  <GamesDice :value="6" size="md" />
                 </BButton>
               </div>
               <div
@@ -1367,8 +1367,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-1-2"] }}
               </div>
-              <Dice :value="1" size="md" />
-              <Dice :value="2" size="md" />
+              <GamesDice :value="1" size="md" />
+              <GamesDice :value="2" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1389,8 +1389,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-1-3"] }}
               </div>
-              <Dice :value="1" size="md" />
-              <Dice :value="3" size="md" />
+              <GamesDice :value="1" size="md" />
+              <GamesDice :value="3" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1411,8 +1411,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-1-4"] }}
               </div>
-              <Dice :value="1" size="md" />
-              <Dice :value="4" size="md" />
+              <GamesDice :value="1" size="md" />
+              <GamesDice :value="4" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1433,8 +1433,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-1-5"] }}
               </div>
-              <Dice :value="1" size="md" />
-              <Dice :value="5" size="md" />
+              <GamesDice :value="1" size="md" />
+              <GamesDice :value="5" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1455,8 +1455,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-1-6"] }}
               </div>
-              <Dice :value="1" size="md" />
-              <Dice :value="6" size="md" />
+              <GamesDice :value="1" size="md" />
+              <GamesDice :value="6" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1477,8 +1477,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-2-3"] }}
               </div>
-              <Dice :value="2" size="md" />
-              <Dice :value="3" size="md" />
+              <GamesDice :value="2" size="md" />
+              <GamesDice :value="3" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1499,8 +1499,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-2-4"] }}
               </div>
-              <Dice :value="2" size="md" />
-              <Dice :value="4" size="md" />
+              <GamesDice :value="2" size="md" />
+              <GamesDice :value="4" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1521,8 +1521,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-2-5"] }}
               </div>
-              <Dice :value="2" size="md" />
-              <Dice :value="5" size="md" />
+              <GamesDice :value="2" size="md" />
+              <GamesDice :value="5" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1543,8 +1543,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-2-6"] }}
               </div>
-              <Dice :value="2" size="md" />
-              <Dice :value="6" size="md" />
+              <GamesDice :value="2" size="md" />
+              <GamesDice :value="6" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1565,8 +1565,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-3-4"] }}
               </div>
-              <Dice :value="3" size="md" />
-              <Dice :value="4" size="md" />
+              <GamesDice :value="3" size="md" />
+              <GamesDice :value="4" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1587,8 +1587,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-3-5"] }}
               </div>
-              <Dice :value="3" size="md" />
-              <Dice :value="5" size="md" />
+              <GamesDice :value="3" size="md" />
+              <GamesDice :value="5" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1609,8 +1609,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-3-6"] }}
               </div>
-              <Dice :value="3" size="md" />
-              <Dice :value="6" size="md" />
+              <GamesDice :value="3" size="md" />
+              <GamesDice :value="6" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1631,8 +1631,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-4-5"] }}
               </div>
-              <Dice :value="4" size="md" />
-              <Dice :value="5" size="md" />
+              <GamesDice :value="4" size="md" />
+              <GamesDice :value="5" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1653,8 +1653,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-4-6"] }}
               </div>
-              <Dice :value="4" size="md" />
-              <Dice :value="6" size="md" />
+              <GamesDice :value="4" size="md" />
+              <GamesDice :value="6" size="md" />
             </BButton>
             <BButton
               variant="secondary"
@@ -1675,8 +1675,8 @@ const removeBet = () => {
               >
                 {{ gameSession.bets["pair-5-6"] }}
               </div>
-              <Dice :value="5" size="md" />
-              <Dice :value="6" size="md" />
+              <GamesDice :value="5" size="md" />
+              <GamesDice :value="6" size="md" />
             </BButton>
           </div>
 
@@ -1709,7 +1709,7 @@ const removeBet = () => {
                 >
                   {{ gameSession.bets["face-1"] }}
                 </div>
-                <Dice :value="1" size="md" />
+                <GamesDice :value="1" size="md" />
               </BButton>
               <BButton
                 variant="secondary"
@@ -1732,7 +1732,7 @@ const removeBet = () => {
                 >
                   {{ gameSession.bets["face-2"] }}
                 </div>
-                <Dice :value="2" size="md" />
+                <GamesDice :value="2" size="md" />
               </BButton>
               <BButton
                 variant="secondary"
@@ -1755,7 +1755,7 @@ const removeBet = () => {
                 >
                   {{ gameSession.bets["face-3"] }}
                 </div>
-                <Dice :value="3" size="md" />
+                <GamesDice :value="3" size="md" />
               </BButton>
               <BButton
                 variant="secondary"
@@ -1778,7 +1778,7 @@ const removeBet = () => {
                 >
                   {{ gameSession.bets["face-4"] }}
                 </div>
-                <Dice :value="4" size="md" />
+                <GamesDice :value="4" size="md" />
               </BButton>
               <BButton
                 variant="secondary"
@@ -1801,7 +1801,7 @@ const removeBet = () => {
                 >
                   {{ gameSession.bets["face-5"] }}
                 </div>
-                <Dice :value="5" size="md" />
+                <GamesDice :value="5" size="md" />
               </BButton>
               <BButton
                 variant="secondary"
@@ -1824,7 +1824,7 @@ const removeBet = () => {
                 >
                   {{ gameSession.bets["face-6"] }}
                 </div>
-                <Dice :value="6" size="md" />
+                <GamesDice :value="6" size="md" />
               </BButton>
             </div>
             <div class="d-flex flex-grow-1 rounded-3 overflow-hidden">

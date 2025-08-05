@@ -15,6 +15,7 @@ import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { Head, usePage } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
+import RgbQuant from "rgbquant";
 
 const page = usePage();
 page.props["smallNavbar"] = true;
@@ -1051,7 +1052,6 @@ const overlay = {
     }
     ctx.imageSmoothingEnabled = false;
 
-    const RgbQuant = require("rgbquant");
     const q = new RgbQuant({ colors: amount });
     q.sample(this.resizeCanvas);
     q.palette();
@@ -1351,6 +1351,7 @@ watch(
                 :style="{ backgroundColor: color }"
                 @click="placeState.color.active = color"
                 v-for="color in page"
+                :key="color"
               ></div>
               <div
                 class="col place-color d-flex justify-content-center align-items-center"
@@ -1405,126 +1406,124 @@ watch(
         </div>
       </div>
 
-      <Transition>
+      <div
+        class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 px-2 py-3 p-md-3 overflow-auto"
+        :class="{ 'd-none': !placeState.overlayScreen }"
+      >
         <div
-          class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 px-2 py-3 p-md-3 overflow-auto"
-          :class="{ 'd-none': !placeState.overlayScreen }"
+          class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-dark-gray-500 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
         >
-          <div
-            class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-dark-gray-500 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
+          <div class="position-relative">
+            <canvas ref="previewCanvas"></canvas>
+
+            <Transition>
+              <div
+                class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-gray-800 bg-opacity-75"
+                v-if="!synced"
+              >
+                <BButton @click="overlay.preview()" class="place-button fs-5">
+                  <font-awesome-icon :icon="faSync" />
+                </BButton>
+              </div>
+            </Transition>
+          </div>
+
+          <BFormGroup label-for="file-input">
+            <BFormFile
+              id="file-input"
+              v-model="file"
+              accept="image/png,image/jpeg,image/gif"
+              class="place-input"
+              :state="validateFile"
+            />
+            <BFormInvalidFeedback :state="validateFile">
+              {{ $t("r_place.canvas.overlay.invalid_file") }}
+            </BFormInvalidFeedback>
+          </BFormGroup>
+
+          <BFormGroup
+            :label="$t('r_place.canvas.overlay.x', { x: positionOnCanvasX })"
+            label-for="position-x-input"
+            label-class="mb-1"
+            class="w-100"
           >
-            <div class="position-relative">
-              <canvas ref="previewCanvas"></canvas>
+            <BFormInput
+              id="position-x-input"
+              type="range"
+              v-model="positionOnCanvasX"
+              min="0"
+              :max="activeCanvas.width"
+              class="place-range"
+            />
+          </BFormGroup>
+          <BFormGroup
+            :label="$t('r_place.canvas.overlay.y', { y: positionOnCanvasY })"
+            label-for="position-y-input"
+            label-class="mb-1"
+            class="w-100"
+          >
+            <BFormInput
+              id="position-y-input"
+              type="range"
+              v-model="positionOnCanvasY"
+              min="0"
+              :max="activeCanvas.height"
+              class="place-range"
+            />
+          </BFormGroup>
 
-              <Transition>
-                <div
-                  class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-gray-800 bg-opacity-75"
-                  v-if="!synced"
-                >
-                  <BButton @click="overlay.preview()" class="place-button fs-5">
-                    <font-awesome-icon :icon="faSync" />
-                  </BButton>
-                </div>
-              </Transition>
-            </div>
+          <BFormGroup
+            :label="
+              $t('r_place.canvas.overlay.width', { width: sizeOnCanvasX })
+            "
+            label-for="width-input"
+            label-class="mb-1"
+            class="w-100"
+          >
+            <BFormInput
+              id="width-input"
+              type="range"
+              v-model="sizeOnCanvasX"
+              min="1"
+              :max="limitSizeOnCanvasX"
+              class="place-range"
+            />
+          </BFormGroup>
 
-            <BFormGroup label-for="file-input">
-              <BFormFile
-                id="file-input"
-                v-model="file"
-                accept="image/png,image/jpeg,image/gif"
-                class="place-input"
-                :state="validateFile"
-              />
-              <BFormInvalidFeedback :state="validateFile">
-                {{ $t("r_place.canvas.overlay.invalid_file") }}
-              </BFormInvalidFeedback>
-            </BFormGroup>
+          <BFormGroup
+            :label="
+              $t('r_place.canvas.overlay.colors', { colors: numberColors })
+            "
+            label-for="width-input"
+            label-class="mb-1"
+            class="w-100"
+          >
+            <BFormInput
+              id="width-input"
+              type="range"
+              v-model="numberColors"
+              :min="2"
+              :max="200"
+              class="place-range"
+            />
+          </BFormGroup>
 
-            <BFormGroup
-              :label="$t('r_place.canvas.overlay.x', { x: positionOnCanvasX })"
-              label-for="position-x-input"
-              label-class="mb-1"
-              class="w-100"
+          <div class="d-flex gap-2 w-100">
+            <BButton
+              class="place-button place-button"
+              @click="placeState.overlayScreen = false"
             >
-              <BFormInput
-                id="position-x-input"
-                type="range"
-                v-model="positionOnCanvasX"
-                min="0"
-                :max="activeCanvas.width"
-                class="place-range"
-              />
-            </BFormGroup>
-            <BFormGroup
-              :label="$t('r_place.canvas.overlay.y', { y: positionOnCanvasY })"
-              label-for="position-y-input"
-              label-class="mb-1"
-              class="w-100"
+              <font-awesome-icon :icon="faClose" />
+            </BButton>
+            <BButton
+              class="place-button flex-grow-1"
+              @click="overlay.calculate()"
             >
-              <BFormInput
-                id="position-y-input"
-                type="range"
-                v-model="positionOnCanvasY"
-                min="0"
-                :max="activeCanvas.height"
-                class="place-range"
-              />
-            </BFormGroup>
-
-            <BFormGroup
-              :label="
-                $t('r_place.canvas.overlay.width', { width: sizeOnCanvasX })
-              "
-              label-for="width-input"
-              label-class="mb-1"
-              class="w-100"
-            >
-              <BFormInput
-                id="width-input"
-                type="range"
-                v-model="sizeOnCanvasX"
-                min="1"
-                :max="limitSizeOnCanvasX"
-                class="place-range"
-              />
-            </BFormGroup>
-
-            <BFormGroup
-              :label="
-                $t('r_place.canvas.overlay.colors', { colors: numberColors })
-              "
-              label-for="width-input"
-              label-class="mb-1"
-              class="w-100"
-            >
-              <BFormInput
-                id="width-input"
-                type="range"
-                v-model="numberColors"
-                :min="2"
-                :max="200"
-                class="place-range"
-              />
-            </BFormGroup>
-
-            <div class="d-flex gap-2 w-100">
-              <BButton
-                class="place-button place-button"
-                @click="placeState.overlayScreen = false"
-              >
-                <font-awesome-icon :icon="faClose" />
-              </BButton>
-              <BButton
-                class="place-button flex-grow-1"
-                @click="overlay.calculate()"
-              >
-                <font-awesome-icon :icon="faCheck" />
-              </BButton>
-            </div>
+              <font-awesome-icon :icon="faCheck" />
+            </BButton>
           </div>
         </div>
-      </Transition>
+      </div>
     </div>
   </div>
 

@@ -1,3 +1,10 @@
+/**
+ * Configuration file for FontAwesome.
+ * This file imports FontAwesome icons and adds them to the library to be used globally in the application.
+ * Refer to the documentation for more details:
+ * https://docs.fontawesome.com/apis/javascript/import-icons
+ */
+
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faGithub,

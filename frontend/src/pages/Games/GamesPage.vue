@@ -25,6 +25,7 @@ import LeaderboardPosition from "@pages/Games/components/LeaderboardPosition.vue
 import DailyReward from "@pages/Games/components/DailyReward.vue";
 import BlackJack from "@pages/Games/Games/BlackJack.vue";
 import SicBo from "@pages/Games/Games/SicBo.vue";
+import { Wallet } from "@/types/Wallet.ts";
 
 interface Player {
   name: string;
@@ -63,6 +64,9 @@ const {
   vaultReset,
   hintDismissed,
 } = defineProps<MainProps>();
+
+const walletName = ref(wallet.name);
+const walletBalance = ref(wallet.balance);
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -147,7 +151,7 @@ const saveSettings = async () => {
       .then((response) => {
         showToast(i18n.t("games.main.settings_success"), "success");
 
-        wallet.name = response.data.name;
+        walletName.value = response.data.name;
         waitingForResponse.value = false;
       })
       .catch((error) => {
@@ -187,13 +191,13 @@ const copyToClipboard = () => {
     .then(() => {
       showToast(i18n.t("games.main.copy_wallet"), "success");
     })
-    .catch((_) => {
+    .catch(() => {
       showToast(i18n.t("games.main.copy_wallet_error"), "danger");
     });
 };
 
 const onBalanceChange = (tokens: number) => {
-  wallet.balance = wallet.balance + tokens;
+  walletBalance.value = walletBalance.value + tokens;
   balanceChange.value = tokens;
 
   setTimeout(() => {
@@ -339,7 +343,7 @@ const dismissHint = () => {
       <KeepAlive>
         <component
           :is="gameComponent"
-          :balance="wallet.balance"
+          :balance="walletBalance"
           @balanceChange="onBalanceChange"
         />
       </KeepAlive>
@@ -370,7 +374,7 @@ const dismissHint = () => {
           <template #header>
             <h4 class="m-0 text-truncate">
               <font-awesome-icon :icon="faUser" />
-              {{ wallet.name }}
+              {{ walletName }}
             </h4>
 
             <div class="d-flex gap-2">
@@ -406,7 +410,7 @@ const dismissHint = () => {
 
           <div class="d-flex gap-1 align-items-center">
             <font-awesome-icon :icon="faCoins" />
-            <strong>{{ wallet.balance }} TJTs</strong>
+            <strong>{{ walletBalance }} TJTs</strong>
 
             <Transition>
               <span class="text-success" v-if="balanceChange > 0">
@@ -573,7 +577,7 @@ const dismissHint = () => {
                 <LeaderboardPosition
                   :index="updatedOwnPosition"
                   :name="wallet.name"
-                  :balance="wallet.balance"
+                  :balance="walletBalance"
                   :streak="wallet.streak"
                   highlighted
                 />

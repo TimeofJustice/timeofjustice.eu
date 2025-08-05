@@ -3,7 +3,8 @@ import { faBars } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@node_modules/@fortawesome/vue-fontawesome";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import { onMounted, onUnmounted, ref } from "vue";
-import NavLinks from "@layouts/components/NavLinks.vue";
+import { ROUTES } from "@configurations/routes.ts";
+import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
 interface IBasicLayout {
   small?: boolean;
@@ -65,7 +66,11 @@ onMounted(() => {
         class="d-none d-lg-flex justify-content-between align-items-center w-100"
       >
         <div class="d-flex align-items-center ps-0 pt-0">
-          <NavLinks />
+          <BaseNavbarLink
+            :route="route"
+            v-for="route in ROUTES"
+            :key="route.name"
+          />
         </div>
 
         <LocaleDropdown />
@@ -87,7 +92,11 @@ onMounted(() => {
         </template>
 
         <BNavbarNav>
-          <NavLinks />
+          <BaseNavbarLink
+            :route="route"
+            v-for="route in ROUTES"
+            :key="route.name"
+          />
         </BNavbarNav>
       </BOffcanvas>
     </div>

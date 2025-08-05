@@ -38,7 +38,7 @@ def index(request):
         "tools": [tool.json() for tool in models.Tool.objects.all()],
     }
 
-    return render(request, "Projects", props=default_props(page_props))
+    return render(request, "ProjectsPage", props=default_props(page_props))
 
 
 def project_details(request, project_id):
@@ -51,4 +51,4 @@ def project_details(request, project_id):
         "project": project.json(),
     }
 
-    return render(request, "Project", props=default_props(page_props))
+    return render(request, "ProjectPage", props=default_props(page_props))

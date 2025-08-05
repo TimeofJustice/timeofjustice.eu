@@ -9,7 +9,7 @@ import {
   faDice,
   faInfo,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import Icon from "@components/Icon.vue";
+import CustomIcon from "@components/CustomIcon.vue";
 import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
@@ -383,13 +383,16 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'first_round' || waitingForResponse
                 "
               >
-                <Icon icon="diamonds" />
-                <Icon icon="hearts" class="me-md-1" />
+                <CustomIcon icon="diamonds" />
+                <CustomIcon icon="hearts" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.red")
                 }}</span>
-                <Icon icon="hearts" class="ms-1 d-none d-md-inline-block" />
-                <Icon icon="diamonds" class="d-none d-md-inline-block" />
+                <CustomIcon
+                  icon="hearts"
+                  class="ms-1 d-none d-md-inline-block"
+                />
+                <CustomIcon icon="diamonds" class="d-none d-md-inline-block" />
               </BButton>
               <BButton
                 variant="primary"
@@ -398,13 +401,16 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'first_round' || waitingForResponse
                 "
               >
-                <Icon icon="spades" />
-                <Icon icon="clubs" class="me-md-1" />
+                <CustomIcon icon="spades" />
+                <CustomIcon icon="clubs" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.black")
                 }}</span>
-                <Icon icon="clubs" class="ms-1 d-none d-md-inline-block" />
-                <Icon icon="spades" class="d-none d-md-inline-block" />
+                <CustomIcon
+                  icon="clubs"
+                  class="ms-1 d-none d-md-inline-block"
+                />
+                <CustomIcon icon="spades" class="d-none d-md-inline-block" />
               </BButton>
             </div>
 
@@ -560,7 +566,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <Icon icon="clubs" class="me-md-1" />
+                <CustomIcon icon="clubs" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.clubs")
                 }}</span>
@@ -572,7 +578,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <Icon icon="diamonds" class="me-md-1" />
+                <CustomIcon icon="diamonds" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.diamonds")
                 }}</span>
@@ -584,7 +590,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <Icon icon="spades" class="me-md-1" />
+                <CustomIcon icon="spades" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.spades")
                 }}</span>
@@ -596,7 +602,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <Icon icon="hearts" class="me-md-1" />
+                <CustomIcon icon="hearts" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.hearts")
                 }}</span>

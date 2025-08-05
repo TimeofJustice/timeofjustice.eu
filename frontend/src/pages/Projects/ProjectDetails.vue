@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Project } from "@/types/Project.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
-import Carousel from "@components/Carousel.vue";
+import ProjectCarousel from "@components/ProjectCarousel.vue";
 
 interface Props {
   project: Project | null;
@@ -22,7 +22,7 @@ defineProps<Props>();
       >
     </div>
 
-    <Carousel :items="project.images" />
+    <ProjectCarousel :items="project.images" />
 
     <div class="d-flex gap-1 flex-wrap">
       <BBadge

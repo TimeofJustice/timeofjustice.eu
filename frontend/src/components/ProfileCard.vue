@@ -2,7 +2,7 @@
 import { Social } from "@/types/Social.ts";
 import { Vue3Marquee } from "@node_modules/vue3-marquee";
 import { Tool } from "@/types/Tool.ts";
-import toolContainer from "@components/Profile/Tool.vue";
+import ToolsCardItemContainer from "@components/ToolsCardItem.vue";
 import { TranslatedText } from "@/types/TranslatedText.ts";
 
 interface Props {
@@ -77,7 +77,11 @@ withDefaults(defineProps<Props>(), {
         pause-on-hover
         clone
       >
-        <tool-container :tool="tool" v-for="tool in knownTools" />
+        <tools-card-item-container
+          :tool="tool"
+          v-for="tool in knownTools"
+          :key="tool.alt"
+        />
       </Vue3Marquee>
     </div>
 

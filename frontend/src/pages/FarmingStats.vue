@@ -70,7 +70,7 @@ const getOptions = (index: number) => {
   };
 
   switch (currentPage.value) {
-    case pages.crops:
+    case pages.crops: {
       const crop = farmItems.crops[index];
 
       newOptions = {
@@ -122,7 +122,8 @@ const getOptions = (index: number) => {
         },
       };
       break;
-    case pages.commodities:
+    }
+    case pages.commodities: {
       const commodity = farmItems.commodities[index];
 
       newOptions = {
@@ -160,6 +161,7 @@ const getOptions = (index: number) => {
         },
       };
       break;
+    }
   }
 
   return newOptions;
@@ -168,7 +170,7 @@ const getSeries = (index: number) => {
   const newSeries = [];
 
   switch (currentPage.value) {
-    case pages.crops:
+    case pages.crops: {
       const crop = farmItems.crops[index];
 
       newSeries.push({
@@ -177,7 +179,8 @@ const getSeries = (index: number) => {
         data: crop.prices,
       });
       break;
-    case pages.commodities:
+    }
+    case pages.commodities: {
       const commodity = farmItems.commodities[index];
 
       newSeries.push({
@@ -186,6 +189,7 @@ const getSeries = (index: number) => {
         data: commodity.prices,
       });
       break;
+    }
   }
 
   return newSeries;
@@ -226,36 +230,38 @@ const changePage = (page: string) => {
     <div class="d-flex flex-column-reverse flex-lg-row gap-2">
       <div class="col-lg-3">
         <ul class="nav nav-pills flex-column gap-2">
-          <li
-            class="nav-item"
-            v-for="(crop, index) in farmItems.crops"
-            :key="crop.name.en"
-            v-if="currentPage === pages.crops"
-          >
-            <a
-              class="w-100 btn btn-primary"
-              role="button"
-              :class="{ active: selectedIndex === index }"
-              @click="changeIndex(index)"
+          <template v-if="currentPage === pages.crops">
+            <li
+              class="nav-item"
+              v-for="(crop, index) in farmItems.crops"
+              :key="crop.name.en"
             >
-              {{ crop.name[$i18n.locale as keyof TranslatedText] }}
-            </a>
-          </li>
-          <li
-            class="nav-item"
-            v-for="(commodity, index) in farmItems.commodities"
-            :key="commodity.name.en"
-            v-if="currentPage === pages.commodities"
-          >
-            <a
-              class="w-100 btn btn-primary"
-              role="button"
-              :class="{ active: selectedIndex === index }"
-              @click="changeIndex(index)"
+              <a
+                class="w-100 btn btn-primary"
+                role="button"
+                :class="{ active: selectedIndex === index }"
+                @click="changeIndex(index)"
+              >
+                {{ crop.name[$i18n.locale as keyof TranslatedText] }}
+              </a>
+            </li>
+          </template>
+          <template v-if="currentPage === pages.commodities">
+            <li
+              class="nav-item"
+              v-for="(commodity, index) in farmItems.commodities"
+              :key="commodity.name.en"
             >
-              {{ commodity.name[$i18n.locale as keyof TranslatedText] }}
-            </a>
-          </li>
+              <a
+                class="w-100 btn btn-primary"
+                role="button"
+                :class="{ active: selectedIndex === index }"
+                @click="changeIndex(index)"
+              >
+                {{ commodity.name[$i18n.locale as keyof TranslatedText] }}
+              </a>
+            </li>
+          </template>
         </ul>
       </div>
       <div

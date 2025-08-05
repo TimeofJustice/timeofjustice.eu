@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import Navbar from "@layouts/components/Navbar.vue";
+import BaseNavbar from "@components/BaseNavbar.vue";
 import { faClose } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 interface IBasicLayout {
@@ -42,20 +42,17 @@ defineProps<IBasicLayout>();
       class="position-absolute top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-space-blue vw-100 vh-100"
     >
       <div class="gradient"></div>
-      <div
-        class="x-wing"
-        v-for="i in 5"
-        :key="i"
-        v-if="$i18n.locale === 'yoda'"
-      >
-        <i class="fi fi-x-wing"></i>
-      </div>
+      <template v-if="$i18n.locale === 'yoda'">
+        <div class="x-wing" v-for="i in 5" :key="i">
+          <i class="fi fi-x-wing"></i>
+        </div>
+      </template>
     </div>
 
     <div
       class="content-body w-100 z-0 flex-grow-1 d-flex flex-column overflow-y-auto overflow-x-hidden position-relative"
     >
-      <Navbar :small="smallNavbar" />
+      <BaseNavbar :small="smallNavbar" />
 
       <slot></slot>
 

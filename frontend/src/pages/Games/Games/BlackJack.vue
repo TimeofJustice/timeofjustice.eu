@@ -7,7 +7,7 @@ import {
   faInfo,
   faPlus,
 } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import Icon from "@components/Icon.vue";
+import CustomIcon from "@components/CustomIcon.vue";
 import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
 import { useI18n } from "@node_modules/vue-i18n";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
@@ -502,7 +502,7 @@ onBeforeUnmount(() => {
           <h3
             class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex text-center align-items-center text-light col-4 col-md-3 mb-0"
           >
-            <Icon icon="playing-cards" />
+            <CustomIcon icon="playing-cards" />
             {{ gameSession.leftOverCards }}
           </h3>
         </div>

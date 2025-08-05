@@ -1,9 +1,9 @@
 <script setup lang="ts">
-interface IconProps {
+interface CustomIconProps {
   icon: "playing-cards" | "clubs" | "diamonds" | "hearts" | "spades";
 }
 
-defineProps<IconProps>();
+defineProps<CustomIconProps>();
 </script>
 
 <template>

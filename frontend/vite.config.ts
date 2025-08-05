@@ -27,15 +27,16 @@ export default defineConfig({
       input: resolve("./src/main.ts"),
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules/@fortawesome")) {
-            // Split dependencies into individual chunks by their package name
-            return id
-              .toString()
-              .split("node_modules/@fortawesome/")[1]
-              .split("/")[0]
-              .toString();
-          } else if (id.includes("node_modules")) {
-            // Split dependencies into individual chunks by their package name
+          if (id.includes("node_modules")) {
+            if (id.includes("vue")) return;
+            if (id.includes("apexcharts")) return "apexcharts";
+            if (id.includes("@fortawesome")) {
+              return id
+                .toString()
+                .split("node_modules/@fortawesome/")[1]
+                .split("/")[0]
+                .toString();
+            }
             return id
               .toString()
               .split("node_modules/")[1]

@@ -50,5 +50,5 @@ EXPOSE 8000 8001
 
 WORKDIR /app/backend
 
-# Start the application using Gunicorn
-CMD ["./entrypoint-dev.sh"]
+# Start the application
+CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]

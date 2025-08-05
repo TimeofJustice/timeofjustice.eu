@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import { ref } from "vue";
-import Profile from "@components/Profile.vue";
+import ProfileCard from "@components/ProfileCard.vue";
 import ProjectDetails from "@pages/Projects/ProjectDetails.vue";
 import { Social } from "@/types/Social.ts";
 import { Project } from "@/types/Project.ts";
@@ -56,7 +56,7 @@ const loadProject = async (id: number) => {
           $t("index.title.bottom")
         }}</span>
       </h1>
-      <Profile
+      <ProfileCard
         :profile-picture="profile?.picture"
         :description="profile?.description"
         :short-description="profile?.shortDescription"
@@ -67,7 +67,7 @@ const loadProject = async (id: number) => {
       />
     </div>
     <div class="d-flex flex-grow-1 justify-content-center d-block d-lg-none">
-      <Profile
+      <ProfileCard
         :profile-picture="profile?.picture"
         :description="profile?.description"
         :short-description="profile?.shortDescription"
