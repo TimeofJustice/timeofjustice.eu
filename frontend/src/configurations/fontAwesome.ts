@@ -14,12 +14,8 @@ import {
   faVuejs,
 } from "@fortawesome/free-brands-svg-icons";
 import {
-  faArrowLeft,
-  faArrowRight,
   faExternalLinkAlt,
   faGlobe,
-  faMaximize,
-  faMinimize,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -28,11 +24,7 @@ library.add(
   faInstagram,
   faLinkedin,
   faTwitter,
-  faArrowRight,
   faTimes,
-  faMaximize,
-  faMinimize,
-  faArrowLeft,
   faVuejs,
   faGlobe,
   faExternalLinkAlt,

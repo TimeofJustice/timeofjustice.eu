@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Project } from "@/types/Project.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   project: Project;
@@ -72,7 +73,7 @@ const leftover = props.project.technologies.length - technologies.length;
           class="btn-square stretched-link"
           @click="callback(project.id)"
         >
-          <font-awesome-icon icon="fa-solid fa-arrow-right" />
+          <font-awesome-icon :icon="faArrowRight" />
         </BButton>
       </div>
     </div>

@@ -109,6 +109,7 @@ $colors-shades: (
 
 // Import custom styles
 @import "custom";
+@import "font";
 
 // Import libraries
 @import "vue3-carousel/carousel.css";

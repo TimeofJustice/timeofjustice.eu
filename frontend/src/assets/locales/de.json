@@ -4,7 +4,17 @@
     "error": "Fehler",
     "more": "Mehr",
     "save": "Speichern",
-    "day": "Tag"
+    "day": "Tag",
+    "home": "Startseite"
+  },
+  "error": {
+    "message": "Sieht so aus, als wärst du falsch abgebogen. Keine Sorge, du kannst jederzeit zur Startseite zurückkehren.",
+    "bad_request": "Die Anfrage war ungültig oder konnte nicht bearbeitet werden",
+    "permission_denied": "Dieser Bereich ist nur für autorisierte Benutzer!",
+    "page_not_found": "Du befindest dich in unbekanntem Gebiet!",
+    "server_error": "Etwas ist auf unserer Seite schiefgelaufen",
+    "unknown_error": "Ein unbekannter Fehler ist aufgetreten",
+    "back": "Zurück zur Startseite"
   },
   "nav": {
     "projects": "Projekte",

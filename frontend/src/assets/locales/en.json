@@ -4,7 +4,17 @@
     "error": "Error",
     "more": "More",
     "save": "Save",
-    "day": "Day"
+    "day": "Day",
+    "home": "Home"
+  },
+  "error": {
+    "message": "Looks like you took a wrong turn. But don't worry, you can always go back to the homepage.",
+    "bad_request": "The request was invalid or cannot be served",
+    "permission_denied": "This area is only for authorized users!",
+    "page_not_found": "You're in uncharted territory!",
+    "server_error": "Something went wrong on our end",
+    "unknown_error": "An unknown error occurred",
+    "back": "Return home"
   },
   "nav": {
     "projects": "Projects",

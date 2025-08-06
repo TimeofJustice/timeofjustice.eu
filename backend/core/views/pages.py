@@ -9,7 +9,7 @@ def error(request, status_code):
         "statusCode": status_code,
     }
 
-    return render(request, "Error", props=default_props(page_props))
+    return render(request, "ErrorPage", props=default_props(page_props))
 
 
 def index(request):

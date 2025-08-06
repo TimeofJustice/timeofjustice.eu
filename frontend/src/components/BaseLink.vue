@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Link, InertiaLinkProps } from "@inertiajs/vue3";
 
-export interface LinkProps extends /* @vue-ignore */ InertiaLinkProps {
+export interface BaseLinkProps extends /* @vue-ignore */ InertiaLinkProps {
   href: string;
   external?: boolean;
 }
 
-defineProps<LinkProps>();
+defineProps<BaseLinkProps>();
 </script>
 
 <template>
