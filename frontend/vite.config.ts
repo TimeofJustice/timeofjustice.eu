@@ -28,7 +28,7 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            if (id.includes("vue")) return;
+            if (id.includes("vue")) return "vue";
             if (id.includes("apexcharts")) return "apexcharts";
             if (id.includes("@fortawesome")) {
               return id
@@ -71,6 +71,20 @@ export default defineConfig({
     host: true,
     watch: {
       usePolling: true,
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      sass: {
+        api: "modern",
+        silenceDeprecations: ["import", "slash-div", "global-builtin"],
+        quietDeps: true,
+      },
+      scss: {
+        api: "modern",
+        silenceDeprecations: ["import", "slash-div", "global-builtin"],
+        quietDeps: true,
+      },
     },
   },
 });
