@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import BaseNavbar from "@components/BaseNavbar.vue";
-import { faClose } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 interface IBasicLayout {
   production: boolean;
@@ -67,7 +66,7 @@ defineProps<IBasicLayout>();
           close-variant="tertiary"
         >
           <template #close>
-            <font-awesome-icon :icon="faClose" />
+            <iconify-icon icon="ep:close-bold" />
           </template>
 
           <vue-markdown :source="$t('nav.stable_hint')" />

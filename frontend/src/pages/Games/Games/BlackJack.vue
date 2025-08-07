@@ -1,13 +1,4 @@
 <script setup lang="ts">
-import {
-  faClose,
-  faCopy,
-  faDice,
-  faHand,
-  faInfo,
-  faPlus,
-} from "@node_modules/@fortawesome/free-solid-svg-icons";
-import CustomIcon from "@components/CustomIcon.vue";
 import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
 import { useI18n } from "@node_modules/vue-i18n";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
@@ -286,12 +277,12 @@ onBeforeUnmount(() => {
   >
     <template #header>
       <h4 class="m-0">
-        <font-awesome-icon :icon="faDice" />
+        <iconify-icon icon="fa7-solid:dice" />
         {{ $t("games.game.black_jack.title") }}
       </h4>
 
       <BButton variant="tertiary" class="btn-square opacity-0">
-        <font-awesome-icon :icon="faCopy" />
+        <iconify-icon icon="iconamoon:copy-duotone" />
       </BButton>
     </template>
 
@@ -303,7 +294,7 @@ onBeforeUnmount(() => {
         class="btn-circle position-absolute top-0 end-0 m-2 z-3"
         @click="areRulesOpen = true"
       >
-        <font-awesome-icon :icon="faInfo" />
+        <iconify-icon icon="fa7-solid:info" />
       </BButton>
 
       <BModal
@@ -324,7 +315,7 @@ onBeforeUnmount(() => {
             class="btn-square text-light"
             @click="areRulesOpen = false"
           >
-            <font-awesome-icon :icon="faClose" />
+            <iconify-icon icon="ep:close-bold" />
           </BButton>
         </template>
       </BModal>
@@ -476,7 +467,7 @@ onBeforeUnmount(() => {
               @click.prevent="processTurn('hit')"
               :disabled="gameSession.state !== 'playing' || waitingForResponse"
             >
-              <font-awesome-icon :icon="faPlus" />
+              <iconify-icon icon="fa7-solid:plus" />
               {{ $t("games.game.black_jack.actions.hit") }}
             </BButton>
             <BButton
@@ -484,7 +475,7 @@ onBeforeUnmount(() => {
               @click.prevent="processTurn('stand')"
               :disabled="gameSession.state !== 'playing' || waitingForResponse"
             >
-              <font-awesome-icon :icon="faHand" />
+              <iconify-icon icon="fa7-solid:hand" />
               {{ $t("games.game.black_jack.actions.stand") }}
             </BButton>
           </div>
@@ -502,7 +493,7 @@ onBeforeUnmount(() => {
           <h3
             class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex text-center align-items-center text-light col-4 col-md-3 mb-0"
           >
-            <CustomIcon icon="playing-cards" />
+            <iconify-icon icon="mdi:cards-playing-heart-multiple" />
             {{ gameSession.leftOverCards }}
           </h3>
         </div>

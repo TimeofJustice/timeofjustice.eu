@@ -8,7 +8,6 @@ import { Project } from "@/types/Project.ts";
 import ProjectItem from "@pages/Projects/ProjectItem.vue";
 import { Tool } from "@/types/Tool.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
-import { faExternalLink } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 interface Props {
   profile?: {
@@ -110,7 +109,7 @@ const loadProject = async (id: number) => {
           class="btn-square"
           @click="showOffcanvas = false"
         >
-          <font-awesome-icon icon="fa-solid fa-times" />
+          <iconify-icon icon="ep:close-bold" />
         </BButton>
         <BButton
           variant="tertiary"
@@ -120,7 +119,7 @@ const loadProject = async (id: number) => {
           target="_blank"
           external
         >
-          <font-awesome-icon :icon="faExternalLink" />
+          <iconify-icon icon="pajamas:external-link" />
         </BButton>
       </div>
     </template>

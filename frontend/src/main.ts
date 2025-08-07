@@ -9,9 +9,8 @@ import Vue3Marquee from "vue3-marquee";
 import VueApexCharts from "@node_modules/vue3-apexcharts";
 import axios from "axios";
 
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { Icon } from "@iconify/vue";
 import bootstrapVueNextConfig from "@configurations/bootstrapVueNext";
-import "@configurations/fontAwesome.ts";
 
 import de from "@assets/locales/de.json";
 import en from "@assets/locales/en.json";
@@ -47,7 +46,7 @@ createInertiaApp({
     createApp({ render: () => h(App, props) })
       .use(plugin)
       .use(createBootstrap(bootstrapVueNextConfig))
-      .component("font-awesome-icon", FontAwesomeIcon)
+      .component("iconify-icon", Icon)
       .component("v-lazy-image", VLazyImage)
       .component("vue-markdown", VueMarkdown)
       .use(MotionPlugin)

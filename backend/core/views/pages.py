@@ -21,17 +21,17 @@ def index(request):
             {
                 "type": "github",
                 "url": "https://github.com/TimeofJustice",
-                "icon": "fa-brands fa-github",
+                "icon": "line-md:github",
             },
             {
                 "type": "instagram",
                 "url": "https://instagram.com/jonas.oel",
-                "icon": "fa-brands fa-instagram",
+                "icon": "line-md:instagram",
             },
             {
                 "type": "linkedin",
                 "url": "https://linkedin.com/in/jonas-oelschner-2569441b3",
-                "icon": "fa-brands fa-linkedin",
+                "icon": "line-md:linkedin",
             },
         ],
         "projects": [project.json() for project in models.Project.objects.all()],

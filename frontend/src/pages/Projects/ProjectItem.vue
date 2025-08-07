@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Project } from "@/types/Project.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   project: Project;
@@ -58,7 +57,7 @@ const leftover = props.project.technologies.length - technologies.length;
             class="bg-opacity-50"
             variant="primary"
           >
-            <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
+            <iconify-icon :icon="technology.icon" v-if="technology.icon" />
             {{ technology.name }}
           </BBadge>
           <BBadge v-if="leftover > 0" class="bg-opacity-50" variant="primary">
@@ -73,7 +72,7 @@ const leftover = props.project.technologies.length - technologies.length;
           class="btn-square stretched-link"
           @click="callback(project.id)"
         >
-          <font-awesome-icon :icon="faArrowRight" />
+          <iconify-icon icon="fa6-solid:arrow-right" />
         </BButton>
       </div>
     </div>

@@ -1,17 +1,5 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from "vue";
-import {
-  faArrowsToDot,
-  faBinoculars,
-  faCheck,
-  faChevronLeft,
-  faChevronRight,
-  faEyeDropper,
-  faLayerGroup,
-  faPalette,
-  faSync,
-} from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { Head, usePage } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
@@ -1261,7 +1249,7 @@ watch(
             offset="5"
           >
             <template #button-content>
-              <font-awesome-icon :icon="faBinoculars" class="me-2" />
+              <iconify-icon icon="fa7-solid:binoculars" class="me-2" />
               <span>{{ activeCanvas.name }}</span>
             </template>
             <BDropdownItem
@@ -1282,7 +1270,7 @@ watch(
               class="place-button place-button-small"
               @click="overlay.open()"
             >
-              <font-awesome-icon :icon="faLayerGroup" />
+              <iconify-icon icon="fa7-solid:layer-group" />
             </BButton>
           </div>
         </div>
@@ -1294,7 +1282,7 @@ watch(
             class="place-button place-button-small"
             @click="view.center()"
           >
-            <font-awesome-icon :icon="faArrowsToDot" />
+            <iconify-icon icon="fa7-solid:arrows-to-dot" />
           </BButton>
           <BButton
             class="place-button place-button-big d-flex flex-column justify-content-center align-items-center"
@@ -1312,7 +1300,7 @@ watch(
             class="place-button place-button-small"
             @click="view.pickColor()"
           >
-            <font-awesome-icon :icon="faEyeDropper" />
+            <iconify-icon icon="fa7-solid:eye-dropper" />
           </BButton>
           <div
             class="position-absolute bottom-0 end-0 p-2 text-black fw-bold d-none d-sm-block"
@@ -1337,7 +1325,7 @@ watch(
               :class="{ 'opacity-0': placeState.colorsPage === 0 }"
               v-if="placeState.inOverlay"
             >
-              <font-awesome-icon :icon="faChevronLeft" />
+              <iconify-icon icon="fa6-solid:chevron-left" />
             </div>
             <div
               class="place-colors-grid"
@@ -1359,7 +1347,7 @@ watch(
                 :key="i"
                 style="background-color: white"
               >
-                <font-awesome-icon :icon="faClose" class="text-black" />
+                <iconify-icon icon="ep:close-bold" class="text-black" />
               </div>
             </div>
             <div
@@ -1376,7 +1364,7 @@ watch(
               }"
               v-if="placeState.inOverlay"
             >
-              <font-awesome-icon :icon="faChevronRight" />
+              <iconify-icon icon="fa6-solid:chevron-right" />
             </div>
 
             <div
@@ -1399,7 +1387,7 @@ watch(
               <div
                 class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none"
               >
-                <font-awesome-icon :icon="faPalette" />
+                <iconify-icon icon="fa7-solid:palette" />
               </div>
             </div>
           </div>
@@ -1422,7 +1410,7 @@ watch(
                 v-if="!synced"
               >
                 <BButton @click="overlay.preview()" class="place-button fs-5">
-                  <font-awesome-icon :icon="faSync" />
+                  <iconify-icon icon="fa7-solid:sync" />
                 </BButton>
               </div>
             </Transition>
@@ -1513,13 +1501,13 @@ watch(
               class="place-button place-button"
               @click="placeState.overlayScreen = false"
             >
-              <font-awesome-icon :icon="faClose" />
+              <iconify-icon icon="ep:close-bold" />
             </BButton>
             <BButton
               class="place-button flex-grow-1"
               @click="overlay.calculate()"
             >
-              <font-awesome-icon :icon="faCheck" />
+              <iconify-icon icon="fa6-solid:check" />
             </BButton>
           </div>
         </div>

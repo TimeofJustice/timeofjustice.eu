@@ -1,9 +1,7 @@
-import { IconDefinition } from "@fortawesome/fontawesome-common-types";
-
 export interface Route {
   name: string;
   path: string;
-  icon: IconDefinition;
+  icon: string;
   activeComponents: string[];
   isHighlighted?: boolean;
 }

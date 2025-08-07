@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { faBars } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@node_modules/@fortawesome/vue-fontawesome";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import { onMounted, onUnmounted, ref } from "vue";
 import { ROUTES } from "@configurations/routes.ts";
@@ -41,7 +39,7 @@ onMounted(() => {
         target="nav-offcanvas"
         class="btn btn-tertiary btn-square navbar-toggler border-0"
       >
-        <FontAwesomeIcon :icon="faBars" />
+        <iconify-icon icon="fa6-solid:bars" />
       </BNavbarToggle>
 
       <div class="d-flex align-items-center">
@@ -88,7 +86,7 @@ onMounted(() => {
         :teleport-disabled="true"
       >
         <template #header-close>
-          <font-awesome-icon icon="fa-solid fa-times" />
+          <iconify-icon icon="ep:close-bold" />
         </template>
 
         <BNavbarNav>

@@ -2,13 +2,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import {
-  faClose,
-  faCopy,
-  faDice,
-  faInfo,
-  faX,
-} from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { computed } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
 import { useI18n } from "@node_modules/vue-i18n";
@@ -270,12 +263,12 @@ const removeBet = () => {
   >
     <template #header>
       <h4 class="m-0">
-        <font-awesome-icon :icon="faDice" />
+        <iconify-icon icon="fa7-solid:dice" />
         {{ $t("games.game.sic_bo.title") }}
       </h4>
 
       <BButton variant="tertiary" class="btn-square opacity-0">
-        <font-awesome-icon :icon="faCopy" />
+        <iconify-icon icon="iconamoon:copy-duotone" />
       </BButton>
     </template>
 
@@ -287,7 +280,7 @@ const removeBet = () => {
         class="btn-circle position-absolute top-0 end-0 m-2 z-3"
         @click="areRulesOpen = true"
       >
-        <font-awesome-icon :icon="faInfo" />
+        <iconify-icon icon="fa7-solid:info" />
       </BButton>
 
       <BModal
@@ -308,7 +301,7 @@ const removeBet = () => {
             class="btn-square text-light"
             @click="areRulesOpen = false"
           >
-            <font-awesome-icon :icon="faClose" />
+            <iconify-icon icon="ep:close-bold" />
           </BButton>
         </template>
       </BModal>
@@ -390,7 +383,7 @@ const removeBet = () => {
                 class="btn-lg"
                 @click.prevent="removeBet"
               >
-                <font-awesome-icon :icon="faX" />
+                <iconify-icon icon="ep:close-bold" />
               </BButton>
             </div>
           </div>

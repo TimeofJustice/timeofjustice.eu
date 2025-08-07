@@ -1,15 +1,4 @@
 <script setup lang="ts">
-import {
-  faArrowDown,
-  faArrowRightFromBracket,
-  faArrowRightToBracket,
-  faArrowUp,
-  faClose,
-  faCopy,
-  faDice,
-  faInfo,
-} from "@node_modules/@fortawesome/free-solid-svg-icons";
-import CustomIcon from "@components/CustomIcon.vue";
 import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
@@ -206,12 +195,12 @@ onBeforeUnmount(() => {
   >
     <template #header>
       <h4 class="m-0">
-        <font-awesome-icon :icon="faDice" />
+        <iconify-icon icon="fa7-solid:dice" />
         {{ $t("games.game.ride_the_bus.title") }}
       </h4>
 
       <BButton variant="tertiary" class="btn-square opacity-0">
-        <font-awesome-icon :icon="faCopy" />
+        <iconify-icon icon="iconamoon:copy-duotone" />
       </BButton>
     </template>
 
@@ -223,7 +212,7 @@ onBeforeUnmount(() => {
         class="btn-circle position-absolute top-0 end-0 m-2 z-3"
         @click="areRulesOpen = true"
       >
-        <font-awesome-icon :icon="faInfo" />
+        <iconify-icon icon="fa7-solid:info" />
       </BButton>
 
       <BModal
@@ -244,7 +233,7 @@ onBeforeUnmount(() => {
             class="btn-square text-light"
             @click="areRulesOpen = false"
           >
-            <font-awesome-icon :icon="faClose" />
+            <iconify-icon icon="ep:close-bold" />
           </BButton>
         </template>
       </BModal>
@@ -383,16 +372,19 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'first_round' || waitingForResponse
                 "
               >
-                <CustomIcon icon="diamonds" />
-                <CustomIcon icon="hearts" class="me-md-1" />
+                <iconify-icon icon="mdi:suit-diamonds" />
+                <iconify-icon icon="mdi:suit-hearts" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.red")
                 }}</span>
-                <CustomIcon
-                  icon="hearts"
+                <iconify-icon
+                  icon="mdi:suit-hearts"
                   class="ms-1 d-none d-md-inline-block"
                 />
-                <CustomIcon icon="diamonds" class="d-none d-md-inline-block" />
+                <iconify-icon
+                  icon="mdi:suit-diamonds"
+                  class="d-none d-md-inline-block"
+                />
               </BButton>
               <BButton
                 variant="primary"
@@ -401,16 +393,19 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'first_round' || waitingForResponse
                 "
               >
-                <CustomIcon icon="spades" />
-                <CustomIcon icon="clubs" class="me-md-1" />
+                <iconify-icon icon="mdi:suit-spades" />
+                <iconify-icon icon="mdi:suit-clubs" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.black")
                 }}</span>
-                <CustomIcon
-                  icon="clubs"
+                <iconify-icon
+                  icon="mdi:suit-clubs"
                   class="ms-1 d-none d-md-inline-block"
                 />
-                <CustomIcon icon="spades" class="d-none d-md-inline-block" />
+                <iconify-icon
+                  icon="mdi:suit-spades"
+                  class="d-none d-md-inline-block"
+                />
               </BButton>
             </div>
 
@@ -444,7 +439,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'second_round' || waitingForResponse
                 "
               >
-                <font-awesome-icon :icon="faArrowUp" class="me-md-1" />
+                <iconify-icon icon="fa6-solid:arrow-up" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.higher")
                 }}</span>
@@ -456,7 +451,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'second_round' || waitingForResponse
                 "
               >
-                <font-awesome-icon :icon="faArrowDown" class="me-md-1" />
+                <iconify-icon icon="fa6-solid:arrow-down" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.lower")
                 }}</span>
@@ -502,10 +497,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'third_round' || waitingForResponse
                 "
               >
-                <font-awesome-icon
-                  :icon="faArrowRightToBracket"
-                  class="me-md-1"
-                />
+                <iconify-icon icon="fa7-solid:sign-in" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.inside")
                 }}</span>
@@ -517,10 +509,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'third_round' || waitingForResponse
                 "
               >
-                <font-awesome-icon
-                  :icon="faArrowRightFromBracket"
-                  class="me-md-1"
-                />
+                <iconify-icon icon="fa7-solid:sign-out" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.outside")
                 }}</span>
@@ -566,7 +555,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <CustomIcon icon="clubs" class="me-md-1" />
+                <iconify-icon icon="mdi:suit-clubs" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.clubs")
                 }}</span>
@@ -578,7 +567,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <CustomIcon icon="diamonds" class="me-md-1" />
+                <iconify-icon icon="mdi:suit-diamonds" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.diamonds")
                 }}</span>
@@ -590,7 +579,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <CustomIcon icon="spades" class="me-md-1" />
+                <iconify-icon icon="mdi:suit-spades" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.spades")
                 }}</span>
@@ -602,7 +591,7 @@ onBeforeUnmount(() => {
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <CustomIcon icon="hearts" class="me-md-1" />
+                <iconify-icon icon="mdi:suit-hearts" class="me-md-1" />
                 <span class="d-none d-md-inline-block">{{
                   $t("games.game.ride_the_bus.actions.hearts")
                 }}</span>

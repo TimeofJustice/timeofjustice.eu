@@ -20,7 +20,7 @@ export default defineConfig({
   build: {
     outDir: resolve("./dist"),
     assetsDir: "./src/assets",
-    manifest: true,
+    manifest: "manifest.json",
     emptyOutDir: true,
     rollupOptions: {
       // Overwrite default .html entry to main.ts in the static directory
@@ -30,13 +30,6 @@ export default defineConfig({
           if (id.includes("node_modules")) {
             if (id.includes("vue")) return "vue";
             if (id.includes("apexcharts")) return "apexcharts";
-            if (id.includes("@fortawesome")) {
-              return id
-                .toString()
-                .split("node_modules/@fortawesome/")[1]
-                .split("/")[0]
-                .toString();
-            }
             return id
               .toString()
               .split("node_modules/")[1]

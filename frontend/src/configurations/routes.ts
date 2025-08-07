@@ -5,23 +5,18 @@
  */
 
 import { Route } from "../types/Route.ts";
-import {
-  faDice,
-  faHome,
-  faPaintBrush,
-} from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 export const ROUTES: Route[] = [
   {
     name: "nav.projects",
     path: "/",
-    icon: faHome,
+    icon: "fa6-solid:house",
     activeComponents: ["ProjectsPage"],
   },
   {
     name: "nav.games",
     path: "/games/",
-    icon: faDice,
+    icon: "fa7-solid:dice",
     activeComponents: [
       "Games/GamesPage",
       "Games/GamesEntry",
@@ -31,7 +26,7 @@ export const ROUTES: Route[] = [
   {
     name: "nav.place",
     path: "/r-place/",
-    icon: faPaintBrush,
+    icon: "fa6-solid:paintbrush",
     activeComponents: ["RPlace"],
     isHighlighted: true,
   },

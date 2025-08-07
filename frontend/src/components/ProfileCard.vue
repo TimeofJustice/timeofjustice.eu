@@ -59,7 +59,7 @@ withDefaults(defineProps<Props>(), {
             :key="social.type"
           >
             <h4 class="mb-0 opacity-75">
-              <font-awesome-icon :icon="social.icon" />
+              <iconify-icon :icon="social.icon" />
             </h4>
           </a>
         </div>
@@ -147,7 +147,7 @@ withDefaults(defineProps<Props>(), {
             :key="social.type"
           >
             <h4 class="mb-0 opacity-75">
-              <font-awesome-icon :icon="social.icon" />
+              <iconify-icon :icon="social.icon" />
             </h4>
           </a>
         </div>

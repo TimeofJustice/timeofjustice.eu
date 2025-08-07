@@ -1,17 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import {
-  faArrowDown,
-  faArrowUp,
-  faClose,
-  faCopy,
-  faDice,
-  faInfo,
-  faMinus,
-} from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { computed, onBeforeUnmount } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
-import CustomIcon from "@components/CustomIcon.vue";
 import { useI18n } from "@node_modules/vue-i18n";
 import axios from "@node_modules/axios";
 
@@ -202,12 +192,12 @@ onBeforeUnmount(() => {
   >
     <template #header>
       <h4 class="m-0">
-        <font-awesome-icon :icon="faDice" />
+        <iconify-icon icon="fa7-solid:dice" />
         {{ $t("games.game.higher_lower.title") }}
       </h4>
 
       <BButton variant="tertiary" class="btn-square opacity-0">
-        <font-awesome-icon :icon="faCopy" />
+        <iconify-icon icon="iconamoon:copy-duotone" />
       </BButton>
     </template>
 
@@ -219,7 +209,7 @@ onBeforeUnmount(() => {
         class="btn-circle position-absolute top-0 end-0 m-2 z-3"
         @click="areRulesOpen = true"
       >
-        <font-awesome-icon :icon="faInfo" />
+        <iconify-icon icon="fa7-solid:info" />
       </BButton>
 
       <BModal
@@ -240,7 +230,7 @@ onBeforeUnmount(() => {
             class="btn-square text-light"
             @click="areRulesOpen = false"
           >
-            <font-awesome-icon :icon="faClose" />
+            <iconify-icon icon="ep:close-bold" />
           </BButton>
         </template>
       </BModal>
@@ -339,7 +329,7 @@ onBeforeUnmount(() => {
                 waitingForResponse
               "
             >
-              <font-awesome-icon :icon="faArrowUp" />
+              <iconify-icon icon="fa6-solid:arrow-up" />
             </BButton>
             <BButton
               variant="warning"
@@ -350,7 +340,7 @@ onBeforeUnmount(() => {
                 waitingForResponse
               "
             >
-              <font-awesome-icon :icon="faMinus" />
+              <iconify-icon icon="fa7-solid:minus" />
             </BButton>
             <BButton
               variant="danger"
@@ -361,7 +351,7 @@ onBeforeUnmount(() => {
                 waitingForResponse
               "
             >
-              <font-awesome-icon :icon="faArrowDown" />
+              <iconify-icon icon="fa6-solid:arrow-down" />
             </BButton>
             <BButton
               variant="primary"
@@ -391,7 +381,7 @@ onBeforeUnmount(() => {
           <h3
             class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex text-center align-items-center text-light col-3 mb-0"
           >
-            <CustomIcon icon="playing-cards" />
+            <iconify-icon icon="mdi:cards-playing-heart-multiple" />
             {{ gameSession.leftOverCards }}
           </h3>
         </div>

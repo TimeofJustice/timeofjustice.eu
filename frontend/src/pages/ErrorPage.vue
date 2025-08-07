@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { faHome } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 interface ErrorPageProps {
   statusCode: number;
@@ -35,7 +34,7 @@ const errorMessages: Record<number, string> = {
           {{ $t("error.message") }}
         </div>
         <BLink variant="light" to="/">
-          <font-awesome-icon :icon="faHome" />
+          <iconify-icon icon="fa6-solid:house" />
           {{ $t("error.back") }}
         </BLink>
       </div>

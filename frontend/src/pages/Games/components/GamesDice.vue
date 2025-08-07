@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { faCircle } from "@node_modules/@fortawesome/free-solid-svg-icons";
-
 interface DiceProps {
   value: number;
   size?: "sm" | "md" | "lg";
@@ -17,31 +15,31 @@ withDefaults(defineProps<DiceProps>(), {
     :class="`dice-${size}`"
   >
     <div
-      class="d-flex flex-column h-100 w-100"
+      class="d-flex flex-column h-100 w-100 align-items-center"
       :class="
         value !== 1 ? 'justify-content-between' : 'justify-content-center'
       "
     >
       <template v-if="value === 1">
-        <font-awesome-icon :icon="faCircle" />
+        <iconify-icon icon="fa6-solid:circle" />
       </template>
       <template v-else-if="value === 2">
         <div class="d-flex justify-content-end w-100">
-          <font-awesome-icon :icon="faCircle" />
+          <iconify-icon icon="fa6-solid:circle" />
         </div>
         <div class="d-flex justify-content-start w-100">
-          <font-awesome-icon :icon="faCircle" />
+          <iconify-icon icon="fa6-solid:circle" />
         </div>
       </template>
       <template v-else-if="value === 3">
         <div class="d-flex justify-content-end w-100">
-          <font-awesome-icon :icon="faCircle" />
+          <iconify-icon icon="fa6-solid:circle" />
         </div>
         <div class="d-flex justify-content-center w-100">
-          <font-awesome-icon :icon="faCircle" />
+          <iconify-icon icon="fa6-solid:circle" />
         </div>
         <div class="d-flex justify-content-start w-100">
-          <font-awesome-icon :icon="faCircle" />
+          <iconify-icon icon="fa6-solid:circle" />
         </div>
       </template>
       <template v-else-if="value >= 4">
@@ -55,8 +53,11 @@ withDefaults(defineProps<DiceProps>(), {
               : 'justify-content-between'
           "
         >
-          <font-awesome-icon :icon="faCircle" />
-          <font-awesome-icon :icon="faCircle" v-if="value !== 5 || row !== 2" />
+          <iconify-icon icon="fa6-solid:circle" />
+          <iconify-icon
+            icon="fa6-solid:circle"
+            v-if="value !== 5 || row !== 2"
+          />
         </div>
       </template>
     </div>
@@ -70,7 +71,7 @@ withDefaults(defineProps<DiceProps>(), {
     height: 1em;
     padding: 0.25em;
 
-    .fa-circle {
+    .iconify {
       font-size: 0.125em;
     }
   }
@@ -80,7 +81,7 @@ withDefaults(defineProps<DiceProps>(), {
     height: 2em;
     padding: 0.5em;
 
-    .fa-circle {
+    .iconify {
       font-size: 0.3em;
     }
   }
@@ -90,7 +91,7 @@ withDefaults(defineProps<DiceProps>(), {
     height: 4em;
     padding: 0.75em;
 
-    .fa-circle {
+    .iconify {
       font-size: 0.75em;
     }
   }

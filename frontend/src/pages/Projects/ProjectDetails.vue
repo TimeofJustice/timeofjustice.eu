@@ -30,7 +30,7 @@ defineProps<Props>();
         :key="technology.name"
         variant="primary"
       >
-        <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
+        <iconify-icon :icon="technology.icon" v-if="technology.icon" />
         {{ technology.name }}
       </BBadge>
     </div>
@@ -50,9 +50,9 @@ defineProps<Props>();
         target="_blank"
         v-if="project.github"
       >
-        <font-awesome-icon icon="fa-brands fa-github" />
+        <iconify-icon icon="fa6-brands:github" />
         Github
-        <font-awesome-icon icon="fa-solid fa-external-link-alt" />
+        <iconify-icon icon="pajamas:external-link" />
       </BLink>
       <BLink
         :to="project.website"
@@ -61,9 +61,9 @@ defineProps<Props>();
         target="_blank"
         v-if="project.website"
       >
-        <font-awesome-icon icon="fa-solid fa-globe" />
+        <iconify-icon icon="fa6-solid:globe" />
         Website
-        <font-awesome-icon icon="fa-solid fa-external-link-alt" />
+        <iconify-icon icon="pajamas:external-link" />
       </BLink>
     </div>
   </div>

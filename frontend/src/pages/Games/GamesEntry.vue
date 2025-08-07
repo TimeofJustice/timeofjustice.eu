@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { faDice } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 interface Props {
   status_code: number;
@@ -26,7 +25,7 @@ defineProps<Props>();
       >
         <template #header>
           <h1 class="text-center m-0">
-            <font-awesome-icon :icon="faDice" />
+            <iconify-icon icon="fa7-solid:dice" />
             {{ $t("games.entry.title") }}
           </h1>
         </template>
