@@ -6,7 +6,7 @@ import { computed } from "@node_modules/vue";
 import RgbQuant from "rgbquant";
 
 const page = usePage();
-page.props["smallNavbar"] = true;
+page.props["navbarSize"] = "small";
 
 interface PlaceState {
   playerCount: number;

@@ -1,39 +1,16 @@
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3";
 import BaseNavbar from "@components/BaseNavbar.vue";
 
-interface IBasicLayout {
+interface BaseLayoutProps {
   production: boolean;
   stable: boolean;
-  smallNavbar?: boolean;
+  navbarSize?: "normal" | "small";
 }
 
-defineProps<IBasicLayout>();
+defineProps<BaseLayoutProps>();
 </script>
 
 <template>
-  <Head>
-    <link
-      rel="icon"
-      type="image/png"
-      href="/files/global/favicon/favicon-96x96.png"
-      sizes="96x96"
-    />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="/files/global/favicon/favicon.svg"
-    />
-    <link rel="shortcut icon" href="/files/global/favicon/favicon.ico" />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="/files/global/favicon/apple-touch-icon.png"
-    />
-    <meta name="apple-mobile-web-app-title" content="timeofjustice.eu" />
-    <link rel="manifest" href="/files/global/favicon/site.webmanifest" />
-  </Head>
-
   <div
     class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column overflow-hidden"
   >
@@ -51,7 +28,7 @@ defineProps<IBasicLayout>();
     <div
       class="content-body w-100 z-0 flex-grow-1 d-flex flex-column overflow-y-auto overflow-x-hidden position-relative"
     >
-      <BaseNavbar :small="smallNavbar" />
+      <BaseNavbar :size="navbarSize" />
 
       <slot></slot>
 
@@ -64,6 +41,7 @@ defineProps<IBasicLayout>();
           variant="info"
           dismissible
           close-variant="tertiary"
+          close-class="btn-square"
         >
           <template #close>
             <iconify-icon icon="ep:close-bold" />

@@ -5,10 +5,10 @@ import { ROUTES } from "@configurations/routes.ts";
 import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
 interface IBasicLayout {
-  small?: boolean;
+  size?: "normal" | "small";
 }
 
-defineProps<IBasicLayout>();
+const { size = "normal" } = defineProps<IBasicLayout>();
 
 // Check if the page is scrolled
 const isScrolled = ref(false);
@@ -29,11 +29,14 @@ onMounted(() => {
 <template>
   <div
     class="navbar navbar-expand-lg top-0 z-1 w-100 d-flex align-content-center justify-content-center pe-none"
-    :class="{ 'position-absolute': small, 'position-sticky': !small }"
+    :class="{
+      'position-absolute': size === 'small',
+      'position-sticky': size === 'normal',
+    }"
   >
     <div
       class="container-xxl navbar-body pe-auto gap-2 flex-row"
-      :class="{ 'scrolled card': isScrolled || small }"
+      :class="{ 'scrolled card': isScrolled || size === 'small' }"
     >
       <BNavbarToggle
         target="nav-offcanvas"
