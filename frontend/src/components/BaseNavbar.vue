@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import LocaleDropdown from "@components/LocaleDropdown.vue";
 import { onMounted, onUnmounted, ref } from "vue";
 import { ROUTES } from "@configurations/routes.ts";
+import LocaleDropdown from "@components/LocaleDropdown.vue";
 import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
 interface IBasicLayout {
@@ -9,11 +9,11 @@ interface IBasicLayout {
 }
 
 const { size = "normal" } = defineProps<IBasicLayout>();
-
-// Check if the page is scrolled
 const isScrolled = ref(false);
+
 onMounted(() => {
-  const parent: HTMLElement = document.querySelector(".content-body")!;
+  const parent: HTMLElement =
+    document.querySelector(".content-body") ?? document.documentElement;
   const onScroll = () => {
     isScrolled.value = parent.scrollTop > 0;
   };

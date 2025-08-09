@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Route } from "../types/Route.ts";
+import { Route } from "@/types/Route.ts";
 
 interface INavbarLink {
   route: Route;
