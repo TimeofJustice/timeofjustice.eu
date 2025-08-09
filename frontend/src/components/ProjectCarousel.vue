@@ -3,13 +3,6 @@ import { onBeforeUnmount, ref } from "vue";
 import { Carousel, Slide } from "vue3-carousel";
 import { TranslatedText } from "@/types/TranslatedText.ts";
 import { ProjectImage } from "@/types/ProjectImage.ts";
-import {
-  faArrowLeft,
-  faArrowRight,
-  faMaximize,
-  faPlayCircle,
-  faClose,
-} from "@fortawesome/free-solid-svg-icons";
 
 interface CarouselProps {
   items: ProjectImage[];
@@ -139,7 +132,7 @@ const forceSlideUpdate = (index: number) => {
           class="btn-circle position-absolute top-0 end-0 m-2"
           @click="openFullscreen()"
         >
-          <font-awesome-icon :icon="faMaximize" />
+          <iconify-icon icon="fa6-solid:maximize" />
         </BButton>
       </Slide>
     </Carousel>
@@ -161,10 +154,7 @@ const forceSlideUpdate = (index: number) => {
               class="position-absolute z-1 w-100 h-100 d-flex justify-content-center align-items-center fs-2 text-dark"
               v-if="image.video"
             >
-              <font-awesome-icon
-                :icon="faPlayCircle"
-                class="text-light opacity-50"
-              ></font-awesome-icon>
+              <iconify-icon icon="fa6-solid:play" class="text-light" />
             </div>
             <v-lazy-image
               class="slide thumbnail-image"
@@ -182,14 +172,14 @@ const forceSlideUpdate = (index: number) => {
           class="btn-circle ms-1 carousel__prev"
           @click="forceSlideUpdate(currentSlide - 1)"
         >
-          <font-awesome-icon :icon="faArrowLeft" />
+          <iconify-icon icon="fa6-solid:chevron-left" />
         </BButton>
         <BButton
           variant="primary"
           class="btn-circle me-1 carousel__next"
           @click="forceSlideUpdate(currentSlide + 1)"
         >
-          <font-awesome-icon :icon="faArrowRight" />
+          <iconify-icon icon="fa6-solid:chevron-right" />
         </BButton>
       </template>
     </Carousel>
@@ -228,7 +218,7 @@ const forceSlideUpdate = (index: number) => {
         class="btn-square text-light"
         @click="closeFullscreen()"
       >
-        <font-awesome-icon :icon="faClose" />
+        <iconify-icon icon="ep:close-bold" />
       </BButton>
     </template>
   </BModal>

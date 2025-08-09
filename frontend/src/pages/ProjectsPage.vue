@@ -1,14 +1,11 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { ref } from "vue";
-import Profile from "@components/Profile.vue";
-import ProjectDetails from "@pages/Projects/ProjectDetails.vue";
+import ProfileCard from "@components/ProfileCard.vue";
 import { Social } from "@/types/Social.ts";
 import { Project } from "@/types/Project.ts";
 import ProjectItem from "@pages/Projects/ProjectItem.vue";
 import { Tool } from "@/types/Tool.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
-import { faExternalLink } from "@node_modules/@fortawesome/free-solid-svg-icons";
 
 interface Props {
   profile?: {
@@ -23,22 +20,6 @@ interface Props {
 }
 
 defineProps<Props>();
-
-const project = ref<Project | null>(null);
-
-const showOffcanvas = ref(false);
-
-const loadProject = async (id: number) => {
-  project.value = null;
-  showOffcanvas.value = true;
-
-  const response = await fetch(`/api/project/${id}`);
-  if (!response.ok) {
-    throw new Error("Failed to load project");
-  }
-
-  project.value = await response.json();
-};
 </script>
 
 <template>
@@ -56,7 +37,7 @@ const loadProject = async (id: number) => {
           $t("index.title.bottom")
         }}</span>
       </h1>
-      <Profile
+      <ProfileCard
         :profile-picture="profile?.picture"
         :description="profile?.description"
         :short-description="profile?.shortDescription"
@@ -67,7 +48,7 @@ const loadProject = async (id: number) => {
       />
     </div>
     <div class="d-flex flex-grow-1 justify-content-center d-block d-lg-none">
-      <Profile
+      <ProfileCard
         :profile-picture="profile?.picture"
         :description="profile?.description"
         :short-description="profile?.shortDescription"
@@ -94,41 +75,12 @@ const loadProject = async (id: number) => {
           <ProjectItem
             :project="project"
             v-for="(project, i) in projects"
-            :callback="loadProject"
             :key="i"
           />
         </div>
       </section>
     </div>
   </div>
-
-  <BOffcanvas v-model="showOffcanvas" placement="end">
-    <template #header>
-      <div class="d-flex w-100 gap-2">
-        <BButton
-          variant="tertiary"
-          class="btn-square"
-          @click="showOffcanvas = false"
-        >
-          <font-awesome-icon icon="fa-solid fa-times" />
-        </BButton>
-        <BButton
-          variant="tertiary"
-          class="btn-square"
-          :to="`/project/${project?.id}`"
-          :title="$t('general.more')"
-          target="_blank"
-          external
-        >
-          <font-awesome-icon :icon="faExternalLink" />
-        </BButton>
-      </div>
-    </template>
-
-    <slot name="offcanvas-body">
-      <ProjectDetails :project="project" />
-    </slot>
-  </BOffcanvas>
 </template>
 
 <style scoped lang="scss">

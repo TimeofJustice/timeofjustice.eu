@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Head, router } from "@inertiajs/vue3";
-import { faDice } from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { computed, reactive } from "vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
 import { useI18n } from "vue-i18n";
@@ -66,7 +65,7 @@ const validateWalletId = computed(() => {
       >
         <template #header>
           <h1 class="text-center m-0">
-            <font-awesome-icon :icon="faDice" />
+            <iconify-icon icon="fa7-solid:dice" />
             {{ $t("games.login.title") }}
           </h1>
         </template>

@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import { faBars } from "@node_modules/@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@node_modules/@fortawesome/vue-fontawesome";
-import LocaleDropdown from "@components/LocaleDropdown.vue";
 import { onMounted, onUnmounted, ref } from "vue";
-import NavLinks from "@layouts/components/NavLinks.vue";
+import { ROUTES } from "@configurations/routes.ts";
+import LocaleDropdown from "@components/LocaleDropdown.vue";
+import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
 interface IBasicLayout {
-  small?: boolean;
+  size?: "normal" | "small";
 }
 
-defineProps<IBasicLayout>();
-
-// Check if the page is scrolled
+const { size = "normal" } = defineProps<IBasicLayout>();
 const isScrolled = ref(false);
+
 onMounted(() => {
-  const parent: HTMLElement = document.querySelector(".content-body")!;
+  const parent: HTMLElement =
+    document.querySelector(".content-body") ?? document.documentElement;
   const onScroll = () => {
     isScrolled.value = parent.scrollTop > 0;
   };
@@ -30,17 +29,20 @@ onMounted(() => {
 <template>
   <div
     class="navbar navbar-expand-lg top-0 z-1 w-100 d-flex align-content-center justify-content-center pe-none"
-    :class="{ 'position-absolute': small, 'position-sticky': !small }"
+    :class="{
+      'position-absolute': size === 'small',
+      'position-sticky': size === 'normal',
+    }"
   >
     <div
       class="container-xxl navbar-body pe-auto gap-2 flex-row"
-      :class="{ 'scrolled card': isScrolled || small }"
+      :class="{ 'scrolled card': isScrolled || size === 'small' }"
     >
       <BNavbarToggle
         target="nav-offcanvas"
         class="btn btn-tertiary btn-square navbar-toggler border-0"
       >
-        <FontAwesomeIcon :icon="faBars" />
+        <iconify-icon icon="fa6-solid:bars" />
       </BNavbarToggle>
 
       <div class="d-flex align-items-center">
@@ -65,7 +67,11 @@ onMounted(() => {
         class="d-none d-lg-flex justify-content-between align-items-center w-100"
       >
         <div class="d-flex align-items-center ps-0 pt-0">
-          <NavLinks />
+          <BaseNavbarLink
+            :route="route"
+            v-for="route in ROUTES"
+            :key="route.name"
+          />
         </div>
 
         <LocaleDropdown />
@@ -83,11 +89,15 @@ onMounted(() => {
         :teleport-disabled="true"
       >
         <template #header-close>
-          <font-awesome-icon icon="fa-solid fa-times" />
+          <iconify-icon icon="ep:close-bold" />
         </template>
 
         <BNavbarNav>
-          <NavLinks />
+          <BaseNavbarLink
+            :route="route"
+            v-for="route in ROUTES"
+            :key="route.name"
+          />
         </BNavbarNav>
       </BOffcanvas>
     </div>

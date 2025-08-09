@@ -1,19 +1,5 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import {
-  faChevronUp,
-  faClose,
-  faCoins,
-  faCopy,
-  faDice,
-  faEdit,
-  faEllipsis,
-  faSignOut,
-  faTrophy,
-  faUser,
-  faVault,
-  faWallet,
-} from "@node_modules/@fortawesome/free-solid-svg-icons";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
 import { reactive, ref, shallowRef } from "vue";
@@ -25,6 +11,7 @@ import LeaderboardPosition from "@pages/Games/components/LeaderboardPosition.vue
 import DailyReward from "@pages/Games/components/DailyReward.vue";
 import BlackJack from "@pages/Games/Games/BlackJack.vue";
 import SicBo from "@pages/Games/Games/SicBo.vue";
+import { Wallet } from "@/types/Wallet.ts";
 
 interface Player {
   name: string;
@@ -63,6 +50,9 @@ const {
   vaultReset,
   hintDismissed,
 } = defineProps<MainProps>();
+
+const walletName = ref(wallet.name);
+const walletBalance = ref(wallet.balance);
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -147,7 +137,7 @@ const saveSettings = async () => {
       .then((response) => {
         showToast(i18n.t("games.main.settings_success"), "success");
 
-        wallet.name = response.data.name;
+        walletName.value = response.data.name;
         waitingForResponse.value = false;
       })
       .catch((error) => {
@@ -187,13 +177,13 @@ const copyToClipboard = () => {
     .then(() => {
       showToast(i18n.t("games.main.copy_wallet"), "success");
     })
-    .catch((_) => {
+    .catch(() => {
       showToast(i18n.t("games.main.copy_wallet_error"), "danger");
     });
 };
 
 const onBalanceChange = (tokens: number) => {
-  wallet.balance = wallet.balance + tokens;
+  walletBalance.value = walletBalance.value + tokens;
   balanceChange.value = tokens;
 
   setTimeout(() => {
@@ -257,7 +247,7 @@ const dismissHint = () => {
         class="btn-square text-light"
         @click="showDailyBonus = false"
       >
-        <font-awesome-icon :icon="faClose" />
+        <iconify-icon icon="ep:close-bold" />
       </BButton>
     </template>
 
@@ -300,7 +290,7 @@ const dismissHint = () => {
         class="btn-square text-light"
         @click="showSettings = false"
       >
-        <font-awesome-icon :icon="faClose" />
+        <iconify-icon icon="ep:close-bold" />
       </BButton>
     </template>
 
@@ -339,7 +329,7 @@ const dismissHint = () => {
       <KeepAlive>
         <component
           :is="gameComponent"
-          :balance="wallet.balance"
+          :balance="walletBalance"
           @balanceChange="onBalanceChange"
         />
       </KeepAlive>
@@ -358,7 +348,7 @@ const dismissHint = () => {
           <div>{{ $t("games.main.reminder") }}</div>
 
           <BButton variant="tertiary" class="btn-square" @click="dismissHint">
-            <font-awesome-icon :icon="faClose" />
+            <iconify-icon icon="ep:close-bold" />
           </BButton>
         </BToast>
 
@@ -368,10 +358,14 @@ const dismissHint = () => {
           body-class="d-flex flex-column"
         >
           <template #header>
-            <h4 class="m-0 text-truncate">
-              <font-awesome-icon :icon="faUser" />
-              {{ wallet.name }}
-            </h4>
+            <div class="d-flex align-items-center gap-2">
+              <h4 class="m-0 text-truncate">
+                <iconify-icon icon="fa6-solid:user" />
+              </h4>
+              <h4 class="m-0 text-truncate">
+                {{ walletName }}
+              </h4>
+            </div>
 
             <div class="d-flex gap-2">
               <BButton
@@ -379,10 +373,10 @@ const dismissHint = () => {
                 class="btn-square"
                 @click="showSettings = true"
               >
-                <font-awesome-icon :icon="faEdit" />
+                <iconify-icon icon="fa7-solid:edit" />
               </BButton>
               <BButton variant="danger" class="btn-square" to="/games/logout/">
-                <font-awesome-icon :icon="faSignOut" />
+                <iconify-icon icon="fa7-solid:sign-out" />
               </BButton>
             </div>
           </template>
@@ -391,7 +385,7 @@ const dismissHint = () => {
             class="d-flex align-items-center gap-2 justify-content-between position-relative"
           >
             <span class="text-truncate d-flex gap-1 align-items-center">
-              <font-awesome-icon :icon="faWallet" />
+              <iconify-icon icon="fa-solid:wallet" />
               {{ wallet.walletId.slice(0, 10) }}...
             </span>
 
@@ -400,13 +394,13 @@ const dismissHint = () => {
               class="btn-square stretched-link"
               @click="copyToClipboard()"
             >
-              <font-awesome-icon :icon="faCopy" />
+              <iconify-icon icon="iconamoon:copy-duotone" />
             </BButton>
           </div>
 
           <div class="d-flex gap-1 align-items-center">
-            <font-awesome-icon :icon="faCoins" />
-            <strong>{{ wallet.balance }} TJTs</strong>
+            <iconify-icon icon="fa7-solid:coins" />
+            <strong>{{ walletBalance }} TJTs</strong>
 
             <Transition>
               <span class="text-success" v-if="balanceChange > 0">
@@ -438,7 +432,7 @@ const dismissHint = () => {
         >
           <template #header>
             <h4 class="m-0">
-              <font-awesome-icon :icon="faVault" />
+              <iconify-icon icon="fa7-solid:vault" />
               {{ $t("games.main.vault") }}
             </h4>
 
@@ -447,8 +441,8 @@ const dismissHint = () => {
               class="btn-square stretched-link"
               @click="showGamesAccount = !showGamesAccount"
             >
-              <font-awesome-icon
-                :icon="faChevronUp"
+              <iconify-icon
+                icon="fa6-solid:chevron-up"
                 :style="{
                   transform: !showGamesAccount
                     ? 'rotate(180deg)'
@@ -468,7 +462,7 @@ const dismissHint = () => {
                   class="d-flex gap-1 align-items-center"
                   :class="updatedVault >= 0 ? 'text-success' : 'text-danger'"
                 >
-                  <font-awesome-icon :icon="faCoins" />
+                  <iconify-icon icon="fa7-solid:coins" />
                   <strong>{{ updatedVault }} TJTs</strong>
                 </div>
               </div>
@@ -491,7 +485,7 @@ const dismissHint = () => {
         >
           <template #header>
             <h4 class="m-0">
-              <font-awesome-icon :icon="faDice" />
+              <iconify-icon icon="fa7-solid:dice" />
               {{ $t("games.main.games") }}
             </h4>
 
@@ -500,8 +494,8 @@ const dismissHint = () => {
               class="btn-square stretched-link"
               @click="showGames = !showGames"
             >
-              <font-awesome-icon
-                :icon="faChevronUp"
+              <iconify-icon
+                icon="fa6-solid:chevron-up"
                 :style="{
                   transform: !showGames ? 'rotate(180deg)' : 'rotate(0deg)',
                 }"
@@ -532,7 +526,7 @@ const dismissHint = () => {
         >
           <template #header>
             <h4 class="m-0">
-              <font-awesome-icon :icon="faTrophy" />
+              <iconify-icon icon="fa7-solid:trophy" />
               {{ $t("games.main.leaderboard") }}
             </h4>
 
@@ -541,8 +535,8 @@ const dismissHint = () => {
               class="btn-square stretched-link"
               @click="showLeaderboard = !showLeaderboard"
             >
-              <font-awesome-icon
-                :icon="faChevronUp"
+              <iconify-icon
+                icon="fa6-solid:chevron-up"
                 :style="{
                   transform: !showLeaderboard
                     ? 'rotate(180deg)'
@@ -567,13 +561,13 @@ const dismissHint = () => {
 
               <template v-if="updatedOwnPosition > 5">
                 <div class="fw-bold text-center">
-                  <font-awesome-icon :icon="faEllipsis" />
+                  <iconify-icon icon="fa7-solid:ellipsis" />
                 </div>
 
                 <LeaderboardPosition
                   :index="updatedOwnPosition"
                   :name="wallet.name"
-                  :balance="wallet.balance"
+                  :balance="walletBalance"
                   :streak="wallet.streak"
                   highlighted
                 />

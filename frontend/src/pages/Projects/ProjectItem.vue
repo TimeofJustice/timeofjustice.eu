@@ -4,7 +4,6 @@ import { TranslatedText } from "@/types/TranslatedText.ts";
 
 interface Props {
   project: Project;
-  callback: (id: number) => void;
 }
 
 const props = defineProps<Props>();
@@ -57,7 +56,7 @@ const leftover = props.project.technologies.length - technologies.length;
             class="bg-opacity-50"
             variant="primary"
           >
-            <font-awesome-icon :icon="technology.icon" v-if="technology.icon" />
+            <iconify-icon :icon="technology.icon" v-if="technology.icon" />
             {{ technology.name }}
           </BBadge>
           <BBadge v-if="leftover > 0" class="bg-opacity-50" variant="primary">
@@ -70,9 +69,10 @@ const leftover = props.project.technologies.length - technologies.length;
         <BButton
           variant="tertiary"
           class="btn-square stretched-link"
-          @click="callback(project.id)"
+          :to="'/projects/' + project.id"
+          offcanvas-source="/"
         >
-          <font-awesome-icon icon="fa-solid fa-arrow-right" />
+          <iconify-icon icon="fa6-solid:arrow-right" />
         </BButton>
       </div>
     </div>

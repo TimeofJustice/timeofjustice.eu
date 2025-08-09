@@ -12,4 +12,4 @@ def index(request):
         },
     }
 
-    return render(request, "FarmingStats", props=default_props(page_props))
+    return render(request, "FarmingStats", props=default_props(page_props, request))
