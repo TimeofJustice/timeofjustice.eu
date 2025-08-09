@@ -1,13 +1,56 @@
 <script setup lang="ts">
 import BaseNavbar from "@components/BaseNavbar.vue";
+import { ref } from "@node_modules/vue";
+import { shallowRef, watch } from "vue";
+import { router } from "@inertiajs/vue3";
 
 interface BaseLayoutProps {
   production: boolean;
   stable: boolean;
   navbarSize?: "normal" | "small";
+  offcanvasComponent?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  offcanvasProps?: Record<string, any>;
+  offcanvasSource?: string;
 }
 
-defineProps<BaseLayoutProps>();
+const { offcanvasComponent } = defineProps<BaseLayoutProps>();
+
+const showOffcanvas = ref(false);
+const _offcanvasComponent = shallowRef<string | null>(
+  offcanvasComponent || null,
+);
+
+watch(
+  () => offcanvasComponent,
+  (newVal) => {
+    showOffcanvas.value = !!newVal;
+
+    if (!newVal) {
+      _offcanvasComponent.value = null;
+      return;
+    }
+
+    import(`@/pages/${newVal}.vue`)
+      .then((module) => {
+        _offcanvasComponent.value = module.default;
+      })
+      .catch((error) => {
+        console.error(`Failed to load component ${newVal}:`, error);
+        _offcanvasComponent.value = null; // Fallback if the component fails to load
+      });
+  },
+  { immediate: true },
+);
+
+const lizardAudio = ref<HTMLAudioElement | null>(null);
+
+const playLizardSound = () => {
+  if (lizardAudio.value) {
+    lizardAudio.value.currentTime = 0;
+    lizardAudio.value.play();
+  }
+};
 </script>
 
 <template>
@@ -31,6 +74,63 @@ defineProps<BaseLayoutProps>();
       <BaseNavbar :size="navbarSize" />
 
       <slot></slot>
+
+      <BOffcanvas
+        v-model="showOffcanvas"
+        placement="end"
+        @hide="
+          router.visit(offcanvasSource || '/', {
+            only: ['offcanvasComponent', 'offcanvasProps', 'offcanvasSource'],
+            preserveState: true,
+            preserveScroll: true,
+          })
+        "
+      >
+        <template #header>
+          <div class="d-flex w-100 gap-2">
+            <BButton
+              variant="tertiary"
+              class="btn-square"
+              @click="showOffcanvas = false"
+            >
+              <iconify-icon icon="ep:close-bold" />
+            </BButton>
+            <BButton
+              variant="tertiary"
+              class="btn-square"
+              :to="`/projects/${offcanvasProps?.project?.id}`"
+              :title="$t('general.more')"
+              target="_blank"
+              external
+            >
+              <iconify-icon icon="pajamas:external-link" />
+            </BButton>
+            <BButton
+              variant="tertiary"
+              class="btn-square"
+              :title="$t('easter_egg.lizard')"
+              @click="playLizardSound"
+            >
+              <iconify-icon icon="fluent-emoji-high-contrast:lizard" />
+            </BButton>
+            <audio class="d-none" ref="lizardAudio">
+              <source
+                :src="require('@assets/audio/lizard.wav')"
+                type="audio/wav"
+              />
+            </audio>
+          </div>
+        </template>
+
+        <slot name="offcanvas-body">
+          <component
+            :is="_offcanvasComponent || 'div'"
+            v-bind="offcanvasProps"
+            v-if="offcanvasComponent"
+          >
+          </component>
+        </slot>
+      </BOffcanvas>
 
       <div
         class="container position-fixed bottom-0 start-0 end-0 z-3"

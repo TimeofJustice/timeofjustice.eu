@@ -4,7 +4,6 @@ import { TranslatedText } from "@/types/TranslatedText.ts";
 
 interface Props {
   project: Project;
-  callback: (id: number) => void;
 }
 
 const props = defineProps<Props>();
@@ -70,7 +69,8 @@ const leftover = props.project.technologies.length - technologies.length;
         <BButton
           variant="tertiary"
           class="btn-square stretched-link"
-          @click="callback(project.id)"
+          :to="'/projects/' + project.id"
+          offcanvas-source="/"
         >
           <iconify-icon icon="fa6-solid:arrow-right" />
         </BButton>

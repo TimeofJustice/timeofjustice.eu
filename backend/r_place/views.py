@@ -26,7 +26,7 @@ def index(request, canvas=None):
         "canvases": list(Canvas.objects.all().values("name", "width", "height", "active")),
     }
 
-    return render(request, "RPlace", props=default_props(page_props))
+    return render(request, "RPlace", props=default_props(page_props, request))
 
 
 def load_chunk(request, x, y, canvas, size=100):
