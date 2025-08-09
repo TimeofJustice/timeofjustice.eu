@@ -1,16 +1,40 @@
 <script setup lang="ts">
-import { Link, InertiaLinkProps } from "@inertiajs/vue3";
+import { InertiaLinkProps, Link } from "@inertiajs/vue3";
 
 export interface BaseLinkProps extends /* @vue-ignore */ InertiaLinkProps {
   href: string;
   external?: boolean;
+  offcanvasSource?: string;
 }
 
-defineProps<BaseLinkProps>();
+const { href, external, offcanvasSource } = defineProps<BaseLinkProps>();
+
+import { router } from "@inertiajs/vue3";
+
+function handleClick(event: MouseEvent) {
+  if (!external && offcanvasSource) {
+    event.preventDefault();
+
+    router.visit(href, {
+      headers: {
+        "X-Offcanvas-Source": offcanvasSource,
+      },
+      only: ["offcanvasComponent", "offcanvasProps", "offcanvasSource"],
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+    });
+  }
+}
 </script>
 
 <template>
-  <component :is="external ? 'a' : Link" :href="href">
+  <component
+    :is="external || offcanvasSource ? 'a' : Link"
+    :href="href"
+    v-bind="$attrs"
+    @click="handleClick"
+  >
     <slot />
   </component>
 </template>

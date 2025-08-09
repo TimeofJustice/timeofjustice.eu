@@ -23,6 +23,7 @@ import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
 import BaseLayout from "@layouts/BaseLayout.vue";
 import BaseLink from "@components/BaseLink.vue";
+import ProjectDetails from "@pages/Projects/ProjectDetails.vue";
 
 const i18n = createI18n({
   legacy: false,
@@ -49,6 +50,7 @@ createInertiaApp({
       .component("iconify-icon", Icon)
       .component("v-lazy-image", VLazyImage)
       .component("vue-markdown", VueMarkdown)
+      .component("project-details", ProjectDetails)
       .use(MotionPlugin)
       .use(i18n)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
