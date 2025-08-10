@@ -18,11 +18,7 @@ defineProps<BaseLinkProps>();
     :headers="
       offcanvasSource ? { 'X-Offcanvas-Source': offcanvasSource } : undefined
     "
-    :only="
-      offcanvasSource
-        ? ['offcanvasComponent', 'offcanvasProps', 'offcanvasSource']
-        : undefined
-    "
+    :only="offcanvasSource ? ['offcanvasState'] : undefined"
     :preserve-state="offcanvasSource ? true : undefined"
     :preserve-scroll="offcanvasSource ? true : undefined"
   >

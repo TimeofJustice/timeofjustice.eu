@@ -14,7 +14,7 @@ defineProps<Props>();
 <template>
   <Head :title="project.title" />
 
-  <div class="container">
+  <div class="container-xxl">
     <div class="d-flex flex-column gap-2" v-if="project">
       <div class="d-flex gap-2 align-items-center justify-content-between">
         <h1 class="mb-0 text-truncate">{{ project.title }}</h1>

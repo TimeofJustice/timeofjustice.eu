@@ -3,41 +3,43 @@ import BaseNavbar from "@components/BaseNavbar.vue";
 import { ref } from "@node_modules/vue";
 import { shallowRef, watch } from "vue";
 import { router } from "@inertiajs/vue3";
+import { OffcanvasState } from "@/types/OffcanvasState.ts";
 
 interface BaseLayoutProps {
   production: boolean;
   stable: boolean;
   navbarSize?: "normal" | "small";
-  offcanvasComponent?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  offcanvasProps?: Record<string, any>;
-  offcanvasSource?: string;
+  offcanvasState?: OffcanvasState;
 }
 
-const { offcanvasComponent } = defineProps<BaseLayoutProps>();
+const { offcanvasState } = defineProps<BaseLayoutProps>();
 
 const showOffcanvas = ref(false);
-const _offcanvasComponent = shallowRef<string | null>(
-  offcanvasComponent || null,
+const offcanvasComponent = shallowRef<string | null>(
+  (offcanvasState && offcanvasState.component) || null,
 );
 
 watch(
-  () => offcanvasComponent,
-  (newVal) => {
-    showOffcanvas.value = !!newVal;
-
-    if (!newVal) {
-      _offcanvasComponent.value = null;
+  () => offcanvasState,
+  (newOffcanvasState) => {
+    if (!newOffcanvasState) {
+      showOffcanvas.value = false;
+      offcanvasComponent.value = null;
       return;
     }
 
-    import(`@/pages/${newVal}.vue`)
+    showOffcanvas.value = true;
+
+    import(`@/pages/${newOffcanvasState.component}.vue`)
       .then((module) => {
-        _offcanvasComponent.value = module.default;
+        offcanvasComponent.value = module.default;
       })
       .catch((error) => {
-        console.error(`Failed to load component ${newVal}:`, error);
-        _offcanvasComponent.value = null; // Fallback if the component fails to load
+        console.error(
+          `Failed to load component ${newOffcanvasState.component}:`,
+          error,
+        );
+        offcanvasComponent.value = null;
       });
   },
   { immediate: true },
@@ -78,9 +80,10 @@ const playLizardSound = () => {
       <BOffcanvas
         v-model="showOffcanvas"
         placement="end"
-        @hide="
-          router.visit(offcanvasSource || '/', {
-            only: ['offcanvasComponent', 'offcanvasProps', 'offcanvasSource'],
+        body-class="px-0"
+        @hidden="
+          router.visit(offcanvasState?.source || '/', {
+            only: ['offcanvasState'],
             preserveState: true,
             preserveScroll: true,
           })
@@ -91,6 +94,7 @@ const playLizardSound = () => {
             <BButton
               variant="tertiary"
               class="btn-square"
+              :title="$t('general.close')"
               @click="showOffcanvas = false"
             >
               <iconify-icon icon="ep:close-bold" />
@@ -98,7 +102,7 @@ const playLizardSound = () => {
             <BButton
               variant="tertiary"
               class="btn-square"
-              :to="`/projects/${offcanvasProps?.project?.id}`"
+              :to="$page.url"
               :title="$t('general.more')"
               target="_blank"
               external
@@ -124,11 +128,10 @@ const playLizardSound = () => {
 
         <slot name="offcanvas-body">
           <component
-            :is="_offcanvasComponent || 'div'"
-            v-bind="offcanvasProps"
+            :is="offcanvasComponent || 'div'"
+            v-bind="offcanvasState?.props"
             v-if="offcanvasComponent"
-          >
-          </component>
+          />
         </slot>
       </BOffcanvas>
 
@@ -153,3 +156,9 @@ const playLizardSound = () => {
     </div>
   </div>
 </template>
+
+<style lang="scss">
+//.offcanvas-body > .container-xxl {
+//  padding: 0;
+//}
+</style>

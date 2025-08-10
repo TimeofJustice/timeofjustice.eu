@@ -3,7 +3,8 @@
   "general": {
     "back": "Back, you must",
     "error": "Error, there is",
-    "more": "More, there is"
+    "more": "More, there is",
+    "close": "Close, you must"
   },
   "error": {
     "message": "A wrong turn, you took. Worry, do not. Back to the homepage, you can always go.",

@@ -5,12 +5,12 @@ from core import models
 from core.helpers import call_view_by_url, default_props, get_or_none
 
 
-def error(request, status_code, offcanvas_component=None, **kwargs):
+def error(request, status_code):
     page_props = {
         "statusCode": status_code,
     }
 
-    return render(request, "ErrorPage", props=default_props(page_props, request, offcanvas_component=offcanvas_component, **kwargs))
+    return render(request, "ErrorPage", props=default_props(page_props, request))
 
 
 def index(request, offcanvas_component=None, **kwargs):

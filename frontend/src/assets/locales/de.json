@@ -2,10 +2,11 @@
   "general": {
     "back": "Zurück",
     "error": "Fehler",
-    "more": "Mehr",
+    "more": "Mehr...",
     "save": "Speichern",
     "day": "Tag",
-    "home": "Startseite"
+    "home": "Startseite",
+    "close": "Schließen"
   },
   "error": {
     "message": "Sieht so aus, als wärst du falsch abgebogen. Keine Sorge, du kannst jederzeit zur Startseite zurückkehren.",

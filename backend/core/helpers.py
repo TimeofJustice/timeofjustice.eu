@@ -35,12 +35,17 @@ def get_or_none(model, **kwargs):
 
 
 def default_props(additional_props, request, offcanvas_component=None, **kwargs):
+    offcanvas_state = {
+        "source": request.headers.get("X-Offcanvas-Source"),
+        "target": request.headers.get("X-Offcanvas-Target", request.headers.get("X-Offcanvas-Source")),
+        "component": offcanvas_component,
+        "props": kwargs,
+    } if offcanvas_component else None
+
     return {
         "production": settings.DEBUG is False,
         "stable": settings.IS_STABLE,
-        "offcanvasComponent": offcanvas_component,
-        "offcanvasProps": kwargs,
-        "offcanvasSource": request.headers.get("X-Offcanvas-Source"),
+        "offcanvasState": offcanvas_state,
         **additional_props,
     }
 

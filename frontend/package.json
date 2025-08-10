@@ -15,7 +15,7 @@
     "@vueuse/motion": "^3.0.3",
     "apexcharts": "^5.3.2",
     "bootstrap": "^5.3.7",
-    "bootstrap-vue-next": "^0.30.4",
+    "bootstrap-vue-next": "^0.25.15",
     "panzoom": "^9.4.3",
     "rgbquant": "^1.1.2",
     "v-lazy-image": "^2.1.1",
