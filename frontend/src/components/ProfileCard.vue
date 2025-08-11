@@ -1,169 +1,77 @@
 <script setup lang="ts">
 import { Social } from "@/types/Social.ts";
-import { Vue3Marquee } from "@node_modules/vue3-marquee";
-import { Tool } from "@/types/Tool.ts";
-import ToolsCardItemContainer from "@components/ToolsCardItem.vue";
 import { TranslatedText } from "@/types/TranslatedText.ts";
+import { Profile } from "@/types/Profile.ts";
 
-interface Props {
-  profilePicture?: string;
-  description?: TranslatedText;
-  shortDescription?: TranslatedText;
-  repo?: string;
+interface ProfileCardProps {
+  profile?: Profile;
   socials: Social[];
-  knownTools: Tool[];
-  variant?: "small" | "large";
 }
 
-withDefaults(defineProps<Props>(), {
-  variant: "large",
-  profilePicture: undefined,
-  description: undefined,
-  shortDescription: undefined,
-});
+defineProps<ProfileCardProps>();
 </script>
 
 <template>
-  <div class="d-flex flex-column gap-2" v-if="variant === 'large'">
-    <div class="card text-light blur-box">
-      <div
-        class="card-body d-flex flex-column align-items-center gap-2"
-        style="max-width: 18rem"
-      >
-        <img
-          class="img-fluid rounded-circle w-75"
-          :src="profilePicture || require('@assets/images/TimeofJustice.svg')"
-          alt="TimeofJustice"
-        />
-
-        <div class="text-center">
-          <h5 class="fw-bold text-center mb-0">TimeofJustice</h5>
-          <small class="text-accent"> Jonas Oelschner </small>
-          <i
-            class="fi fi-de rounded-1"
-            :title="$t('index.profile.based_in')"
-          ></i>
-        </div>
-
-        <small class="text-center mb-0">
-          {{ description && description[$i18n.locale as keyof TranslatedText] }}
-        </small>
-
-        <div class="d-flex gap-2">
-          <a
-            class="link"
-            :title="$t(`socials.${social.type}`)"
-            :href="social.url"
-            target="_blank"
-            v-for="social in socials"
-            :key="social.type"
-          >
-            <h4 class="mb-0 opacity-75">
-              <iconify-icon :icon="social.icon" />
-            </h4>
-          </a>
-        </div>
-      </div>
-    </div>
+  <BCard
+    body-class="w-100 w-lg-auto d-flex flex-lg-column align-items-lg-center gap-2"
+  >
+    <img
+      class="img-fluid rounded-circle w-75 profile-image"
+      :src="profile?.picture || require('@assets/images/TimeofJustice.svg')"
+      :alt="$t('profile.picture_alt')"
+    />
 
     <div
-      class="card py-2 overflow-hidden"
-      style="height: 3rem"
-      v-if="knownTools.length"
+      class="d-flex flex-column justify-content-between align-items-lg-center gap-2"
     >
-      <Vue3Marquee
-        class="gradient-carousel h-100"
-        style="max-width: 18rem"
-        pause-on-hover
-        clone
-      >
-        <tools-card-item-container
-          :tool="tool"
-          v-for="tool in knownTools"
-          :key="tool.alt"
-        />
-      </Vue3Marquee>
-    </div>
-
-    <div
-      class="card blur-box text-light overflow-hidden"
-      style="max-width: 18rem"
-      v-if="repo"
-    >
-      <div class="card-body d-flex flex-column gap-3">
-        <h5 class="mb-0">{{ $t("index.profile.working_on") }}</h5>
-
-        <img
-          class="img-fluid"
-          style="max-width: 18rem"
-          :src="repo"
-          alt="timeofjustice"
-        />
-      </div>
-    </div>
-  </div>
-
-  <div class="card blur-box d-flex w-100" v-else>
-    <div class="card-body d-flex gap-3">
-      <div
-        class="d-flex justify-content-center align-items-center"
-        style="min-width: 6rem; max-width: 8rem"
-      >
-        <img
-          class="img-fluid rounded-circle"
-          :src="profilePicture || require('@assets/images/TimeofJustice.svg')"
-          alt="TimeofJustice"
-        />
+      <div>
+        <h5 class="fw-bold mb-0">TimeofJustice</h5>
+        <span
+          class="text-accent d-flex justify-content-lg-center align-items-center gap-1"
+        >
+          <small class="text-accent">Jonas Oelschner</small>
+          <i class="fi fi-de rounded-1" :title="$t('index.profile.based_in')" />
+        </span>
       </div>
 
-      <div
-        class="d-flex flex-column gap-2 h-100 justify-content-between flex-shrink-1"
-      >
-        <div class="d-flex flex-column gap-1">
-          <div>
-            <h5 class="card-title mb-0">TimeofJustice</h5>
-            <small class="text-accent"> Jonas Oelschner </small>
-            <i
-              class="fi fi-de rounded-1"
-              :title="$t('index.profile.based_in')"
-            ></i>
-          </div>
+      <small class="d-none d-lg-block text-lg-center">
+        {{
+          profile?.description &&
+          profile?.description[$i18n.locale as keyof TranslatedText]
+        }}
+      </small>
 
-          <small>
-            {{
-              shortDescription &&
-              shortDescription[$i18n.locale as keyof TranslatedText]
-            }}
-          </small>
-        </div>
+      <small class="d-block d-lg-none">
+        {{
+          profile?.shortDescription &&
+          profile?.shortDescription[$i18n.locale as keyof TranslatedText]
+        }}
+      </small>
 
-        <div class="d-flex gap-2">
-          <a
-            class="link"
-            :title="$t(`socials.${social.type}`)"
-            :href="social.url"
-            target="_blank"
-            v-for="social in socials"
-            :key="social.type"
-          >
-            <h4 class="mb-0 opacity-75">
-              <iconify-icon :icon="social.icon" />
-            </h4>
-          </a>
-        </div>
+      <div class="d-flex gap-2">
+        <BLink
+          :title="$t(`socials.${social.type}`)"
+          :href="social.url"
+          target="_blank"
+          v-for="social in socials"
+          :key="social.type"
+        >
+          <h4 class="mb-0 opacity-75">
+            <iconify-icon :icon="social.icon" />
+          </h4>
+        </BLink>
       </div>
     </div>
-  </div>
+  </BCard>
 </template>
 
 <style scoped lang="scss">
-.gradient-carousel {
-  mask-image: linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0),
-    rgba(0, 0, 0, 1) 15%,
-    rgba(0, 0, 0, 1) 85%,
-    rgba(0, 0, 0, 0)
-  );
+.profile-image {
+  width: 75%;
+
+  @media (max-width: 992px) {
+    min-width: 6rem;
+    max-width: 8rem;
+  }
 }
 </style>

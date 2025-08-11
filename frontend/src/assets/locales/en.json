@@ -24,6 +24,13 @@
     "games": "Games",
     "stable_hint": "You are using the staging version. This version is not intended for production use and may contain bugs or incomplete features. Please use the production version at [timeofjustice.eu](https://timeofjustice.eu) for a stable experience."
   },
+  "profile": {
+    "picture_alt": "That's me, TimeofJustice",
+    "repository": {
+      "title": "Currently working on",
+      "alt": "This is the repository that I am currently working on."
+    }
+  },
   "easter_egg": {
     "lizard": "Lizard!"
   },
@@ -34,8 +41,7 @@
       "bottom": "Projects"
     },
     "profile": {
-      "based_in": "Based in Germany",
-      "working_on": "Currently working on"
+      "based_in": "Based in Germany"
     }
   },
   "socials": {

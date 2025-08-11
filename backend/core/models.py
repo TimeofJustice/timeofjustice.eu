@@ -95,7 +95,7 @@ class Profile(models.Model):
             'picture': f"/{settings.FILE_DESTINATION}images/profile/{Path(self.picture.file.name).name}" if self.picture else None,
             'description': get_translation(self.description),
             'short_description': get_translation(self.short_description),
-            'repo': self.repo if self.repo else None,
+            'repository': self.repo if self.repo else None,
         }
 
 

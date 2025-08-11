@@ -1,3 +1,9 @@
 .badge {
-  align-content: flex-end !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 0.25em;
+
+  line-height: 1.1;
 }
