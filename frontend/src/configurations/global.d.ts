@@ -15,7 +15,11 @@ declare module "bootstrap-vue-next" {
     variant?: CustomBadgeVariant | null;
   }
 
-  export type CustomButtonVariant = "primary" | "secondary" | "tertiary";
+  export type CustomButtonVariant =
+    | "primary"
+    | "secondary"
+    | "tertiary"
+    | "ghost";
 
   export interface BaseButtonVariant
     extends Record<CustomButtonVariant, unknown> {
