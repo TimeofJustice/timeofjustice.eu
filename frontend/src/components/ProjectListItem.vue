@@ -24,7 +24,6 @@ const amountOfHiddenTechnologies =
           ? project.title_image.original
           : require('@assets/images/MissingTexture.svg')
       "
-      :src-placeholder="project.title_image ? project.title_image.lazy : ''"
     />
 
     <div
