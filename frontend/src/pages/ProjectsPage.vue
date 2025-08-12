@@ -6,37 +6,35 @@ import { Tool } from "@/types/Tool.ts";
 import { Profile } from "@/types/Profile.ts";
 
 import ProfileCard from "@components/ProfileCard.vue";
-import ProjectItem from "@pages/Projects/ProjectItem.vue";
+import ProjectListItem from "@components/ProjectListItem.vue";
 import ProfileRepositoryCard from "@components/ProfileRepositoryCard.vue";
 import ProfileToolsCard from "@components/ProfileToolsCard.vue";
 
-interface Props {
+interface ProjectsPageProps {
   profile?: Profile;
   socials: Social[];
-  projects: Project[];
   tools: Tool[];
+  projects: Project[];
 }
 
-defineProps<Props>();
+defineProps<ProjectsPageProps>();
 </script>
 
 <template>
   <Head title="Projects" />
 
-  <div class="d-flex container-xxl gap-4 flex-column flex-lg-row">
+  <div class="d-flex container-xxl gap-2 flex-column flex-lg-row mb-2">
     <div
       class="col-lg-4 flex-grow-0 justify-content-start align-items-lg-end d-flex flex-column"
     >
       <!-- If you found this, keep this our dirty little secret -->
-      <h1
-        class="display-1 fw-bold invisible d-none d-lg-block"
-        style="line-height: 50px"
-      >
-        {{ $t("index.title.top") }}
-        <br />
-        <span class="display-1 fw-bold text-tertiary">{{
-          $t("index.title.bottom")
-        }}</span>
+      <h1 class="d-flex flex-column display-1 lh-1 d-none d-lg-flex invisible">
+        <span class="fw-bold">
+          {{ $t("index.title.top") }}
+        </span>
+        <span class="fw-bold text-tertiary">
+          {{ $t("index.title.bottom") }}
+        </span>
       </h1>
       <div class="profile position-sticky d-flex flex-column gap-2">
         <ProfileCard
@@ -57,20 +55,18 @@ defineProps<Props>();
       </div>
     </div>
 
-    <div
-      class="d-flex flex-column h-100 flex-grow-1 flex-shrink-1 gap-2"
-      style="min-width: 0"
-    >
-      <section v-motion-slide-visible-once-top v-if="true">
-        <h1 class="display-1 fw-bold" style="line-height: 50px">
-          {{ $t("index.title.top") }}
-          <br />
-          <span class="display-1 fw-bold text-tertiary">{{
-            $t("index.title.bottom")
-          }}</span>
+    <div class="d-flex flex-column h-100 flex-grow-1 flex-shrink-1 gap-2">
+      <section v-motion-slide-visible-once-top>
+        <h1 class="d-flex flex-column display-1 lh-1">
+          <span class="fw-bold">
+            {{ $t("index.title.top") }}
+          </span>
+          <span class="fw-bold text-tertiary">
+            {{ $t("index.title.bottom") }}
+          </span>
         </h1>
-        <div class="d-flex flex-column gap-3 mb-3">
-          <ProjectItem
+        <div class="d-flex flex-column gap-2">
+          <ProjectListItem
             :project="project"
             v-for="(project, i) in projects"
             :key="i"

@@ -35,8 +35,8 @@ def index(request, offcanvas_component=None, **kwargs):
                 "icon": "line-md:linkedin",
             },
         ],
-        "projects": [project.json() for project in models.Project.objects.all()],
         "tools": [tool.json() for tool in models.Tool.objects.all()],
+        "projects": [project.json() for project in models.Project.objects.all()],
     }
 
     return render(request, "ProjectsPage", props=default_props(page_props, request, offcanvas_component=offcanvas_component, **kwargs))

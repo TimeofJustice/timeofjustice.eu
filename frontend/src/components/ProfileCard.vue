@@ -15,10 +15,9 @@ defineProps<ProfileCardProps>();
   <BCard
     body-class="w-100 w-lg-auto d-flex flex-lg-column align-items-lg-center gap-2"
   >
-    <img
+    <v-lazy-image
       class="img-fluid rounded-circle w-75 profile-image"
       :src="profile?.picture || require('@assets/images/TimeofJustice.svg')"
-      :alt="$t('profile.picture_alt')"
     />
 
     <div
@@ -68,6 +67,7 @@ defineProps<ProfileCardProps>();
 <style scoped lang="scss">
 .profile-image {
   width: 75%;
+  aspect-ratio: 1 / 1;
 
   @media (max-width: 992px) {
     min-width: 6rem;
