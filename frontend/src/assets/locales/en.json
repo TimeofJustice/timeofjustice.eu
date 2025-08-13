@@ -6,7 +6,8 @@
     "save": "Save",
     "day": "Day",
     "home": "Home",
-    "close": "Close"
+    "close": "Close",
+    "no_description": "No description available"
   },
   "error": {
     "message": "Looks like you took a wrong turn. But don't worry, you can always go back to the homepage.",
