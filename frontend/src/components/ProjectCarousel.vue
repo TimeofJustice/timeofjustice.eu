@@ -4,56 +4,50 @@ import { Carousel, Slide } from "vue3-carousel";
 import { TranslatedText } from "@/types/TranslatedText.ts";
 import { ProjectImage } from "@/types/ProjectImage.ts";
 
-interface CarouselProps {
+interface ProjectCarouselProps {
   items: ProjectImage[];
 }
 
-const { items } = defineProps<CarouselProps>();
+const { items } = defineProps<ProjectCarouselProps>();
+
 const currentSlide = ref(0);
 const currentItem = ref<ProjectImage | null>(
   items.length > 0 ? items[0] : null,
 );
+
 const isMouseOver = ref(false);
 const isFullscreenOpen = ref(false);
 
+const fullscreenVideoPlayer = ref<HTMLVideoElement | null>(null);
+
 const galleryConfig = {
   itemsToShow: 1,
-  wrapAround: true,
   mouseDrag: false,
   touchDrag: false,
   height: 320,
   slideEffect: "fade" as const,
 };
 
-const thumbnailsConfig = {
-  height: 80,
-  itemsToShow: 6,
-  wrapAround: true,
-  touchDrag: false,
-  gap: 10,
+const stopVideoPlayer = (player: HTMLVideoElement) => {
+  if (!player) return;
+
+  player.pause();
+  player.currentTime = 0;
 };
 
-const stopVideo = (el: HTMLVideoElement) => {
-  if (!el) return;
-
-  el.pause();
-  el.currentTime = 0;
-};
-
-const slideTo = (nextSlide: number) => {
-  currentSlide.value = nextSlide;
-  currentItem.value = items[nextSlide % items.length];
-
-  const prevVideo = document.getElementById(
-    "carousel-player-" +
-      ((currentSlide.value - 1 + items.length) % items.length),
+const slideToIndex = (index: number) => {
+  const videoPlayer = document.getElementById(
+    "carousel-video-player-" + currentSlide.value,
   ) as HTMLVideoElement;
-  stopVideo(prevVideo);
+  stopVideoPlayer(videoPlayer);
+
+  currentSlide.value = ((index % items.length) + items.length) % items.length;
+  currentItem.value = items[currentSlide.value];
 };
 
 const isVideoPlaying = () => {
   const video = document.getElementById(
-    "carousel-player-" + (currentSlide.value % items.length),
+    "carousel-video-player-" + currentSlide.value,
   ) as HTMLVideoElement;
   return (
     video &&
@@ -64,40 +58,37 @@ const isVideoPlaying = () => {
   );
 };
 
-const nextSlide = () => {
+const slideToNextIndex = () => {
   if (!isMouseOver.value && !isVideoPlaying() && !isFullscreenOpen.value)
-    slideTo(currentSlide.value + 1);
+    slideToIndex(currentSlide.value + 1);
 };
 
-const autoSlideInterval = ref(setInterval(nextSlide, 5000));
+const slide = (offset: number) => {
+  const nextIndex = currentSlide.value + offset;
+  slideToIndex(nextIndex);
 
+  clearInterval(autoSlideInterval);
+  autoSlideInterval = setInterval(slideToNextIndex, 5000);
+};
+
+let autoSlideInterval = setInterval(slideToNextIndex, 5000);
 onBeforeUnmount(() => {
-  clearInterval(autoSlideInterval.value);
+  clearInterval(autoSlideInterval);
 });
 
 const openFullscreen = () => {
   isFullscreenOpen.value = true;
 
-  stopVideo(
-    document.getElementById(
-      "carousel-player-" + (currentSlide.value % items.length),
-    ) as HTMLVideoElement,
-  );
+  const videoPlayer = document.getElementById(
+    "carousel-video-player-" + currentSlide.value,
+  ) as HTMLVideoElement;
+  stopVideoPlayer(videoPlayer);
 };
 
 const closeFullscreen = () => {
-  const video = document.getElementById("modal-player") as HTMLVideoElement;
-
-  stopVideo(video);
+  if (fullscreenVideoPlayer.value) stopVideoPlayer(fullscreenVideoPlayer.value);
 
   isFullscreenOpen.value = false;
-};
-
-const forceSlideUpdate = (index: number) => {
-  slideTo(index);
-
-  clearInterval(autoSlideInterval.value);
-  autoSlideInterval.value = setInterval(nextSlide, 5000);
 };
 </script>
 
@@ -112,7 +103,6 @@ const forceSlideUpdate = (index: number) => {
         <v-lazy-image
           class="slide gallery"
           :src="image.image.original"
-          :src-placeholder="image.image.lazy"
           :alt="image.alt[$i18n.locale as keyof TranslatedText]"
           v-if="!image.video"
         />
@@ -123,7 +113,7 @@ const forceSlideUpdate = (index: number) => {
             muted
             controls
             playsinline
-            :id="`carousel-player-` + i"
+            :id="`carousel-video-player-` + i"
           />
         </div>
 
@@ -135,49 +125,34 @@ const forceSlideUpdate = (index: number) => {
           <iconify-icon icon="fa6-solid:maximize" />
         </BButton>
       </Slide>
-    </Carousel>
 
-    <Carousel
-      v-bind="thumbnailsConfig"
-      v-model="currentSlide"
-      class="carousel-gradient"
-    >
-      <Slide v-for="(image, i) in items" :key="i">
-        <template #default="{ currentIndex, isActive, isClone }">
-          <div
-            :class="['thumbnail', { 'is-active': isActive && !isClone }]"
-            class="position-relative"
-            @click="forceSlideUpdate(currentIndex)"
-            :id="currentIndex"
-          >
-            <div
-              class="position-absolute z-1 w-100 h-100 d-flex justify-content-center align-items-center fs-2 text-dark"
-              v-if="image.video"
-            >
-              <iconify-icon icon="fa6-solid:play" class="text-light" />
-            </div>
-            <v-lazy-image
-              class="slide thumbnail-image"
-              :src="image.image.original"
-              :src-placeholder="image.image.lazy"
-              :alt="image.alt[$i18n.locale as keyof TranslatedText]"
-            />
-          </div>
-        </template>
-      </Slide>
+      <div
+        class="position-absolute bottom-0 start-0 w-100 d-flex justify-content-center gap-1 p-1"
+        style="font-size: 0.6rem"
+      >
+        <iconify-icon
+          :icon="
+            currentSlide === i ? 'fa6-solid:circle-dot' : 'fa6-solid:circle'
+          "
+          class="carousel__indicator"
+          @click="slideToIndex(i)"
+          v-for="(_, i) in items"
+          :key="i"
+        />
+      </div>
 
       <template #addons>
         <BButton
           variant="primary"
-          class="btn-circle ms-1 carousel__prev"
-          @click="forceSlideUpdate(currentSlide - 1)"
+          class="btn-circle m-2 carousel__prev"
+          @click="slide(-1)"
         >
           <iconify-icon icon="fa6-solid:chevron-left" />
         </BButton>
         <BButton
           variant="primary"
-          class="btn-circle me-1 carousel__next"
-          @click="forceSlideUpdate(currentSlide + 1)"
+          class="btn-circle m-2 carousel__next"
+          @click="slide(+1)"
         >
           <iconify-icon icon="fa6-solid:chevron-right" />
         </BButton>
@@ -185,41 +160,87 @@ const forceSlideUpdate = (index: number) => {
     </Carousel>
   </div>
 
-  <BModal
-    v-model="isFullscreenOpen"
-    header-class="justify-content-end"
-    body-class="overflow-hidden d-flex justify-content-center"
-    :hide-footer="true"
-    scrollable
-    size="xl"
-    centered
+  <div
+    class="position-fixed top-0 start-0 w-100 h-100 overflow-hidden fullscreen"
+    :class="{ open: isFullscreenOpen }"
   >
-    <div class="rounded d-flex">
+    <div
+      class="d-flex justify-content-center align-items-center position-relative p-2 w-100 h-100 overflow-hidden fullscreen-body"
+      @click.self="closeFullscreen()"
+    >
       <v-lazy-image
-        class="img-fluid rounded"
         :src="currentItem?.image.original"
-        :src-placeholder="currentItem?.image.lazy"
         :alt="currentItem?.alt[$i18n.locale as keyof TranslatedText]"
-        v-if="!currentItem?.video"
+        v-if="!currentItem?.video && currentItem?.image.original"
       />
       <video
-        class="img-fluid rounded"
         :src="currentItem?.video"
         controls
         playsinline
-        id="modal-player"
+        ref="fullscreenVideoPlayer"
         v-else
       />
-    </div>
 
-    <template #header>
       <BButton
-        variant="tertiary"
-        class="btn-square text-light"
+        variant="primary"
+        class="btn-circle position-absolute top-0 end-0 m-2"
         @click="closeFullscreen()"
       >
         <iconify-icon icon="ep:close-bold" />
       </BButton>
-    </template>
-  </BModal>
+    </div>
+  </div>
 </template>
+
+<style scoped lang="scss">
+.carousel {
+  z-index: 0;
+
+  .slide {
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    &.gallery {
+      border-radius: 16px;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+
+      > video {
+        border-radius: 16px;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+  }
+
+  .carousel__indicator {
+    cursor: pointer;
+  }
+}
+
+.fullscreen {
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  transition: opacity 0.3s ease-in-out;
+
+  &.open {
+    pointer-events: auto;
+    opacity: 1;
+  }
+
+  & .fullscreen-body {
+    > * {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+}
+</style>
