@@ -33,6 +33,7 @@ urlpatterns = [
     path("games/", include("games.urls")),
     path("casino/", lambda request: redirect("/games/", permanent=False)),
     path("r-place/", include("r_place.urls")),
+    path("send-a-message/", include("send_a_message.urls")),
 ]
 
 handler400 = "core.views.errors.bad_request"

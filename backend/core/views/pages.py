@@ -1,4 +1,3 @@
-
 from inertia import render
 
 from core import models

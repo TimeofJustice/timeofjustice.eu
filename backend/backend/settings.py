@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'farming_stats',
     'games',
     'r_place',
+    'send_a_message'
 ]
 
 ASGI_APPLICATION = "backend.asgi.application"

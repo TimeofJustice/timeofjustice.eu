@@ -28,6 +28,12 @@ export const ROUTES: Route[] = [
     path: "/r-place/",
     icon: "fa6-solid:paintbrush",
     activeComponents: ["RPlace"],
-    isHighlighted: true,
   },
+  {
+    name: "nav.send_a_message",
+    path: "/send-a-message/",
+    icon: "bi:envelope-heart-fill",
+    activeComponents: ["SendAMessagePage"],
+    isHighlighted: true,
+  }
 ];
