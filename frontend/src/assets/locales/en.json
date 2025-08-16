@@ -2,9 +2,21 @@
   "general": {
     "back": "Back",
     "error": "Error",
-    "more": "More",
+    "more": "More...",
     "save": "Save",
-    "day": "Day"
+    "day": "Day",
+    "home": "Home",
+    "close": "Close",
+    "no_description": "No description available"
+  },
+  "error": {
+    "message": "Looks like you took a wrong turn. But don't worry, you can always go back to the homepage.",
+    "bad_request": "The request was invalid or cannot be served",
+    "permission_denied": "This area is only for authorized users!",
+    "page_not_found": "You're in uncharted territory!",
+    "server_error": "Something went wrong on our end",
+    "unknown_error": "An unknown error occurred",
+    "back": "Return home"
   },
   "nav": {
     "projects": "Projects",
@@ -13,6 +25,16 @@
     "games": "Games",
     "stable_hint": "You are using the staging version. This version is not intended for production use and may contain bugs or incomplete features. Please use the production version at [timeofjustice.eu](https://timeofjustice.eu) for a stable experience."
   },
+  "profile": {
+    "picture_alt": "That's me, TimeofJustice",
+    "repository": {
+      "title": "Currently working on",
+      "alt": "This is the repository that I am currently working on."
+    }
+  },
+  "easter_egg": {
+    "lizard": "Lizard!"
+  },
   "index": {
     "wip_alert": "This page is still in work. Please check back later. The current version can be found at: [legacy.timeofjustice.eu](https://legacy.timeofjustice.eu)",
     "title": {
@@ -20,8 +42,7 @@
       "bottom": "Projects"
     },
     "profile": {
-      "based_in": "Based in Germany",
-      "working_on": "Currently working on"
+      "based_in": "Based in Germany"
     }
   },
   "socials": {

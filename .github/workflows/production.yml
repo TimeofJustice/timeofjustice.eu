@@ -32,6 +32,11 @@ jobs:
         run: |
           npx prettier --check .
 
+      - name: Check eslint
+        working-directory: ./frontend
+        run: |
+          npx eslint .
+
       - name: Test frontend
         working-directory: ./frontend
         run: |

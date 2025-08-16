@@ -1,0 +1,16 @@
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animation-pulse {
+  animation: pulse 2s infinite;
+  transition: opacity 0.2s ease-in-out;
+}

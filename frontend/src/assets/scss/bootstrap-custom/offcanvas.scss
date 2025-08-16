@@ -11,3 +11,13 @@
     --bs-offcanvas-width: 300px;
   }
 }
+
+.offcanvas .offcanvas-header,
+.offcanvas .offcanvas-body {
+  --bs-gutter-x: 1.5rem;
+
+  --bs-offcanvas-padding-y: calc(var(--bs-gutter-x) * 0.5);
+  --bs-offcanvas-padding-x: calc(var(--bs-gutter-x) * 0.5);
+
+  padding-right: 1rem;
+}
