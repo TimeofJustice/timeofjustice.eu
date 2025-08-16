@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 import { ROUTES } from "@configurations/routes.ts";
+
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
-interface IBasicLayout {
+interface BaseNavbarProps {
   size?: "normal" | "small";
 }
 
-const { size = "normal" } = defineProps<IBasicLayout>();
+const { size = "normal" } = defineProps<BaseNavbarProps>();
+
 const isScrolled = ref(false);
 
 onMounted(() => {
@@ -104,28 +106,7 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss">
-.pulse {
-  animation: pulse 2s infinite;
-  padding: 0.3rem !important;
-
-  transition:
-    --padding 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
+<style scoped lang="scss">
 .navbar-body {
   margin: 0;
   border-radius: 0.5rem;
@@ -179,15 +160,5 @@ onMounted(() => {
       transition-delay: 0s;
     }
   }
-}
-
-.offcanvas .offcanvas-header,
-.offcanvas .offcanvas-body {
-  --bs-gutter-x: 1.5rem;
-
-  --bs-offcanvas-padding-y: calc(var(--bs-gutter-x) * 0.5);
-  --bs-offcanvas-padding-x: calc(var(--bs-gutter-x) * 0.5);
-
-  padding-right: 1rem;
 }
 </style>

@@ -98,7 +98,7 @@ const closeFullscreen = () => {
     @mouseover="isMouseOver = true"
     @mouseleave="isMouseOver = false"
   >
-    <Carousel v-bind="galleryConfig" v-model="currentSlide" class="mb-2">
+    <Carousel v-bind="galleryConfig" v-model="currentSlide">
       <Slide v-for="(image, i) in items" :key="i">
         <v-lazy-image
           class="slide gallery"

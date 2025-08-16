@@ -6,4 +6,8 @@
   gap: 0.25em;
 
   line-height: 1.1;
+
+  &.badge-indicator {
+    padding: 0.3rem !important;
+  }
 }
