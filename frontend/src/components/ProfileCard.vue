@@ -18,6 +18,7 @@ defineProps<ProfileCardProps>();
     <v-lazy-image
       class="img-fluid rounded-circle w-75 profile-image"
       :src="profile?.picture || require('@assets/images/TimeofJustice.svg')"
+      :alt="$t('profile.picture_alt')"
     />
 
     <div

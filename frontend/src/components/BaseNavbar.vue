@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 import { ROUTES } from "@configurations/routes.ts";
+
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
-interface IBasicLayout {
+interface BaseNavbarProps {
   size?: "normal" | "small";
 }
 
-const { size = "normal" } = defineProps<IBasicLayout>();
+const { size = "normal" } = defineProps<BaseNavbarProps>();
+
 const isScrolled = ref(false);
 
 onMounted(() => {
@@ -49,16 +51,10 @@ onMounted(() => {
         <LocaleDropdown class="d-block d-lg-none" />
 
         <BNavbarBrand class="me-0">
-          <img
-            class="img-fluid rounded"
-            :src="require('/assets/images/TimeofJustice.svg')"
-            style="
-              width: 2.3rem;
-              min-width: 2.3rem;
-              height: 2.3rem;
-              min-height: 2.3rem;
-            "
-            alt="Time of Justice Logo"
+          <v-lazy-image
+            class="img-fluid rounded brand-picture"
+            :src="require('@assets/images/TimeofJustice.svg')"
+            :alt="$t('nav.brand_alt')"
           />
         </BNavbarBrand>
       </div>
@@ -104,90 +100,11 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="scss">
-.pulse {
-  animation: pulse 2s infinite;
-  padding: 0.3rem !important;
-
-  transition:
-    --padding 0.2s ease-in-out,
-    opacity 0.2s ease-in-out;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.navbar-body {
-  margin: 0;
-  border-radius: 0.5rem;
-  transition:
-    backdrop-filter 0.3s ease-in-out,
-    background 0.3s ease-in-out,
-    box-shadow 0.3s ease-in-out,
-    padding 0.3s ease-in-out,
-    margin 0.3s ease-in-out;
-
-  @media (min-width: 1400px) {
-    transition:
-      width 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55),
-      backdrop-filter 0.3s ease-in-out,
-      background 0.3s ease-in-out,
-      box-shadow 0.3s ease-in-out,
-      padding 0.3s ease-in-out,
-      margin 0.3s ease-in-out;
-
-    .link-title {
-      transition: max-width 0.3s ease-in-out;
-      max-width: 10rem;
-      overflow: hidden;
-      transition-delay: 0.2s;
-    }
-  }
-}
-
-.navbar-body.scrolled {
-  padding-left: var(--bs-navbar-brand-padding-y);
-  padding-right: var(--bs-navbar-brand-padding-y);
-  margin-left: calc(
-    var(--bs-gutter-x) * 0.5 - var(--bs-navbar-brand-padding-y)
-  );
-  margin-right: calc(
-    var(--bs-gutter-x) * 0.5 - var(--bs-navbar-brand-padding-y)
-  );
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 26rem;
-
-  @media (max-width: 1400px) {
-    width: 100%;
-  }
-
-  @media (min-width: 1400px) {
-    .link-title {
-      max-width: 0;
-      transition-delay: 0s;
-    }
-  }
-}
-
-.offcanvas .offcanvas-header,
-.offcanvas .offcanvas-body {
-  --bs-gutter-x: 1.5rem;
-
-  --bs-offcanvas-padding-y: calc(var(--bs-gutter-x) * 0.5);
-  --bs-offcanvas-padding-x: calc(var(--bs-gutter-x) * 0.5);
-
-  padding-right: 1rem;
+<style scoped lang="scss">
+.brand-picture {
+  width: 2.3rem;
+  min-width: 2.3rem;
+  height: 2.3rem;
+  min-height: 2.3rem;
 }
 </style>

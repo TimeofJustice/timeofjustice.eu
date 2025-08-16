@@ -21,7 +21,7 @@ defineProps<INavbarLink>();
     </div>
     <BBadge
       variant="danger"
-      class="position-absolute top-0 start-100 translate-middle mt-2 me-1 border-0 pulse"
+      class="position-absolute top-0 start-100 translate-middle mt-2 me-1 border-0 animation-pulse badge-indicator"
       dot-indicator
       v-if="route.isHighlighted"
     />
