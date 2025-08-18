@@ -6,7 +6,6 @@ import { createBootstrap } from "bootstrap-vue-next";
 import VLazyImage from "v-lazy-image";
 import VueMarkdown from "vue-markdown-render";
 import Vue3Marquee from "vue3-marquee";
-import VueApexCharts from "@node_modules/vue3-apexcharts";
 import axios from "axios";
 
 import { Icon } from "@iconify/vue";
@@ -51,8 +50,6 @@ createInertiaApp({
       .component("vue-markdown", VueMarkdown)
       .use(MotionPlugin)
       .use(i18n)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .use(VueApexCharts as any) // TODO: related issue https://github.com/apexcharts/vue3-apexcharts/issues/141
       .use(Vue3Marquee)
       .component("BaseLink", BaseLink)
       .provide("$router", "fake")

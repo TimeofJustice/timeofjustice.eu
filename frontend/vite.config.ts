@@ -29,7 +29,6 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes("node_modules")) {
             if (id.includes("vue")) return "vue";
-            if (id.includes("apexcharts")) return "apexcharts";
             return id
               .toString()
               .split("node_modules/")[1]

@@ -13,7 +13,6 @@
     "@inertiajs/vue3": "^2.0.17",
     "@popperjs/core": "^2.11.8",
     "@vueuse/motion": "^3.0.3",
-    "apexcharts": "^5.3.2",
     "bootstrap": "^5.3.7",
     "bootstrap-vue-next": "^0.25.15",
     "panzoom": "^9.4.3",
@@ -24,7 +23,6 @@
     "vue-color": "^3.3.1",
     "vue-i18n": "^11.1.11",
     "vue-markdown-render": "^2.2.1",
-    "vue3-apexcharts": "^1.8.0",
     "vue3-carousel": "^0.16.0",
     "vue3-marquee": "^4.2.2"
   },
