@@ -9,7 +9,7 @@ import axios from "axios";
 
 import HigherOrLower from "@pages/Games/Games/HigherOrLower.vue";
 import RideTheBus from "@pages/Games/Games/RideTheBus.vue";
-import LeaderboardPosition from "@pages/Games/components/LeaderboardPosition.vue";
+import GamesLeaderboardPosition from "@components/GamesLeaderboardPosition.vue";
 import GamesDailyReward from "@components/GamesDailyReward.vue";
 import BlackJack from "@pages/Games/Games/BlackJack.vue";
 import SicBo from "@pages/Games/Games/SicBo.vue";
@@ -550,7 +550,7 @@ const dismissHint = () => {
 
           <BCollapse v-model="showLeaderboard">
             <BCardBody class="d-flex flex-column gap-2">
-              <LeaderboardPosition
+              <GamesLeaderboardPosition
                 v-for="(player, index) in updatedLeaderboard"
                 :key="index"
                 :index="index + 1"
@@ -565,7 +565,7 @@ const dismissHint = () => {
                   <iconify-icon icon="fa7-solid:ellipsis" />
                 </div>
 
-                <LeaderboardPosition
+                <GamesLeaderboardPosition
                   :index="updatedOwnPosition"
                   :name="wallet.name"
                   :balance="walletBalance"

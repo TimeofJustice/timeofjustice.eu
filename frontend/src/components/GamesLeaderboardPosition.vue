@@ -1,5 +1,5 @@
 <script setup lang="ts">
-interface LeaderboardPosition {
+interface GamesLeaderboardPosition {
   index: number;
   name: string;
   balance: number;
@@ -7,7 +7,7 @@ interface LeaderboardPosition {
   highlighted?: boolean;
 }
 
-defineProps<LeaderboardPosition>();
+defineProps<GamesLeaderboardPosition>();
 </script>
 
 <template>
@@ -32,3 +32,5 @@ defineProps<LeaderboardPosition>();
     </div>
   </div>
 </template>
+
+<style scoped lang="scss"></style>
