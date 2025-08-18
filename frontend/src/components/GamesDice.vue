@@ -1,12 +1,10 @@
 <script setup lang="ts">
-interface DiceProps {
+interface GamesDiceProps {
   value: number;
   size?: "sm" | "md" | "lg";
 }
 
-withDefaults(defineProps<DiceProps>(), {
-  size: "lg",
-});
+const { size = "lg" } = defineProps<GamesDiceProps>();
 </script>
 
 <template>
@@ -66,34 +64,30 @@ withDefaults(defineProps<DiceProps>(), {
 
 <style scoped lang="scss">
 .dice {
-  &-sm {
-    width: 1em;
-    height: 1em;
-    padding: 0.25em;
+  width: var(--dice-size, 4em);
+  height: var(--dice-size, 4em);
+  padding: var(--dice-padding, 0.75em);
 
-    .iconify {
-      font-size: 0.125em;
-    }
+  .iconify {
+    font-size: var(--dice-icon-size, 0.75em);
+  }
+
+  &-sm {
+    --dice-size: 1em;
+    --dice-padding: 0.25em;
+    --dice-icon-size: 0.125em;
   }
 
   &-md {
-    width: 2em;
-    height: 2em;
-    padding: 0.5em;
-
-    .iconify {
-      font-size: 0.3em;
-    }
+    --dice-size: 2em;
+    --dice-padding: 0.5em;
+    --dice-icon-size: 0.3em;
   }
 
   &-lg {
-    width: 4em;
-    height: 4em;
-    padding: 0.75em;
-
-    .iconify {
-      font-size: 0.75em;
-    }
+    --dice-size: 4em;
+    --dice-padding: 0.75em;
+    --dice-icon-size: 0.75em;
   }
 }
 </style>

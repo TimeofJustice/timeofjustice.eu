@@ -6,7 +6,7 @@ import { computed } from "@node_modules/vue";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
 import { useI18n } from "@node_modules/vue-i18n";
 import axios from "@node_modules/axios";
-import GamesDice from "@pages/Games/components/GamesDice.vue";
+import GamesDice from "@components/GamesDice.vue";
 
 interface HigherLowerProps {
   balance: number;
