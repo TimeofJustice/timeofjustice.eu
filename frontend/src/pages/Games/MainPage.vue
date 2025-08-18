@@ -10,7 +10,7 @@ import axios from "axios";
 import HigherOrLower from "@pages/Games/Games/HigherOrLower.vue";
 import RideTheBus from "@pages/Games/Games/RideTheBus.vue";
 import LeaderboardPosition from "@pages/Games/components/LeaderboardPosition.vue";
-import DailyReward from "@pages/Games/components/DailyReward.vue";
+import GamesDailyReward from "@components/GamesDailyReward.vue";
 import BlackJack from "@pages/Games/Games/BlackJack.vue";
 import SicBo from "@pages/Games/Games/SicBo.vue";
 
@@ -253,7 +253,7 @@ const dismissHint = () => {
     </template>
 
     <div class="d-flex gap-2 flex-wrap justify-content-between">
-      <DailyReward
+      <GamesDailyReward
         :day="bonus.day"
         :reward="bonus.reward"
         :status="bonus.status"

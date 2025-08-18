@@ -1,12 +1,12 @@
 <script setup lang="ts">
-interface DailyRewardProps {
+interface GamesDailyRewardProps {
   day: number;
   reward: number;
   overflow?: boolean;
   status: "locked" | "unlocked" | "claimed";
 }
 
-defineProps<DailyRewardProps>();
+defineProps<GamesDailyRewardProps>();
 </script>
 
 <template>
@@ -20,9 +20,11 @@ defineProps<DailyRewardProps>();
       'bg-green-700': status === 'claimed',
     }"
   >
-    <span class="text-center"
-      >{{ $t("general.day") }} {{ day }}{{ overflow ? "+" : "" }}</span
-    >
+    <span class="text-center">
+      {{ $t("general.day") }} {{ day }}{{ overflow ? "+" : "" }}
+    </span>
     <small>{{ reward }}</small>
   </div>
 </template>
+
+<style scoped lang="scss"></style>
