@@ -3,15 +3,16 @@ import { Head } from "@inertiajs/vue3";
 import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
 import { useI18n } from "@node_modules/vue-i18n";
 import { reactive, ref, shallowRef } from "vue";
+import { computed, onBeforeUnmount } from "@node_modules/vue";
+import { Wallet } from "@/types/Wallet.ts";
+import axios from "axios";
+
 import HigherOrLower from "@pages/Games/Games/HigherOrLower.vue";
 import RideTheBus from "@pages/Games/Games/RideTheBus.vue";
-import { computed, onBeforeUnmount } from "@node_modules/vue";
-import axios from "axios";
 import LeaderboardPosition from "@pages/Games/components/LeaderboardPosition.vue";
 import DailyReward from "@pages/Games/components/DailyReward.vue";
 import BlackJack from "@pages/Games/Games/BlackJack.vue";
 import SicBo from "@pages/Games/Games/SicBo.vue";
-import { Wallet } from "@/types/Wallet.ts";
 
 interface Player {
   name: string;

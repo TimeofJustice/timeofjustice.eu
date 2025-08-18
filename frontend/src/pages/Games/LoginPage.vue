@@ -5,14 +5,14 @@ import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/co
 import { useI18n } from "vue-i18n";
 import { watch } from "vue";
 
-interface Props {
+interface LoginPageProps {
   error: undefined | string;
 }
 
+const { error } = defineProps<LoginPageProps>();
+
 const i18n = useI18n();
 const { show } = useToastController();
-
-const { error } = defineProps<Props>();
 
 watch(
   () => error,
@@ -39,9 +39,7 @@ function submit() {
 }
 
 const validateWalletId = computed(() => {
-  if (form.walletId === null) {
-    return null;
-  }
+  if (form.walletId === null) return null;
 
   const uuidRegex = /^[0-9a-f]{32}$/i;
   return uuidRegex.test(form.walletId);
@@ -71,9 +69,9 @@ const validateWalletId = computed(() => {
         </template>
 
         <BForm @submit.prevent="submit" class="d-flex flex-column gap-2 w-100">
-          <BFormGroup id="input-group-2" label-for="input-2">
+          <BFormGroup id="wallet-id-group" label-for="wallet-id-input">
             <BFormInput
-              id="input-2"
+              id="wallet-id-input"
               v-model="form.walletId"
               :placeholder="$t('games.login.enter_wallet')"
               required
@@ -90,8 +88,9 @@ const validateWalletId = computed(() => {
             variant="primary"
             class="w-100"
             :disabled="!validateWalletId"
-            >{{ $t("games.login.submit") }}</BButton
           >
+            {{ $t("games.login.submit") }}
+          </BButton>
         </BForm>
 
         <BLink to="/games/">
@@ -103,3 +102,5 @@ const validateWalletId = computed(() => {
 
   <BToastOrchestrator />
 </template>
+
+<style scoped lang="scss"></style>

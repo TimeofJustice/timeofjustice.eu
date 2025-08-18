@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 
-interface Props {
-  status_code: number;
+interface EntryPageProps {
+  statusCode: number;
 }
 
-defineProps<Props>();
+defineProps<EntryPageProps>();
 </script>
 
 <template>
@@ -42,3 +42,5 @@ defineProps<Props>();
     </div>
   </div>
 </template>
+
+<style scoped lang="scss"></style>
