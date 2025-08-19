@@ -7,12 +7,12 @@ import { computed, onBeforeUnmount } from "@node_modules/vue";
 import { Wallet } from "@/types/Wallet.ts";
 import axios from "axios";
 
-import HigherOrLower from "@pages/Games/Games/HigherOrLower.vue";
-import RideTheBus from "@pages/Games/Games/RideTheBus.vue";
+import HigherOrLower from "@components/Games/HigherOrLower.vue";
+import RideTheBus from "@components/Games/RideTheBus.vue";
+import BlackJack from "@components/Games/BlackJack.vue";
+import SicBo from "@components/Games/SicBo.vue";
 import GamesLeaderboardPosition from "@components/GamesLeaderboardPosition.vue";
 import GamesDailyReward from "@components/GamesDailyReward.vue";
-import BlackJack from "@pages/Games/Games/BlackJack.vue";
-import SicBo from "@pages/Games/Games/SicBo.vue";
 
 interface Player {
   name: string;
