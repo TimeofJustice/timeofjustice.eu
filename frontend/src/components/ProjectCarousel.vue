@@ -233,13 +233,24 @@ const closeFullscreen = () => {
   &.open {
     pointer-events: auto;
     opacity: 1;
+
+    & .fullscreen-body {
+      > video,
+      img {
+        transform: translateY(0);
+      }
+    }
   }
 
   & .fullscreen-body {
-    > * {
+    > video,
+    img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
+
+      transform: translateY(50%);
+      transition: transform 0.3s ease-in-out;
     }
   }
 }
