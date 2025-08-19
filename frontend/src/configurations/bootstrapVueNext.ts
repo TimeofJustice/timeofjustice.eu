@@ -9,13 +9,13 @@ export default {
   components: {
     // Configurations for using our link-component as default
     BLink: {
-      routerComponentName: "Link",
+      routerComponentName: "BaseLink",
     },
     BDropdownItem: {
-      routerComponentName: "Link",
+      routerComponentName: "BaseLink",
     },
     BButton: {
-      routerComponentName: "Link",
+      routerComponentName: "BaseLink",
     },
   },
 };

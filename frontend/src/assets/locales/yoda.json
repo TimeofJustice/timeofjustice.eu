@@ -3,7 +3,17 @@
   "general": {
     "back": "Back, you must",
     "error": "Error, there is",
-    "more": "More, there is"
+    "more": "More, there is",
+    "close": "Close, you must"
+  },
+  "error": {
+    "message": "A wrong turn, you took. Worry, do not. Back to the homepage, you can always go.",
+    "bad_request": "Invalid, the request was. Served, it cannot be",
+    "permission_denied": "Only for authorized users, this area is!",
+    "page_not_found": "In uncharted territory, you are!",
+    "server_error": "Wrong, something went on our end",
+    "unknown_error": "Occurred, an unknown error has",
+    "back": "Return home, you must"
   },
   "nav": {
     "projects": "Projects",
@@ -26,22 +36,5 @@
     "linkedin": "TimeofJustice on LinkedIn, I am",
     "twitter": "TimeofJustice on Twitter, I am",
     "instagram": "TimeofJustice on Instagram, I am"
-  },
-  "farming_stats": {
-    "month": {
-      "january": "Jan, it is",
-      "february": "Feb, it is",
-      "march": "Mar, it is",
-      "april": "Apr, it is",
-      "may": "May, it is",
-      "june": "Jun, it is",
-      "july": "Jul, it is",
-      "august": "Aug, it is",
-      "september": "Sep, it is",
-      "october": "Oct, it is",
-      "november": "Nov, it is",
-      "december": "Dec, it is"
-    },
-    "price": "Price, it is"
   }
 }

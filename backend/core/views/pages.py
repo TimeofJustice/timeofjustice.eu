@@ -1,7 +1,8 @@
+
 from inertia import render
 
 from core import models
-from core.helpers import default_props, get_or_none
+from core.helpers import call_view_by_url, default_props, get_or_none
 
 
 def error(request, status_code):
@@ -9,10 +10,10 @@ def error(request, status_code):
         "statusCode": status_code,
     }
 
-    return render(request, "Error", props=default_props(page_props))
+    return render(request, "ErrorPage", props=default_props(page_props, request))
 
 
-def index(request):
+def index(request, offcanvas_component=None, **kwargs):
     profile = get_or_none(models.Profile, id=1)
 
     page_props = {
@@ -21,24 +22,24 @@ def index(request):
             {
                 "type": "github",
                 "url": "https://github.com/TimeofJustice",
-                "icon": "fa-brands fa-github",
+                "icon": "line-md:github",
             },
             {
                 "type": "instagram",
                 "url": "https://instagram.com/jonas.oel",
-                "icon": "fa-brands fa-instagram",
+                "icon": "line-md:instagram",
             },
             {
                 "type": "linkedin",
                 "url": "https://linkedin.com/in/jonas-oelschner-2569441b3",
-                "icon": "fa-brands fa-linkedin",
+                "icon": "line-md:linkedin",
             },
         ],
-        "projects": [project.json() for project in models.Project.objects.all()],
         "tools": [tool.json() for tool in models.Tool.objects.all()],
+        "projects": [project.json() for project in models.Project.objects.all()],
     }
 
-    return render(request, "Projects", props=default_props(page_props))
+    return render(request, "ProjectsPage", props=default_props(page_props, request, offcanvas_component=offcanvas_component, **kwargs))
 
 
 def project_details(request, project_id):
@@ -51,4 +52,11 @@ def project_details(request, project_id):
         "project": project.json(),
     }
 
-    return render(request, "Project", props=default_props(page_props))
+    offcanvas_source = request.headers.get("X-Offcanvas-Source")
+    if offcanvas_source:
+        return call_view_by_url(
+            offcanvas_source, request=request, error_callback=error, offcanvas_component="ProjectPage", **page_props,
+        )
+
+    return render(request, "ProjectPage", props=default_props(page_props, request))
+

@@ -3,8 +3,8 @@ from django.urls import path
 from core.views import api, helpers, pages
 
 urlpatterns = [
-    path("", pages.index, name="index"),
-    path("project/<int:project_id>", pages.project_details, name="project_details"),
+    path("", pages.index, name="projects"),
+    path("projects/<int:project_id>", pages.project_details, name="project_details"),
     path("error/<int:status_code>", pages.error, name="error"),
 
     path("api/project/<int:project_id>", api.project, name="project"),

@@ -20,22 +20,15 @@ export default defineConfig({
   build: {
     outDir: resolve("./dist"),
     assetsDir: "./src/assets",
-    manifest: true,
+    manifest: "manifest.json",
     emptyOutDir: true,
     rollupOptions: {
       // Overwrite default .html entry to main.ts in the static directory
       input: resolve("./src/main.ts"),
       output: {
         manualChunks(id) {
-          if (id.includes("node_modules/@fortawesome")) {
-            // Split dependencies into individual chunks by their package name
-            return id
-              .toString()
-              .split("node_modules/@fortawesome/")[1]
-              .split("/")[0]
-              .toString();
-          } else if (id.includes("node_modules")) {
-            // Split dependencies into individual chunks by their package name
+          if (id.includes("node_modules")) {
+            if (id.includes("vue")) return "vue";
             return id
               .toString()
               .split("node_modules/")[1]
@@ -70,6 +63,20 @@ export default defineConfig({
     host: true,
     watch: {
       usePolling: true,
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      sass: {
+        api: "modern",
+        silenceDeprecations: ["import", "slash-div", "global-builtin"],
+        quietDeps: true,
+      },
+      scss: {
+        api: "modern",
+        silenceDeprecations: ["import", "slash-div", "global-builtin"],
+        quietDeps: true,
+      },
     },
   },
 });

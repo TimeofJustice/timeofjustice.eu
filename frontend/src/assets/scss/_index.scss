@@ -4,6 +4,11 @@
 @import "bootstrap/scss/_functions";
 @import "bootstrap/scss/_variables";
 
+$font-family-base: "Inter", sans-serif;
+$font-size-base: 0.95rem;
+$font-weight-base: 400;
+$headings-font-weight: 700;
+
 $body-bg: $dark-gray-600;
 $body-color: $light;
 
@@ -109,6 +114,7 @@ $colors-shades: (
 
 // Import custom styles
 @import "custom";
+@import "font";
 
 // Import libraries
 @import "vue3-carousel/carousel.css";

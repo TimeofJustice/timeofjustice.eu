@@ -16,7 +16,7 @@ def index(request):
     wallet = request.session.get('wallet_id', None)
 
     if not wallet:
-        return render(request, "Games/Entry", props=default_props({}))
+        return render(request, "Games/EntryPage", props=default_props({}, request))
 
     return main(request)
 
@@ -42,7 +42,7 @@ def login(request):
         "error": error_text,
     }
 
-    return render(request, "Games/Login", props=default_props(page_props))
+    return render(request, "Games/LoginPage", props=default_props(page_props, request))
 
 
 def register(request):
@@ -103,4 +103,4 @@ def main(request):
         "hintDismissed": wallet.hint_dismissed,
     }
 
-    return render(request, "Games/Main", props=default_props(page_props))
+    return render(request, "Games/MainPage", props=default_props(page_props, request))

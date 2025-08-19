@@ -1,9 +1,5 @@
 <script setup lang="ts">
-const langs = [
-  { code: "en", text: "English", flag: "fi fi-uk" },
-  { code: "de", text: "Deutsch", flag: "fi fi-de" },
-  { code: "yoda", text: "Yoda", flag: "fi fi-yoda" },
-];
+import { LOCALES } from "@configurations/locales.ts";
 
 const changeLocale = (lang: string) => {
   localStorage.setItem("lang", lang);
@@ -11,23 +7,23 @@ const changeLocale = (lang: string) => {
 </script>
 
 <template>
-  <BDropdown class="dropdown-ghost">
+  <BDropdown variant="ghost">
     <template #button-content>
       <i
-        :class="langs.find((lang) => lang.code === $i18n.locale)?.flag"
+        :class="LOCALES.find((locale) => locale.code === $i18n.locale)?.icon"
         class="rounded-1"
-      ></i>
+      />
     </template>
 
     <BDropdownItemButton
-      v-for="lang in langs"
-      :key="lang.code"
+      v-for="locale in LOCALES"
+      :key="locale.code"
       @click="
-        $i18n.locale = lang.code;
-        changeLocale(lang.code);
+        $i18n.locale = locale.code;
+        changeLocale(locale.code);
       "
     >
-      <i :class="lang.flag" class="rounded-1"></i> {{ lang.text }}
+      <i :class="locale.icon" class="rounded-1" /> {{ locale.name }}
     </BDropdownItemButton>
   </BDropdown>
 </template>
