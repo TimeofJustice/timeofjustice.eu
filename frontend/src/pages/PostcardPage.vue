@@ -19,6 +19,7 @@ const { id, backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
 
 const showPostcard = ref(false);
 const showOffcanvas = ref(false);
+const sendMessageId = ref("");
 
 const form = reactive({
   message: "",
@@ -31,7 +32,9 @@ const onSubmit = (event: SubmitEvent) => {
 
   axios
     .post(`/sendy/api/send/`, form)
-    .then(() => {})
+    .then(() => {
+      sendMessageId.value = "245fg5dfgdf";
+    })
     .catch(() => {});
 };
 
@@ -41,6 +44,8 @@ const onReset = (event: Event) => {
 
   form.message = "";
   form.greetings = "";
+
+  sendMessageId.value = "";
 };
 
 const report = (event: MouseEvent) => {
@@ -118,43 +123,109 @@ const report = (event: MouseEvent) => {
       </BButton>
     </template>
 
-    <div class="d-flex flex-column gap-5">
-      <BForm
-        @submit="onSubmit"
-        @reset="onReset"
-        class="d-flex flex-column gap-2"
+    <BForm
+      @submit="onSubmit"
+      @reset="onReset"
+      class="d-flex flex-column gap-2"
+      v-if="!sendMessageId"
+    >
+      <BFormGroup label="Deine Grußbotschaft" label-for="greetings">
+        <BFormInput
+          id="greetings"
+          v-model="form.greetings"
+          placeholder="Deine Grußbotschaft"
+          required
+        ></BFormInput>
+      </BFormGroup>
+
+      <BFormGroup label="Deine Nachricht" label-for="message">
+        <BFormTextarea
+          id="message"
+          v-model="form.message"
+          placeholder="Schreibe deine Nachricht hier..."
+          rows="5"
+          required
+        ></BFormTextarea>
+      </BFormGroup>
+
+      <div>Dein Postkarten-Design:</div>
+
+      <div
+        class="d-grid gap-3"
+        style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))"
       >
-        <BFormGroup label="Deine Grußbotschaft" label-for="greetings">
-          <BFormInput
-            id="greetings"
-            v-model="form.greetings"
-            placeholder="Deine Grußbotschaft"
-            required
-          ></BFormInput>
-        </BFormGroup>
+        <div class="postcard-design active">
+          <div class="postcard-front">
+            <iconify-icon icon="twemoji:teddy-bear" />
 
-        <BFormGroup label="Deine Nachricht" label-for="message">
-          <BFormTextarea
-            id="message"
-            v-model="form.message"
-            placeholder="Schreibe deine Nachricht hier..."
-            rows="5"
-            required
-          ></BFormTextarea>
-        </BFormGroup>
+            <div class="postcard-stamp"></div>
+          </div>
 
-        <BButton type="submit" variant="primary"> Senden </BButton>
-      </BForm>
+          <div class="selected-overlay">
+            <iconify-icon icon="fa6-solid:check" />
+          </div>
+        </div>
+        <div class="postcard-design">
+          <div class="postcard-front">
+            <iconify-icon icon="twemoji:teddy-bear" />
 
-      <div class="d-flex flex-column gap-2">
-        <span> Deine Nachricht findest du hier: </span>
+            <div class="postcard-stamp"></div>
+          </div>
+        </div>
+        <div class="postcard-design">
+          <div class="postcard-front">
+            <iconify-icon icon="twemoji:teddy-bear" />
 
-        <div class="p-2 text-center bg-black bg-opacity-25 rounded w-100">
-          <BLink :href="`${baseURL}245fg5dfgdf`" target="_blank" external>
-            {{ baseURL }}245fg5dfgdf
-          </BLink>
+            <div class="postcard-stamp"></div>
+          </div>
+        </div>
+        <div class="postcard-design">
+          <div class="postcard-front">
+            <iconify-icon icon="twemoji:teddy-bear" />
+
+            <div class="postcard-stamp"></div>
+          </div>
+        </div>
+        <div class="postcard-design">
+          <div class="postcard-front">
+            <iconify-icon icon="twemoji:teddy-bear" />
+
+            <div class="postcard-stamp"></div>
+          </div>
+        </div>
+        <div class="postcard-design">
+          <div class="postcard-front">
+            <iconify-icon icon="twemoji:teddy-bear" />
+
+            <div class="postcard-stamp"></div>
+          </div>
         </div>
       </div>
+
+      <BButton type="submit" variant="primary"> Senden </BButton>
+    </BForm>
+
+    <div class="d-flex flex-column gap-2" v-else>
+      <span> Deine Nachricht findest du hier: </span>
+
+      <div
+        class="p-2 text-center bg-black bg-opacity-25 rounded w-100 d-flex justify-content-between align-items-center position-relative"
+      >
+        <BLink
+          :href="`${baseURL}${sendMessageId}`"
+          target="_blank"
+          external
+          class="flex-grow-1"
+        >
+          {{ baseURL }}{{ sendMessageId }}
+        </BLink>
+
+        <BButton variant="tertiary" class="btn-square">
+          <iconify-icon icon="iconamoon:copy-duotone" />
+        </BButton>
+      </div>
+
+      <BLink class="w-100 text-center" @click="onReset"> Zurück </BLink>
     </div>
   </BOffcanvas>
 </template>
@@ -210,6 +281,49 @@ const report = (event: MouseEvent) => {
 
 .postcard-wrapper.show .postcard {
   transform: rotateY(180deg) scale(1);
+}
+
+.postcard-design {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  border-radius: 1rem;
+  overflow: hidden;
+  padding: 0.5rem;
+  background: #ffbaba;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.postcard-design .postcard-front {
+  position: relative;
+  border-radius: 1rem;
+  font-size: 3rem;
+
+  .postcard-stamp {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 25px;
+    height: 25px;
+    border-radius: 0.4rem;
+  }
+}
+
+.postcard-design.active .selected-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(44, 44, 44, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
 }
 
 .postcard-front,
