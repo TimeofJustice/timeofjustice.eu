@@ -1,5 +1,7 @@
+import { TranslatedText } from "@/types/TranslatedText.ts";
+
 export interface Social {
-  type: string;
-  url: string;
   icon: string;
+  title?: TranslatedText;
+  url: string;
 }

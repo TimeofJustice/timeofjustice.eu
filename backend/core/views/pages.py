@@ -18,23 +18,7 @@ def index(request, offcanvas_component=None, **kwargs):
 
     page_props = {
         "profile": profile.json() if profile else None,
-        "socials": [
-            {
-                "type": "github",
-                "url": "https://github.com/TimeofJustice",
-                "icon": "line-md:github",
-            },
-            {
-                "type": "instagram",
-                "url": "https://instagram.com/jonas.oel",
-                "icon": "line-md:instagram",
-            },
-            {
-                "type": "linkedin",
-                "url": "https://linkedin.com/in/jonas-oelschner-2569441b3",
-                "icon": "line-md:linkedin",
-            },
-        ],
+        "socials": [social.json() for social in models.Social.objects.all()],
         "tools": [tool.json() for tool in models.Tool.objects.all()],
         "projects": [project.json() for project in models.Project.objects.all()],
     }

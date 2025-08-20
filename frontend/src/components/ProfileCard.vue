@@ -50,11 +50,15 @@ defineProps<ProfileCardProps>();
 
       <div class="d-flex gap-2">
         <BLink
-          :title="$t(`socials.${social.type}`)"
+          :title="
+            (social?.title &&
+              social?.title[$i18n.locale as keyof TranslatedText]) ||
+            social.icon
+          "
           :href="social.url"
           target="_blank"
           v-for="social in socials"
-          :key="social.type"
+          :key="social.icon"
         >
           <h4 class="mb-0 opacity-75">
             <iconify-icon :icon="social.icon" />
