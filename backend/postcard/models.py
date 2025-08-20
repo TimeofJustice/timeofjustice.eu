@@ -28,7 +28,7 @@ class Design(models.Model):
 class Postcard(models.Model):
     id = models.CharField(primary_key=True, max_length=6)
     message = models.TextField(default="Hallo, dies ist eine Postkarte")
-    greetings = models.CharField(max_length=255, default="Mit viel Liebe, dein Freund")
+    greetings = models.CharField(max_length=50, default="Mit viel Liebe, dein Freund")
     design = models.ForeignKey(Design, on_delete=models.CASCADE)
     amount_reports = models.IntegerField(default=0)
     showcased = models.BooleanField(default=False)

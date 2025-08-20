@@ -1,56 +1,29 @@
 <script setup lang="ts">
 import { Head } from "@node_modules/@inertiajs/vue3";
 import { reactive, ref, watch } from "vue";
+import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
+import { computed } from "@node_modules/vue";
+import { Postcard, Design, defaultPostcard } from "@/types/Postcard";
 import axios from "@node_modules/axios";
+
 import FullscreenLayout from "@layouts/FullscreenLayout.vue";
-
-const baseURL = window.location;
-
-interface PostcardDesign {
-  id: number;
-  pageColor: string;
-  backgroundColor: string;
-  stampColor: string;
-  accentColor: string;
-  textColor: string;
-  icon: string;
-}
-
-interface Postcard {
-  id: number;
-  message: string;
-  greetings: string;
-  design: PostcardDesign;
-}
+import { useI18n } from "vue-i18n";
 
 interface PostcardPageProps {
   postcard?: Postcard;
-  designs: PostcardDesign[];
+  designs: Design[];
 }
 
 const { postcard, designs } = defineProps<PostcardPageProps>();
 
-const defaultPostcard: Postcard = {
-  id: 0,
-  message: "Hier könnte deine Nachricht stehen!",
-  greetings: "Dein Name",
-  design: {
-    id: 0,
-    pageColor: "#ffbaba",
-    backgroundColor: "#fff",
-    stampColor: "#e5b473",
-    accentColor: "#e57373",
-    textColor: "#333333",
-    icon: "twemoji:teddy-bear",
-  },
-};
+const baseURL = window.location.origin;
 
 const activePostcard = reactive<Postcard>(postcard || defaultPostcard);
 
 const showPostcard = ref(false);
 const showOffcanvas = ref(false);
 
-const activeDesignId = ref<number>(designs.length > 0 ? designs[0].id : 0);
+const activeDesignId = ref(designs.length > 0 ? designs[0].id : 0);
 const sendMessageId = ref("");
 
 const form = reactive({
@@ -63,6 +36,30 @@ watch(activeDesignId, (newDesignId) => {
   form.designId = newDesignId;
 });
 
+const validateGreetings = computed(() => {
+  if (form.greetings === "") return null;
+  return form.greetings.length > 0 && form.greetings.length <= 50;
+});
+
+const validateMessage = computed(() => {
+  if (form.message === "") return null;
+  return form.message.length > 0 && form.message.length <= 500;
+});
+
+const i18n = useI18n();
+const { show } = useToastController();
+
+const showToast = (message: string, variant: "success" | "danger") => {
+  show?.({
+    props: {
+      body: message,
+      variant: variant,
+      interval: 5000,
+      pos: "bottom-start",
+    },
+  });
+};
+
 const onSubmit = (event: SubmitEvent) => {
   event.preventDefault();
   event.stopPropagation();
@@ -71,8 +68,15 @@ const onSubmit = (event: SubmitEvent) => {
     .post(`/sendy/api/send/`, form)
     .then((response) => {
       sendMessageId.value = response.data.data.id;
+
+      showToast(i18n.t("postcard.success." + response.data.message), "success");
     })
-    .catch(() => {});
+    .catch((error) => {
+      showToast(
+        i18n.t("postcard.error." + error.response.data.message),
+        "danger",
+      );
+    });
 };
 
 const onReset = (event: Event) => {
@@ -85,14 +89,33 @@ const onReset = (event: Event) => {
   sendMessageId.value = "";
 };
 
+const copyToClipboard = () => {
+  const url = `${baseURL}/sendy/${sendMessageId.value}`;
+  navigator.clipboard
+    .writeText(url)
+    .then(() => {
+      showToast(i18n.t("postcard.success.copy_to_clipboard"), "success");
+    })
+    .catch(() => {
+      showToast(i18n.t("postcard.error.copy_to_clipboard"), "danger");
+    });
+};
+
 const report = (event: MouseEvent) => {
   event.preventDefault();
   event.stopPropagation();
 
   axios
     .post(`/sendy/api/report/${activePostcard.id}`, form)
-    .then(() => {})
-    .catch(() => {});
+    .then((response) => {
+      showToast(i18n.t("postcard.success." + response.data.message), "success");
+    })
+    .catch((error) => {
+      showToast(
+        i18n.t("postcard.error." + error.response.data.message),
+        "danger",
+      );
+    });
 };
 </script>
 
@@ -113,6 +136,7 @@ const report = (event: MouseEvent) => {
     <div
       class="container-xxl postcard-wrapper"
       :class="{ show: showPostcard }"
+      :title="$t('postcard.open')"
       @click="showPostcard = !showPostcard"
     >
       <div class="postcard">
@@ -122,7 +146,7 @@ const report = (event: MouseEvent) => {
           <div class="postcard-stamp"></div>
         </div>
         <div class="postcard-back">
-          <div class="postcard-message">
+          <div class="postcard-message overflow-auto">
             {{ activePostcard.message }}
           </div>
           <div class="postcard-sender mt-3">
@@ -132,6 +156,7 @@ const report = (event: MouseEvent) => {
           <BButton
             variant="tertiary"
             class="btn-circle position-absolute top-0 end-0 m-2"
+            :title="$t('postcard.report')"
             @click="report"
           >
             <iconify-icon icon="fa:exclamation" />
@@ -148,6 +173,7 @@ const report = (event: MouseEvent) => {
         size="lg"
         class="btn-circle"
         @click="showOffcanvas = true"
+        :title="$t('postcard.create')"
       >
         <iconify-icon icon="streamline:send-email" />
       </BButton>
@@ -172,26 +198,37 @@ const report = (event: MouseEvent) => {
       class="d-flex flex-column gap-2"
       v-if="!sendMessageId"
     >
-      <BFormGroup label="Deine Grußbotschaft" label-for="greetings">
+      <BFormGroup :label="$t('postcard.form.greetings')" label-for="greetings">
         <BFormInput
           id="greetings"
           v-model="form.greetings"
-          placeholder="Deine Grußbotschaft"
+          :placeholder="$t('postcard.form.greetings_placeholder')"
+          :state="validateGreetings"
           required
-        ></BFormInput>
+        >
+        </BFormInput>
+        <BFormInvalidFeedback :state="validateGreetings">
+          {{ $t("postcard.form.greetings_help") }}
+        </BFormInvalidFeedback>
       </BFormGroup>
 
-      <BFormGroup label="Deine Nachricht" label-for="message">
+      <BFormGroup :label="$t('postcard.form.message')" label-for="message">
         <BFormTextarea
           id="message"
           v-model="form.message"
-          placeholder="Schreibe deine Nachricht hier..."
+          :placeholder="$t('postcard.form.message_placeholder')"
           rows="5"
+          :state="validateMessage"
           required
         ></BFormTextarea>
+        <BFormInvalidFeedback :state="validateMessage">
+          {{ $t("postcard.form.message_help") }}
+        </BFormInvalidFeedback>
       </BFormGroup>
 
-      <div>Dein Postkarten-Design:</div>
+      <div>
+        {{ $t("postcard.form.designs") }}
+      </div>
 
       <div
         class="d-grid gap-3"
@@ -209,6 +246,7 @@ const report = (event: MouseEvent) => {
           }"
           v-for="design in designs"
           :key="design.id"
+          :title="$t('postcard.form.select_design')"
           @click="activeDesignId = design.id"
         >
           <div class="postcard-front">
@@ -223,32 +261,50 @@ const report = (event: MouseEvent) => {
         </div>
       </div>
 
-      <BButton type="submit" variant="primary"> Senden </BButton>
+      <BButton
+        type="submit"
+        variant="primary"
+        :disabled="!validateGreetings || !validateMessage"
+      >
+        {{ $t("postcard.form.send") }}
+      </BButton>
     </BForm>
 
     <div class="d-flex flex-column gap-2" v-else>
-      <span> Deine Nachricht findest du hier: </span>
+      <span>
+        {{ $t("postcard.sent.title") }}
+      </span>
 
       <div
         class="p-2 text-center bg-black bg-opacity-25 rounded w-100 d-flex justify-content-between align-items-center position-relative"
       >
         <BLink
-          :href="`${baseURL}${sendMessageId}`"
+          :href="`${baseURL}/sendy/${sendMessageId}`"
           target="_blank"
           external
           class="flex-grow-1"
+          :title="$t('postcard.sent.link_title')"
         >
-          {{ baseURL }}{{ sendMessageId }}
+          {{ baseURL }}/sendy/{{ sendMessageId }}
         </BLink>
 
-        <BButton variant="tertiary" class="btn-square">
+        <BButton
+          variant="tertiary"
+          class="btn-square"
+          @click="copyToClipboard"
+          :title="$t('postcard.sent.copy_to_clipboard')"
+        >
           <iconify-icon icon="iconamoon:copy-duotone" />
         </BButton>
       </div>
 
-      <BLink class="w-100 text-center" @click="onReset"> Zurück </BLink>
+      <BLink class="w-100 text-center" @click="onReset">
+        {{ $t("postcard.sent.send_another") }}
+      </BLink>
     </div>
   </BOffcanvas>
+
+  <BToastOrchestrator />
 </template>
 
 <style scoped lang="scss">

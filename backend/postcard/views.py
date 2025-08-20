@@ -48,6 +48,18 @@ def send_postcard(request, **kwargs):
             "message": "design_not_found",
         }, status=404)
 
+    if len(post_data.get("message")) > 500 or len(post_data.get("greetings")) > 50:
+        return JsonResponse({
+            "status": "error",
+            "message": "message_too_long" if len(post_data.get("message")) > 500 else "greetings_too_long",
+        }, status=400)
+
+    if len(post_data.get("message")) < 1 or len(post_data.get("greetings")) < 1:
+        return JsonResponse({
+            "status": "error",
+            "message": "message_too_short" if len(post_data.get("message")) < 5 else "greetings_too_short",
+        }, status=400)
+
     postcard_id = str(uuid.uuid4())[:6]
     while models.Postcard.objects.filter(id=postcard_id).exists():
         postcard_id = str(uuid.uuid4())[:6]

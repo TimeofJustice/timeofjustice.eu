@@ -206,5 +206,43 @@
         "colors": "Anzahl Farben: {colors}"
       }
     }
+  },
+  "postcard": {
+    "title": "Sendy",
+    "open": "Sendy öffnen",
+    "report": "Sendy melden",
+    "create": "Erstelle dein eigenes Sendy",
+    "form": {
+      "greetings": "Grußformel:",
+      "greetings_placeholder": "z.B. Dein Freund",
+      "greetings_help": "Die Grußformel muss zwischen 1 und 50 Zeichen lang sein.",
+      "message": "Nachricht:",
+      "message_placeholder": "z.B. Ich hoffe, du hast einen tollen Tag!",
+      "message_help": "Die Nachricht muss zwischen 1 und 500 Zeichen lang sein.",
+      "designs": "Design:",
+      "select_design": "Dieses Design auswählen",
+      "send": "Senden"
+    },
+    "sent": {
+      "title": "Du findest dein Sendy hier:",
+      "link_title": "Der Link zu deinem Sendy",
+      "copy_to_clipboard": "Link in die Zwischenablage kopieren",
+      "send_another": "Weiteres Sendy erstellen"
+    },
+    "success": {
+      "copy_to_clipboard": "Der Link zu deinem Sendy wurde in die Zwischenablage kopiert.",
+      "reported_successfully": "Dieses Sendy wurde erfolgreich gemeldet.",
+      "postcard_sent": "Dein Sendy wurde erfolgreich erstellt. Du kannst sie mit deinen Freunden über diesen Link teilen."
+    },
+    "error": {
+      "copy_to_clipboard": "Beim Kopieren des Links in die Zwischenablage ist ein Fehler aufgetreten.",
+      "not_found": "Dieses Sendy existiert nicht.",
+      "message_too_long": "Die Nachricht ist zu lang. Sie muss zwischen 1 und 500 Zeichen lang sein.",
+      "message_too_short": "Die Nachricht ist zu kurz. Sie muss mindestens 1 Zeichen lang sein.",
+      "greetings_too_long": "Die Grußformel ist zu lang. Er muss zwischen 1 und 100 Zeichen lang sein.",
+      "greetings_too_short": "Die Grußformel ist zu kurz. Er muss mindestens 1 Zeichen lang sein.",
+      "design_not_found": "Das ausgewählte Design existiert nicht.",
+      "missing_fields": "Bitte fülle alle Felder aus."
+    }
   }
 }
