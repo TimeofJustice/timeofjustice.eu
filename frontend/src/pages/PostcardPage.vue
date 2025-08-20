@@ -1,17 +1,57 @@
 <script setup lang="ts">
 import { Head, usePage } from "@node_modules/@inertiajs/vue3";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
+import axios from "@node_modules/axios";
 
 const page = usePage();
 page.props["navbarSize"] = "small";
 
+const baseURL = window.location;
+
 interface PostcardPageProps {
+  id: string;
+  message: string;
+  greetings: string;
   backgroundColor?: string;
 }
 
-const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
+const { id, backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
 
 const showPostcard = ref(false);
+const showOffcanvas = ref(false);
+
+const form = reactive({
+  message: "",
+  greetings: "",
+});
+
+const onSubmit = (event: SubmitEvent) => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  axios
+    .post(`/sendy/api/send/`, form)
+    .then(() => {})
+    .catch(() => {});
+};
+
+const onReset = (event: Event) => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  form.message = "";
+  form.greetings = "";
+};
+
+const report = (event: MouseEvent) => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  axios
+    .post(`/sendy/api/report/${id}`, form)
+    .then(() => {})
+    .catch(() => {});
+};
 </script>
 
 <template>
@@ -35,11 +75,19 @@ const showPostcard = ref(false);
         </div>
         <div class="postcard-back">
           <div class="postcard-message">
-            Du es ist so toll! Ich wollte dir nur sagen, wie sehr ich dich
-            schätze und wie viel du mir bedeutest. Du bist ein wunderbarer
-            Mensch und ich bin so froh, dass wir uns kennen.
+            {{ message }}
           </div>
-          <div class="postcard-sender mt-3">Mit viel Liebe, dein Freund</div>
+          <div class="postcard-sender mt-3">
+            {{ greetings }}
+          </div>
+
+          <BButton
+            variant="tertiary"
+            class="btn-circle position-absolute top-0 end-0 m-2"
+            @click="report"
+          >
+            <iconify-icon icon="fa:exclamation" />
+          </BButton>
         </div>
       </div>
     </div>
@@ -47,11 +95,68 @@ const showPostcard = ref(false);
     <div
       class="position-absolute bottom-0 start-0 end-0 mb-2 d-flex justify-content-center"
     >
-      <BButton variant="primary" size="lg" class="btn-circle">
+      <BButton
+        variant="primary"
+        size="lg"
+        class="btn-circle"
+        @click="showOffcanvas = true"
+      >
         <iconify-icon icon="streamline:send-email" />
       </BButton>
     </div>
   </div>
+
+  <BOffcanvas v-model="showOffcanvas" placement="end">
+    <template #header>
+      <BButton
+        variant="tertiary"
+        class="btn-square"
+        :title="$t('general.close')"
+        @click="showOffcanvas = false"
+      >
+        <iconify-icon icon="ep:close-bold" />
+      </BButton>
+    </template>
+
+    <div class="d-flex flex-column gap-5">
+      <BForm
+        @submit="onSubmit"
+        @reset="onReset"
+        class="d-flex flex-column gap-2"
+      >
+        <BFormGroup label="Deine Grußbotschaft" label-for="greetings">
+          <BFormInput
+            id="greetings"
+            v-model="form.greetings"
+            placeholder="Deine Grußbotschaft"
+            required
+          ></BFormInput>
+        </BFormGroup>
+
+        <BFormGroup label="Deine Nachricht" label-for="message">
+          <BFormTextarea
+            id="message"
+            v-model="form.message"
+            placeholder="Schreibe deine Nachricht hier..."
+            rows="5"
+            required
+          ></BFormTextarea>
+        </BFormGroup>
+
+        <BButton type="submit" variant="primary"> Senden </BButton>
+      </BForm>
+
+      <div class="d-flex flex-column gap-2">
+        <span> Deine Nachricht findest du hier: </span>
+
+        <div class="p-2 text-center bg-black bg-opacity-25 rounded w-100">
+          <BLink :href="`${baseURL}245fg5dfgdf`" target="_blank" external>
+            {{ baseURL }}245fg5dfgdf
+          </BLink>
+        </div>
+      </div>
+    </div>
+  </BOffcanvas>
 </template>
 
 <style scoped lang="scss">
