@@ -32,6 +32,7 @@ urlpatterns = [
     path("games/", include("games.urls")),
     path("casino/", lambda request: redirect("/games/", permanent=False)),
     path("r-place/", include("r_place.urls")),
+    path("sendy/", include("postcard.urls")),
 ]
 
 handler400 = "core.views.errors.bad_request"

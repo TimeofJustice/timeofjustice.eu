@@ -28,6 +28,12 @@ export const ROUTES: Route[] = [
     path: "/r-place/",
     icon: "fa6-solid:paintbrush",
     activeComponents: ["RPlace"],
+  },
+  {
+    name: "nav.postcard",
+    path: "/sendy/",
+    icon: "bi:envelope-heart-fill",
+    activeComponents: ["PostcardPage"],
     isHighlighted: true,
   },
 ];

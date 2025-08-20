@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'core',
     'games',
     'r_place',
+    'postcard',
 ]
 
 ASGI_APPLICATION = "backend.asgi.application"
