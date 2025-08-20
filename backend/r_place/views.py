@@ -24,6 +24,7 @@ def index(request, canvas=None):
             "active": selected_canvas.active,
         },
         "canvases": list(Canvas.objects.all().values("name", "width", "height", "active")),
+        "navbarSize": "small",
     }
 
     return render(request, "RPlace", props=default_props(page_props, request))

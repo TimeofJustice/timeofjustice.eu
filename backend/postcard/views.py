@@ -20,6 +20,7 @@ def index(request, postcard_id = None, **kwargs):
     page_props = {
         "postcard": postcard.json() if postcard else None,
         "designs": [design.json() for design in models.Design.objects.all()],
+        "navbarSize": "small",
     }
 
     return render(request, "PostcardPage", props=default_props(page_props, request, **kwargs))
