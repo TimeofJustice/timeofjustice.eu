@@ -6,7 +6,6 @@ import { computed } from "@node_modules/vue";
 import { Postcard, Design, defaultPostcard } from "@/types/Postcard";
 import axios from "@node_modules/axios";
 
-import FullscreenLayout from "@layouts/FullscreenLayout.vue";
 import { useI18n } from "vue-i18n";
 
 interface PostcardPageProps {
@@ -122,8 +121,8 @@ const report = (event: MouseEvent) => {
 <template>
   <Head :title="$t('postcard.title')" />
 
-  <FullscreenLayout
-    class="d-flex justify-content-center align-items-center pb-2 postcard-page"
+  <div
+    class="h-100 overflow-hidden d-flex justify-content-center align-items-center pb-2 postcard-page"
     :style="{
       '--background-color': activePostcard.design.pageColor,
       '--postcard-background-color': activePostcard.design.backgroundColor,
@@ -178,7 +177,7 @@ const report = (event: MouseEvent) => {
         <iconify-icon icon="streamline:send-email" />
       </BButton>
     </div>
-  </FullscreenLayout>
+  </div>
 
   <BOffcanvas v-model="showOffcanvas" placement="end">
     <template #header>
