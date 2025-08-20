@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, onUnmounted, ref, watch } from "vue";
 import { Head, usePage } from "@node_modules/@inertiajs/vue3";
 import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
@@ -7,6 +7,18 @@ import RgbQuant from "rgbquant";
 
 const page = usePage();
 page.props["navbarSize"] = "small";
+
+const visibilityChangeHandler = () => {
+  if (!document.hidden) {
+    page.props["navbarSize"] = "small";
+  }
+};
+
+document.addEventListener("visibilitychange", visibilityChangeHandler);
+
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", visibilityChangeHandler);
+});
 
 interface PlaceState {
   playerCount: number;

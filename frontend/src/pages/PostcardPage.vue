@@ -1,10 +1,22 @@
 <script setup lang="ts">
 import { Head, usePage } from "@node_modules/@inertiajs/vue3";
-import { reactive, ref } from "vue";
+import { onUnmounted, reactive, ref } from "vue";
 import axios from "@node_modules/axios";
 
 const page = usePage();
 page.props["navbarSize"] = "small";
+
+const visibilityChangeHandler = () => {
+  if (!document.hidden) {
+    page.props["navbarSize"] = "small";
+  }
+};
+
+document.addEventListener("visibilitychange", visibilityChangeHandler);
+
+onUnmounted(() => {
+  document.removeEventListener("visibilitychange", visibilityChangeHandler);
+});
 
 const baseURL = window.location;
 
