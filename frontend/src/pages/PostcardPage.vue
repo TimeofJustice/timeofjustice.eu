@@ -1,36 +1,55 @@
 <script setup lang="ts">
-import { Head, usePage } from "@node_modules/@inertiajs/vue3";
-import { onUnmounted, reactive, ref } from "vue";
+import { Head } from "@node_modules/@inertiajs/vue3";
+import { reactive, ref } from "vue";
 import axios from "@node_modules/axios";
-
-const page = usePage();
-page.props["navbarSize"] = "small";
-
-const visibilityChangeHandler = () => {
-  if (!document.hidden) {
-    page.props["navbarSize"] = "small";
-  }
-};
-
-document.addEventListener("visibilitychange", visibilityChangeHandler);
-
-onUnmounted(() => {
-  document.removeEventListener("visibilitychange", visibilityChangeHandler);
-});
+import FullscreenLayout from "@layouts/FullscreenLayout.vue";
 
 const baseURL = window.location;
 
-interface PostcardPageProps {
-  id: string;
-  message: string;
-  greetings: string;
-  backgroundColor?: string;
+interface PostcardDesign {
+  id: number;
+  pageColor: string;
+  backgroundColor: string;
+  stampColor: string;
+  accentColor: string;
+  textColor: string;
+  icon: string;
 }
 
-const { id, backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
+interface Postcard {
+  id: number;
+  message: string;
+  greetings: string;
+  design: PostcardDesign;
+}
+
+interface PostcardPageProps {
+  postcard?: Postcard;
+  designs: PostcardDesign[];
+}
+
+const { postcard, designs } = defineProps<PostcardPageProps>();
+
+const defaultPostcard: Postcard = {
+  id: 0,
+  message: "Hier könnte deine Nachricht stehen!",
+  greetings: "Dein Name",
+  design: {
+    id: 0,
+    pageColor: "#ffbaba",
+    backgroundColor: "#fff",
+    stampColor: "#e5b473",
+    accentColor: "#e57373",
+    textColor: "#333333",
+    icon: "twemoji:teddy-bear",
+  },
+};
+
+const activePostcard = reactive<Postcard>(postcard || defaultPostcard);
 
 const showPostcard = ref(false);
 const showOffcanvas = ref(false);
+const activeDesignId = ref<number>(designs.length > 0 ? designs[0].id : 0);
 const sendMessageId = ref("");
 
 const form = reactive({
@@ -65,7 +84,7 @@ const report = (event: MouseEvent) => {
   event.stopPropagation();
 
   axios
-    .post(`/sendy/api/report/${id}`, form)
+    .post(`/sendy/api/report/${activePostcard.id}`, form)
     .then(() => {})
     .catch(() => {});
 };
@@ -74,9 +93,15 @@ const report = (event: MouseEvent) => {
 <template>
   <Head :title="$t('postcard.title')" />
 
-  <div
-    class="h-100 overflow-hidden d-flex justify-content-center align-items-center pb-2"
-    :style="{ backgroundColor: backgroundColor }"
+  <FullscreenLayout
+    class="d-flex justify-content-center align-items-center pb-2 postcard-page"
+    :style="{
+      '--background-color': activePostcard.design.pageColor,
+      '--postcard-background-color': activePostcard.design.backgroundColor,
+      '--postcard-stamp-color': activePostcard.design.stampColor,
+      '--postcard-accent-color': activePostcard.design.accentColor,
+      '--postcard-text-color': activePostcard.design.textColor,
+    }"
     style="padding-top: 4rem"
   >
     <div
@@ -86,16 +111,16 @@ const report = (event: MouseEvent) => {
     >
       <div class="postcard">
         <div class="postcard-front">
-          <iconify-icon icon="twemoji:teddy-bear" />
+          <iconify-icon :icon="activePostcard.design.icon" />
 
           <div class="postcard-stamp"></div>
         </div>
         <div class="postcard-back">
           <div class="postcard-message">
-            {{ message }}
+            {{ activePostcard.message }}
           </div>
           <div class="postcard-sender mt-3">
-            {{ greetings }}
+            {{ activePostcard.greetings }}
           </div>
 
           <BButton
@@ -121,7 +146,7 @@ const report = (event: MouseEvent) => {
         <iconify-icon icon="streamline:send-email" />
       </BButton>
     </div>
-  </div>
+  </FullscreenLayout>
 
   <BOffcanvas v-model="showOffcanvas" placement="end">
     <template #header>
@@ -166,50 +191,28 @@ const report = (event: MouseEvent) => {
         class="d-grid gap-3"
         style="grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))"
       >
-        <div class="postcard-design active">
+        <div
+          class="postcard-design"
+          :class="{ active: design.id === activeDesignId }"
+          :style="{
+            '--background-color': design.pageColor,
+            '--postcard-background-color': design.backgroundColor,
+            '--postcard-stamp-color': design.stampColor,
+            '--postcard-accent-color': design.accentColor,
+            '--postcard-text-color': design.textColor,
+          }"
+          v-for="design in designs"
+          :key="design.id"
+          @click="activeDesignId = design.id"
+        >
           <div class="postcard-front">
-            <iconify-icon icon="twemoji:teddy-bear" />
+            <iconify-icon :icon="design.icon" />
 
             <div class="postcard-stamp"></div>
           </div>
 
           <div class="selected-overlay">
             <iconify-icon icon="fa6-solid:check" />
-          </div>
-        </div>
-        <div class="postcard-design">
-          <div class="postcard-front">
-            <iconify-icon icon="twemoji:teddy-bear" />
-
-            <div class="postcard-stamp"></div>
-          </div>
-        </div>
-        <div class="postcard-design">
-          <div class="postcard-front">
-            <iconify-icon icon="twemoji:teddy-bear" />
-
-            <div class="postcard-stamp"></div>
-          </div>
-        </div>
-        <div class="postcard-design">
-          <div class="postcard-front">
-            <iconify-icon icon="twemoji:teddy-bear" />
-
-            <div class="postcard-stamp"></div>
-          </div>
-        </div>
-        <div class="postcard-design">
-          <div class="postcard-front">
-            <iconify-icon icon="twemoji:teddy-bear" />
-
-            <div class="postcard-stamp"></div>
-          </div>
-        </div>
-        <div class="postcard-design">
-          <div class="postcard-front">
-            <iconify-icon icon="twemoji:teddy-bear" />
-
-            <div class="postcard-stamp"></div>
           </div>
         </div>
       </div>
@@ -264,6 +267,10 @@ const report = (event: MouseEvent) => {
   }
 }
 
+.postcard-page {
+  background: var(--background-color, #ffbaba);
+}
+
 .postcard-wrapper {
   background-color: transparent;
   width: 100%;
@@ -296,13 +303,13 @@ const report = (event: MouseEvent) => {
 }
 
 .postcard-design {
+  background: var(--background-color, #ffbaba);
   position: relative;
   cursor: pointer;
   transition: transform 0.3s ease-in-out;
   border-radius: 1rem;
   overflow: hidden;
   padding: 0.5rem;
-  background: #ffbaba;
 
   &:hover {
     transform: scale(1.02);
@@ -325,7 +332,7 @@ const report = (event: MouseEvent) => {
   }
 }
 
-.postcard-design.active .selected-overlay {
+.postcard-design .selected-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -336,6 +343,14 @@ const report = (event: MouseEvent) => {
   justify-content: center;
   align-items: center;
   font-size: 2rem;
+  border: 2px solid currentColor;
+  border-radius: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.postcard-design.active .selected-overlay {
+  opacity: 1;
 }
 
 .postcard-front,
@@ -346,14 +361,14 @@ const report = (event: MouseEvent) => {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   border-radius: 2rem;
-  border: 2px dashed #e57373;
+  border: 2px dashed var(--postcard-accent-color, #e57373);
   padding: 2rem 3rem;
   box-shadow: 0 2px 8px 0 rgba(229, 115, 115, 0.08);
 }
 
 .postcard-front {
-  background: linear-gradient(135deg, #fff 80%, #ffe5e5 100%);
-  color: black;
+  background: var(--postcard-background-color, #fff);
+  color: var(--postcard-text-color, #333333);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -366,15 +381,19 @@ const report = (event: MouseEvent) => {
     width: 50px;
     height: 50px;
     border-radius: 0.5rem;
-    border: 2px dashed #e5b473;
-    background: #fffbe6;
+    border: 2px dashed var(--postcard-stamp-color, #e5b473);
+    background: color-mix(
+      in srgb,
+      var(--postcard-stamp-color, #e5b473) 20%,
+      transparent
+    );
     box-shadow: 0 2px 6px 0 rgba(229, 180, 115, 0.12);
   }
 }
 
 .postcard-back {
-  background: linear-gradient(135deg, #fff 80%, #ffe5e5 100%);
-  color: #333;
+  background: var(--postcard-background-color, #fff);
+  color: var(--postcard-text-color, #333333);
   transform: rotateY(180deg);
   display: flex;
   flex-direction: column;
@@ -394,9 +413,9 @@ const report = (event: MouseEvent) => {
 
   .postcard-sender {
     font-style: italic;
-    color: #e57373;
+    color: var(--postcard-accent-color, #e57373);
     text-align: center;
-    font-family: "Dancing Script", "Segoe Script", cursive;
+    font-family: "Segoe Script", cursive;
     font-size: 1.1rem;
     letter-spacing: 0.04em;
   }
