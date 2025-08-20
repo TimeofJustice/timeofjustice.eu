@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.models import Image, Profile, Project, Status, Technology, Tool, Translation
+from core.models import Image, Profile, Project, Social, Status, Technology, Tool, Translation
 
 
 @admin.register(Translation)
@@ -24,6 +24,12 @@ class ToolAdmin(admin.ModelAdmin):
 class TechnologyAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', 'icon')
     search_fields = ('name',)
+    ordering = ('id',)
+
+@admin.register(Social)
+class SocialAdmin(admin.ModelAdmin):
+    list_display = ('id', 'icon', 'title', 'url')
+    search_fields = ('title',)
     ordering = ('id',)
 
 @admin.register(Status)

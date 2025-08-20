@@ -101,7 +101,7 @@ class Profile(models.Model):
 
 class Tool(models.Model):
     id = models.AutoField(primary_key=True)
-    icon = models.FileField(upload_to=f'{settings.FILE_DESTINATION}images/tool/', max_length=1000)
+    icon = models.CharField(max_length=50, null=False, blank=False)
     alt = models.CharField(max_length=20, null=True, blank=True)
     url = models.URLField(max_length=100, null=True, blank=True)
 
@@ -110,7 +110,7 @@ class Tool(models.Model):
 
     def json(self):
         return {
-            'icon': f"/{settings.FILE_DESTINATION}images/tool/{Path(self.icon.file.name).name}" if self.icon else None,
+            'icon': self.icon,
             'alt': self.alt,
             'url': self.url,
         }
@@ -119,7 +119,7 @@ class Tool(models.Model):
 class Technology(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=20)
-    icon = models.CharField(max_length=25, null=True, blank=True)
+    icon = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -128,6 +128,26 @@ class Technology(models.Model):
         return {
             'name': self.name,
             'icon': self.icon,
+        }
+
+
+class Social(models.Model):
+    id = models.AutoField(primary_key=True)
+    icon = models.CharField(max_length=50, null=False, blank=False)
+    title = models.CharField(max_length=100, null=True, blank=True)
+    url = models.URLField(max_length=100, null=False, blank=False)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return self.title if self.title else ""
+
+    def json(self):
+        return {
+            'icon': self.icon,
+            'title': get_translation(self.title),
+            'url': self.url,
         }
 
 

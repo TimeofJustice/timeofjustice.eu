@@ -10,6 +10,9 @@ class Design(models.Model):
     text_color = models.CharField(max_length=7, default="#333333")
     icon = models.CharField(max_length=50, default="twemoji:teddy-bear")
 
+    class Meta:
+        ordering = ['id']
+
     def __str__(self):
         return f"Design {self.id}"
 

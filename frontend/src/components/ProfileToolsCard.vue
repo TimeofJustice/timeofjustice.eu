@@ -13,9 +13,14 @@ defineProps<ProfileToolsCardProps>();
 
 <template>
   <BCard body-class="p-0 py-2 overflow-hidden" v-if="tools.length">
-    <Vue3Marquee class="gradient-marquee h-100" pause-on-hover clone>
+    <Vue3Marquee
+      class="gradient-marquee h-100 overflow-hidden"
+      pause-on-hover
+      clone
+    >
       <ProfileToolsCardItem
         :tool="tool"
+        class="mx-1"
         v-for="tool in tools"
         :key="tool.alt"
       />
