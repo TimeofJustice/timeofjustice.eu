@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, usePage } from "@node_modules/@inertiajs/vue3";
+import { ref } from "vue";
 
 const page = usePage();
 page.props["navbarSize"] = "small";
@@ -9,6 +10,8 @@ interface PostcardPageProps {
 }
 
 const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
+
+const showPostcard = ref(false);
 </script>
 
 <template>
@@ -19,7 +22,11 @@ const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
     :style="{ backgroundColor: backgroundColor }"
     style="padding-top: 4rem"
   >
-    <div class="container-xxl postcard-wrapper">
+    <div
+      class="container-xxl postcard-wrapper"
+      :class="{ show: showPostcard }"
+      @click="showPostcard = !showPostcard"
+    >
       <div class="postcard">
         <div class="postcard-front">
           <iconify-icon icon="twemoji:teddy-bear" />
@@ -27,8 +34,12 @@ const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
           <div class="postcard-stamp"></div>
         </div>
         <div class="postcard-back">
-          <h1 class="text-center mb-4">{{ $t("postcard.title") }}</h1>
-          <p class="text-center">{{ $t("postcard.description") }}</p>
+          <div class="postcard-message">
+            Du es ist so toll! Ich wollte dir nur sagen, wie sehr ich dich
+            schätze und wie viel du mir bedeutest. Du bist ein wunderbarer
+            Mensch und ich bin so froh, dass wir uns kennen.
+          </div>
+          <div class="postcard-sender mt-3">Mit viel Liebe, dein Freund</div>
         </div>
       </div>
     </div>
@@ -44,6 +55,27 @@ const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
 </template>
 
 <style scoped lang="scss">
+@keyframes shake {
+  0% {
+    transform: rotate(0);
+  }
+  10% {
+    transform: rotate(-5deg);
+  }
+  20% {
+    transform: rotate(5deg);
+  }
+  30% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
 .postcard-wrapper {
   background-color: transparent;
   width: 100%;
@@ -51,6 +83,12 @@ const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
   max-width: 400px;
   max-height: 400px;
   perspective: 1000px;
+  cursor: pointer;
+  animation: shake 2s ease-in-out infinite;
+
+  &.show {
+    animation: none;
+  }
 }
 
 .postcard {
@@ -58,15 +96,15 @@ const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
   width: 100%;
   height: 100%;
   text-align: center;
-  transition: transform 0.6s;
+  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
   transform-style: preserve-3d;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.18);
   border-radius: 2rem;
+  transform: scale(0.8);
 }
 
-.postcard-wrapper:hover .postcard {
-  transform: rotateY(180deg);
+.postcard-wrapper.show .postcard {
+  transform: rotateY(180deg) scale(1);
 }
 
 .postcard-front,
@@ -76,17 +114,15 @@ const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
   height: 100%;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-
   border-radius: 2rem;
-
   border: 2px dashed #e57373;
   padding: 2rem 3rem;
+  box-shadow: 0 2px 8px 0 rgba(229, 115, 115, 0.08);
 }
 
 .postcard-front {
-  background: #fff;
+  background: linear-gradient(135deg, #fff 80%, #ffe5e5 100%);
   color: black;
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -98,15 +134,40 @@ const { backgroundColor = "#ffbaba" } = defineProps<PostcardPageProps>();
     right: 1rem;
     width: 50px;
     height: 50px;
-
     border-radius: 0.5rem;
     border: 2px dashed #e5b473;
+    background: #fffbe6;
+    box-shadow: 0 2px 6px 0 rgba(229, 180, 115, 0.12);
   }
 }
 
 .postcard-back {
-  background: #fff;
-  color: black;
+  background: linear-gradient(135deg, #fff 80%, #ffe5e5 100%);
+  color: #333;
   transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  padding: 2rem 2.5rem;
+  gap: 1.5rem;
+
+  .postcard-message {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+    text-align: center;
+    letter-spacing: 0.02em;
+  }
+
+  .postcard-sender {
+    font-style: italic;
+    color: #e57373;
+    text-align: center;
+    font-family: "Dancing Script", "Segoe Script", cursive;
+    font-size: 1.1rem;
+    letter-spacing: 0.04em;
+  }
 }
 </style>
