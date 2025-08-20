@@ -251,7 +251,7 @@
       "not_found": "This Sendy does not exist.",
       "message_too_long": "The message is too long. It must be between 1 and 500 characters.",
       "message_too_short": "The message is too short. It must be at least 1 character long.",
-      "greetings_too_long": "The greetings are too long. They must be between 1 and 100 characters.",
+      "greetings_too_long": "The greetings are too long. They must be between 1 and 50 characters.",
       "greetings_too_short": "The greetings are too short. They must be at least 1 character long.",
       "design_not_found": "The design you selected does not exist.",
       "missing_fields": "Please fill in all fields."

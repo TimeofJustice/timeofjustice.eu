@@ -239,8 +239,8 @@
       "not_found": "Dieses Sendy existiert nicht.",
       "message_too_long": "Die Nachricht ist zu lang. Sie muss zwischen 1 und 500 Zeichen lang sein.",
       "message_too_short": "Die Nachricht ist zu kurz. Sie muss mindestens 1 Zeichen lang sein.",
-      "greetings_too_long": "Die Grußformel ist zu lang. Er muss zwischen 1 und 100 Zeichen lang sein.",
-      "greetings_too_short": "Die Grußformel ist zu kurz. Er muss mindestens 1 Zeichen lang sein.",
+      "greetings_too_long": "Die Grußformel ist zu lang. Sie muss zwischen 1 und 50 Zeichen lang sein.",
+      "greetings_too_short": "Die Grußformel ist zu kurz. Sie muss mindestens 1 Zeichen lang sein.",
       "design_not_found": "Das ausgewählte Design existiert nicht.",
       "missing_fields": "Bitte fülle alle Felder aus."
     }
