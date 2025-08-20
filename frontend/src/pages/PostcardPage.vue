@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from "@node_modules/@inertiajs/vue3";
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import axios from "@node_modules/axios";
 import FullscreenLayout from "@layouts/FullscreenLayout.vue";
 
@@ -49,12 +49,18 @@ const activePostcard = reactive<Postcard>(postcard || defaultPostcard);
 
 const showPostcard = ref(false);
 const showOffcanvas = ref(false);
+
 const activeDesignId = ref<number>(designs.length > 0 ? designs[0].id : 0);
 const sendMessageId = ref("");
 
 const form = reactive({
   message: "",
   greetings: "",
+  designId: activeDesignId.value,
+});
+
+watch(activeDesignId, (newDesignId) => {
+  form.designId = newDesignId;
 });
 
 const onSubmit = (event: SubmitEvent) => {
@@ -63,8 +69,8 @@ const onSubmit = (event: SubmitEvent) => {
 
   axios
     .post(`/sendy/api/send/`, form)
-    .then(() => {
-      sendMessageId.value = "245fg5dfgdf";
+    .then((response) => {
+      sendMessageId.value = response.data.data.id;
     })
     .catch(() => {});
 };
@@ -368,7 +374,7 @@ const report = (event: MouseEvent) => {
 
 .postcard-front {
   background: var(--postcard-background-color, #fff);
-  color: var(--postcard-text-color, #333333);
+  color: var(--postcard-accent-color, #333333);
   display: flex;
   justify-content: center;
   align-items: center;
