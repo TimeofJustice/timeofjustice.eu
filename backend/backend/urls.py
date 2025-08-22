@@ -20,6 +20,10 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import include, path
 from django_otp.admin import OTPAdminSite
+from django.urls import re_path
+
+from r_place import consumers as r_place_consumers
+from cards import consumers as cards_consumers
 
 if os.getenv("USE_OTP", 'False').lower() in ('true', '1', 't'):
     admin.site.__class__ = OTPAdminSite
@@ -33,6 +37,12 @@ urlpatterns = [
     path("casino/", lambda request: redirect("/games/", permanent=False)),
     path("r-place/", include("r_place.urls")),
     path("sendy/", include("postcard.urls")),
+    path("cards/", include("cards.urls")),
+]
+
+websocket_urlpatterns = [
+    path("ws/r-place/", r_place_consumers.RPlaceConsumer.as_asgi()),
+    path("ws/cards/", cards_consumers.RPlaceConsumer.as_asgi()),
 ]
 
 handler400 = "core.views.errors.bad_request"

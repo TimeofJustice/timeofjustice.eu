@@ -18,9 +18,9 @@ export const ROUTES: Route[] = [
     path: "/games/",
     icon: "fa7-solid:dice",
     activeComponents: [
-      "Games/GamesPage",
-      "Games/GamesEntry",
-      "Games/GamesLogin",
+      "Games/MainPage",
+      "Games/EntryPage",
+      "Games/LoginPage",
     ],
   },
   {
@@ -34,6 +34,13 @@ export const ROUTES: Route[] = [
     path: "/sendy/",
     icon: "bi:envelope-heart-fill",
     activeComponents: ["PostcardPage"],
+    isHighlighted: true,
+  },
+  {
+    name: "nav.cards",
+    path: "/cards/",
+    icon: "streamline:cards-remix",
+    activeComponents: ["Cards/MainPage"],
     isHighlighted: true,
   },
 ];

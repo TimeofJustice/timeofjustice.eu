@@ -7,6 +7,7 @@ import { Postcard, Design, defaultPostcard } from "@/types/Postcard";
 import axios from "@node_modules/axios";
 
 import { useI18n } from "vue-i18n";
+import FlipCard from "@components/FlipCard.vue";
 
 interface PostcardPageProps {
   postcard?: Postcard;
@@ -19,7 +20,6 @@ const baseURL = window.location.origin;
 
 const activePostcard = reactive<Postcard>(postcard || defaultPostcard);
 
-const showPostcard = ref(false);
 const showOffcanvas = ref(false);
 
 const activeDesignId = ref(designs.length > 0 ? designs[0].id : 0);
@@ -132,18 +132,21 @@ const report = (event: MouseEvent) => {
     }"
     style="padding-top: 4rem"
   >
-    <div
-      class="container-xxl postcard-wrapper"
-      :class="{ show: showPostcard }"
+    <FlipCard
+      wrapper-class="container-xxl postcard-wrapper"
+      card-class="rounded-5"
+      change-scale
       :title="$t('postcard.open')"
-      @click="showPostcard = !showPostcard"
     >
-      <div class="postcard">
+      <template #front>
         <div class="postcard-front">
           <iconify-icon :icon="activePostcard.design.icon" />
 
           <div class="postcard-stamp"></div>
         </div>
+      </template>
+
+      <template #back>
         <div class="postcard-back">
           <div class="postcard-message overflow-auto">
             {{ activePostcard.message }}
@@ -161,8 +164,8 @@ const report = (event: MouseEvent) => {
             <iconify-icon icon="fa:exclamation" />
           </BButton>
         </div>
-      </div>
-    </div>
+      </template>
+    </FlipCard>
 
     <div
       class="position-absolute bottom-0 start-0 end-0 mb-2 d-flex justify-content-center"
@@ -333,34 +336,11 @@ const report = (event: MouseEvent) => {
 }
 
 .postcard-wrapper {
-  background-color: transparent;
-  width: 100%;
-  height: 100%;
-  max-width: 400px;
-  max-height: 400px;
-  perspective: 1000px;
-  cursor: pointer;
   animation: shake 2s ease-in-out infinite;
 
   &.show {
     animation: none;
   }
-}
-
-.postcard {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-  transform-style: preserve-3d;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.18);
-  border-radius: 2rem;
-  transform: scale(0.8);
-}
-
-.postcard-wrapper.show .postcard {
-  transform: rotateY(180deg) scale(1);
 }
 
 .postcard-design {
@@ -416,15 +396,14 @@ const report = (event: MouseEvent) => {
 
 .postcard-front,
 .postcard-back {
-  position: absolute;
+  position: relative;
   width: 100%;
   height: 100%;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+
   border-radius: 2rem;
-  border: 2px dashed var(--postcard-accent-color, #e57373);
   padding: 2rem 3rem;
-  box-shadow: 0 2px 8px 0 rgba(229, 115, 115, 0.08);
+
+  border: 2px dashed var(--postcard-accent-color, #e57373);
 }
 
 .postcard-front {
@@ -455,7 +434,6 @@ const report = (event: MouseEvent) => {
 .postcard-back {
   background: var(--postcard-background-color, #fff);
   color: var(--postcard-text-color, #333333);
-  transform: rotateY(180deg);
   display: flex;
   flex-direction: column;
   justify-content: center;
