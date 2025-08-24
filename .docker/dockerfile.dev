@@ -27,6 +27,10 @@ RUN useradd -m -r appuser && \
    mkdir /app && \
    chown -R appuser /app
 
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
+COPY backend/supervisord.dev.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Copy the Python dependencies from the builder stage
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
@@ -42,6 +46,9 @@ RUN mkdir -p /app/backend/files && \
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+COPY backend/entrypoint-dev.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Switch to non-root user
 USER appuser
 
@@ -50,5 +57,5 @@ EXPOSE 8000 8001
 
 WORKDIR /app/backend
 
-# Start the application
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

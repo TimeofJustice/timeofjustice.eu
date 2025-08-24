@@ -42,6 +42,10 @@ RUN useradd -m -r appuser && \
    mkdir /app && \
    chown -R appuser /app
 
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+
+COPY backend/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # Copy the Python dependencies from the builder stage
 COPY --from=builder /usr/local/lib/python3.13/site-packages/ /usr/local/lib/python3.13/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
@@ -71,8 +75,8 @@ RUN mkdir -p /app/backend/logs && \
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Make the entrypoint script executable
-RUN chmod +x /app/backend/entrypoint.sh
+COPY backend/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Switch to non-root user
 USER appuser
@@ -82,5 +86,5 @@ EXPOSE 8000
 
 WORKDIR /app/backend
 
-# Start the application using Gunicorn
-CMD ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

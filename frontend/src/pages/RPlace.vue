@@ -14,10 +14,6 @@ interface PlaceState {
   colors: string[][];
   colorsPage: number;
   state: "loading" | "viewing" | "started" | "disconnected";
-  chunks: {
-    number: number;
-    loaded: number;
-  };
   color: {
     active: string;
     custom: string;
@@ -208,10 +204,6 @@ const placeState = ref<PlaceState>({
   colors: [colors],
   colorsPage: 0,
   state: "loading",
-  chunks: {
-    number: 0,
-    loaded: 0,
-  },
   color: {
     active: "#6d001a",
     custom: "#00156b",
@@ -283,49 +275,57 @@ const view = {
     this.initChunks();
   },
   initChunks() {
-    placeState.value.chunks.loaded = 0;
-    placeState.value.chunks.number = numberOfChunks * numberOfChunks;
-
     for (let i = 0; i < numberOfChunks; i++) {
       for (let j = 0; j < numberOfChunks; j++) {
         this.chunks.push(new Chunk(chunkWidth, chunkHeight));
       }
     }
 
-    this.loadChunk(0);
+    this.loadChunks();
   },
-  loadChunk(index: number) {
-    if (index >= this.chunks.length) return;
+  loadChunks() {
+    if (this.chunks.length < 0) return;
 
-    const chunkX = (index % numberOfChunks) * chunkWidth;
-    const chunkY = Math.floor(index / numberOfChunks) * chunkHeight;
+    axios.get(`/r-place/api/load/${activeCanvas.name}/`).then((response) => {
+      const imagePath = response.data.image;
+      const cells = response.data.cells;
 
-    axios
-      .get(
-        `/r-place/api/load_chunk/${chunkX}/${chunkY}/${chunkWidth}/${activeCanvas.name}/`,
-      )
-      .then((response) => {
-        const data = response.data;
-        this.drawChunk(data.cells);
-      })
-      .catch((error) => {
-        console.error(`Error loading chunk ${index}:`, error);
-      })
-      .finally(() => {
-        placeState.value.chunks.loaded++;
+      if (!imagePath) {
+        this.drawChunk(cells);
 
-        if (index < this.chunks.length - 1) {
-          setTimeout(() => this.loadChunk(index + 1), 100);
+        if (activeCanvas.active) {
+          placeState.value.state = "started";
         } else {
-          if (activeCanvas.active) {
-            placeState.value.state = "started";
-          } else {
-            placeState.value.state = "viewing";
-          }
-
-          this.refresh();
+          placeState.value.state = "viewing";
         }
-      });
+
+        this.refresh();
+
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        for (let i = 0; i < this.chunks.length; i++) {
+          const chunkX = (i % numberOfChunks) * chunkWidth;
+          const chunkY = Math.floor(i / numberOfChunks) * chunkHeight;
+
+          const ctx = this.chunks[i].ctx;
+          ctx.drawImage(img, -chunkX, -chunkY);
+        }
+
+        this.drawChunk(cells);
+
+        if (activeCanvas.active) {
+          placeState.value.state = "started";
+        } else {
+          placeState.value.state = "viewing";
+        }
+
+        this.refresh();
+      };
+      img.src = imagePath;
+    });
   },
   drawChunk(cells: { x: number; y: number; color: string }[]) {
     cells.forEach((cell) => {
@@ -338,7 +338,8 @@ const view = {
 
     const chunkIndex = chunkY * numberOfChunks + chunkX;
     if (chunkIndex < 0 || chunkIndex >= this.chunks.length) {
-      throw new Error(`Chunk index out of bounds: ${chunkIndex}`);
+      console.warn(`Attempted to access out-of-bounds chunk at (${x}, ${y})`);
+      return this.chunks[0];
     }
 
     return this.chunks[chunkIndex];
@@ -1198,31 +1199,21 @@ watch(
           "
           :class="{ 'bg-opacity-75': placeState.state === 'disconnected' }"
         >
-          <BProgress
-            :max="placeState.chunks.number"
-            class="col-5"
-            v-if="placeState.state === 'loading'"
-          >
-            <BProgressBar :value="placeState.chunks.loaded" striped animated>
-              <small
-                >{{
-                  Math.round(
-                    (placeState.chunks.loaded / placeState.chunks.number) * 100,
-                  )
-                }}%</small
-              >
-            </BProgressBar>
-          </BProgress>
+          <span v-if="placeState.state === 'loading'">
+            {{ $t("general.loading") }}
+          </span>
 
           <BButton
             class="place-button place-button-big d-flex flex-column justify-content-center align-items-center rounded-0"
             to="/r-place/"
             v-if="placeState.state === 'disconnected'"
           >
-            <span class="fw-bold fs-5">{{
-              $t("r_place.canvas.disconnected.title")
-            }}</span>
-            <span>{{ $t("r_place.canvas.disconnected.description") }}</span>
+            <span class="fw-bold fs-5">
+              {{ $t("r_place.canvas.disconnected.title") }}
+            </span>
+            <small>
+              {{ $t("r_place.canvas.disconnected.description") }}
+            </small>
           </BButton>
         </div>
       </Transition>

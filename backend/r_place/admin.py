@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from r_place.models import Canvas, Cell
+from r_place.models import Canvas, Cell, RenderedCanvas
 
 
 @admin.register(Canvas)
@@ -10,6 +10,15 @@ class CanvasAdmin(admin.ModelAdmin):
     list_filter = ("active",)
     ordering = ("-id", "name")
     readonly_fields = ("id",)
+
+
+@admin.register(RenderedCanvas)
+class RenderedCanvasAdmin(admin.ModelAdmin):
+    list_display = ("id", "canvas", "image_name", "created_at")
+    search_fields = ("canvas__name", "image_name")
+    list_filter = ("canvas__name",)
+    ordering = ("-created_at",)
+    readonly_fields = ("id", "created_at")
 
 
 @admin.register(Cell)

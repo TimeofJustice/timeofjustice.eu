@@ -18,6 +18,21 @@ class Canvas(models.Model):
         return f"{self.name} ({self.width}x{self.height})"
 
 
+class RenderedCanvas(models.Model):
+    id = models.AutoField(primary_key=True, auto_created=True)
+    canvas = models.ForeignKey(Canvas, on_delete=models.CASCADE, related_name='rendered_canvases')
+    image_name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+        verbose_name = "Rendered Canvas"
+        verbose_name_plural = "Rendered Canvases"
+
+    def __str__(self):
+        return f"Rendered {self.canvas.name} at {self.created_at}"
+
+
 class Cell(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     x = models.IntegerField(default=0)
