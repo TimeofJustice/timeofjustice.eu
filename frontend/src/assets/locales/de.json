@@ -6,7 +6,8 @@
     "save": "Speichern",
     "day": "Tag",
     "home": "Startseite",
-    "close": "Schließen"
+    "close": "Schließen",
+    "loading": "Lädt..."
   },
   "error": {
     "message": "Sieht so aus, als wärst du falsch abgebogen. Keine Sorge, du kannst jederzeit zur Startseite zurückkehren.",

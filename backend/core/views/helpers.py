@@ -52,6 +52,11 @@ def games_cards(request, name):
     return static_files(path)
 
 
+def r_place_images(request, name):
+    path = f"{settings.FILE_DESTINATION}images/r-place/{name}"
+    return static_files(path)
+
+
 def robot(request):
     lines = [
         "User-agent: *",
