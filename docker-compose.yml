@@ -2,48 +2,64 @@ services:
   db:
     image: postgres:17
     profiles: ["production", "dev"]
+    command: >
+      postgres
+      -c listen_addresses=''
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-    ports:
-      - "8002:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - pg_socket:/var/run/postgresql
     env_file:
       - .env
 
   db-staging:
     image: postgres:17
     profiles: ["staging"]
+    command: >
+      postgres
+      -c listen_addresses=''
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-    ports:
-      - "8005:5432"
     volumes:
       - postgres_staging_data:/var/lib/postgresql/data
+      - pg_staging_socket:/var/run/postgresql
     env_file:
       - .env
 
   redis:
     image: redis:latest
     profiles: ["production", "dev"]
-    ports:
-      - "8001:6379"
+    command: >
+      redis-server
+      --save ""
+      --appendonly no
+      --port 0
+      --unixsocket /data/redis.sock
+      --unixsocketperm 777
     volumes:
       - redis_data:/data
+      - redis_socket:/data
     env_file:
       - .env
 
   redis-staging:
     image: redis:latest
     profiles: ["staging"]
-    ports:
-      - "8004:6379"
+    command: >
+      redis-server
+      --save ""
+      --appendonly no
+      --port 0
+      --unixsocket /data/redis.sock
+      --unixsocketperm 777
     volumes:
       - redis_staging_data:/data
+      - redis_staging_socket:/data
     env_file:
       - .env
 
@@ -90,6 +106,8 @@ services:
       - ./files:/app/backend/files
       - ./sockets:/sockets
       - ./logs:/app/backend/logs
+      - pg_socket:/var/run/postgresql
+      - redis_socket:/data
 
   django-staging:
     build:
@@ -134,6 +152,8 @@ services:
       - ./files:/app/backend/files
       - ./sockets:/sockets
       - ./logs:/app/backend/logs
+      - pg_staging_socket:/var/run/postgresql
+      - redis_staging_socket:/data
 
   django-dev:
     build:
@@ -176,9 +196,13 @@ services:
 volumes:
   postgres_data:
   postgres_staging_data:
+  pg_socket:
+  pg_staging_socket:
   static_volume:
   static_staging_volume:
   files_volume:
   files_staging_volume:
   redis_data:
   redis_staging_data:
+  redis_socket:
+  redis_staging_socket:
