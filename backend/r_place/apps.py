@@ -13,4 +13,4 @@ class RPlaceConfig(AppConfig):
 
         from r_place.tasks import render_canvas
 
-        render_canvas(repeat=60 * 60, schedule=60)
+        render_canvas(repeat=60 * 60 * 24, schedule=60, remove_existing_tasks=True)
