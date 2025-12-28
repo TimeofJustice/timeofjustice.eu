@@ -5,7 +5,7 @@ import { ROUTES } from "@configurations/routes.ts";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
-import TimeofJusticeLogo from '@assets/images/TimeofJustice.svg'
+import TimeofJusticeLogo from "@assets/images/TimeofJustice.svg";
 
 interface BaseNavbarProps {
   size?: "normal" | "small";

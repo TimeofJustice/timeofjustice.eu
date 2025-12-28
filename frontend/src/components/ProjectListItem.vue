@@ -2,7 +2,7 @@
 import { Project } from "@/types/Project.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
 
-import MissingTexture from '@assets/images/MissingTexture.svg'
+import MissingTexture from "@assets/images/MissingTexture.svg";
 
 interface ProjectListItemProps {
   project: Project;

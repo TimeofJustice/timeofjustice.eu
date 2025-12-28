@@ -3,7 +3,7 @@ import { Social } from "@/types/Social.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
 import { Profile } from "@/types/Profile.ts";
 
-import DefaultProfileImage from '@assets/images/TimeofJustice.svg'
+import DefaultProfileImage from "@assets/images/TimeofJustice.svg";
 
 interface ProfileCardProps {
   profile?: Profile;

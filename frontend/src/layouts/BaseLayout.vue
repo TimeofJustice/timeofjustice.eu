@@ -5,7 +5,7 @@ import { shallowRef, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 import { OffcanvasState } from "@/types/OffcanvasState.ts";
 
-import LizardAudio from '@assets/audio/lizard.wav'
+import LizardAudio from "@assets/audio/lizard.wav";
 
 interface BaseLayoutProps {
   production: boolean;
