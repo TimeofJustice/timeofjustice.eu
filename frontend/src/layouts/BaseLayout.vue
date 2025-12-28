@@ -5,6 +5,8 @@ import { shallowRef, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 import { OffcanvasState } from "@/types/OffcanvasState.ts";
 
+import LizardAudio from '@assets/audio/lizard.wav'
+
 interface BaseLayoutProps {
   production: boolean;
   stable: boolean;
@@ -118,10 +120,7 @@ const playLizardSound = () => {
               <iconify-icon icon="fluent-emoji-high-contrast:lizard" />
             </BButton>
             <audio class="d-none" ref="lizardAudio">
-              <source
-                :src="require('@assets/audio/lizard.wav')"
-                type="audio/wav"
-              />
+              <source :src="LizardAudio" type="audio/wav" />
             </audio>
           </div>
         </template>

@@ -3,6 +3,8 @@ import { Social } from "@/types/Social.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
 import { Profile } from "@/types/Profile.ts";
 
+import DefaultProfileImage from '@assets/images/TimeofJustice.svg'
+
 interface ProfileCardProps {
   profile?: Profile;
   socials: Social[];
@@ -17,7 +19,7 @@ defineProps<ProfileCardProps>();
   >
     <v-lazy-image
       class="img-fluid rounded-circle w-75 profile-image"
-      :src="profile?.picture || require('@assets/images/TimeofJustice.svg')"
+      :src="profile?.picture || DefaultProfileImage"
       :alt="$t('profile.picture_alt')"
     />
 

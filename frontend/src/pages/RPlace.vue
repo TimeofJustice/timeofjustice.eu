@@ -5,6 +5,8 @@ import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
 import RgbQuant from "rgbquant";
 
+import CursorImage from '@assets/images/Cursor.png'
+
 interface PlaceState {
   playerCount: number;
   coordinates: { x: number; y: number };
@@ -1503,9 +1505,9 @@ watch(
     </div>
   </div>
 
-  <div class="d-none">
-    <img :src="require('@assets/images/Cursor.png')" ref="cursorImage" />
-  </div>
+<div class="d-none">
+  <img :src="CursorImage" ref="cursorImage" />
+</div>
 </template>
 
 <style lang="scss">

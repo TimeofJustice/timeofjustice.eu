@@ -5,6 +5,8 @@ import { ROUTES } from "@configurations/routes.ts";
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import BaseNavbarLink from "@components/BaseNavbarLink.vue";
 
+import TimeofJusticeLogo from '@assets/images/TimeofJustice.svg'
+
 interface BaseNavbarProps {
   size?: "normal" | "small";
 }
@@ -53,7 +55,7 @@ onMounted(() => {
         <BNavbarBrand class="me-0">
           <v-lazy-image
             class="img-fluid rounded brand-picture"
-            :src="require('@assets/images/TimeofJustice.svg')"
+            :src="TimeofJusticeLogo"
             :alt="$t('nav.brand_alt')"
           />
         </BNavbarBrand>
