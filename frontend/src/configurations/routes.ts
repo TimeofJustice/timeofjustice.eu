@@ -30,6 +30,12 @@ export const ROUTES: Route[] = [
     path: "/sendy/",
     icon: "bi:envelope-heart-fill",
     activeComponents: ["PostcardPage"],
+  },
+  {
+    name: "nav.quiz",
+    path: "/quiz/",
+    icon: "fa6-solid:lightbulb",
+    activeComponents: ["Quiz/LobbyPage"],
     isHighlighted: true,
   },
 ];
