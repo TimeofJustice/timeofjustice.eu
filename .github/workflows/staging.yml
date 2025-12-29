@@ -113,6 +113,13 @@ jobs:
               rsync -av --delete --quiet ${{ secrets.SSH_PATH }}/files/ ${{ secrets.SSH_STAGING_PATH }}/files/
           EOF
 
+      - name: Restart staging database
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+            docker restart ${{ secrets.DB_STAGING_CONTAINER }}
+          EOF
+
       - name: Copy database from production
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'

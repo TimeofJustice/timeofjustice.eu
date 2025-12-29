@@ -190,7 +190,7 @@ class Project(models.Model):
             compress(self.title_image, 'project')
 
     class Meta:
-        ordering = ['status']
+        ordering = ['status', '-id']
 
     def __str__(self):
         return self.title

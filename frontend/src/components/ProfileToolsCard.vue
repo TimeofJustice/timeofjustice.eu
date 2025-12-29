@@ -17,6 +17,7 @@ defineProps<ProfileToolsCardProps>();
       class="gradient-marquee h-100 overflow-hidden"
       pause-on-hover
       clone
+      :duration="tools.length * 3"
     >
       <ProfileToolsCardItem
         :tool="tool"

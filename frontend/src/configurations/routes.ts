@@ -17,11 +17,7 @@ export const ROUTES: Route[] = [
     name: "nav.games",
     path: "/games/",
     icon: "fa7-solid:dice",
-    activeComponents: [
-      "Games/GamesPage",
-      "Games/GamesEntry",
-      "Games/GamesLogin",
-    ],
+    activeComponents: ["Games/EntryPage", "Games/LoginPage", "Games/MainPage"],
   },
   {
     name: "nav.place",
