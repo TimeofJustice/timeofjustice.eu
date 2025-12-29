@@ -1383,127 +1383,117 @@ watch(
           </div>
         </div>
       </div>
-
-      <div
-        class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 px-2 py-3 p-md-3 overflow-auto"
-        :class="{ 'd-none': !placeState.overlayScreen }"
-      >
-        <div
-          class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-dark-gray-500 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
-        >
-          <div class="position-relative">
-            <canvas ref="previewCanvas"></canvas>
-
-            <Transition>
-              <div
-                class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-gray-800 bg-opacity-75"
-                v-if="!synced"
-              >
-                <BButton @click="overlay.preview()" class="place-button fs-5">
-                  <iconify-icon icon="fa7-solid:sync" />
-                </BButton>
-              </div>
-            </Transition>
-          </div>
-
-          <BFormGroup label-for="file-input">
-            <BFormFile
-              id="file-input"
-              v-model="file"
-              accept="image/png,image/jpeg,image/gif"
-              class="place-input"
-              :state="validateFile"
-            />
-            <BFormInvalidFeedback :state="validateFile">
-              {{ $t("r_place.canvas.overlay.invalid_file") }}
-            </BFormInvalidFeedback>
-          </BFormGroup>
-
-          <BFormGroup
-            :label="$t('r_place.canvas.overlay.x', { x: positionOnCanvasX })"
-            label-for="position-x-input"
-            label-class="mb-1"
-            class="w-100"
-          >
-            <BFormInput
-              id="position-x-input"
-              type="range"
-              v-model="positionOnCanvasX"
-              min="0"
-              :max="activeCanvas.width"
-              class="place-range"
-            />
-          </BFormGroup>
-          <BFormGroup
-            :label="$t('r_place.canvas.overlay.y', { y: positionOnCanvasY })"
-            label-for="position-y-input"
-            label-class="mb-1"
-            class="w-100"
-          >
-            <BFormInput
-              id="position-y-input"
-              type="range"
-              v-model="positionOnCanvasY"
-              min="0"
-              :max="activeCanvas.height"
-              class="place-range"
-            />
-          </BFormGroup>
-
-          <BFormGroup
-            :label="
-              $t('r_place.canvas.overlay.width', { width: sizeOnCanvasX })
-            "
-            label-for="width-input"
-            label-class="mb-1"
-            class="w-100"
-          >
-            <BFormInput
-              id="width-input"
-              type="range"
-              v-model="sizeOnCanvasX"
-              min="1"
-              :max="limitSizeOnCanvasX"
-              class="place-range"
-            />
-          </BFormGroup>
-
-          <BFormGroup
-            :label="
-              $t('r_place.canvas.overlay.colors', { colors: numberColors })
-            "
-            label-for="width-input"
-            label-class="mb-1"
-            class="w-100"
-          >
-            <BFormInput
-              id="width-input"
-              type="range"
-              v-model="numberColors"
-              :min="2"
-              :max="200"
-              class="place-range"
-            />
-          </BFormGroup>
-
-          <div class="d-flex gap-2 w-100">
-            <BButton
-              class="place-button place-button"
-              @click="placeState.overlayScreen = false"
-            >
-              <iconify-icon icon="ep:close-bold" />
-            </BButton>
-            <BButton
-              class="place-button flex-grow-1"
-              @click="overlay.calculate()"
-            >
-              <iconify-icon icon="fa6-solid:check" />
-            </BButton>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
+
+  <BModal v-model="placeState.overlayScreen" hide-header>
+    <BForm
+      class="d-flex flex-column justify-content-center align-items-center gap-2 overflow-hidden"
+    >
+      <div class="position-relative d-flex">
+        <canvas ref="previewCanvas"></canvas>
+
+        <Transition>
+          <div
+            class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-gray-800 bg-opacity-75"
+            v-if="!synced"
+          >
+            <BButton @click="overlay.preview()" class="place-button fs-5">
+              <iconify-icon icon="fa7-solid:sync" />
+            </BButton>
+          </div>
+        </Transition>
+      </div>
+
+      <BFormGroup label-for="file-input" class="w-100">
+        <BFormFile
+          id="file-input"
+          v-model="file"
+          accept="image/png,image/jpeg,image/gif"
+          class="place-input"
+          :state="validateFile"
+        />
+        <BFormInvalidFeedback :state="validateFile">
+          {{ $t("r_place.canvas.overlay.invalid_file") }}
+        </BFormInvalidFeedback>
+      </BFormGroup>
+
+      <BFormGroup
+        :label="$t('r_place.canvas.overlay.x', { x: positionOnCanvasX })"
+        label-for="position-x-input"
+        label-class="mb-1"
+        class="w-100"
+      >
+        <BFormInput
+          id="position-x-input"
+          type="range"
+          v-model="positionOnCanvasX"
+          min="0"
+          :max="activeCanvas.width"
+          class="place-range"
+        />
+      </BFormGroup>
+      <BFormGroup
+        :label="$t('r_place.canvas.overlay.y', { y: positionOnCanvasY })"
+        label-for="position-y-input"
+        label-class="mb-1"
+        class="w-100"
+      >
+        <BFormInput
+          id="position-y-input"
+          type="range"
+          v-model="positionOnCanvasY"
+          min="0"
+          :max="activeCanvas.height"
+          class="place-range"
+        />
+      </BFormGroup>
+
+      <BFormGroup
+        :label="$t('r_place.canvas.overlay.width', { width: sizeOnCanvasX })"
+        label-for="width-input"
+        label-class="mb-1"
+        class="w-100"
+      >
+        <BFormInput
+          id="width-input"
+          type="range"
+          v-model="sizeOnCanvasX"
+          min="1"
+          :max="limitSizeOnCanvasX"
+          class="place-range"
+        />
+      </BFormGroup>
+
+      <BFormGroup
+        :label="$t('r_place.canvas.overlay.colors', { colors: numberColors })"
+        label-for="width-input"
+        label-class="mb-1"
+        class="w-100"
+      >
+        <BFormInput
+          id="width-input"
+          type="range"
+          v-model="numberColors"
+          :min="2"
+          :max="200"
+          class="place-range"
+        />
+      </BFormGroup>
+    </BForm>
+
+    <template #footer>
+      <BButton
+        class="place-button place-button"
+        @click="placeState.overlayScreen = false"
+      >
+        <iconify-icon icon="ep:close-bold" />
+      </BButton>
+      <BButton class="place-button flex-grow-1" @click="overlay.calculate()">
+        <iconify-icon icon="fa6-solid:check" />
+      </BButton>
+    </template>
+  </BModal>
 
   <div class="d-none">
     <img :src="CursorImage" ref="cursorImage" />
