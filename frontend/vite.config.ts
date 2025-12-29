@@ -4,7 +4,6 @@ import { resolve } from "path";
 import { fileURLToPath, URL } from "url";
 import Components from "unplugin-vue-components/vite";
 import { BootstrapVueNextResolver } from "bootstrap-vue-next";
-import vitePluginRequire from "vite-plugin-require";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,7 +12,6 @@ export default defineConfig({
     Components({
       resolvers: [BootstrapVueNextResolver()],
     }),
-    vitePluginRequire.default(),
   ],
   root: resolve("./src"),
   base: "/static/",

@@ -2,6 +2,8 @@
 import { Project } from "@/types/Project.ts";
 import { TranslatedText } from "@/types/TranslatedText.ts";
 
+import MissingTexture from "@assets/images/MissingTexture.svg";
+
 interface ProjectListItemProps {
   project: Project;
   amountOfTechnologies?: number;
@@ -19,11 +21,7 @@ const amountOfHiddenTechnologies =
   <div class="d-flex gap-2 overflow-hidden" v-motion-slide-visible-once-right>
     <v-lazy-image
       class="project-image img-fluid object-fit-cover rounded"
-      :src="
-        project.title_image
-          ? project.title_image.original
-          : require('@assets/images/MissingTexture.svg')
-      "
+      :src="project.title_image ? project.title_image.original : MissingTexture"
     />
 
     <div

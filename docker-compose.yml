@@ -193,6 +193,8 @@ services:
     volumes:
       - files_volume:/app/backend/files
       - ./backend:/app/backend
+      - pg_socket:/var/run/postgresql
+      - redis_socket:/data
 volumes:
   postgres_data:
   postgres_staging_data:
