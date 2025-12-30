@@ -25,3 +25,13 @@
 .ui-tabs .ui-tabs-nav {
     border-bottom: unset!important;
 }
+
+.paginator ul {
+    display: flex;
+    gap: 5px;
+    margin: auto;
+}
+
+.paginator ul li {
+    list-style: none;
+}
