@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from "vue";
+import { onBeforeUnmount, ref, watch } from "vue";
 import { Carousel, Slide } from "vue3-carousel";
 import { ProjectImage } from "@/types/ProjectImage.ts";
 
@@ -89,6 +89,14 @@ const closeFullscreen = () => {
 
   isFullscreenOpen.value = false;
 };
+
+watch(
+  () => items,
+  () => {
+    currentSlide.value = 0;
+    currentItem.value = items.length > 0 ? items[0] : null;
+  },
+);
 </script>
 
 <template>
