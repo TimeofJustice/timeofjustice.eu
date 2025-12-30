@@ -4,8 +4,6 @@ import PIL.Image
 from django.conf import settings
 from django.db import models
 
-from core.helpers import get_or_none
-
 
 def generate_lazy_image(image, directory):
     img = PIL.Image.open(image)
@@ -66,35 +64,21 @@ class Translation(models.Model):
         ordering = ('name',)
 
 
-def get_translation(name):
-    de = get_or_none(Translation, name=name, language='de')
-    en = get_or_none(Translation, name=name, language='en')
-    yoda = get_or_none(Translation, name=name, language='yoda')
-
-    fallback = en.text if en is not None else (name if name is not None else "")
-
-    return {
-        'de': de.text if de is not None else fallback,
-        'en': en.text if en is not None else fallback,
-        'yoda': yoda.text if yoda is not None else fallback,
-    }
-
-
 class Profile(models.Model):
     id = models.AutoField(primary_key=True)
     picture = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/profile/', max_length=1000, null=True, blank=True)
-    description = models.CharField(max_length=100, null=True, blank=True)
-    short_description = models.CharField(max_length=100, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    short_description = models.CharField(max_length=255, null=True, blank=True)
     repo = models.URLField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return self.short_description
+        return self.short_description if self.short_description else "No Description"
 
     def json(self):
         return {
             'picture': f"/{settings.FILE_DESTINATION}images/profile/{Path(self.picture.file.name).name}" if self.picture else None,
-            'description': get_translation(self.description),
-            'short_description': get_translation(self.short_description),
+            'description': self.description,
+            'short_description': self.short_description,
             'repository': self.repo if self.repo else None,
         }
 
@@ -146,7 +130,7 @@ class Social(models.Model):
     def json(self):
         return {
             'icon': self.icon,
-            'title': get_translation(self.title),
+            'title': self.title,
             'url': self.url,
         }
 
@@ -165,7 +149,7 @@ class Status(models.Model):
 
     def json(self):
         return {
-            'name': get_translation(self.name),
+            'name': self.name,
             'color': self.color,
         }
 
@@ -174,11 +158,11 @@ class Project(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
     status = models.ForeignKey('Status', on_delete=models.CASCADE, null=True, blank=True)
-    short_description = models.CharField(max_length=100, null=True, blank=True)
-    description = models.CharField(max_length=100, null=True, blank=True)
+    short_description = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
     technology = models.ManyToManyField('Technology', blank=True)
     title_image = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/project/', null=True, blank=True, max_length=1000)
-    alt = models.CharField(max_length=100, null=True, blank=True)
+    alt = models.CharField(max_length=255, null=True, blank=True)
     github = models.URLField(max_length=100, null=True, blank=True)
     webpage = models.URLField(max_length=100, null=True, blank=True)
 
@@ -200,11 +184,11 @@ class Project(models.Model):
             'id': self.id,
             'title': self.title,
             'status': self.status.json() if self.status else None,
-            'short_description': get_translation(self.short_description),
-            'description': get_translation(self.description),
+            'short_description': self.short_description,
+            'description': self.description,
             'technologies': [tech.json() for tech in self.technology.all()],
             'title_image': lazy_image_to_json(self.title_image, 'project') if self.title_image else None,
-            'alt': get_translation(self.alt),
+            'alt': self.alt,
             'github': self.github,
             'website': self.webpage,
             'images': [image.json() for image in Image.objects.filter(project=self)],
@@ -216,7 +200,7 @@ class Image(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
     image = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/project/', max_length=1000, null=True, blank=True)
     video = models.FileField(upload_to=f'{settings.FILE_DESTINATION}video/project/', max_length=1000, null=True, blank=True)
-    alt = models.CharField(max_length=100, null=True, blank=True)
+    alt = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.alt if self.alt else ""
@@ -232,5 +216,5 @@ class Image(models.Model):
         return {
             'image': lazy_image_to_json(self.image, 'project') if self.image else None,
             'video': f"/{settings.FILE_DESTINATION}video/project/{Path(self.video.file.name).name}" if self.video else None,
-            'alt': get_translation(self.alt),
+            'alt': self.alt,
         }

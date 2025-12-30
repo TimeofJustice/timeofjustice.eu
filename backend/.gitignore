@@ -171,3 +171,5 @@ logs/
 *.bat
 
 files/
+
+backend/locale/

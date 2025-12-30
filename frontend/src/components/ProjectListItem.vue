@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Project } from "@/types/Project.ts";
-import { TranslatedText } from "@/types/TranslatedText.ts";
 
 import MissingTexture from "@assets/images/MissingTexture.svg";
 
@@ -34,7 +33,7 @@ const amountOfHiddenTechnologies =
             :variant="project.status.color"
             v-if="project.status"
           >
-            {{ project.status.name[$i18n.locale as keyof TranslatedText] }}
+            {{ project.status.name }}
           </BBadge>
           <h5 class="mb-0 text-truncate">{{ project.title }}</h5>
         </div>

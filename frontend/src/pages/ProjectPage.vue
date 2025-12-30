@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Project } from "@/types/Project.ts";
 import { Head } from "@inertiajs/vue3";
-import { TranslatedText } from "@/types/TranslatedText.ts";
 
 import ProjectCarousel from "@components/ProjectCarousel.vue";
 
@@ -24,7 +23,7 @@ defineProps<ProjectPageProps>();
           :variant="project.status.color"
           v-if="project.status"
         >
-          {{ project.status.name[$i18n.locale as keyof TranslatedText] }}
+          {{ project.status.name }}
         </BBadge>
       </div>
 
@@ -46,10 +45,7 @@ defineProps<ProjectPageProps>();
       >
         <vue-markdown
           class="markdown-body"
-          :source="
-            project.description[$i18n.locale as keyof TranslatedText] ||
-            $t('general.no_description')
-          "
+          :source="project.description || $t('general.no_description')"
           :options="{
             linkify: true,
           }"

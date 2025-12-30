@@ -14,7 +14,7 @@ def error(request, status_code):
 
 
 def index(request, offcanvas_component=None, **kwargs):
-    profile = get_or_none(models.Profile, id=1)
+    profile = models.Profile.objects.first()
 
     page_props = {
         "profile": profile.json() if profile else None,

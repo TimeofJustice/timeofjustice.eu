@@ -1,4 +1,5 @@
 from django.contrib import admin
+from modeltranslation.admin import TabbedExternalJqueryTranslationAdmin
 
 from core.models import Image, Profile, Project, Social, Status, Technology, Tool, Translation
 
@@ -11,7 +12,7 @@ class TranslationAdmin(admin.ModelAdmin):
     ordering = ('name', 'language')
 
 @admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
+class ProfileAdmin(TabbedExternalJqueryTranslationAdmin):
     list_display = ('id', 'picture', 'description', 'short_description', 'repo')
 
 @admin.register(Tool)
@@ -27,25 +28,25 @@ class TechnologyAdmin(admin.ModelAdmin):
     ordering = ('id',)
 
 @admin.register(Social)
-class SocialAdmin(admin.ModelAdmin):
+class SocialAdmin(TabbedExternalJqueryTranslationAdmin):
     list_display = ('id', 'icon', 'title', 'url')
     search_fields = ('title',)
     ordering = ('id',)
 
 @admin.register(Status)
-class StatusAdmin(admin.ModelAdmin):
+class StatusAdmin(TabbedExternalJqueryTranslationAdmin):
     list_display = ('order', 'name', 'color', 'id')
     search_fields = ('name',)
     ordering = ('order',)
 
 @admin.register(Project)
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(TabbedExternalJqueryTranslationAdmin):
     list_display = ('id', 'title', 'status', 'description', 'short_description', 'github', 'webpage')
     search_fields = ('title', 'description', 'short_description', 'github')
     ordering = ('id',)
 
 @admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
+class ImageAdmin(TabbedExternalJqueryTranslationAdmin):
     list_display = ('id', 'project', 'image', 'alt')
     search_fields = ('alt',)
     ordering = ('id', 'project')

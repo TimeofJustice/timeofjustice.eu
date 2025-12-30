@@ -17,7 +17,7 @@ export const LOCALES: Locale[] = [
     icon: "fi fi-de",
   },
   {
-    code: "yoda",
+    code: "en-yoda",
     name: "Yoda",
     icon: "fi fi-yoda",
   },

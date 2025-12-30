@@ -1,8 +1,6 @@
-import { TranslatedText } from "@/types/TranslatedText.ts";
-
 export interface Profile {
   picture?: string;
-  description?: TranslatedText;
-  shortDescription?: TranslatedText;
+  description?: string;
+  shortDescription?: string;
   repository?: string;
 }
