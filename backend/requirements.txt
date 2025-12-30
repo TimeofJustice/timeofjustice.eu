@@ -16,6 +16,7 @@ dill==0.4.0
 Django==6.0
 django-background-tasks==1.2.8
 django-cleanup==9.0.0
+django-modeltranslation==0.19.19
 django-otp==1.6.3
 django-vite==3.1.0
 gunicorn==23.0.0

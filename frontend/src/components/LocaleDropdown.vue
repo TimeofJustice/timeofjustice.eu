@@ -1,8 +1,21 @@
 <script setup lang="ts">
 import { LOCALES } from "@configurations/locales.ts";
+import { router } from "@inertiajs/vue3";
+import { useI18n } from "@node_modules/vue-i18n";
+
+const i18n = useI18n();
 
 const changeLocale = (lang: string) => {
+  if (lang === i18n.locale.value) return;
+
+  i18n.locale.value = lang;
+
+  // Persist language selection
   localStorage.setItem("lang", lang);
+  document.cookie = `django_language=${lang};path=/;max-age=31536000`;
+
+  // Reload only props with inertia
+  router.reload();
 };
 </script>
 
@@ -18,10 +31,7 @@ const changeLocale = (lang: string) => {
     <BDropdownItemButton
       v-for="locale in LOCALES"
       :key="locale.code"
-      @click="
-        $i18n.locale = locale.code;
-        changeLocale(locale.code);
-      "
+      @click="changeLocale(locale.code)"
     >
       <i :class="locale.icon" class="rounded-1" /> {{ locale.name }}
     </BDropdownItemButton>

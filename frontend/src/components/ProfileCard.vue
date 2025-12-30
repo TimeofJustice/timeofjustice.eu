@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Social } from "@/types/Social.ts";
-import { TranslatedText } from "@/types/TranslatedText.ts";
 import { Profile } from "@/types/Profile.ts";
 
 import DefaultProfileImage from "@assets/images/TimeofJustice.svg";
@@ -37,26 +36,16 @@ defineProps<ProfileCardProps>();
       </div>
 
       <small class="d-none d-lg-block text-lg-center">
-        {{
-          profile?.description &&
-          profile?.description[$i18n.locale as keyof TranslatedText]
-        }}
+        {{ profile?.description }}
       </small>
 
       <small class="d-block d-lg-none">
-        {{
-          profile?.shortDescription &&
-          profile?.shortDescription[$i18n.locale as keyof TranslatedText]
-        }}
+        {{ profile?.shortDescription }}
       </small>
 
       <div class="d-flex gap-2">
         <BLink
-          :title="
-            (social?.title &&
-              social?.title[$i18n.locale as keyof TranslatedText]) ||
-            social.icon
-          "
+          :title="social?.title || social.icon"
           :href="social.url"
           target="_blank"
           v-for="social in socials"

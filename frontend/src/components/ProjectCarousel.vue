@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from "vue";
 import { Carousel, Slide } from "vue3-carousel";
-import { TranslatedText } from "@/types/TranslatedText.ts";
 import { ProjectImage } from "@/types/ProjectImage.ts";
 
 interface ProjectCarouselProps {
@@ -103,7 +102,7 @@ const closeFullscreen = () => {
         <v-lazy-image
           class="slide gallery"
           :src="image.image.original"
-          :alt="image.alt[$i18n.locale as keyof TranslatedText]"
+          :alt="image.alt"
           v-if="!image.video"
         />
         <div class="slide gallery" v-else>
@@ -170,7 +169,7 @@ const closeFullscreen = () => {
     >
       <v-lazy-image
         :src="currentItem?.image.original"
-        :alt="currentItem?.alt[$i18n.locale as keyof TranslatedText]"
+        :alt="currentItem?.alt"
         v-if="!currentItem?.video && currentItem?.image.original"
       />
       <video

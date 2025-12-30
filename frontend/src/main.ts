@@ -13,7 +13,7 @@ import bootstrapVueNextConfig from "@configurations/bootstrapVueNext";
 
 import de from "@assets/locales/de.json";
 import en from "@assets/locales/en.json";
-import yoda from "@assets/locales/yoda.json";
+import yoda from "@assets/locales/en-yoda.json";
 
 import "@assets/scss/_index.scss";
 import "bootstrap";
@@ -27,7 +27,7 @@ const i18n = createI18n({
   legacy: false,
   locale: localStorage.getItem("lang") || "en",
   fallbackLocale: "en",
-  messages: { de, en, yoda },
+  messages: { de, en, "en-yoda": yoda },
 });
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";

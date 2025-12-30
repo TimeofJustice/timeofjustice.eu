@@ -27,7 +27,16 @@ RUN useradd -m -r appuser && \
    mkdir /app && \
    chown -R appuser /app
 
-RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gettext \
+        libgettextpo-dev \
+        supervisor \
+        gcc \
+        libc-dev \
+        musl-dev \
+        make \
+        && rm -rf /var/lib/apt/lists/*
 
 COPY backend/supervisord.dev.conf /etc/supervisor/conf.d/supervisord.conf
 
