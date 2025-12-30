@@ -12,6 +12,15 @@ class CellSubAdmin(SubAdmin):
     ordering = ("-last_modified", "x", "y", "canvas__active")
 
 
+class RenderedCanvasSubAdmin(SubAdmin):
+    model = RenderedCanvas
+    list_display = ("id", "canvas", "image_name", "created_at")
+    search_fields = ("canvas__name", "image_name")
+    list_filter = ("canvas__name",)
+    ordering = ("-created_at",)
+    readonly_fields = ("id", "created_at")
+
+
 @admin.register(Canvas)
 class CanvasAdmin(RootSubAdmin):
     list_display = ("id", "name", "width", "height", "active")
@@ -20,13 +29,4 @@ class CanvasAdmin(RootSubAdmin):
     ordering = ("-id", "name")
     readonly_fields = ("id",)
 
-    subadmins = [CellSubAdmin]
-
-
-@admin.register(RenderedCanvas)
-class RenderedCanvasAdmin(admin.ModelAdmin):
-    list_display = ("id", "canvas", "image_name", "created_at")
-    search_fields = ("canvas__name", "image_name")
-    list_filter = ("canvas__name",)
-    ordering = ("-created_at",)
-    readonly_fields = ("id", "created_at")
+    subadmins = [CellSubAdmin, RenderedCanvasSubAdmin]

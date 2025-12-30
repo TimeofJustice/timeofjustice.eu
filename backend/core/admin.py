@@ -2,15 +2,7 @@ from django.contrib import admin
 from modeltranslation.admin import TabbedExternalJqueryTranslationAdmin
 from subadmin import RootSubAdmin, SubAdmin
 
-from core.models import Image, Profile, Project, Social, Status, Technology, Tool, Translation
-
-
-@admin.register(Translation)
-class TranslationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'language', 'text')
-    list_filter = ('language',)
-    search_fields = ('name', 'text')
-    ordering = ('name', 'language')
+from core.models import Image, Profile, Project, Social, Status, Technology, Tool
 
 
 @admin.register(Profile)
