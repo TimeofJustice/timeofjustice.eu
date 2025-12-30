@@ -26,6 +26,11 @@
     border-bottom: unset!important;
 }
 
+.paginator {
+    position: sticky;
+    bottom: -1px;
+}
+
 .paginator ul {
     display: flex;
     gap: 5px;
@@ -34,4 +39,18 @@
 
 .paginator ul li {
     list-style: none;
+}
+
+#container {
+    overflow: hidden;
+}
+
+#main {
+    overflow: auto;
+    flex: 1!important;
+}
+
+#changelist-filter {
+    position: sticky;
+    top: 10px;
 }
