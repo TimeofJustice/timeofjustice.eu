@@ -68,10 +68,19 @@
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
-    padding: 20px 40px 0 20px;
+    padding: 20px 20px 0 20px;
     position: relative;
     display: flex;
     flex-direction: column;
+}
+
+#content > ul {
+    overflow: auto;
+    flex: 1;
+}
+
+#content > form {
+    margin-bottom: 20px!important;
 }
 
 #content .clear {

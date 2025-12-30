@@ -7,14 +7,12 @@ pre-commit:
       root: frontend
       run: npx eslint . --fix
       stage_fixed: true
-      glob: "*.{js,mjs,cjs,ts,mts,cts,vue}"
       fail_text: "ESLint found some issues. Please fix them before committing."
 
     - name: Frontend prettier
       root: frontend
       run: npx prettier --write .
       stage_fixed: true
-      glob: "*.{js,ts,jsx,tsx,json,css,scss,md}"
       fail_text: "Prettier found some issues. Please fix them before committing."
 
     - name: Backend ruff
