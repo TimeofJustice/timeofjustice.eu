@@ -17,7 +17,6 @@ Including another URLconf
 import os
 
 from django.contrib import admin
-from django.shortcuts import redirect
 from django.urls import include, path
 from django_otp.admin import OTPAdminSite
 
@@ -30,7 +29,6 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("", include("core.urls")),
     path("games/", include("games.urls")),
-    path("casino/", lambda request: redirect("/games/", permanent=False)),
     path("r-place/", include("r_place.urls")),
     path("sendy/", include("postcard.urls")),
 ]

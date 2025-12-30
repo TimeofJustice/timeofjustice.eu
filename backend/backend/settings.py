@@ -38,7 +38,8 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",")
 INSTALLED_APPS = [
     "daphne",
     'modeltranslation',
-    "django_admin_dracula",
+    'django_admin_dracula',
+    'subadmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django_vite",
-    "inertia",
+    'inertia',
     'django_cleanup.apps.CleanupConfig',
     'django_otp',
     'django_otp.plugins.otp_totp',
