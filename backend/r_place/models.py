@@ -12,7 +12,7 @@ class Canvas(models.Model):
     class Meta:
         verbose_name = "Canvas"
         verbose_name_plural = "Canvases"
-        ordering = ('-active', 'id')
+        ordering = ('-name',)
 
     def __str__(self):
         return f"{self.name} ({self.width}x{self.height})"

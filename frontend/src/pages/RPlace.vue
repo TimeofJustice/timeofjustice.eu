@@ -374,6 +374,8 @@ const view = {
 
     const color = placeState.value.color.active;
 
+    this.drawCell(this.cursorPosition.x, this.cursorPosition.y, color);
+
     this.socket.send(
       JSON.stringify({
         type: "cell_update",
