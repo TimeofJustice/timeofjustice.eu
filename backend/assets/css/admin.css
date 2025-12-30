@@ -64,7 +64,7 @@
     flex: 1!important;
 }
 
-#content {
+#content:not(.colMS) {
     overflow: hidden;
     height: 100%;
     box-sizing: border-box;
