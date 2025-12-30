@@ -1,17 +1,31 @@
+.ui-widget {
+    display: flex;
+    flex-direction: column-reverse;
+    border-bottom: 1px solid var(--border-color)!important;
+}
+
+.ui-widget .form-row {
+    border-bottom: unset!important;
+}
+
+.ui-tabs .ui-tabs-nav {
+    padding: 0 0 10px 10px!important;
+}
+
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a, .ui-tabs .ui-tabs-nav li.ui-tabs-selected a {
     background: var(--default-button-bg)!important;
 
-    padding: 4px 10px 4px 10px!important;
+    padding: 2px 10px 2px 10px!important;
     margin-top: 2px!important;
 }
 
 .ui-tabs .ui-tabs-nav li:last-child a {
-    border-radius: 0 10px 10px 0!important;
+    border-radius: 0 4px 4px 0!important;
     border-right: unset!important;
 }
 
 .ui-tabs .ui-tabs-nav li:first-child a {
-    border-radius: 10px 0 0 10px!important;
+    border-radius: 4px 0 0 4px!important;
 }
 
 .ui-tabs .ui-tabs-nav li a {
@@ -20,6 +34,7 @@
     border: unset!important;
     border-right: 1px solid var(--border-color)!important;
     color: var(--button-fg)!important;
+    padding: 2px 10px 2px 10px!important;
 }
 
 .ui-tabs .ui-tabs-nav {
@@ -27,8 +42,7 @@
 }
 
 .paginator {
-    position: sticky;
-    bottom: -1px;
+    border-bottom: unset!important;
 }
 
 .paginator ul {
@@ -50,7 +64,200 @@
     flex: 1!important;
 }
 
-#changelist-filter {
+#content {
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 20px 40px 0 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#content .clear {
+    display: none;
+}
+
+.object-tools {
+    position: absolute;
+    right: 40px;
+}
+
+#changelist {
+    margin: 0!important;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    flex: 1;
+}
+
+#content-main .module .changelist-form-container,
+#content-main .module#change-history {
+    height: 100%;
+}
+
+#content-main form:not(#changelist-search):not(#changelist-form),
+#content-main form:not(#changelist-search):not(#changelist-form) > div {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    flex-direction: column;
+}
+
+#content-main form:not(#changelist-search):not(#changelist-form) > div fieldset {
+    height: 100%;
+    overflow: auto;
+}
+
+#content-main form:not(#changelist-search):not(#changelist-form) > div fieldset div:last-child {
+    border-bottom: unset!important;
+}
+
+#content-main,
+#content-main .module .changelist-form-container,
+#changelist-form {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex: 1;
+}
+
+.submit-row {
+    margin: 0 0 10px!important;
+    overflow: unset!important;
+}
+
+#changelist-form .results,
+#content-main .module#change-history {
+    overflow: auto;
+    flex: 1;
+    position: relative;
+    margin: 0!important;
+}
+
+#content-main .module#change-history .paginator {
     position: sticky;
-    top: 10px;
+    bottom: 0;
+}
+
+#changelist-form .results thead tr,
+#content-main .module#change-history thead tr {
+    position: sticky;
+    top: 0;
+}
+
+#changelist-form .results thead th,
+#content-main .module#change-history thead th {
+    border: unset!important;
+}
+
+#changelist-form .results tbody tr:last-child td,
+#changelist-form .results tbody tr:last-child th,
+#content-main .module#change-history tbody tr:last-child td,
+#content-main .module#change-history tbody tr:last-child th {
+    border-bottom: unset!important;
+}
+
+.form-row .flex-container {
+    flex-direction: column!important;
+    gap: 10px!important;
+}
+
+.form-row .flex-container.checkbox-row {
+    flex-direction: row!important;
+}
+
+fieldset {
+    border-top: unset!important;
+}
+
+fieldset > legend {
+    margin-bottom: 10px!important;
+    padding: 0!important;
+}
+
+.module {
+    margin-bottom: 15px!important;
+}
+
+select:not(.modeltranslation-switch) {
+    width: 30rem!important;
+}
+
+.vDateField,
+.vTimeField {
+    margin: 0!important;
+    margin-right: 2px!important;
+}
+
+.vTextField,
+.vUUIDField,
+.vIntegerField,
+.vURLField,
+.vLargeTextField, 
+.vDateField,
+.vTimeField,
+.vForeignKeyRawIdAdminField,
+.vBigIntegerField {
+    width: 30rem!important;
+}
+
+.flex-container > div {
+    max-width: 100%;
+}
+
+.related-widget-wrapper {
+    align-items: center;
+}
+
+form .aligned div.help {
+    margin: 0!important;
+    padding: 5px 0 0 0!important;
+}
+
+.file-upload .clearable-file-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.file-upload br {
+    display: none;
+}
+
+.file-upload .clearable-file-input label {
+    padding: 0!important;
+}
+
+.form-row input[type="file"] {
+    padding: 0px;
+    margin: 0px;
+}
+
+/* File input button (WebKit browsers) */
+.form-row input[type="file"]::-webkit-file-upload-button,
+.form-row input[type="file"]::file-selector-button {
+    background: var(--button-bg);
+    padding: 5px 15px;
+    border: none;
+    border-radius: 4px;
+    color: var(--button-fg);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.form-row input[type="file"]::-webkit-file-upload-button:hover,
+.form-row input[type="file"]::file-selector-button:hover {
+    background: var(--button-hover-bg)!important;
+}
+
+@media (max-width: 767px) {
+    .aligned .form-row > div {
+        width: 100%!important;
+    }
+
+    .ui-tabs .ui-tabs-nav {
+        padding: 0 0 10px 0px!important;
+    }
 }
