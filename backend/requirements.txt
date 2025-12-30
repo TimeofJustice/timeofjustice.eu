@@ -14,6 +14,7 @@ cryptography==46.0.3
 daphne==4.2.1
 dill==0.4.0
 Django==6.0
+django-admin-dracula==0.0.3
 django-background-tasks==1.2.8
 django-cleanup==9.0.0
 django-modeltranslation==0.19.19

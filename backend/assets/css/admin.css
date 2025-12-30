@@ -1,0 +1,27 @@
+.ui-tabs .ui-tabs-nav li.ui-tabs-active a, .ui-tabs .ui-tabs-nav li.ui-tabs-selected a {
+    background: var(--default-button-bg)!important;
+
+    padding: 4px 10px 4px 10px!important;
+    margin-top: 2px!important;
+}
+
+.ui-tabs .ui-tabs-nav li:last-child a {
+    border-radius: 0 10px 10px 0!important;
+    border-right: unset!important;
+}
+
+.ui-tabs .ui-tabs-nav li:first-child a {
+    border-radius: 10px 0 0 10px!important;
+}
+
+.ui-tabs .ui-tabs-nav li a {
+    background: var(--button-bg)!important;
+    border-radius: 0!important;
+    border: unset!important;
+    border-right: 1px solid var(--border-color)!important;
+    color: var(--button-fg)!important;
+}
+
+.ui-tabs .ui-tabs-nav {
+    border-bottom: unset!important;
+}
