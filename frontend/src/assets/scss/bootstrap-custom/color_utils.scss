@@ -1,0 +1,14 @@
+@each $shade, $shade-value in $all-colors {
+  .bg-#{$shade} {
+    background-color: rgba($shade-value, var(--bs-bg-opacity, 1)) !important;
+  }
+
+  .text-#{$shade} {
+    color: $shade-value !important;
+  }
+
+  .border-#{$shade} {
+    border-color: $shade-value !important;
+    --bs-border-color: #{$shade-value} !important;
+  }
+}

@@ -1,8 +1,9 @@
-@import "colors";
-
 // Import Bootstrap
 @import "bootstrap/scss/_functions";
 @import "bootstrap/scss/_variables";
+
+// Import colors
+@import "colors";
 
 $font-family-base: "Inter", sans-serif;
 $font-size-base: 0.95rem;
@@ -49,64 +50,6 @@ $theme-colors: (
   "light": $light,
   "dark": $dark,
 );
-
-$custom-theme-colors: (
-  "space-blue": $space-blue,
-  "aquamarin": $aquamarin,
-  "blue-grey": $blue-grey,
-  "brown": $brown,
-  "dark-green": $dark-green,
-  "dark-red": $dark-red,
-);
-
-$theme-colors: map-merge($theme-colors, $custom-theme-colors);
-
-$colors-shades: (
-  "blue": $blues,
-  "indigo": $indigos,
-  "purple": $purples,
-  "pink": $pinks,
-  "red": $reds,
-  "orange": $oranges,
-  "yellow": $yellows,
-  "green": $greens,
-  "teal": $teals,
-  "cyan": $cyans,
-  "dark-gray": $dark-grays,
-);
-
-@each $color, $shades in $colors-shades {
-  @each $shade, $shade-value in $shades {
-    .bg-#{$shade} {
-      --bs-bg-opacity: 1;
-      background-color: rgba($shade-value, var(--bs-bg-opacity)) !important;
-    }
-
-    .text-#{$shade} {
-      color: $shade-value !important;
-    }
-
-    .border-#{$shade} {
-      border-color: $shade-value !important;
-    }
-  }
-}
-
-@each $shade, $shade-value in $grays {
-  .bg-gray-#{$shade} {
-    --bs-bg-opacity: 1;
-    background-color: rgba($shade-value, var(--bs-bg-opacity)) !important;
-  }
-
-  .text-gray-#{$shade} {
-    color: $shade-value !important;
-  }
-
-  .border-gray-#{$shade} {
-    border-color: $shade-value !important;
-    --bs-border-color: #{$shade-value} !important;
-  }
-}
 
 @import "bootstrap/scss/bootstrap";
 

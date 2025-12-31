@@ -416,7 +416,7 @@ const dismissHint = () => {
           </div>
 
           <small
-            class="text-gray-500"
+            class="text-accent"
             v-if="bonusTimer !== '00:00:00' && bonusTimer !== ''"
           >
             {{ $t("games.main.next_bonus_in", { time: bonusTimer }) }}
@@ -468,7 +468,7 @@ const dismissHint = () => {
                 </div>
               </div>
 
-              <small class="text-gray-500" v-if="vaultTimer !== ''">
+              <small class="text-accent" v-if="vaultTimer !== ''">
                 {{ $t("games.main.vault_reset_in", { time: vaultTimer }) }}
               </small>
             </BCardBody>

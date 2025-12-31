@@ -1190,8 +1190,7 @@ watch(
   <Head :title="$t('r_place.title')" />
 
   <div
-    class="h-100 overflow-hidden place-container"
-    :class="{ fullscreen: placeState.fullscreen }"
+    class="h-100 overflow-hidden place-container fullscreen"
     ref="canvasContainer"
   >
     <div class="w-100 overflow-hidden position-relative h-100">
@@ -1394,7 +1393,7 @@ watch(
           class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-dark-gray-500 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
         >
           <div class="position-relative">
-            <canvas ref="previewCanvas"></canvas>
+            <canvas ref="previewCanvas" class="d-block"></canvas>
 
             <Transition>
               <div
