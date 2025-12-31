@@ -122,7 +122,7 @@ const report = (event: MouseEvent) => {
   <Head :title="$t('postcard.title')" />
 
   <div
-    class="h-100 overflow-hidden d-flex justify-content-center align-items-center pb-2 postcard-page"
+    class="h-100 overflow-hidden d-flex justify-content-center align-items-center pb-2 postcard-page fullscreen"
     :style="{
       '--background-color': activePostcard.design.pageColor,
       '--postcard-background-color': activePostcard.design.backgroundColor,

@@ -1,6 +1,601 @@
 $black: #000000;
 $white: #ffffff;
 
+// Tailwind: red color palette
+$tw-red-50: #fef2f2;
+$tw-red-100: #ffe2e2;
+$tw-red-200: #ffc9c9;
+$tw-red-300: #ffa2a2;
+$tw-red-400: #ff6467;
+$tw-red-500: #fb2c36;
+$tw-red-600: #e7000b;
+$tw-red-700: #c10007;
+$tw-red-800: #9f0712;
+$tw-red-900: #82181a;
+$tw-red-950: #460809;
+
+$tw-reds: (
+  "red-50": $tw-red-50,
+  "red-100": $tw-red-100,
+  "red-200": $tw-red-200,
+  "red-300": $tw-red-300,
+  "red-400": $tw-red-400,
+  "red-500": $tw-red-500,
+  "red-600": $tw-red-600,
+  "red-700": $tw-red-700,
+  "red-800": $tw-red-800,
+  "red-900": $tw-red-900,
+  "red-950": $tw-red-950,
+);
+
+// Tailwind: orange color palette
+$tw-orange-50: #fff7ed;
+$tw-orange-100: #ffedd4;
+$tw-orange-200: #ffd6a7;
+$tw-orange-300: #ffb86a;
+$tw-orange-400: #ff8904;
+$tw-orange-500: #ff6900;
+$tw-orange-600: #f54900;
+$tw-orange-700: #ca3500;
+$tw-orange-800: #9f2d00;
+$tw-orange-900: #7e2a0c;
+$tw-orange-950: #441306;
+
+$tw-oranges: (
+  "orange-50": $tw-orange-50,
+  "orange-100": $tw-orange-100,
+  "orange-200": $tw-orange-200,
+  "orange-300": $tw-orange-300,
+  "orange-400": $tw-orange-400,
+  "orange-500": $tw-orange-500,
+  "orange-600": $tw-orange-600,
+  "orange-700": $tw-orange-700,
+  "orange-800": $tw-orange-800,
+  "orange-900": $tw-orange-900,
+  "orange-950": $tw-orange-950,
+);
+
+// Tailwind: amber color palette
+$tw-amber-50: #fffbeb;
+$tw-amber-100: #fef3c6;
+$tw-amber-200: #fee685;
+$tw-amber-300: #ffd230;
+$tw-amber-400: #ffb900;
+$tw-amber-500: #fe9a00;
+$tw-amber-600: #e17100;
+$tw-amber-700: #bb4d00;
+$tw-amber-800: #973c00;
+$tw-amber-900: #7a3306;
+$tw-amber-950: #461901;
+
+$tw-ambers: (
+  "amber-50": $tw-amber-50,
+  "amber-100": $tw-amber-100,
+  "amber-200": $tw-amber-200,
+  "amber-300": $tw-amber-300,
+  "amber-400": $tw-amber-400,
+  "amber-500": $tw-amber-500,
+  "amber-600": $tw-amber-600,
+  "amber-700": $tw-amber-700,
+  "amber-800": $tw-amber-800,
+  "amber-900": $tw-amber-900,
+  "amber-950": $tw-amber-950,
+);
+
+// Tailwind: yellow color palette
+$tw-yellow-50: #f7fee7;
+$tw-yellow-100: #fef9c2;
+$tw-yellow-200: #fff085;
+$tw-yellow-300: #ffdf20;
+$tw-yellow-400: #fdc700;
+$tw-yellow-500: #f0b100;
+$tw-yellow-600: #d08700;
+$tw-yellow-700: #a65f00;
+$tw-yellow-800: #894b00;
+$tw-yellow-900: #733e0a;
+$tw-yellow-950: #432004;
+
+$tw-yellows: (
+  "yellow-50": $tw-yellow-50,
+  "yellow-100": $tw-yellow-100,
+  "yellow-200": $tw-yellow-200,
+  "yellow-300": $tw-yellow-300,
+  "yellow-400": $tw-yellow-400,
+  "yellow-500": $tw-yellow-500,
+  "yellow-600": $tw-yellow-600,
+  "yellow-700": $tw-yellow-700,
+  "yellow-800": $tw-yellow-800,
+  "yellow-900": $tw-yellow-900,
+  "yellow-950": $tw-yellow-950,
+);
+
+// Tailwind: lime color palette
+$tw-lime-50: #f7fee7;
+$tw-lime-100: #ecfcca;
+$tw-lime-200: #d8f999;
+$tw-lime-300: #bbf451;
+$tw-lime-400: #9ae600;
+$tw-lime-500: #7ccf00;
+$tw-lime-600: #5ea500;
+$tw-lime-700: #497d00;
+$tw-lime-800: #3c6300;
+$tw-lime-900: #35530e;
+$tw-lime-950: #192e03;
+
+$tw-limes: (
+  "lime-50": $tw-lime-50,
+  "lime-100": $tw-lime-100,
+  "lime-200": $tw-lime-200,
+  "lime-300": $tw-lime-300,
+  "lime-400": $tw-lime-400,
+  "lime-500": $tw-lime-500,
+  "lime-600": $tw-lime-600,
+  "lime-700": $tw-lime-700,
+  "lime-800": $tw-lime-800,
+  "lime-900": $tw-lime-900,
+  "lime-950": $tw-lime-950,
+);
+
+// Tailwind: green color palette
+$tw-green-50: #f0fdf4;
+$tw-green-100: #dbfce7;
+$tw-green-200: #b9f8cf;
+$tw-green-300: #7bf1a8;
+$tw-green-400: #05df72;
+$tw-green-500: #00c950;
+$tw-green-600: #00a63e;
+$tw-green-700: #008235;
+$tw-green-800: #016630;
+$tw-green-900: #0d542b;
+$tw-green-950: #032e15;
+
+$tw-greens: (
+  "green-50": $tw-green-50,
+  "green-100": $tw-green-100,
+  "green-200": $tw-green-200,
+  "green-300": $tw-green-300,
+  "green-400": $tw-green-400,
+  "green-500": $tw-green-500,
+  "green-600": $tw-green-600,
+  "green-700": $tw-green-700,
+  "green-800": $tw-green-800,
+  "green-900": $tw-green-900,
+  "green-950": $tw-green-950,
+);
+
+// Tailwind: emerald color palette
+$tw-emerald-50: #ecfdf5;
+$tw-emerald-100: #d0fae5;
+$tw-emerald-200: #a4f4cf;
+$tw-emerald-300: #5ee9b5;
+$tw-emerald-400: #00d492;
+$tw-emerald-500: #00bc7d;
+$tw-emerald-600: #009966;
+$tw-emerald-700: #007a55;
+$tw-emerald-800: #006045;
+$tw-emerald-900: #004f3b;
+$tw-emerald-950: #002c22;
+
+$tw-emeralds: (
+  "emerald-50": $tw-emerald-50,
+  "emerald-100": $tw-emerald-100,
+  "emerald-200": $tw-emerald-200,
+  "emerald-300": $tw-emerald-300,
+  "emerald-400": $tw-emerald-400,
+  "emerald-500": $tw-emerald-500,
+  "emerald-600": $tw-emerald-600,
+  "emerald-700": $tw-emerald-700,
+  "emerald-800": $tw-emerald-800,
+  "emerald-900": $tw-emerald-900,
+  "emerald-950": $tw-emerald-950,
+);
+
+// Tailwind: teal color palette
+$tw-teal-50: #f0fdfa;
+$tw-teal-100: #cbfbf1;
+$tw-teal-200: #96f7e4;
+$tw-teal-300: #46edd5;
+$tw-teal-400: #00d5be;
+$tw-teal-500: #00bba7;
+$tw-teal-600: #009689;
+$tw-teal-700: #00786f;
+$tw-teal-800: #005f5a;
+$tw-teal-900: #0b4f4a;
+$tw-teal-950: #022f2e;
+
+$tw-teals: (
+  "teal-50": $tw-teal-50,
+  "teal-100": $tw-teal-100,
+  "teal-200": $tw-teal-200,
+  "teal-300": $tw-teal-300,
+  "teal-400": $tw-teal-400,
+  "teal-500": $tw-teal-500,
+  "teal-600": $tw-teal-600,
+  "teal-700": $tw-teal-700,
+  "teal-800": $tw-teal-800,
+  "teal-900": $tw-teal-900,
+  "teal-950": $tw-teal-950,
+);
+
+// Tailwind: cyan color palette
+$tw-cyan-50: #ecfeff;
+$tw-cyan-100: #cefafe;
+$tw-cyan-200: #a2f4fd;
+$tw-cyan-300: #53eafd;
+$tw-cyan-400: #00d3f2;
+$tw-cyan-500: #00b8db;
+$tw-cyan-600: #0092b8;
+$tw-cyan-700: #007595;
+$tw-cyan-800: #005f78;
+$tw-cyan-900: #104e64;
+$tw-cyan-950: #053345;
+
+$tw-cyans: (
+  "cyan-50": $tw-cyan-50,
+  "cyan-100": $tw-cyan-100,
+  "cyan-200": $tw-cyan-200,
+  "cyan-300": $tw-cyan-300,
+  "cyan-400": $tw-cyan-400,
+  "cyan-500": $tw-cyan-500,
+  "cyan-600": $tw-cyan-600,
+  "cyan-700": $tw-cyan-700,
+  "cyan-800": $tw-cyan-800,
+  "cyan-900": $tw-cyan-900,
+  "cyan-950": $tw-cyan-950,
+);
+
+// Tailwind: sky color palette
+$tw-sky-50: #f0f9ff;
+$tw-sky-100: #dff2fe;
+$tw-sky-200: #b8e6fe;
+$tw-sky-300: #73d4ff;
+$tw-sky-400: #00bcff;
+$tw-sky-500: #00a6f4;
+$tw-sky-600: #0084d1;
+$tw-sky-700: #0069a8;
+$tw-sky-800: #00598a;
+$tw-sky-900: #024a70;
+$tw-sky-950: #052f4a;
+
+$tw-skys: (
+  "sky-50": $tw-sky-50,
+  "sky-100": $tw-sky-100,
+  "sky-200": $tw-sky-200,
+  "sky-300": $tw-sky-300,
+  "sky-400": $tw-sky-400,
+  "sky-500": $tw-sky-500,
+  "sky-600": $tw-sky-600,
+  "sky-700": $tw-sky-700,
+  "sky-800": $tw-sky-800,
+  "sky-900": $tw-sky-900,
+  "sky-950": $tw-sky-950,
+);
+
+// Tailwind: blue color palette
+$tw-blue-50: #eff6ff;
+$tw-blue-100: #dbeafe;
+$tw-blue-200: #bedbff;
+$tw-blue-300: #8ec5ff;
+$tw-blue-400: #50a2ff;
+$tw-blue-500: #2b7fff;
+$tw-blue-600: #155dfc;
+$tw-blue-700: #1447e6;
+$tw-blue-800: #193cb8;
+$tw-blue-900: #1c398e;
+$tw-blue-950: #162456;
+
+$tw-blues: (
+  "blue-50": $tw-blue-50,
+  "blue-100": $tw-blue-100,
+  "blue-200": $tw-blue-200,
+  "blue-300": $tw-blue-300,
+  "blue-400": $tw-blue-400,
+  "blue-500": $tw-blue-500,
+  "blue-600": $tw-blue-600,
+  "blue-700": $tw-blue-700,
+  "blue-800": $tw-blue-800,
+  "blue-900": $tw-blue-900,
+  "blue-950": $tw-blue-950,
+);
+
+// Tailwind: indigo color palette
+$tw-indigo-50: #eef2ff;
+$tw-indigo-100: #e0e7ff;
+$tw-indigo-200: #c6d2ff;
+$tw-indigo-300: #a3b3ff;
+$tw-indigo-400: #7c86ff;
+$tw-indigo-500: #615fff;
+$tw-indigo-600: #4f39f6;
+$tw-indigo-700: #432dd7;
+$tw-indigo-800: #372aac;
+$tw-indigo-900: #312c85;
+$tw-indigo-950: #1e1a4d;
+
+$tw-indigos: (
+  "indigo-50": $tw-indigo-50,
+  "indigo-100": $tw-indigo-100,
+  "indigo-200": $tw-indigo-200,
+  "indigo-300": $tw-indigo-300,
+  "indigo-400": $tw-indigo-400,
+  "indigo-500": $tw-indigo-500,
+  "indigo-600": $tw-indigo-600,
+  "indigo-700": $tw-indigo-700,
+  "indigo-800": $tw-indigo-800,
+  "indigo-900": $tw-indigo-900,
+  "indigo-950": $tw-indigo-950,
+);
+
+// Tailwind: violet color palette
+$tw-violet-50: #f5f3ff;
+$tw-violet-100: #ede9fe;
+$tw-violet-200: #ddd6ff;
+$tw-violet-300: #c4b3ff;
+$tw-violet-400: #a684ff;
+$tw-violet-500: #8e51ff;
+$tw-violet-600: #7f22fe;
+$tw-violet-700: #7008e7;
+$tw-violet-800: #5d0ec0;
+$tw-violet-900: #4d179a;
+$tw-violet-950: #2f0d68;
+
+$tw-violets: (
+  "violet-50": $tw-violet-50,
+  "violet-100": $tw-violet-100,
+  "violet-200": $tw-violet-200,
+  "violet-300": $tw-violet-300,
+  "violet-400": $tw-violet-400,
+  "violet-500": $tw-violet-500,
+  "violet-600": $tw-violet-600,
+  "violet-700": $tw-violet-700,
+  "violet-800": $tw-violet-800,
+  "violet-900": $tw-violet-900,
+  "violet-950": $tw-violet-950,
+);
+
+// Tailwind: purple color palette
+$tw-purple-50: #faf5ff;
+$tw-purple-100: #f3e8ff;
+$tw-purple-200: #e9d4ff;
+$tw-purple-300: #dab2ff;
+$tw-purple-400: #c27aff;
+$tw-purple-500: #ad46ff;
+$tw-purple-600: #9810fa;
+$tw-purple-700: #8200db;
+$tw-purple-800: #6e11b0;
+$tw-purple-900: #59168b;
+$tw-purple-950: #3c0366;
+
+$tw-purples: (
+  "purple-50": $tw-purple-50,
+  "purple-100": $tw-purple-100,
+  "purple-200": $tw-purple-200,
+  "purple-300": $tw-purple-300,
+  "purple-400": $tw-purple-400,
+  "purple-500": $tw-purple-500,
+  "purple-600": $tw-purple-600,
+  "purple-700": $tw-purple-700,
+  "purple-800": $tw-purple-800,
+  "purple-900": $tw-purple-900,
+  "purple-950": $tw-purple-950,
+);
+
+// Tailwind: fuchsia color palette
+$tw-fuchsia-50: #fdf4ff;
+$tw-fuchsia-100: #fae8ff;
+$tw-fuchsia-200: #f6cfff;
+$tw-fuchsia-300: #f4a8ff;
+$tw-fuchsia-400: #ed6aff;
+$tw-fuchsia-500: #e12afb;
+$tw-fuchsia-600: #c800de;
+$tw-fuchsia-700: #a800b7;
+$tw-fuchsia-800: #8a0194;
+$tw-fuchsia-900: #721378;
+$tw-fuchsia-950: #4b004f;
+
+$tw-fuchsias: (
+  "fuchsia-50": $tw-fuchsia-50,
+  "fuchsia-100": $tw-fuchsia-100,
+  "fuchsia-200": $tw-fuchsia-200,
+  "fuchsia-300": $tw-fuchsia-300,
+  "fuchsia-400": $tw-fuchsia-400,
+  "fuchsia-500": $tw-fuchsia-500,
+  "fuchsia-600": $tw-fuchsia-600,
+  "fuchsia-700": $tw-fuchsia-700,
+  "fuchsia-800": $tw-fuchsia-800,
+  "fuchsia-900": $tw-fuchsia-900,
+  "fuchsia-950": $tw-fuchsia-950,
+);
+
+// Tailwind: pink color palette
+$tw-pink-50: #fdf2f8;
+$tw-pink-100: #fce7f3;
+$tw-pink-200: #fccee8;
+$tw-pink-300: #fda5d5;
+$tw-pink-400: #fb64b6;
+$tw-pink-500: #f6339a;
+$tw-pink-600: #e60076;
+$tw-pink-700: #c6005c;
+$tw-pink-800: #a3004c;
+$tw-pink-900: #861043;
+$tw-pink-950: #510424;
+
+$tw-pinks: (
+  "pink-50": $tw-pink-50,
+  "pink-100": $tw-pink-100,
+  "pink-200": $tw-pink-200,
+  "pink-300": $tw-pink-300,
+  "pink-400": $tw-pink-400,
+  "pink-500": $tw-pink-500,
+  "pink-600": $tw-pink-600,
+  "pink-700": $tw-pink-700,
+  "pink-800": $tw-pink-800,
+  "pink-900": $tw-pink-900,
+  "pink-950": $tw-pink-950,
+);
+
+// Tailwind: rose color palette
+$tw-rose-50: #fff1f2;
+$tw-rose-100: #ffe4e6;
+$tw-rose-200: #ffccd3;
+$tw-rose-300: #ffa1ad;
+$tw-rose-400: #ff637e;
+$tw-rose-500: #ff2056;
+$tw-rose-600: #ec003f;
+$tw-rose-700: #c60036;
+$tw-rose-800: #a50036;
+$tw-rose-900: #8b0836;
+$tw-rose-950: #4d0218;
+
+$tw-roses: (
+  "rose-50": $tw-rose-50,
+  "rose-100": $tw-rose-100,
+  "rose-200": $tw-rose-200,
+  "rose-300": $tw-rose-300,
+  "rose-400": $tw-rose-400,
+  "rose-500": $tw-rose-500,
+  "rose-600": $tw-rose-600,
+  "rose-700": $tw-rose-700,
+  "rose-800": $tw-rose-800,
+  "rose-900": $tw-rose-900,
+  "rose-950": $tw-rose-950,
+);
+
+// Tailwind: slate color palette
+$tw-slate-50: #f8fafc;
+$tw-slate-100: #f1f5f9;
+$tw-slate-200: #e2e8f0;
+$tw-slate-300: #cad5e2;
+$tw-slate-400: #90a1b9;
+$tw-slate-500: #62748e;
+$tw-slate-600: #45556c;
+$tw-slate-700: #314158;
+$tw-slate-800: #1d293d;
+$tw-slate-900: #0f172b;
+$tw-slate-950: #020618;
+
+$tw-slates: (
+  "slate-50": $tw-slate-50,
+  "slate-100": $tw-slate-100,
+  "slate-200": $tw-slate-200,
+  "slate-300": $tw-slate-300,
+  "slate-400": $tw-slate-400,
+  "slate-500": $tw-slate-500,
+  "slate-600": $tw-slate-600,
+  "slate-700": $tw-slate-700,
+  "slate-800": $tw-slate-800,
+  "slate-900": $tw-slate-900,
+  "slate-950": $tw-slate-950,
+);
+
+// Tailwind: gray color palette
+$tw-gray-50: #f9fafb;
+$tw-gray-100: #f3f4f6;
+$tw-gray-200: #e5e7eb;
+$tw-gray-300: #d1d5dc;
+$tw-gray-400: #99a1af;
+$tw-gray-500: #6a7282;
+$tw-gray-600: #4a5565;
+$tw-gray-700: #364153;
+$tw-gray-800: #1e2939;
+$tw-gray-900: #101828;
+$tw-gray-950: #030712;
+
+$tw-grays: (
+  "gray-50": $tw-gray-50,
+  "gray-100": $tw-gray-100,
+  "gray-200": $tw-gray-200,
+  "gray-300": $tw-gray-300,
+  "gray-400": $tw-gray-400,
+  "gray-500": $tw-gray-500,
+  "gray-600": $tw-gray-600,
+  "gray-700": $tw-gray-700,
+  "gray-800": $tw-gray-800,
+  "gray-900": $tw-gray-900,
+  "gray-950": $tw-gray-950,
+);
+
+// Tailwind: zinc color palette
+$tw-zinc-50: #fafafa;
+$tw-zinc-100: #f4f4f5;
+$tw-zinc-200: #e4e4e7;
+$tw-zinc-300: #d4d4d8;
+$tw-zinc-400: #9f9fa9;
+$tw-zinc-500: #71717b;
+$tw-zinc-600: #52525c;
+$tw-zinc-700: #3f3f46;
+$tw-zinc-800: #27272a;
+$tw-zinc-900: #18181b;
+$tw-zinc-950: #09090b;
+
+$tw-zincs: (
+  "zinc-50": $tw-zinc-50,
+  "zinc-100": $tw-zinc-100,
+  "zinc-200": $tw-zinc-200,
+  "zinc-300": $tw-zinc-300,
+  "zinc-400": $tw-zinc-400,
+  "zinc-500": $tw-zinc-500,
+  "zinc-600": $tw-zinc-600,
+  "zinc-700": $tw-zinc-700,
+  "zinc-800": $tw-zinc-800,
+  "zinc-900": $tw-zinc-900,
+  "zinc-950": $tw-zinc-950,
+);
+
+// Tailwind: neutral color palette
+$tw-neutral-50: #fafafa;
+$tw-neutral-100: #f5f5f5;
+$tw-neutral-200: #e5e5e5;
+$tw-neutral-300: #d4d4d4;
+$tw-neutral-400: #a1a1a1;
+$tw-neutral-500: #737373;
+$tw-neutral-600: #525252;
+$tw-neutral-700: #404040;
+$tw-neutral-800: #262626;
+$tw-neutral-900: #171717;
+$tw-neutral-950: #0a0a0a;
+
+$tw-neutrals: (
+  "neutral-50": $tw-neutral-50,
+  "neutral-100": $tw-neutral-100,
+  "neutral-200": $tw-neutral-200,
+  "neutral-300": $tw-neutral-300,
+  "neutral-400": $tw-neutral-400,
+  "neutral-500": $tw-neutral-500,
+  "neutral-600": $tw-neutral-600,
+  "neutral-700": $tw-neutral-700,
+  "neutral-800": $tw-neutral-800,
+  "neutral-900": $tw-neutral-900,
+  "neutral-950": $tw-neutral-950,
+);
+
+// Tailwind: stone color palette
+$tw-stone-50: #fafaf9;
+$tw-stone-100: #f5f5f4;
+$tw-stone-200: #e7e5e4;
+$tw-stone-300: #d6d3d1;
+$tw-stone-400: #a6a09b;
+$tw-stone-500: #79716b;
+$tw-stone-600: #57534d;
+$tw-stone-700: #44403b;
+$tw-stone-800: #292524;
+$tw-stone-900: #1c1917;
+$tw-stone-950: #0c0a09;
+
+$tw-stones: (
+  "stone-50": $tw-stone-50,
+  "stone-100": $tw-stone-100,
+  "stone-200": $tw-stone-200,
+  "stone-300": $tw-stone-300,
+  "stone-400": $tw-stone-400,
+  "stone-500": $tw-stone-500,
+  "stone-600": $tw-stone-600,
+  "stone-700": $tw-stone-700,
+  "stone-800": $tw-stone-800,
+  "stone-900": $tw-stone-900,
+  "stone-950": $tw-stone-950,
+);
+
+// Custom dark gray colors
 $dark-gray-500: #3b3b3b;
 $dark-gray-600: #252525;
 $dark-gray-700: #1b1e21;
@@ -15,9 +610,48 @@ $dark-grays: (
   "dark-gray-900": $dark-gray-900,
 );
 
+// Custom additional colors
 $space-blue: #071c39;
 $aquamarin: #00689b;
 $blue-grey: #1367e4;
 $brown: #766a5f;
 $dark-green: #298363;
 $dark-red: #7d4154;
+
+$custom-colors: (
+  "space-blue": $space-blue,
+  "aquamarin": $aquamarin,
+  "blue-grey": $blue-grey,
+  "brown": $brown,
+  "dark-green": $dark-green,
+  "dark-red": $dark-red,
+);
+
+$all-colors: map-merge-multiple(
+  // Tailwind colors
+  $tw-reds,
+  $tw-oranges,
+  $tw-ambers,
+  $tw-yellows,
+  $tw-limes,
+  $tw-greens,
+  $tw-emeralds,
+  $tw-teals,
+  $tw-cyans,
+  $tw-skys,
+  $tw-blues,
+  $tw-indigos,
+  $tw-violets,
+  $tw-purples,
+  $tw-fuchsias,
+  $tw-pinks,
+  $tw-roses,
+  $tw-slates,
+  $tw-grays,
+  $tw-zincs,
+  $tw-neutrals,
+  $tw-stones,
+  // Custom colors
+  $dark-grays,
+  $custom-colors
+);

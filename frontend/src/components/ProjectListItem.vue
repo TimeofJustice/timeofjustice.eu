@@ -30,7 +30,7 @@ const amountOfHiddenTechnologies =
         <div class="d-flex flex-row gap-2 align-items-center">
           <BBadge
             class="d-flex align-items-center bg-opacity-50"
-            :variant="project.status.color"
+            :class="`bg-` + project.status.color"
             v-if="project.status"
           >
             {{ project.status.name }}

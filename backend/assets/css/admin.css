@@ -62,6 +62,11 @@
 #main {
     overflow: auto;
     flex: 1!important;
+    scrollbar-width: thin;
+}
+
+.login .form-row {
+    overflow: visible !important;
 }
 
 #content:not(.colMS) {
@@ -77,6 +82,7 @@
 #content > ul {
     overflow: auto;
     flex: 1;
+    scrollbar-width: thin;
 }
 
 #content > form {
@@ -116,6 +122,7 @@
 #content-main form:not(#changelist-search):not(#changelist-form) > div fieldset {
     height: 100%;
     overflow: auto;
+    scrollbar-width: thin;
 }
 
 #content-main form:not(#changelist-search):not(#changelist-form) > div fieldset div:last-child {
@@ -142,6 +149,7 @@
     flex: 1;
     position: relative;
     margin: 0!important;
+    scrollbar-width: thin;
 }
 
 #content-main .module#change-history .paginator {
@@ -165,6 +173,40 @@
 #content-main .module#change-history tbody tr:last-child td,
 #content-main .module#change-history tbody tr:last-child th {
     border-bottom: unset!important;
+}
+
+.main > .content {
+    display: flex;
+    flex-direction: column;
+}
+
+ul.messagelist {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    max-height: 20%;
+    overflow: auto;
+    scrollbar-width: thin;
+}
+
+ul.messagelist li {
+    margin: 0!important;
+}
+
+#nav-sidebar {
+    scrollbar-width: thin;
+}
+
+#changelist-filter {
+    max-height: 100%;
+    overflow: auto;
+    scrollbar-width: thin;
+}
+
+#changelist-filter > h2 {
+    position: sticky;
+    top: 0;
 }
 
 .form-row .flex-container {
