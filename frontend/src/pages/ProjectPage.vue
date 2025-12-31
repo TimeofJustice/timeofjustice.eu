@@ -20,7 +20,7 @@ defineProps<ProjectPageProps>();
         <h1 class="mb-0 text-truncate">{{ project.title }}</h1>
         <BBadge
           class="d-flex align-items-center bg-opacity-50"
-          :variant="project.status.color"
+          :class="`bg-` + project.status.color"
           v-if="project.status"
         >
           {{ project.status.name }}
