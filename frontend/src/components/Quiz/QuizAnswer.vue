@@ -33,7 +33,8 @@ const answerVariant = computed<keyof BaseColorVariant | null>(() => {
 <template>
   <BCard
     :variant="answerVariant"
-    :class="{ answer: selectable }"
+    class="answer"
+    :class="{ selectable: selectable }"
     @click="handleClick"
   >
     {{ answer }}
@@ -48,13 +49,17 @@ const answerVariant = computed<keyof BaseColorVariant | null>(() => {
 
 <style scoped lang="scss">
 .answer {
-  cursor: pointer;
+  transform: scale(0.99);
   transition:
     transform 0.15s ease,
     background 0.3s ease;
+}
+
+.answer.selectable {
+  cursor: pointer;
 
   &:hover {
-    transform: scale(1.01);
+    transform: scale(1);
   }
 }
 </style>

@@ -59,7 +59,7 @@ onBeforeUnmount(() => {
 <template>
   <Head :title="$t('quiz.title')" />
 
-  <div class="container-xxl flex-grow-1 position-relative mb-2 overflow-hidden">
+  <div class="container-xxl flex-grow-1 position-relative overflow-hidden">
     <Transition name="screen-slide">
       <div class="screen" v-if="gameState == 'question'">
         <QuestionScreen
@@ -144,5 +144,7 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+
+  padding: calc(var(--bs-gutter-x) * 0.5);
 }
 </style>

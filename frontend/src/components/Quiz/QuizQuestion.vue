@@ -7,9 +7,13 @@ const { question } = defineProps<QuizQuestionProps>();
 </script>
 
 <template>
-  <BCard variant="secondary">
+  <BCard variant="secondary" class="question">
     {{ question }}
   </BCard>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.question {
+  transform: scale(0.99);
+}
+</style>

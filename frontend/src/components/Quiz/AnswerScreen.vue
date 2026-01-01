@@ -12,7 +12,9 @@ const { players } = defineProps<AnswerScreenProps>();
 </script>
 
 <template>
-  <div class="d-flex flex-column gap-3 col-6">
+  <div
+    class="d-flex flex-column gap-3 col-12 col-md-8 col-lg-6 inner-screen overflow-hidden overflow-y-auto"
+  >
     <!-- Question -->
     <div class="d-flex flex-column gap-2">
       <QuizQuestion
@@ -48,4 +50,8 @@ const { players } = defineProps<AnswerScreenProps>();
   </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.inner-screen {
+  max-height: 100%;
+}
+</style>

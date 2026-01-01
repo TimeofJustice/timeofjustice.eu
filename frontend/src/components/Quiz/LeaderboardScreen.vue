@@ -36,7 +36,9 @@ function remove(item: QuizPlayer) {
 </script>
 
 <template>
-  <div class="d-flex flex-column gap-3 col-6">
+  <div
+    class="d-flex flex-column gap-3 col-12 col-md-8 col-lg-6 inner-screen overflow-hidden overflow-y-auto"
+  >
     <span class="fs-1 fw-bold text-center">Leaderboard</span>
 
     <div class="d-flex flex-column gap-2">
@@ -86,5 +88,9 @@ function remove(item: QuizPlayer) {
 .leaderboard-fade-leave-active {
   height: 0%;
   width: 100%;
+}
+
+.inner-screen {
+  max-height: 100%;
 }
 </style>
