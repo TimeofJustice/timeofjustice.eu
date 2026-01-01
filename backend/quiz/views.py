@@ -7,4 +7,11 @@ def index(request, **kwargs):
     page_props = {
     }
 
-    return render(request, "Quiz/LobbyPage", props=default_props(page_props, request, **kwargs))
+    return render(request, "Quiz/SessionPage", props=default_props(page_props, request, **kwargs))
+
+
+def lobby(request, lobby_code, **kwargs):
+    page_props = {
+    }
+
+    return render(request, "Quiz/SessionPage", props=default_props(page_props, request, **kwargs))
