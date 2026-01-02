@@ -31,6 +31,7 @@ urlpatterns = [
     path("games/", include("games.urls")),
     path("r-place/", include("r_place.urls")),
     path("sendy/", include("postcard.urls")),
+    path("quiz/", include("quiz.urls")),
 ]
 
 handler400 = "core.views.errors.bad_request"
