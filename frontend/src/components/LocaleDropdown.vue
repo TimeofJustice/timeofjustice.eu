@@ -11,7 +11,6 @@ const changeLocale = (lang: string) => {
   i18n.locale.value = lang;
 
   // Persist language selection
-  localStorage.setItem("lang", lang);
   document.cookie = `django_language=${lang};path=/;max-age=31536000`;
 
   // Reload only props with inertia
