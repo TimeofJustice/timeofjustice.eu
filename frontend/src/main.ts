@@ -22,10 +22,11 @@ import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
 import BaseLayout from "@layouts/BaseLayout.vue";
 import BaseLink from "@components/BaseLink.vue";
+import { getCookie } from "@composables/cookie";
 
 const i18n = createI18n({
   legacy: false,
-  locale: localStorage.getItem("lang") || "en",
+  locale: getCookie("django_language") || "en",
   fallbackLocale: "en",
   messages: { de, en, "en-yoda": yoda },
 });

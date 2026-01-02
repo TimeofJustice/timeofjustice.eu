@@ -44,6 +44,9 @@ export default defineConfig({
       "@components": fileURLToPath(
         new URL("./src/components", import.meta.url),
       ),
+      "@composables": fileURLToPath(
+        new URL("./src/composables", import.meta.url),
+      ),
       "@pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
       "@layouts": fileURLToPath(new URL("./src/layouts", import.meta.url)),
       "@node_modules": fileURLToPath(
