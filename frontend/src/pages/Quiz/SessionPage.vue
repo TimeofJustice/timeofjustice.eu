@@ -5,6 +5,7 @@ import { QuizPlayer } from "@/types/Quiz/QuizPlayer";
 import LeaderboardScreen from "@/components/Quiz/LeaderboardScreen.vue";
 import QuestionScreen from "@/components/Quiz/QuestionScreen.vue";
 import AnswerScreen from "@/components/Quiz/AnswerScreen.vue";
+import QuizBackground from "@/components/Quiz/QuizBackground.vue";
 
 const gameState = ref<"question" | "answer" | "leaderboard">("question");
 const selectedAnswer = ref<number | null>(null);
@@ -59,60 +60,79 @@ onBeforeUnmount(() => {
 <template>
   <Head :title="$t('quiz.title')" />
 
-  <div class="container-xxl flex-grow-1 position-relative overflow-hidden">
-    <Transition name="screen-slide">
-      <div class="screen" v-if="gameState == 'question'">
-        <QuestionScreen
-          :players="answerOnePlayers"
-          :selected-answer="selectedAnswer"
-          @select="handleSelect"
-        />
-      </div>
-
-      <div class="screen" v-else-if="gameState == 'answer'">
-        <AnswerScreen
-          :players="answerOnePlayers"
-          :selected-answer="selectedAnswer"
-          :correctAnswer="2"
-        />
-      </div>
-
-      <div class="screen" v-else-if="gameState == 'leaderboard'">
-        <LeaderboardScreen :players="players" />
-      </div>
-    </Transition>
-  </div>
-
   <div
-    class="d-flex gap-2 justify-content-evenly position-absolute bottom-0 w-100 pb-2"
+    class="quiz-lobby-page h-100 fullscreen overflow-hidden position-relative d-flex flex-column"
   >
-    <BButton
-      @click="
-        gameState = 'question';
-        answerOnePlayers.push(players[0]);
-      "
-    >
-      Question Screen
-    </BButton>
-    <BButton @click="gameState = 'answer'"> Answer Screen </BButton>
-    <BButton
-      @click="
-        gameState = 'leaderboard';
-        addNewPlayer();
-      "
-    >
-      Leaderboard Screen
-    </BButton>
-  </div>
+    <QuizBackground
+      primary-color="hsl(185, 75%, 50%)"
+      secondary-color="hsl(215, 85%, 60%)"
+      :timer="Math.ceil(msLeft / 1000)"
+    />
 
-  <BProgress :max="msPerTurn" height="0.5rem" animated>
-    <BProgressBar :value="msLeft">
-      <small style="font-size: 0.5rem">{{ (msLeft / 1000).toFixed(0) }}s</small>
-    </BProgressBar>
-  </BProgress>
+    <div class="flex-grow-1 position-relative overflow-hidden">
+      <Transition name="screen-slide">
+        <div class="container-xxl screen" v-if="gameState == 'question'">
+          <QuestionScreen
+            :players="answerOnePlayers"
+            :selected-answer="selectedAnswer"
+            @select="handleSelect"
+          />
+        </div>
+
+        <div class="container-xxl screen" v-else-if="gameState == 'answer'">
+          <AnswerScreen
+            :players="answerOnePlayers"
+            :selected-answer="selectedAnswer"
+            :correctAnswer="2"
+          />
+        </div>
+
+        <div
+          class="container-xxl screen"
+          v-else-if="gameState == 'leaderboard'"
+        >
+          <LeaderboardScreen :players="players" />
+        </div>
+      </Transition>
+    </div>
+
+    <div
+      class="d-flex gap-2 justify-content-evenly position-absolute bottom-0 w-100 pb-2"
+    >
+      <BButton
+        @click="
+          gameState = 'question';
+          answerOnePlayers.push(players[0]);
+        "
+      >
+        Question Screen
+      </BButton>
+      <BButton @click="gameState = 'answer'"> Answer Screen </BButton>
+      <BButton
+        @click="
+          gameState = 'leaderboard';
+          addNewPlayer();
+        "
+      >
+        Leaderboard Screen
+      </BButton>
+    </div>
+
+    <BProgress :max="msPerTurn" height="0.5rem" animated>
+      <BProgressBar :value="msLeft">
+        <small style="font-size: 0.5rem"
+          >{{ (msLeft / 1000).toFixed(0) }}s</small
+        >
+      </BProgressBar>
+    </BProgress>
+  </div>
 </template>
 
 <style scoped lang="scss">
+.quiz-lobby-page {
+  background-color: rgba(7, 28, 57, 1);
+}
+
 .screen-slide-enter-active,
 .screen-slide-leave-active {
   transition: transform 0.4s ease;

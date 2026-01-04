@@ -14,6 +14,7 @@ def index(request, **kwargs):
 
 def lobby(request, lobby_code, **kwargs):
     page_props = {
+        "navbarSize": "small",
     }
 
     return render(request, "Quiz/SessionPage", props=default_props(page_props, request, **kwargs))

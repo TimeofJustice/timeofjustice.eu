@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import QuizBackground from "@/components/Quiz/QuizBackground.vue";
 import { Head } from "@inertiajs/vue3";
 import { ref, computed, reactive } from "vue";
 
 // Form state
+const selectedForm = ref<"join" | "create">("join");
 const isLoading = ref(false);
 const form = reactive({
   playerName: "",
@@ -29,7 +31,14 @@ const validateJoinCode = computed(() => {
 <template>
   <Head :title="$t('quiz.title')" />
 
-  <div class="quiz-lobby-page h-100 fullscreen">
+  <div
+    class="quiz-lobby-page h-100 fullscreen overflow-hidden position-relative"
+  >
+    <QuizBackground
+      primary-color="hsl(185, 75%, 50%)"
+      secondary-color="hsl(215, 85%, 60%)"
+    />
+
     <div class="container-xxl d-flex flex-column h-100">
       <BCard
         class="lobby-container rounded-4 col-12 col-md-8 col-lg-6 p-0 p-md-3 m-auto"
@@ -40,109 +49,108 @@ const validateJoinCode = computed(() => {
           <div class="text-accent">{{ $t("quiz.lobby.subtitle") }}</div>
         </div>
 
-        <BTabs fill class="lobby-tabs">
-          <BTab>
-            <template #title>
-              <iconify-icon icon="fa6-solid:door-open" />
-              {{ $t("quiz.lobby.join") }}
-            </template>
+        <BForm
+          class="d-flex flex-column gap-2 pt-1"
+          v-if="selectedForm === 'join'"
+        >
+          <BFormGroup
+            :label="$t('quiz.lobby.enter_player_name')"
+            label-for="player-name"
+          >
+            <BFormInput
+              id="player-name"
+              v-model="form.playerName"
+              :placeholder="$t('quiz.lobby.player_name_placeholder')"
+              maxlength="50"
+              :state="validatePlayerName"
+              :disabled="isLoading"
+              required
+            >
+            </BFormInput>
+            <BFormInvalidFeedback :state="validatePlayerName">
+              {{ $t("quiz.lobby.player_name_help") }}
+            </BFormInvalidFeedback>
+          </BFormGroup>
+          <BFormGroup
+            :label="$t('quiz.lobby.enter_code')"
+            label-for="join-code"
+          >
+            <BFormInput
+              id="join-code"
+              v-model="form.joinCode"
+              :placeholder="$t('quiz.lobby.code_placeholder')"
+              maxlength="6"
+              :state="validateJoinCode"
+              class="text-uppercase"
+              required
+            >
+            </BFormInput>
+            <BFormInvalidFeedback :state="validateJoinCode">
+              {{ $t("quiz.lobby.code_help") }}
+            </BFormInvalidFeedback>
+          </BFormGroup>
 
-            <BForm class="d-flex flex-column gap-2 pt-1">
-              <BFormGroup
-                :label="$t('quiz.lobby.enter_player_name')"
-                label-for="player-name"
-              >
-                <BFormInput
-                  id="player-name"
-                  v-model="form.playerName"
-                  :placeholder="$t('quiz.lobby.player_name_placeholder')"
-                  maxlength="50"
-                  :state="validatePlayerName"
-                  :disabled="isLoading"
-                  required
-                >
-                </BFormInput>
-                <BFormInvalidFeedback :state="validatePlayerName">
-                  {{ $t("quiz.lobby.player_name_help") }}
-                </BFormInvalidFeedback>
-              </BFormGroup>
-              <BFormGroup
-                :label="$t('quiz.lobby.enter_code')"
-                label-for="join-code"
-              >
-                <BFormInput
-                  id="join-code"
-                  v-model="form.joinCode"
-                  :placeholder="$t('quiz.lobby.code_placeholder')"
-                  maxlength="6"
-                  :state="validateJoinCode"
-                  class="text-uppercase"
-                  required
-                >
-                </BFormInput>
-                <BFormInvalidFeedback :state="validateJoinCode">
-                  {{ $t("quiz.lobby.code_help") }}
-                </BFormInvalidFeedback>
-              </BFormGroup>
+          <BButton
+            type="submit"
+            variant="primary"
+            :disabled="isLoading || !validatePlayerName || !validateJoinCode"
+          >
+            <BSpinner small class="me-2" v-if="isLoading" />
+            {{
+              isLoading
+                ? $t("quiz.lobby.joining")
+                : $t("quiz.lobby.join_button")
+            }}
+          </BButton>
 
-              <BButton
-                type="submit"
-                variant="primary"
-                :disabled="
-                  isLoading || !validatePlayerName || !validateJoinCode
-                "
-              >
-                <BSpinner small class="me-2" v-if="isLoading" />
-                {{
-                  isLoading
-                    ? $t("quiz.lobby.joining")
-                    : $t("quiz.lobby.join_button")
-                }}
-              </BButton>
-            </BForm>
-          </BTab>
+          <div class="text-center mt-2">
+            <iconify-icon icon="fa6-solid:plus" class="me-1" />
+            <a href="#" @click.prevent="selectedForm = 'create'">{{
+              $t("quiz.lobby.or_create_game")
+            }}</a>
+          </div>
+        </BForm>
 
-          <BTab>
-            <template #title>
-              <iconify-icon icon="fa6-solid:plus" />
-              {{ $t("quiz.lobby.create") }}
-            </template>
+        <BForm class="d-flex flex-column gap-2 pt-1" v-else>
+          <BFormGroup
+            :label="$t('quiz.lobby.enter_player_name')"
+            label-for="player-name"
+          >
+            <BFormInput
+              id="player-name"
+              v-model="form.playerName"
+              :placeholder="$t('quiz.lobby.player_name_placeholder')"
+              maxlength="50"
+              :state="validatePlayerName"
+              :disabled="isLoading"
+              required
+            >
+            </BFormInput>
+            <BFormInvalidFeedback :state="validatePlayerName">
+              {{ $t("quiz.lobby.player_name_help") }}
+            </BFormInvalidFeedback>
+          </BFormGroup>
 
-            <BForm class="d-flex flex-column gap-2 pt-1">
-              <BFormGroup
-                :label="$t('quiz.lobby.enter_player_name')"
-                label-for="player-name"
-              >
-                <BFormInput
-                  id="player-name"
-                  v-model="form.playerName"
-                  :placeholder="$t('quiz.lobby.player_name_placeholder')"
-                  maxlength="50"
-                  :state="validatePlayerName"
-                  :disabled="isLoading"
-                  required
-                >
-                </BFormInput>
-                <BFormInvalidFeedback :state="validatePlayerName">
-                  {{ $t("quiz.lobby.player_name_help") }}
-                </BFormInvalidFeedback>
-              </BFormGroup>
+          <BButton
+            type="submit"
+            variant="primary"
+            :disabled="isLoading || !validatePlayerName"
+          >
+            <BSpinner small class="me-2" v-if="isLoading" />
+            {{
+              isLoading
+                ? $t("quiz.lobby.creating")
+                : $t("quiz.lobby.create_game")
+            }}
+          </BButton>
 
-              <BButton
-                type="submit"
-                variant="primary"
-                :disabled="isLoading || !validatePlayerName"
-              >
-                <BSpinner small class="me-2" v-if="isLoading" />
-                {{
-                  isLoading
-                    ? $t("quiz.lobby.creating")
-                    : $t("quiz.lobby.create_game")
-                }}
-              </BButton>
-            </BForm>
-          </BTab>
-        </BTabs>
+          <div class="text-center mt-2">
+            <iconify-icon icon="fa6-solid:door-open" class="me-1" />
+            <a href="#" @click.prevent="selectedForm = 'join'">{{
+              $t("quiz.lobby.or_join_game")
+            }}</a>
+          </div>
+        </BForm>
       </BCard>
     </div>
   </div>
@@ -150,35 +158,7 @@ const validateJoinCode = computed(() => {
 
 <style scoped lang="scss">
 .quiz-lobby-page {
-  background-image: linear-gradient(
-    135deg,
-    hsl(222, 84%, 60%),
-    hsl(164, 79%, 71%)
-  );
-  background-size: 400% 400%;
-  animation: gradientRotate 15s ease infinite;
-}
-
-@keyframes gradientRotate {
-  0% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 100% 50%;
-  }
-  50% {
-    background-position: 100% 0%;
-  }
-  75% {
-    background-position: 0% 0%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.lobby-container {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  background-color: rgba(7, 28, 57, 1);
 }
 
 .lobby-header {
@@ -186,7 +166,7 @@ const validateJoinCode = computed(() => {
     background-image: linear-gradient(
       90deg,
       hsl(222, 84%, 60%),
-      hsl(164, 79%, 71%)
+      hsl(212, 78%, 71%)
     );
     background-clip: text;
     -webkit-background-clip: text;
@@ -195,7 +175,7 @@ const validateJoinCode = computed(() => {
 }
 
 .btn-primary {
-  background: linear-gradient(90deg, hsl(222, 84%, 60%), hsl(164, 79%, 71%));
+  background: linear-gradient(90deg, hsl(222, 84%, 60%), hsl(212, 78%, 71%));
   border: none;
   font-weight: 600;
   transition: filter 0.3s ease;
@@ -208,25 +188,19 @@ const validateJoinCode = computed(() => {
 
 <style lang="scss">
 .lobby-tabs .nav-tabs {
-  --bs-border-color: hsl(222, 84%, 60%);
-  --bs-nav-tabs-link-active-bg: transparent;
+  --bs-border-color: rgb(67, 119, 239);
+  --bs-nav-tabs-link-active-bg: rgba(67, 119, 239, 0.4);
   --bs-nav-tabs-link-active-color: rgba(
     var(--bs-accent-rgb),
     var(--bs-text-opacity, 1)
   );
   --bs-nav-tabs-link-active-border-color: var(--bs-border-color)
-    var(--bs-border-color) transparent;
+    var(--bs-border-color) var(--bs-border-color);
   --bs-nav-tabs-link-hover-border-color: transparent;
-
-  border-bottom: 0 !important;
-
-  & .nav-link:not(.active) {
-    border-bottom: var(--bs-nav-tabs-border-width) solid
-      var(--bs-nav-tabs-border-color);
-  }
+  --bs-nav-tabs-border-width: 2px;
 }
 
 .lobby-tabs .form-control {
-  --bs-border-color: hsl(222, 84%, 60%);
+  --bs-border-color: rgb(67, 119, 239);
 }
 </style>
