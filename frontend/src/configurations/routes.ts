@@ -35,7 +35,7 @@ export const ROUTES: Route[] = [
     name: "nav.quiz",
     path: "/quiz/",
     icon: "fa6-solid:lightbulb",
-    activeComponents: ["Quiz/LobbyPage"],
+    activeComponents: ["Quiz/LobbyPage", "Quiz/SessionPage"],
     isHighlighted: true,
   },
 ];

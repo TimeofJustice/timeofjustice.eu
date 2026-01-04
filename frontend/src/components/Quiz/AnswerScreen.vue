@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import QuizAnswer from "./QuizAnswer.vue";
 import QuizQuestion from "./QuizQuestion.vue";
-import { QuizPlayer } from "@/pages/Quiz/QuizPlayer";
+import { QuizPlayer } from "@/types/Quiz/QuizPlayer";
 
 interface AnswerScreenProps {
   players: QuizPlayer[];

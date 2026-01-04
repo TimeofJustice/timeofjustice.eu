@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import { onBeforeUnmount, ref } from "vue";
-import { QuizPlayer } from "./QuizPlayer";
+import { QuizPlayer } from "@/types/Quiz/QuizPlayer";
 import LeaderboardScreen from "@/components/Quiz/LeaderboardScreen.vue";
 import QuestionScreen from "@/components/Quiz/QuestionScreen.vue";
 import AnswerScreen from "@/components/Quiz/AnswerScreen.vue";

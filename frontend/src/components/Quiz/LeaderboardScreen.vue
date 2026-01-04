@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import LeaderboardPosition from "@/pages/Quiz/LeaderboardPosition.vue";
-import { QuizPlayer } from "@/pages/Quiz/QuizPlayer";
+import LeaderboardPosition from "@/components/Quiz/LeaderboardPosition.vue";
+import { QuizPlayer } from "@/types/Quiz/QuizPlayer";
 import { ref } from "vue";
 
 interface LeaderboardScreenProps {
