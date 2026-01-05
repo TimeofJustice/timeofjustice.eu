@@ -258,5 +258,8 @@
       "design_not_found": "The design you selected does not exist.",
       "missing_fields": "Please fill in all fields."
     }
+  },
+  "quiz": {
+    "title": "Quiz"
   }
 }

@@ -6,8 +6,9 @@ import LeaderboardScreen from "@/components/Quiz/LeaderboardScreen.vue";
 import QuestionScreen from "@/components/Quiz/QuestionScreen.vue";
 import AnswerScreen from "@/components/Quiz/AnswerScreen.vue";
 import QuizBackground from "@/components/Quiz/QuizBackground.vue";
+import LobbyScreen from "@/components/Quiz/LobbyScreen.vue";
 
-const gameState = ref<"question" | "answer" | "leaderboard">("question");
+const gameState = ref<"lobby" | "question" | "answer" | "leaderboard">("lobby");
 const selectedAnswer = ref<number | null>(null);
 
 const handleSelect = (index: number) => {
@@ -71,7 +72,11 @@ onBeforeUnmount(() => {
 
     <div class="flex-grow-1 position-relative overflow-hidden">
       <Transition name="screen-slide">
-        <div class="container-xxl screen" v-if="gameState == 'question'">
+        <div class="container-xxl screen" v-if="gameState == 'lobby'">
+          <LobbyScreen :players="players" />
+        </div>
+
+        <div class="container-xxl screen" v-else-if="gameState == 'question'">
           <QuestionScreen
             :players="answerOnePlayers"
             :selected-answer="selectedAnswer"
@@ -99,6 +104,7 @@ onBeforeUnmount(() => {
     <div
       class="d-flex gap-2 justify-content-evenly position-absolute bottom-0 w-100 pb-2"
     >
+      <BButton @click="gameState = 'lobby'"> Lobby Screen </BButton>
       <BButton
         @click="
           gameState = 'question';
@@ -129,17 +135,13 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped lang="scss">
-.quiz-lobby-page {
-  background-color: rgba(7, 28, 57, 1);
-}
-
 .screen-slide-enter-active,
 .screen-slide-leave-active {
-  transition: transform 0.4s ease;
+  transition: transform 0.8s ease;
 }
 
 .screen-slide-enter-from {
-  transform: translateX(100%);
+  transform: translateX(150%);
 }
 
 .screen-slide-enter-to {
@@ -151,7 +153,12 @@ onBeforeUnmount(() => {
 }
 
 .screen-slide-leave-to {
-  transform: translateX(-100%);
+  transform: translateX(-150%);
+}
+
+.quiz-lobby-page {
+  background-color: rgba(7, 28, 57, 1);
+  padding-top: var(--bs-gutter-y);
 }
 
 .screen {
@@ -166,5 +173,7 @@ onBeforeUnmount(() => {
   align-items: center;
 
   padding: calc(var(--bs-gutter-x) * 0.5);
+
+  margin-top: 3.5rem !important;
 }
 </style>
