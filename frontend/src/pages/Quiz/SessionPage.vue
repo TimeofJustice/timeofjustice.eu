@@ -7,6 +7,7 @@ import QuestionScreen from "@/components/Quiz/QuestionScreen.vue";
 import AnswerScreen from "@/components/Quiz/AnswerScreen.vue";
 import QuizBackground from "@/components/Quiz/QuizBackground.vue";
 import LobbyScreen from "@/components/Quiz/LobbyScreen.vue";
+import CircleProgessbar from "@/components/CircleProgessbar.vue";
 
 const gameState = ref<"lobby" | "question" | "answer" | "leaderboard">("lobby");
 const selectedAnswer = ref<number | null>(null);
@@ -124,13 +125,13 @@ onBeforeUnmount(() => {
       </BButton>
     </div>
 
-    <BProgress :max="msPerTurn" height="0.5rem" animated>
-      <BProgressBar :value="msLeft">
-        <small style="font-size: 0.5rem"
-          >{{ (msLeft / 1000).toFixed(0) }}s</small
-        >
-      </BProgressBar>
-    </BProgress>
+    <CircleProgessbar
+      :value="msLeft"
+      :max="msPerTurn"
+      class="timer m-3 position-absolute bottom-0 end-0"
+    >
+      {{ (msLeft / 1000).toFixed(0) }}s
+    </CircleProgessbar>
   </div>
 </template>
 
@@ -175,5 +176,17 @@ onBeforeUnmount(() => {
   padding: calc(var(--bs-gutter-x) * 0.5);
 
   margin-top: 3.5rem !important;
+}
+
+.timer {
+  width: 7rem;
+  height: 7rem;
+}
+
+@media (max-width: 576px) {
+  .timer {
+    width: 5rem;
+    height: 5rem;
+  }
 }
 </style>

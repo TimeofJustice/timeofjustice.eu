@@ -83,10 +83,7 @@ watch(
 </script>
 
 <template>
-  <div
-    class="position-absolute top-0 start-0 bottom-0 end-0 blob-blur"
-    :style="`--primary-color: ${primaryColor}; --secondary-color: ${secondaryColor}`"
-  >
+  <div class="position-absolute top-0 start-0 bottom-0 end-0 blob-blur">
     <div
       class="h-100 blob"
       :class="{ 'blob-variant': timer < 10 }"
@@ -107,8 +104,8 @@ watch(
   inset: 0;
   background: linear-gradient(
     120deg,
-    var(--primary-color) 30%,
-    var(--secondary-color) 70%
+    v-bind(primaryColor) 30%,
+    v-bind(secondaryColor) 70%
   );
   background-size: 200% 200%;
 
