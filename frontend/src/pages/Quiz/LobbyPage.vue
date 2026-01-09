@@ -58,6 +58,22 @@ const joinGame = () => {
       showToast(i18n.t("quiz.error." + error.response.data.message), "danger");
     });
 };
+
+const createGame = () => {
+  axios
+    .post(`/quiz/create`, { playerName: form.playerName })
+    .then((response) => {
+      // Save player ID as cookie
+      document.cookie = `quiz_player_id=${response.data.player_id}; path=/; max-age=${
+        60 * 60 * 24 * 1
+      }`;
+      // Redirect to lobby
+      router.visit(`/quiz/${response.data.lobby_code}`);
+    })
+    .catch((error) => {
+      showToast(i18n.t("quiz.error." + error.response.data.message), "danger");
+    });
+};
 </script>
 
 <template>
@@ -168,6 +184,7 @@ const joinGame = () => {
             type="submit"
             variant="primary"
             :disabled="isLoading || !validatePlayerName"
+            @click.prevent="createGame"
           >
             <BSpinner small class="me-2" v-if="isLoading" />
             {{

@@ -63,9 +63,14 @@ class Player(models.Model):
     def __str__(self):
         return f"Player {self.id} in Session {self.session.id}"
 
+    def get_gif_url(self):
+        if self.gif:
+            return f"{settings.FILE_DESTINATION}images{self.gif.gif.url}"
+        return None
+
     def json(self):
         return {
             "name": self.name,
-            "gif": f"{settings.FILE_DESTINATION}images{self.gif.gif.url}" if self.gif else None,
+            "gif": self.get_gif_url(),
             "is_host": self.is_host,
         }
