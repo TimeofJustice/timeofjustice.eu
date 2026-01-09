@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import QuizBackground from "@/components/Quiz/QuizBackground.vue";
-import { Head } from "@inertiajs/vue3";
+import { useToast } from "bootstrap-vue-next";
+import { Head, router } from "@inertiajs/vue3";
 import { ref, computed, reactive } from "vue";
+import axios from "@node_modules/axios";
+import { useI18n } from "vue-i18n";
 
 // Form state
 const selectedForm = ref<"join" | "create">("join");
 const isLoading = ref(false);
 const form = reactive({
   playerName: "",
-  joinCode: "",
+  lobbyCode: "",
 });
 
 // Validation
@@ -20,12 +23,41 @@ const validatePlayerName = computed(() => {
 });
 
 const validateJoinCode = computed(() => {
-  if (form.joinCode.length === 0) return null;
+  if (form.lobbyCode.length === 0) return null;
   return (
-    form.joinCode.length === 6 &&
-    /^[A-Z0-9]{6}$/.test(form.joinCode.toUpperCase())
+    form.lobbyCode.length === 6 &&
+    /^[A-Z0-9]{6}$/.test(form.lobbyCode.toUpperCase())
   );
 });
+
+const i18n = useI18n();
+const { create } = useToast();
+
+const showToast = (message: string, variant: "success" | "danger") => {
+  create?.({
+    body: message,
+    variant: variant,
+    interval: 5000,
+    position: "bottom-start",
+    noProgress: true,
+  });
+};
+
+const joinGame = () => {
+  axios
+    .post(`/quiz/join`, form)
+    .then((response) => {
+      // Save player ID as cookie
+      document.cookie = `quiz_player_id=${response.data.player_id}; path=/; max-age=${
+        60 * 60 * 24 * 1
+      }`;
+      // Redirect to lobby
+      router.visit(`/quiz/${response.data.lobby_code}`);
+    })
+    .catch((error) => {
+      showToast(i18n.t("quiz.error." + error.response.data.message), "danger");
+    });
+};
 </script>
 
 <template>
@@ -77,7 +109,7 @@ const validateJoinCode = computed(() => {
           >
             <BFormInput
               id="join-code"
-              v-model="form.joinCode"
+              v-model="form.lobbyCode"
               :placeholder="$t('quiz.lobby.code_placeholder')"
               maxlength="6"
               :state="validateJoinCode"
@@ -94,6 +126,7 @@ const validateJoinCode = computed(() => {
             type="submit"
             variant="primary"
             :disabled="isLoading || !validatePlayerName || !validateJoinCode"
+            @click.prevent="joinGame"
           >
             <BSpinner small class="me-2" v-if="isLoading" />
             {{
@@ -154,6 +187,8 @@ const validateJoinCode = computed(() => {
       </BCard>
     </div>
   </div>
+
+  <BToastOrchestrator />
 </template>
 
 <style scoped lang="scss">

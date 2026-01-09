@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
+import { useToast } from "bootstrap-vue-next";
 import { useI18n } from "@node_modules/vue-i18n";
 import { reactive, ref, shallowRef } from "vue";
 import { computed, onBeforeUnmount } from "@node_modules/vue";
@@ -39,7 +39,7 @@ interface MainProps {
 }
 
 const i18n = useI18n();
-const { show } = useToastController();
+const { create } = useToast();
 
 const {
   wallet,
@@ -117,13 +117,12 @@ const vaultCounter = setInterval(() => {
 }, 1000);
 
 const showToast = (message: string, variant: "success" | "danger") => {
-  show?.({
-    props: {
-      body: message,
-      variant: variant,
-      interval: 5000,
-      pos: "bottom-start",
-    },
+  create?.({
+    body: message,
+    variant: variant,
+    interval: 5000,
+    position: "bottom-start",
+    noProgress: true,
   });
 };
 

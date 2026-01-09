@@ -40,7 +40,7 @@ function remove(item: QuizPlayer) {
 
 <template>
   <div
-    class="inner-screen d-flex flex-column flex-md-row justify-content-between gap-3 col-12 overflow-y-auto"
+    class="inner-screen d-flex flex-column flex-md-row justify-content-between gap-3 col-12 overflow-hidden overflow-y-auto"
   >
     <div class="col-12 col-md-4 d-flex flex-column justify-content-center">
       <span class="fs-1 fw-bold">Invite your friends</span>

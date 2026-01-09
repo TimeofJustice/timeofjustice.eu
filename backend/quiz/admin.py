@@ -1,8 +1,21 @@
 from django.contrib import admin
+from subadmin import RootSubAdmin, SubAdmin
 
-from quiz.models import QuizSession
+from quiz.models import Player, PlayerGIF, Session
 
 
-@admin.register(QuizSession)
-class QuizSessionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'host_id', 'max_players', 'time_per_question', 'mode', 'is_active', 'created_at')
+class PlayerAdmin(SubAdmin):
+    model = Player
+    list_display = ('id',)
+
+
+@admin.register(Session)
+class QuizSessionAdmin(RootSubAdmin):
+    list_display = ('id', 'max_players', 'is_active', 'created_at')
+
+    subadmins = [PlayerAdmin]
+
+
+@admin.register(PlayerGIF)
+class PlayerGIFAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created_at')

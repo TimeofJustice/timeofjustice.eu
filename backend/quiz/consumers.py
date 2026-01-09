@@ -8,7 +8,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.cache import cache
 from django_redis import get_redis_connection
 
-from quiz.models import QuizSession
+from quiz.models import Session
 
 
 class QuizConsumer(AsyncWebsocketConsumer):
@@ -22,7 +22,7 @@ class QuizConsumer(AsyncWebsocketConsumer):
         return f"quiz:session:{self.session_id}"
 
     def get_quiz_session(self):
-        return QuizSession.objects.filter(pk=self.session_id, is_active=False).first()
+        return Session.objects.filter(pk=self.session_id, is_active=False).first()
 
     async def connect(self):
         self.session_id = self.scope["url_route"]["kwargs"]["session_id"]
