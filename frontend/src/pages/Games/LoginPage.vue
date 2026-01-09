@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from "@inertiajs/vue3";
 import { computed, reactive } from "vue";
-import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController";
+import { useToast } from "bootstrap-vue-next";
 import { useI18n } from "vue-i18n";
 import { watch } from "vue";
 
@@ -12,19 +12,18 @@ interface LoginPageProps {
 const { error } = defineProps<LoginPageProps>();
 
 const i18n = useI18n();
-const { show } = useToastController();
+const { create } = useToast();
 
 watch(
   () => error,
   (newError) => {
     if (newError) {
-      show?.({
-        props: {
-          body: i18n.t(newError),
-          variant: "danger",
-          interval: 5000,
-          pos: "bottom-start",
-        },
+      create?.({
+        body: i18n.t(newError),
+        variant: "danger",
+        interval: 5000,
+        position: "bottom-start",
+        noProgress: true,
       });
     }
   },

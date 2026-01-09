@@ -18,13 +18,14 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 django_asgi_app = get_asgi_application()
 
 # This needs to be imported after Django settings are configured
-from r_place.routing import websocket_urlpatterns  # noqa: E402
+from quiz.routing import websocket_urlpatterns as quiz_ws  # noqa: E402
+from r_place.routing import websocket_urlpatterns as r_place_ws  # noqa: E402
 
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
         "websocket": AllowedHostsOriginValidator(
-            AuthMiddlewareStack(URLRouter(websocket_urlpatterns)),
+            AuthMiddlewareStack(URLRouter(r_place_ws + quiz_ws)),
         ),
     },
 )
