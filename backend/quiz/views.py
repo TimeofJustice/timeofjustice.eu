@@ -98,6 +98,52 @@ def join(request, **kwargs):
     })
 
 
+def create(request, **kwargs):
+    if request.method != "POST":
+        return JsonResponse({
+            "status": "error",
+            "message": "method_not_allowed",
+        }, status=405)
+
+    post_data = BodyContent(request)
+
+    player_name = post_data.get("playerName", "").strip()
+
+    if not player_name or len(player_name) < 1:
+        return JsonResponse({
+            "status": "error",
+            "message": "invalid_player_name",
+        }, status=400)
+
+    # Check if name is valid (Only numbers, letters and whitespaces allowed, max length 50)
+    if not all(c.isalnum() or c.isspace() for c in player_name) or len(player_name) > 50:
+        return JsonResponse({
+            "status": "error",
+            "message": "invalid_player_name",
+        }, status=400)
+
+    # Create new session
+    new_session = Session.objects.create(is_active=False, max_players=4)
+
+    # Choose a random GIF for the host player
+    player_gif = PlayerGIF.objects.order_by('?').first()
+
+    # Create host player
+    host_player = Player.objects.create(
+        name=player_name,
+        gif=player_gif,
+        is_host=True,
+        session=new_session,
+    )
+
+    return JsonResponse({
+        "status": "success",
+        "message": "created_lobby",
+        "lobby_code": new_session.id,
+        "player_id": host_player.id,
+    })
+
+
 def lobby(request, lobby_code, **kwargs):
     page_props = {
         "navbarSize": "small",
@@ -105,15 +151,15 @@ def lobby(request, lobby_code, **kwargs):
     }
 
     player_id = request.COOKIES.get("quiz_player_id")
-    player = get_or_none(Player, id=player_id, session__id=lobby_code) if player_id else None
+    player = get_or_none(Player, id=player_id, session__id=lobby_code.upper()) if player_id else None
 
     if player is None:
-        return redirect("quiz:index")
+        return redirect("quiz_index")
 
-    session = get_or_none(Session, id=lobby_code)
+    session = get_or_none(Session, id=lobby_code.upper())
 
     if session is None:
-        return redirect("quiz:index")
+        return redirect("quiz_index")
 
     page_props["player"] = player.json()
 
