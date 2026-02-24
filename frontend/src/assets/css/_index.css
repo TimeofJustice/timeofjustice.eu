@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #141619;
+  --color-primary-hover: #1b1e21;
+  --color-primary-active: #0c0d0f;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #3b3b3b;
+  --color-secondary-hover: #101828;
+  --color-secondary-active: #1b1e21;
+  --color-secondary-foreground: #ffffff;
+
+  --color-tertiary: transparent;
+  --color-tertiary-hover: color-mix(in srgb, currentColor 12%, transparent);
+  --color-tertiary-active: color-mix(in srgb, currentColor 24%, transparent);
+
+  --color-info: #cff4fc;
+  --color-info-foreground: #055160;
+
+  --color-space-blue: #071c39;
+}

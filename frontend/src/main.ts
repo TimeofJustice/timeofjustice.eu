@@ -15,10 +15,11 @@ import de from "@assets/locales/de.json";
 import en from "@assets/locales/en.json";
 import yoda from "@assets/locales/en-yoda.json";
 
-import "@assets/scss/_index.scss";
-import "bootstrap";
+import "@assets/css/_index.css";
+// import "@assets/scss/_index.scss";
+// import "bootstrap";
 import "vue-color/style.css";
-import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
+// import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
 import BaseLayout from "@layouts/BaseLayout.vue";
 import BaseLink from "@components/BaseLink.vue";

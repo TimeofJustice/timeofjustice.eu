@@ -4,11 +4,13 @@ import { resolve } from "path";
 import { fileURLToPath, URL } from "url";
 import Components from "unplugin-vue-components/vite";
 import { BootstrapVueNextResolver } from "bootstrap-vue-next";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    tailwindcss(),
     Components({
       resolvers: [BootstrapVueNextResolver()],
     }),

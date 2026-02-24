@@ -6,6 +6,7 @@ import { router } from "@inertiajs/vue3";
 import { OffcanvasState } from "@/types/OffcanvasState.ts";
 
 import LizardAudio from "@assets/audio/lizard.wav";
+import TAlert from "@/components/TAlert.vue";
 
 interface BaseLayoutProps {
   production: boolean;
@@ -58,11 +59,9 @@ const playLizardSound = () => {
 </script>
 
 <template>
-  <div
-    class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column overflow-hidden"
-  >
+  <div class="absolute inset-0 flex flex-col overflow-hidden">
     <div
-      class="position-absolute top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-space-blue vw-100 vh-100"
+      class="absolute inset-0 flex items-center justify-center bg-space-blue w-screen h-screen"
     >
       <div class="gradient"></div>
       <template v-if="$i18n.locale === 'yoda'">
@@ -73,91 +72,83 @@ const playLizardSound = () => {
     </div>
 
     <div
-      class="content-body w-100 z-0 flex-grow-1 d-flex flex-column overflow-y-auto overflow-x-hidden position-relative"
+      class="relative z-0 flex flex-col flex-1 overflow-y-auto overflow-x-hidden"
     >
       <BaseNavbar :size="navbarSize" />
 
-      <slot></slot>
-
-      <BOffcanvas
-        v-model="showOffcanvas"
-        placement="end"
-        body-class="px-0"
-        @hidden="
-          router.visit(offcanvasState?.source || '/', {
-            only: ['offcanvasState'],
-            preserveState: true,
-            preserveScroll: true,
-          })
-        "
-      >
-        <template #header>
-          <div class="d-flex w-100 gap-2">
-            <BButton
-              variant="tertiary"
-              class="btn-square"
-              :title="$t('general.close')"
-              @click="showOffcanvas = false"
-            >
-              <iconify-icon icon="ep:close-bold" />
-            </BButton>
-            <BButton
-              variant="tertiary"
-              class="btn-square"
-              :to="$page.url"
-              :title="$t('general.more')"
-              target="_blank"
-              external
-            >
-              <iconify-icon icon="pajamas:external-link" />
-            </BButton>
-            <BButton
-              variant="tertiary"
-              class="btn-square"
-              :title="$t('easter_egg.lizard')"
-              @click="playLizardSound"
-            >
-              <iconify-icon icon="fluent-emoji-high-contrast:lizard" />
-            </BButton>
-            <audio class="d-none" ref="lizardAudio">
-              <source :src="LizardAudio" type="audio/wav" />
-            </audio>
-          </div>
-        </template>
-
-        <slot name="offcanvas-body">
-          <component
-            :is="offcanvasComponent || 'div'"
-            v-bind="offcanvasState?.props"
-            v-if="offcanvasComponent"
-          />
-        </slot>
-      </BOffcanvas>
+      <slot />
 
       <div
-        class="container position-fixed bottom-0 start-0 end-0 z-3"
-        v-if="!stable"
+        class="container fixed bottom-0 inset-s-0 inset-e-0 z-3 mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 mb-2"
+        v-if="stable"
       >
-        <BAlert
-          :model-value="true"
-          variant="info"
-          dismissible
-          close-variant="tertiary"
-          close-class="btn-square"
-        >
-          <template #close>
-            <iconify-icon icon="ep:close-bold" />
-          </template>
-
-          <vue-markdown :source="$t('nav.stable_hint')" />
-        </BAlert>
+        <TAlert :model-value="true">
+          <vue-markdown :source="$t('nav.stable_hint')" class="flex-1" />
+        </TAlert>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss">
-//.offcanvas-body > .container-xxl {
-//  padding: 0;
-//}
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gradient {
+  --size: 100vh;
+  --speed: 50s;
+  --easing: linear;
+
+  width: var(--size);
+  height: var(--size);
+  filter: blur(calc(var(--size) / 7));
+  background-image: linear-gradient(
+    hsl(222, 84%, 60%, 100%),
+    hsl(164, 79%, 71%)
+  );
+  animation: rotate var(--speed) var(--easing) infinite;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+}
+
+body {
+  background-color: #071c39;
+}
+
+@function random_range($min, $max) {
+  $rand: random();
+  $random_range: $min + floor($rand * (($max - $min) + 1));
+  @return $random_range;
+}
+
+.x-wing {
+  $count: 50;
+  --fall-duration: 9s;
+
+  position: absolute;
+  top: var(--top-offset);
+  left: 0;
+  transform: translate3d(150em, -50em, 0);
+  animation: fall var(--fall-duration) var(--fall-delay) linear infinite;
+
+  @for $i from 1 through $count {
+    &:nth-child(#{$i}) {
+      --star-tail-length: #{random_range(500em, 750em) / 100};
+      --top-offset: #{random_range(5000vh, 10000vh) / 100};
+      --fall-duration: #{random_range(6000, 12000s) / 1000};
+      --fall-delay: #{random_range(0, 10000s) / 1000};
+    }
+  }
+}
+
+@keyframes fall {
+  to {
+    transform: translate3d(-30em, 10em, 0);
+  }
+}
 </style>
