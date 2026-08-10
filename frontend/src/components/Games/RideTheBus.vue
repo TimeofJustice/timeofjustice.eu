@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
-import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
+import { useToast } from "bootstrap-vue-next";
 import { useI18n } from "@node_modules/vue-i18n";
 import axios from "@node_modules/axios";
 
@@ -27,7 +27,7 @@ interface GameSession {
 }
 
 const i18n = useI18n();
-const { show } = useToastController();
+const { create } = useToast();
 const emit = defineEmits({
   balanceChange: null,
 });
@@ -69,13 +69,12 @@ const validateBet = computed(() => {
 });
 
 const showToast = (message: string, variant: "success" | "danger") => {
-  show?.({
-    props: {
-      body: message,
-      variant: variant,
-      interval: 5000,
-      pos: "bottom-start",
-    },
+  create?.({
+    body: message,
+    variant: variant,
+    interval: 5000,
+    position: "bottom-start",
+    noProgress: true,
   });
 };
 

@@ -21,8 +21,10 @@ declare module "bootstrap-vue-next" {
     | "tertiary"
     | "ghost";
 
-  export interface BaseButtonVariant
-    extends Record<CustomButtonVariant, unknown> {
+  export interface BaseButtonVariant extends Record<
+    CustomButtonVariant,
+    unknown
+  > {
     primary: unknown;
     secondary: unknown;
     tertiary: unknown;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from "@node_modules/@inertiajs/vue3";
 import { reactive, ref, watch } from "vue";
-import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
+import { useToast } from "bootstrap-vue-next";
 import { computed } from "@node_modules/vue";
 import { Postcard, Design, defaultPostcard } from "@/types/Postcard";
 import axios from "@node_modules/axios";
@@ -46,16 +46,15 @@ const validateMessage = computed(() => {
 });
 
 const i18n = useI18n();
-const { show } = useToastController();
+const { create } = useToast();
 
 const showToast = (message: string, variant: "success" | "danger") => {
-  show?.({
-    props: {
-      body: message,
-      variant: variant,
-      interval: 5000,
-      pos: "bottom-start",
-    },
+  create?.({
+    body: message,
+    variant: variant,
+    interval: 5000,
+    position: "bottom-start",
+    noProgress: true,
   });
 };
 

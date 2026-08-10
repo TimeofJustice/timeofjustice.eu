@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'games',
     'r_place',
     'postcard',
+    'quiz',
 ]
 
 ASGI_APPLICATION = "backend.asgi.application"
@@ -65,6 +66,16 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [os.getenv('REDIS_HOST', 'redis')],
+        },
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv('REDIS_HOST', 'redis'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     },
 }
