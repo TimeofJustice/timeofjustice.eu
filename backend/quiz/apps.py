@@ -11,6 +11,7 @@ class QuizConfig(AppConfig):
         if "runserver" not in sys.argv and "/usr/local/bin/gunicorn" not in sys.argv:
             return
 
+
         from quiz.tasks import tick_all_sessions
 
         tick_all_sessions(repeat=10, schedule=10, remove_existing_tasks=True)
