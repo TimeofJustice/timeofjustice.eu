@@ -153,6 +153,8 @@ const playLizardSound = () => {
         </BAlert>
       </div>
     </div>
+
+    <BOrchestrator no-modals no-popovers />
   </div>
 </template>
 

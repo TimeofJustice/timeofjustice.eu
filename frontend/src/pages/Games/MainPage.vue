@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { useToastController } from "@node_modules/bootstrap-vue-next/dist/src/composables/useToastController/index";
+import { useToast } from "bootstrap-vue-next";
 import { useI18n } from "@node_modules/vue-i18n";
 import { reactive, ref, shallowRef } from "vue";
 import { computed, onBeforeUnmount } from "@node_modules/vue";
@@ -39,7 +39,7 @@ interface MainProps {
 }
 
 const i18n = useI18n();
-const { show } = useToastController();
+const { create } = useToast();
 
 const {
   wallet,
@@ -117,13 +117,11 @@ const vaultCounter = setInterval(() => {
 }, 1000);
 
 const showToast = (message: string, variant: "success" | "danger") => {
-  show?.({
-    props: {
-      body: message,
-      variant: variant,
-      interval: 5000,
-      pos: "bottom-start",
-    },
+  create({
+    body: message,
+    variant: variant,
+    position: "bottom-start",
+    noProgress: true,
   });
 };
 
@@ -235,7 +233,6 @@ const dismissHint = () => {
     body-class="d-flex flex-column gap-2"
     :hide-footer="true"
     scrollable
-    size="md"
     centered
   >
     <template #header>
@@ -278,7 +275,6 @@ const dismissHint = () => {
     header-class="justify-content-between align-items-center"
     :hide-footer="true"
     scrollable
-    size="md"
     centered
   >
     <template #header>
@@ -579,8 +575,6 @@ const dismissHint = () => {
       </div>
     </div>
   </div>
-
-  <BToastOrchestrator />
 </template>
 
 <style scoped lang="scss">
