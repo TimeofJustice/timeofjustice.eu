@@ -213,7 +213,7 @@ onBeforeUnmount(() => {
       <BModal
         v-model="areRulesOpen"
         header-class="justify-content-between align-items-center"
-        :hide-footer="true"
+        :no-footer="true"
         scrollable
         size="xl"
         centered

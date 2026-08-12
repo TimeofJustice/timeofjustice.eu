@@ -231,7 +231,7 @@ const dismissHint = () => {
     v-model="showDailyBonus"
     header-class="justify-content-between align-items-center"
     body-class="d-flex flex-column gap-2"
-    :hide-footer="true"
+    :no-footer="true"
     scrollable
     centered
   >
@@ -273,7 +273,7 @@ const dismissHint = () => {
   <BModal
     v-model="showSettings"
     header-class="justify-content-between align-items-center"
-    :hide-footer="true"
+    :no-footer="true"
     scrollable
     centered
   >
@@ -341,6 +341,7 @@ const dismissHint = () => {
           variant="danger"
           body-class="d-flex align-items-center justify-content-between gap-2"
           class="w-100"
+          no-close-button
         >
           <div>{{ $t("games.main.reminder") }}</div>
 
