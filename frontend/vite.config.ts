@@ -4,11 +4,15 @@ import { resolve } from "path";
 import { fileURLToPath, URL } from "url";
 import Components from "unplugin-vue-components/vite";
 import { BootstrapVueNextResolver } from "bootstrap-vue-next";
+import vueDevTools from "vite-plugin-vue-devtools";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    vueDevTools({
+      appendTo: "main.ts",
+    }),
     Components({
       resolvers: [BootstrapVueNextResolver()],
     }),
@@ -69,12 +73,10 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       sass: {
-        api: "modern",
         silenceDeprecations: ["import", "slash-div", "global-builtin"],
         quietDeps: true,
       },
       scss: {
-        api: "modern",
         silenceDeprecations: ["import", "slash-div", "global-builtin"],
         quietDeps: true,
       },
