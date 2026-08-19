@@ -80,6 +80,7 @@
       "copy_wallet": "Wallet ID copied to clipboard",
       "copy_wallet_error": "Error copying wallet ID to clipboard",
       "settings": "Settings",
+      "name": "Username",
       "settings_invalid": "Your name must be between 3 and 32 characters long and can only contain alphanumeric characters.",
       "settings_success": "Settings saved",
       "leaderboard": "Leaderboard",
@@ -91,11 +92,14 @@
       "next_bonus": "Reload the page to claim your next bonus",
       "vault": "Vault",
       "vault_reset_in": "Vault reset in {time}",
+      "avatar": "Avatar",
+      "avatar_empty": "No avatars available yet.",
       "errors": {
         "wallet_not_found": "Wallet not found",
         "name_invalid": "Name invalid",
         "invalid_request": "Invalid request",
-        "already_claimed": "Already claimed"
+        "already_claimed": "Already claimed",
+        "avatar_invalid": "Avatar invalid"
       }
     },
     "not_enough_tokens": "You don't have enough tokens.",

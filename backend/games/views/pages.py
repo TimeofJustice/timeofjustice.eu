@@ -1,5 +1,3 @@
-import uuid
-
 from django.http.response import HttpResponseRedirect
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -8,14 +6,14 @@ from inertia import render
 from core.helpers import BodyContent, default_props, get_or_none
 from games import models
 from games.decorators import wallet_required
-from games.views.core.api import days_since_last_login, get_leaderboard, get_vault
+from games.vault import get_vault
+from games.views.core.api import get_leaderboard
+from games.wallet import clear_wallet, create_wallet, get_wallet, set_wallet
 
 
 @ensure_csrf_cookie
 def index(request):
-    wallet = request.session.get("wallet_id", None)
-
-    if not wallet:
+    if not get_wallet(request):
         return render(request, "Games/EntryPage", props=default_props({}, request))
 
     return main(request)
@@ -30,7 +28,7 @@ def login(request):
             wallet = get_or_none(models.Wallet, wallet_id=wallet_id.lower())
 
             if wallet:
-                request.session["wallet_id"] = wallet.wallet_id
+                set_wallet(request, wallet)
                 return HttpResponseRedirect("/games/")
             error_text = "games.login.error.invalid_wallet"
         else:
@@ -46,38 +44,23 @@ def login(request):
 
 
 def register(request):
-    wallet_id = uuid.uuid4().hex
-    wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
-
-    while wallet:
-        wallet_id = uuid.uuid4().hex
-        wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
-
-    wallet = models.Wallet.objects.create(wallet_id=wallet_id, last_visit=timezone.now().date())
-
-    request.session["wallet_id"] = wallet.wallet_id
+    set_wallet(request, create_wallet())
 
     return HttpResponseRedirect("/games/")
 
 
 def logout(request):
-    response = HttpResponseRedirect("/games/login/")
+    clear_wallet(request)
 
-    if "wallet_id" in request.session:
-        del request.session["wallet_id"]
-
-    return response
+    return HttpResponseRedirect("/games/login/")
 
 
 @wallet_required
 def main(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
-
-    if not wallet:
-        return HttpResponseRedirect("/games/login/")
+    wallet = get_wallet(request)
 
     leaderboard, own_index = get_leaderboard(wallet)
-    new_bonus = days_since_last_login(wallet) >= 1
+    new_bonus = wallet.refresh_streak() >= 1
 
     last_visit = timezone.datetime.combine(wallet.last_visit, timezone.datetime.min.time()) if wallet.last_visit else timezone.now()
     next_bonus = last_visit + timezone.timedelta(days=1)
@@ -85,7 +68,6 @@ def main(request):
     vault, vault_reset = get_vault()
 
     page_props = {
-        "wallet": wallet.json(),
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
         "ownPosition": own_index + 1,
         "newBonus": new_bonus,

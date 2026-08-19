@@ -6,8 +6,8 @@ from r_place.models import Canvas, Cell, RenderedCanvas
 
 class CellSubAdmin(SubAdmin):
     model = Cell
-    list_display = ("id", "x", "y", "color", "last_modified", "canvas")
-    search_fields = ("color", "x", "y", "canvas__name")
+    list_display = ("id", "x", "y", "color", "wallet", "last_modified", "canvas")
+    search_fields = ("color", "x", "y", "canvas__name", "wallet__wallet_id", "wallet__name")
     list_filter = ("color", "canvas__name")
     ordering = ("-last_modified", "x", "y", "canvas__active")
 

@@ -3,11 +3,10 @@ import uuid
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from core.helpers import BodyContent, get_or_none
-from games import models
+from core.helpers import BodyContent
 from games.decorators import wallet_required
 from games.views.cards import CardDeck, card_to_string, cards_score
-from games.views.core.api import get_vault
+from games.wallet import get_wallet, update_balance
 
 
 def create_session(session_id=None, deck=None, cards=None, dealer_cards=None, bet=None, initial_bet=None, status=None, session=None):
@@ -36,23 +35,11 @@ def session_json(session, *, reveal_hole_card=True):
     }
 
 
-def update_wallet(wallet, bet):
-    wallet.balance += bet
-    wallet.save()
-
-    vault, _ = get_vault()
-    vault.balance += bet * -1
-    vault.save()
-
-
 @wallet_required
 @require_http_methods(["POST"])
 def start(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
+    wallet = get_wallet(request)
     post_data = BodyContent(request)
-
-    if not wallet:
-        return JsonResponse({"error": "games.game.black_jack.errors.session_expired"}, status=400)
 
     if not post_data or not post_data.get("bet"):
         return JsonResponse({"error": "games.game.black_jack.errors.invalid_request"}, status=400)
@@ -62,7 +49,7 @@ def start(request):
     if bet <= 0 or bet > wallet.balance or bet > 1000:
         return JsonResponse({"error": "games.game.black_jack.errors.invalid_bet"}, status=400)
 
-    update_wallet(wallet, -bet)
+    update_balance(wallet, -bet)
 
     deck = CardDeck()
     player_card1 = deck.draw()
@@ -188,13 +175,13 @@ def stand(request):
 
 def end(request):
     session = request.session.get("black_jack_session", None)
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
+    wallet = get_wallet(request)
 
     if not session:
         return JsonResponse({"error": "games.game.black_jack.errors.session_expired"}, status=400)
 
     if session["bet"] > 0:
-        update_wallet(wallet, session["bet"])
+        update_balance(wallet, session["bet"])
 
     del request.session["black_jack_session"]
 

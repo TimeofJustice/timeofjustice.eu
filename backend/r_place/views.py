@@ -3,10 +3,16 @@ from django.shortcuts import redirect
 from inertia import render
 
 from core.helpers import default_props
+from games.wallet import get_wallet
 from r_place.models import Canvas, Cell, RenderedCanvas
 
 
 def index(request, canvas=None):
+    # Painting is tied to a wallet, so send visitors without one to the entry
+    # page, where they can create or restore theirs.
+    if not get_wallet(request):
+        return redirect("/games/")
+
     selected_canvas = Canvas.objects.filter(active=True).first() if canvas is None else Canvas.objects.filter(name=canvas).first()
 
     if not selected_canvas:
@@ -56,4 +62,24 @@ def load_canvas(request, canvas):
             "image": None,
             "cells": list(cells),
         },
+    )
+
+
+def cell_info(request, canvas, x, y):
+    """Who painted a single pixel last, for the canvas tooltip."""
+    if not get_wallet(request):
+        return JsonResponse({"error": "games.main.errors.wallet_not_found"}, status=403)
+
+    cell = Cell.objects.filter(canvas__name=canvas, x=x, y=y).select_related("wallet__avatar").first()
+
+    if not cell or not cell.wallet:
+        return JsonResponse({"wallet": None})
+
+    return JsonResponse(
+        {
+            "wallet": {
+                "name": cell.wallet.name,
+                "avatar": cell.wallet.avatar.json() if cell.wallet.avatar else None,
+            }
+        }
     )

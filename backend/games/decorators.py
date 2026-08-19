@@ -2,20 +2,18 @@ from functools import wraps
 
 from django.http.response import HttpResponseRedirect
 
-from core.helpers import get_or_none
-from games import models
+from games.wallet import get_wallet
 
 
 def wallet_required(view_func):
+    """
+    Rejects requests without a valid wallet and caches the wallet on the
+    request, so the view can just call `get_wallet(request)`.
+    """
+
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        wallet_id = request.session.get("wallet_id")
-        if not wallet_id:
-            return HttpResponseRedirect("/games/login/")
-
-        wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
-        if not wallet:
-            del request.session["wallet_id"]
+        if not get_wallet(request):
             return HttpResponseRedirect("/games/login/")
 
         return view_func(request, *args, **kwargs)

@@ -4,11 +4,20 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.cache import cache
 
+from games.wallet import get_wallet_by_session
 from r_place.models import Canvas, Cell
 
 
 class RPlaceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        # Painting requires a wallet, so a socket without one is refused
+        # outright rather than connecting and silently dropping every update.
+        self.wallet_id = await database_sync_to_async(self.get_wallet_id)()
+
+        if not self.wallet_id:
+            await self.close()
+            return
+
         await self.channel_layer.group_add(
             "r_place",
             self.channel_name,
@@ -17,7 +26,16 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.update_player_count(1)
 
+    def get_wallet_id(self):
+        wallet = get_wallet_by_session(self.scope.get("session", {}))
+
+        return wallet.wallet_id if wallet else None
+
     async def disconnect(self, close_code):
+        # A socket rejected in connect() never joined the group or counted.
+        if not getattr(self, "wallet_id", None):
+            return
+
         await self.channel_layer.group_discard(
             "r_place",
             self.channel_name,
@@ -88,7 +106,7 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
             x=cell["x"],
             y=cell["y"],
             canvas=canvas,
-            defaults={"color": cell["color"]},
+            defaults={"color": cell["color"], "wallet_id": self.wallet_id},
         )
 
     async def cell_update(self, event):

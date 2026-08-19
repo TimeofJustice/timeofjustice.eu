@@ -4,6 +4,7 @@ import { ROUTES } from "@configurations/routes.ts";
 
 import LocaleDropdown from "@components/LocaleDropdown.vue";
 import BaseNavbarLink from "@components/BaseNavbarLink.vue";
+import GamesWalletBadge from "@components/GamesWalletBadge.vue";
 
 import TimeofJusticeLogo from "@assets/images/TimeofJustice.svg";
 
@@ -75,6 +76,8 @@ onMounted(() => {
 
         <LocaleDropdown />
       </div>
+
+      <GamesWalletBadge />
     </div>
 
     <div class="pointer-events-auto flex lg:hidden">

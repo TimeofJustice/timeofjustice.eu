@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseNavbar from "@components/BaseNavbar.vue";
+import GamesWalletSettingsModal from "@components/GamesWalletSettingsModal.vue";
 import { ref } from "@node_modules/vue";
 import { shallowRef, watch } from "vue";
 import { router } from "@inertiajs/vue3";
@@ -145,6 +146,8 @@ const playLizardSound = () => {
         </UiAlert>
       </div>
     </div>
+
+    <GamesWalletSettingsModal />
 
     <UiToaster />
   </div>

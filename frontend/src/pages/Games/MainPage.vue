@@ -2,9 +2,9 @@
 import { Head } from "@inertiajs/vue3";
 import { useToast } from "@composables/toast";
 import { useI18n } from "@node_modules/vue-i18n";
-import { reactive, ref, shallowRef } from "vue";
-import { computed, onBeforeUnmount } from "@node_modules/vue";
-import { Wallet } from "@/types/Wallet.ts";
+import { ref, shallowRef } from "vue";
+import { onBeforeUnmount } from "@node_modules/vue";
+import { useWallet } from "@composables/wallet";
 import axios from "axios";
 
 import HigherOrLower from "@components/Games/HigherOrLower.vue";
@@ -12,6 +12,7 @@ import RideTheBus from "@components/Games/RideTheBus.vue";
 import BlackJack from "@components/Games/BlackJack.vue";
 import SicBo from "@components/Games/SicBo.vue";
 import GamesLeaderboardPosition from "@components/GamesLeaderboardPosition.vue";
+import GamesAvatar from "@components/GamesAvatar.vue";
 import GamesDailyReward from "@components/GamesDailyReward.vue";
 import { TOAST_TRANSITION } from "@components/ui/transitions";
 
@@ -28,7 +29,6 @@ interface DailyBonus {
 }
 
 interface MainProps {
-  wallet: Wallet;
   leaderboard: Player[];
   ownPosition: number;
   newBonus: boolean;
@@ -43,7 +43,6 @@ const i18n = useI18n();
 const { create } = useToast();
 
 const {
-  wallet,
   leaderboard,
   ownPosition,
   newBonus,
@@ -53,8 +52,8 @@ const {
   hintDismissed,
 } = defineProps<MainProps>();
 
-const walletName = ref(wallet.name);
-const walletBalance = ref(wallet.balance);
+const { wallet, balance, balanceChange, changeBalance, openSettings } =
+  useWallet();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -64,29 +63,17 @@ const gameComponents = new Map<string, object>([
   ["sic_bo", SicBo],
 ]);
 
-const balanceChange = ref(0);
 const updatedLeaderboard = ref<Player[]>(leaderboard);
 const updatedOwnPosition = ref(ownPosition);
 const updatedVault = ref(vault);
 
 const showCopyReminder = ref(!hintDismissed);
-const showSettings = ref(false);
 const showDailyBonus = ref(newBonus);
 const showGames = ref(true);
 const showLeaderboard = ref(false);
 const showGamesAccount = ref(false);
 
 const waitingForResponse = ref(false);
-
-const settingsForm = reactive({
-  name: wallet.name,
-});
-
-const validateName = computed(() => {
-  if (settingsForm.name.trim() === "") return false;
-
-  return /^[a-zA-Z0-9]{3,32}$/.test(settingsForm.name);
-});
 
 const nextBonusDate = ref(new Date(nextBonus));
 const vaultResetDate = ref(new Date(vaultReset));
@@ -121,28 +108,6 @@ const showToast = (message: string, variant: "success" | "danger") => {
   create({ body: message, variant, position: "bottom-start" });
 };
 
-const saveSettings = async () => {
-  if (validateName.value) {
-    waitingForResponse.value = true;
-
-    axios
-      .post("/games/api/user/update/", {
-        name: settingsForm.name,
-      })
-      .then((response) => {
-        showToast(i18n.t("games.main.settings_success"), "success");
-
-        walletName.value = response.data.name;
-        waitingForResponse.value = false;
-      })
-      .catch((error) => {
-        showToast(i18n.t(error.response.data.error), "danger");
-
-        waitingForResponse.value = false;
-      });
-  }
-};
-
 const redeemDailyBonus = () => {
   waitingForResponse.value = true;
 
@@ -156,7 +121,7 @@ const redeemDailyBonus = () => {
 
       showDailyBonus.value = false;
       nextBonusDate.value = new Date(response.data.nextBonus);
-      onBalanceChange(response.data.reward);
+      changeBalance(response.data.reward);
       waitingForResponse.value = false;
     })
     .catch((error) => {
@@ -175,15 +140,6 @@ const copyToClipboard = () => {
     .catch(() => {
       showToast(i18n.t("games.main.copy_wallet_error"), "danger");
     });
-};
-
-const onBalanceChange = (tokens: number) => {
-  walletBalance.value = walletBalance.value + tokens;
-  balanceChange.value = tokens;
-
-  setTimeout(() => {
-    balanceChange.value = 0;
-  }, 1000);
 };
 
 const leaderBoardFetch = setInterval(() => {
@@ -266,59 +222,13 @@ const dismissHint = () => {
     </UiButton>
   </UiModal>
 
-  <UiModal
-    v-model="showSettings"
-    header-class="justify-between items-center"
-    scrollable
-    centered
-  >
-    <template #header>
-      <h2 class="m-0">
-        {{ $t("games.main.settings") }}
-      </h2>
-
-      <UiButton
-        variant="tertiary"
-        class="text-light"
-        @click="showSettings = false"
-        square
-      >
-        <iconify-icon icon="ep:close-bold" />
-      </UiButton>
-    </template>
-
-    <form @submit.prevent="saveSettings" class="flex w-full flex-col gap-2">
-      <UiFormGroup id="input-group-2" label-for="input-2">
-        <UiInput
-          id="input-2"
-          v-model="settingsForm.name"
-          :placeholder="$t('games.login.enter_wallet')"
-          required
-          :state="validateName"
-        />
-        <UiInvalidFeedback :state="validateName">
-          {{ $t("games.main.settings_invalid") }}
-        </UiInvalidFeedback>
-      </UiFormGroup>
-
-      <UiButton
-        type="submit"
-        variant="primary"
-        class="w-full"
-        :disabled="!validateName || waitingForResponse"
-      >
-        {{ $t("general.save") }}
-      </UiButton>
-    </form>
-  </UiModal>
-
   <div class="container-page flex flex-col justify-center pb-4 lg:flex-row">
     <div class="w-full shrink-0 lg:w-3/4">
       <KeepAlive>
         <component
           :is="gameComponent"
-          :balance="walletBalance"
-          @balance-change="onBalanceChange"
+          :balance="balance"
+          @balance-change="changeBalance"
         />
       </KeepAlive>
     </div>
@@ -347,17 +257,16 @@ const dismissHint = () => {
           body-class="flex flex-col"
         >
           <template #header>
-            <div class="flex items-center gap-2">
+            <div class="flex min-w-0 items-center gap-2">
+              <GamesAvatar :avatar="wallet.avatar" size="md" />
+
               <h4 class="m-0 truncate">
-                <iconify-icon icon="fa6-solid:user" />
-              </h4>
-              <h4 class="m-0 truncate">
-                {{ walletName }}
+                {{ wallet.name }}
               </h4>
             </div>
 
             <div class="flex gap-2">
-              <UiButton variant="tertiary" @click="showSettings = true" square>
+              <UiButton variant="tertiary" @click="openSettings" square>
                 <iconify-icon icon="fa7-solid:edit" />
               </UiButton>
               <UiButton variant="danger" to="/games/logout/" square>
@@ -384,7 +293,7 @@ const dismissHint = () => {
 
           <div class="flex items-center gap-1">
             <iconify-icon icon="fa7-solid:coins" />
-            <strong>{{ walletBalance }} TJTs</strong>
+            <strong>{{ balance }} TJTs</strong>
 
             <Transition>
               <span class="text-success" v-if="balanceChange > 0">
@@ -547,7 +456,7 @@ const dismissHint = () => {
                 <GamesLeaderboardPosition
                   :index="updatedOwnPosition"
                   :name="wallet.name"
-                  :balance="walletBalance"
+                  :balance="balance"
                   :streak="wallet.streak"
                   highlighted
                 />

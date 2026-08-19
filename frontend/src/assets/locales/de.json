@@ -68,6 +68,7 @@
       "copy_wallet": "Wallet-ID in die Zwischenablage kopiert",
       "copy_wallet_error": "Fehler beim Kopieren der Wallet-ID in die Zwischenablage",
       "settings": "Einstellungen",
+      "name": "Benutzername",
       "settings_invalid": "Dein Name muss zwischen 3 und 32 Zeichen lang sein und darf nur alphanumerische Zeichen enthalten.",
       "settings_success": "Einstellungen gespeichert",
       "leaderboard": "Bestenliste",
@@ -79,11 +80,14 @@
       "next_bonus": "Lade die Seite neu, um deinen nächsten Bonus zu erhalten",
       "vault": "Tresor",
       "vault_reset_in": "Der Tresor wird in {time} zurückgesetzt",
+      "avatar": "Avatar",
+      "avatar_empty": "Noch keine Avatare verfügbar.",
       "errors": {
         "wallet_not_found": "Wallet nicht gefunden",
         "name_invalid": "Name ungültig",
         "invalid_request": "Request ungültig",
-        "already_claimed": "Bereits beansprucht"
+        "already_claimed": "Bereits beansprucht",
+        "avatar_invalid": "Avatar ungültig"
       }
     },
     "not_enough_tokens": "Du hast nicht genug Token.",

@@ -39,6 +39,8 @@ class Cell(models.Model):
     y = models.IntegerField(default=0)
     color = models.CharField(max_length=7)
     canvas = models.ForeignKey(Canvas, on_delete=models.CASCADE, related_name="cells", default=None)
+    # Whoever painted it last. Kept when the wallet goes away, so the pixel survives.
+    wallet = models.ForeignKey("games.Wallet", on_delete=models.SET_NULL, related_name="cells", null=True, blank=True)
     last_modified = models.DateTimeField(editable=False)
 
     class Meta:
