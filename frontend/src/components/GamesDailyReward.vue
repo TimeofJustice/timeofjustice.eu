@@ -11,10 +11,10 @@ defineProps<GamesDailyRewardProps>();
 
 <template>
   <div
-    class="d-flex flex-column align-items-center gap-1 rounded-3 p-2"
+    class="flex shrink-0 flex-col items-center gap-1 rounded-lg p-2"
     :class="{
-      'col-2': !overflow,
-      'col-12': overflow,
+      'w-1/6': !overflow,
+      'w-full': overflow,
       'bg-dark-gray-800': status === 'locked',
       'bg-green-400': status === 'unlocked',
       'bg-green-700': status === 'claimed',
@@ -26,5 +26,3 @@ defineProps<GamesDailyRewardProps>();
     <small>{{ reward }}</small>
   </div>
 </template>
-
-<style scoped lang="scss"></style>

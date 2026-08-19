@@ -9,34 +9,32 @@ const { size = "lg" } = defineProps<GamesDiceProps>();
 
 <template>
   <div
-    class="dice rounded bg-red-600 bg-opacity-100 d-flex justify-content-center align-items-center"
+    class="dice flex items-center justify-center rounded-md bg-red-600"
     :class="`dice-${size}`"
   >
     <div
-      class="d-flex flex-column h-100 w-100 align-items-center"
-      :class="
-        value !== 1 ? 'justify-content-between' : 'justify-content-center'
-      "
+      class="flex h-full w-full flex-col items-center"
+      :class="value !== 1 ? 'justify-between' : 'justify-center'"
     >
       <template v-if="value === 1">
         <iconify-icon icon="fa6-solid:circle" />
       </template>
       <template v-else-if="value === 2">
-        <div class="d-flex justify-content-end w-100">
+        <div class="flex w-full justify-end">
           <iconify-icon icon="fa6-solid:circle" />
         </div>
-        <div class="d-flex justify-content-start w-100">
+        <div class="flex w-full justify-start">
           <iconify-icon icon="fa6-solid:circle" />
         </div>
       </template>
       <template v-else-if="value === 3">
-        <div class="d-flex justify-content-end w-100">
+        <div class="flex w-full justify-end">
           <iconify-icon icon="fa6-solid:circle" />
         </div>
-        <div class="d-flex justify-content-center w-100">
+        <div class="flex w-full justify-center">
           <iconify-icon icon="fa6-solid:circle" />
         </div>
-        <div class="d-flex justify-content-start w-100">
+        <div class="flex w-full justify-start">
           <iconify-icon icon="fa6-solid:circle" />
         </div>
       </template>
@@ -44,11 +42,9 @@ const { size = "lg" } = defineProps<GamesDiceProps>();
         <div
           v-for="row in Math.ceil(value / 2)"
           :key="row"
-          class="d-flex w-100"
+          class="flex w-full"
           :class="
-            value === 5 && row === 2
-              ? 'justify-content-center'
-              : 'justify-content-between'
+            value === 5 && row === 2 ? 'justify-center' : 'justify-between'
           "
         >
           <iconify-icon icon="fa6-solid:circle" />
@@ -62,32 +58,32 @@ const { size = "lg" } = defineProps<GamesDiceProps>();
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .dice {
   width: var(--dice-size, 4em);
   height: var(--dice-size, 4em);
   padding: var(--dice-padding, 0.75em);
+}
 
-  .iconify {
-    font-size: var(--dice-icon-size, 0.75em);
-  }
+.dice :deep(.iconify) {
+  font-size: var(--dice-icon-size, 0.75em);
+}
 
-  &-sm {
-    --dice-size: 1em;
-    --dice-padding: 0.25em;
-    --dice-icon-size: 0.125em;
-  }
+.dice-sm {
+  --dice-size: 1em;
+  --dice-padding: 0.25em;
+  --dice-icon-size: 0.125em;
+}
 
-  &-md {
-    --dice-size: 2em;
-    --dice-padding: 0.5em;
-    --dice-icon-size: 0.3em;
-  }
+.dice-md {
+  --dice-size: 2em;
+  --dice-padding: 0.5em;
+  --dice-icon-size: 0.3em;
+}
 
-  &-lg {
-    --dice-size: 4em;
-    --dice-padding: 0.75em;
-    --dice-icon-size: 0.75em;
-  }
+.dice-lg {
+  --dice-size: 4em;
+  --dice-padding: 0.75em;
+  --dice-icon-size: 0.75em;
 }
 </style>

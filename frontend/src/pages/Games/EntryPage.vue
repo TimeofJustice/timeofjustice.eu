@@ -11,18 +11,13 @@ defineProps<EntryPageProps>();
 <template>
   <Head :title="$t('games.title')" />
 
-  <div
-    class="container d-flex flex-column align-items-center justify-content-center"
-  >
-    <BAlert :model-value="true" variant="danger">
+  <div class="container-fixed flex flex-col items-center justify-center">
+    <UiAlert variant="danger">
       <vue-markdown :source="$t('games.entry.warning')" />
-    </BAlert>
+    </UiAlert>
 
-    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
-      <BCard
-        class="blur-box border-0"
-        body-class="d-flex flex-column align-items-center"
-      >
+    <div class="w-full shrink-0 sm:w-1/2 md:w-5/12 lg:w-1/3 xl:w-1/4">
+      <UiCard body-class="flex flex-col items-center">
         <template #header>
           <h1 class="text-center m-0">
             <iconify-icon icon="fa7-solid:dice" />
@@ -30,17 +25,15 @@ defineProps<EntryPageProps>();
           </h1>
         </template>
 
-        <div class="d-flex flex-column align-items-center gap-2">
-          <BButton variant="primary" class="w-100" to="/games/register/">
+        <div class="flex flex-col items-center gap-2">
+          <UiButton variant="primary" class="w-full" to="/games/register/">
             {{ $t("games.entry.enter_with_new_wallet") }}
-          </BButton>
-          <BLink class="w-100" to="/games/login/">
+          </UiButton>
+          <UiLink class="w-full" to="/games/login/">
             {{ $t("games.entry.enter_with_existing_wallet") }}
-          </BLink>
+          </UiLink>
         </div>
-      </BCard>
+      </UiCard>
     </div>
   </div>
 </template>
-
-<style scoped lang="scss"></style>

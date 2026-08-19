@@ -60,11 +60,18 @@ INSTALLED_APPS = [
 ]
 
 ASGI_APPLICATION = "backend.asgi.application"
+
+# channels_redis needs a full URL, so a bare hostname gets the redis:// scheme.
+# The compose setup talks to Redis over a unix socket: unix:///data/redis.sock
+REDIS_HOST = os.getenv('REDIS_HOST', 'unix:///data/redis.sock')
+if not re.match(r"^(redis|rediss|unix)://", REDIS_HOST):
+    REDIS_HOST = f"redis://{REDIS_HOST}"
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [os.getenv('REDIS_HOST', 'redis')],
+            "hosts": [REDIS_HOST],
         },
     },
 }

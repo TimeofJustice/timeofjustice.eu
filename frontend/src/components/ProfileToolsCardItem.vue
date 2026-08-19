@@ -9,26 +9,21 @@ defineProps<ProfileToolsCardItemProps>();
 </script>
 
 <template>
-  <BLink
-    class="tool"
+  <UiLink
+    class="tool flex h-8 items-center justify-center text-[2rem]"
     :href="tool.url"
     target="_blank"
+    external
     :title="tool.alt"
     v-if="tool.url"
   >
     <iconify-icon :icon="tool.icon" />
-  </BLink>
-  <div class="tool" :title="tool.alt" v-else>
+  </UiLink>
+  <div
+    class="tool flex h-8 items-center justify-center text-[2rem]"
+    :title="tool.alt"
+    v-else
+  >
     <iconify-icon :icon="tool.icon" />
   </div>
 </template>
-
-<style scoped lang="scss">
-.tool {
-  height: 2rem;
-  font-size: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>

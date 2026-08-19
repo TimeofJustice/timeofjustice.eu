@@ -3,18 +3,21 @@ import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import { fileURLToPath, URL } from "url";
 import Components from "unplugin-vue-components/vite";
-import { BootstrapVueNextResolver } from "bootstrap-vue-next";
+import tailwindcss from "@tailwindcss/vite";
 import vueDevTools from "vite-plugin-vue-devtools";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    tailwindcss(),
     vueDevTools({
       appendTo: "main.ts",
     }),
     Components({
-      resolvers: [BootstrapVueNextResolver()],
+      // Auto-import the custom UI components that replaced bootstrap-vue-next
+      dirs: [resolve("./src/components/ui")],
+      dts: resolve("./src/components.d.ts"),
     }),
   ],
   root: resolve("./src"),
@@ -68,18 +71,6 @@ export default defineConfig({
     host: true,
     watch: {
       usePolling: true,
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      sass: {
-        silenceDeprecations: ["import", "slash-div", "global-builtin"],
-        quietDeps: true,
-      },
-      scss: {
-        silenceDeprecations: ["import", "slash-div", "global-builtin"],
-        quietDeps: true,
-      },
     },
   },
 });

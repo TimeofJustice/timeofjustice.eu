@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
-import { useToast } from "bootstrap-vue-next";
+import { useToast } from "@composables/toast";
 import { useI18n } from "@node_modules/vue-i18n";
 import axios from "@node_modules/axios";
 
@@ -69,12 +69,7 @@ const validateBet = computed(() => {
 });
 
 const showToast = (message: string, variant: "success" | "danger") => {
-  create({
-    body: message,
-    variant: variant,
-    position: "bottom-start",
-    noProgress: true,
-  });
+  create({ body: message, variant, position: "bottom-start" });
 };
 
 const start = async () => {
@@ -186,10 +181,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <BCard
-    class="blur-box border-0 overflow-hidden"
-    header-class="d-flex align-items-center justify-content-between"
-    body-class="d-flex flex-column p-0"
+  <UiCard
+    class="border-0 overflow-hidden"
+    header-class="flex items-center justify-between"
+    body-class="flex flex-col"
+    no-padding
   >
     <template #header>
       <h4 class="m-0">
@@ -197,26 +193,26 @@ onBeforeUnmount(() => {
         {{ $t("games.game.ride_the_bus.title") }}
       </h4>
 
-      <BButton variant="tertiary" class="btn-square opacity-0">
+      <UiButton variant="tertiary" class="opacity-0" square>
         <iconify-icon icon="iconamoon:copy-duotone" />
-      </BButton>
+      </UiButton>
     </template>
 
     <div
-      class="w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 position-relative p-3"
+      class="w-full h-full flex flex-col justify-center items-center gap-2 relative p-4"
     >
-      <BButton
+      <UiButton
         variant="primary"
-        class="btn-circle position-absolute top-0 end-0 m-2 z-3"
+        class="absolute top-0 right-0 m-2 z-3"
         @click="areRulesOpen = true"
+        circle
       >
         <iconify-icon icon="fa7-solid:info" />
-      </BButton>
+      </UiButton>
 
-      <BModal
+      <UiModal
         v-model="areRulesOpen"
-        header-class="justify-content-between align-items-center"
-        :no-footer="true"
+        header-class="justify-between items-center"
         scrollable
         size="xl"
         centered
@@ -226,19 +222,20 @@ onBeforeUnmount(() => {
         <template #header>
           <h2 class="m-0">{{ $t("games.game.ride_the_bus.title") }}</h2>
 
-          <BButton
+          <UiButton
             variant="tertiary"
-            class="btn-square text-light"
+            class="text-light"
             @click="areRulesOpen = false"
+            square
           >
             <iconify-icon icon="ep:close-bold" />
-          </BButton>
+          </UiButton>
         </template>
-      </BModal>
+      </UiModal>
 
       <Transition>
         <div
-          class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2"
+          class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center gap-2 bg-black/50 z-2"
           v-if="
             gameSession.state === 'not_started' ||
             gameSession.state === 'won' ||
@@ -246,7 +243,7 @@ onBeforeUnmount(() => {
           "
         >
           <div
-            class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-dark-gray-600 bg-opacity-100 rounded-3 p-2 gap-2"
+            class="flex flex-col w-5/6 shrink-0 md:w-5/12 lg:w-1/3 bg-dark-gray-600 rounded-lg p-2 gap-2"
           >
             <h1 class="text-center" v-if="gameSession.state !== 'not_started'">
               {{
@@ -256,11 +253,11 @@ onBeforeUnmount(() => {
               }}
             </h1>
 
-            <BFormGroup id="input-group-2" label-for="input-2" v-else>
+            <UiFormGroup id="input-group-2" label-for="input-2" v-else>
               <span class="text-center">
                 {{ $t("games.game.ride_the_bus.bet") }}: {{ gameSession.bet }}
               </span>
-              <BInput
+              <UiInput
                 id="input-2"
                 type="range"
                 v-model="gameSession.bet"
@@ -268,13 +265,13 @@ onBeforeUnmount(() => {
                 :max="balance < 500 ? balance : 500"
                 :state="validateBet"
               />
-              <BFormInvalidFeedback :state="validateBet">
+              <UiInvalidFeedback :state="validateBet">
                 {{ $t("games.not_enough_tokens") }}
-              </BFormInvalidFeedback>
-            </BFormGroup>
+              </UiInvalidFeedback>
+            </UiFormGroup>
 
             <h5
-              class="rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0"
+              class="rounded-lg p-2 flex flex-col gap-2 w-full text-center mb-0"
               :class="
                 gameSession.bet - gameSession.initialBet > 0
                   ? 'text-success'
@@ -286,17 +283,16 @@ onBeforeUnmount(() => {
               }}{{ gameSession.bet - gameSession.initialBet }}
             </h5>
 
-            <BButton
+            <UiButton
               variant="primary"
-              class="btn-lg"
               @click.prevent="gameEnd"
               v-if="gameSession.state !== 'not_started'"
+              size="lg"
             >
               {{ $t("games.game.ride_the_bus.actions.play_again") }}
-            </BButton>
-            <BButton
+            </UiButton>
+            <UiButton
               variant="primary"
-              class="btn-lg"
               @click.prevent="start"
               v-else
               :disabled="
@@ -304,52 +300,53 @@ onBeforeUnmount(() => {
                 waitingForResponse ||
                 gameSession.state !== 'not_started'
               "
+              size="lg"
             >
               {{ $t("games.game.ride_the_bus.actions.start") }}
-            </BButton>
+            </UiButton>
           </div>
         </div>
       </Transition>
 
-      <div class="d-flex flex-column gap-2 w-100">
-        <div class="row gx-2">
+      <div class="flex flex-col gap-2 w-full">
+        <div class="flex gap-2">
           <img
             :src="'/files/images/games/cards/' + gameSession.cards[0] + '.svg'"
             :alt="gameSession.cards[0]"
-            class="img-fluid col-3"
+            class="h-auto w-1/4 min-w-0 shrink grow basis-0"
             @load="cardLoaded('first_round')"
           />
           <img
             :src="'/files/images/games/cards/' + gameSession.cards[1] + '.svg'"
             :alt="gameSession.cards[1]"
-            class="img-fluid col-3"
+            class="h-auto w-1/4 min-w-0 shrink grow basis-0"
             @load="cardLoaded('second_round')"
           />
           <img
             :src="'/files/images/games/cards/' + gameSession.cards[2] + '.svg'"
             :alt="gameSession.cards[2]"
-            class="img-fluid col-3"
+            class="h-auto w-1/4 min-w-0 shrink grow basis-0"
             @load="cardLoaded('third_round')"
           />
           <img
             :src="'/files/images/games/cards/' + gameSession.cards[3] + '.svg'"
             :alt="gameSession.cards[3]"
-            class="img-fluid col-3"
+            class="h-auto w-1/4 min-w-0 shrink grow basis-0"
             @load="cardLoaded('fourth_round')"
           />
         </div>
 
-        <div class="d-flex">
+        <div class="flex">
           <h3
-            class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center m-0"
+            class="bg-dark-gray-600/50 rounded-lg p-2 flex flex-col gap-2 w-full text-center m-0"
           >
             {{ gameSession.state === "not_started" ? 0 : gameSession.bet }}
           </h3>
         </div>
 
-        <div class="row gx-2">
+        <div class="flex gap-2">
           <div
-            class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between"
+            class="flex min-w-0 shrink grow basis-0 flex-col justify-between gap-2 transition-opacity duration-500 ease-in-out"
             :class="
               gameSession.state !== 'first_round' &&
               gameSession.state !== 'not_started'
@@ -357,13 +354,13 @@ onBeforeUnmount(() => {
                 : ''
             "
           >
-            <div class="d-flex flex-column gap-2">
-              <BProgress :max="msPerTurn">
-                <BProgressBar :value="gameSession.msLeft">
+            <div class="flex flex-col gap-2">
+              <UiProgress :max="msPerTurn">
+                <UiProgressBar :value="gameSession.msLeft">
                   <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-                </BProgressBar>
-              </BProgress>
-              <BButton
+                </UiProgressBar>
+              </UiProgress>
+              <UiButton
                 variant="danger"
                 @click.prevent="processTurn('red', 'second_round')"
                 :disabled="
@@ -371,20 +368,20 @@ onBeforeUnmount(() => {
                 "
               >
                 <iconify-icon icon="mdi:suit-diamonds" />
-                <iconify-icon icon="mdi:suit-hearts" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="mdi:suit-hearts" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.red")
                 }}</span>
                 <iconify-icon
                   icon="mdi:suit-hearts"
-                  class="ms-1 d-none d-md-inline-block"
+                  class="ml-1 hidden md:inline-block"
                 />
                 <iconify-icon
                   icon="mdi:suit-diamonds"
-                  class="d-none d-md-inline-block"
+                  class="hidden md:inline-block"
                 />
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="primary"
                 @click.prevent="processTurn('black', 'second_round')"
                 :disabled="
@@ -392,35 +389,33 @@ onBeforeUnmount(() => {
                 "
               >
                 <iconify-icon icon="mdi:suit-spades" />
-                <iconify-icon icon="mdi:suit-clubs" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="mdi:suit-clubs" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.black")
                 }}</span>
                 <iconify-icon
                   icon="mdi:suit-clubs"
-                  class="ms-1 d-none d-md-inline-block"
+                  class="ml-1 hidden md:inline-block"
                 />
                 <iconify-icon
                   icon="mdi:suit-spades"
-                  class="d-none d-md-inline-block"
+                  class="hidden md:inline-block"
                 />
-              </BButton>
+              </UiButton>
             </div>
 
-            <div
-              class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
-            >
+            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
               1:1
             </div>
           </div>
 
           <div
-            class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between"
+            class="flex min-w-0 shrink grow basis-0 flex-col justify-between gap-2 transition-opacity duration-500 ease-in-out"
             :class="gameSession.state !== 'second_round' ? 'opacity-0' : ''"
           >
-            <div class="d-flex flex-column gap-2">
-              <BProgress :max="msPerTurn">
-                <BProgressBar
+            <div class="flex flex-col gap-2">
+              <UiProgress :max="msPerTurn">
+                <UiProgressBar
                   :value="
                     gameSession.state === 'second_round'
                       ? gameSession.msLeft
@@ -428,33 +423,33 @@ onBeforeUnmount(() => {
                   "
                 >
                   <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-                </BProgressBar>
-              </BProgress>
-              <BButton
+                </UiProgressBar>
+              </UiProgress>
+              <UiButton
                 variant="success"
                 @click.prevent="processTurn('higher', 'third_round')"
                 :disabled="
                   gameSession.state !== 'second_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="fa6-solid:arrow-up" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="fa6-solid:arrow-up" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.higher")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="danger"
                 @click.prevent="processTurn('lower', 'third_round')"
                 :disabled="
                   gameSession.state !== 'second_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="fa6-solid:arrow-down" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="fa6-solid:arrow-down" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.lower")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="secondary"
                 @click.prevent="processTurn('leave', 'won')"
                 :disabled="
@@ -462,23 +457,21 @@ onBeforeUnmount(() => {
                 "
               >
                 {{ $t("games.game.ride_the_bus.actions.quit") }}
-              </BButton>
+              </UiButton>
             </div>
 
-            <div
-              class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
-            >
+            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
               1:2
             </div>
           </div>
 
           <div
-            class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between"
+            class="flex min-w-0 shrink grow basis-0 flex-col justify-between gap-2 transition-opacity duration-500 ease-in-out"
             :class="gameSession.state !== 'third_round' ? 'opacity-0' : ''"
           >
-            <div class="d-flex flex-column gap-2">
-              <BProgress :max="msPerTurn">
-                <BProgressBar
+            <div class="flex flex-col gap-2">
+              <UiProgress :max="msPerTurn">
+                <UiProgressBar
                   :value="
                     gameSession.state === 'third_round'
                       ? gameSession.msLeft
@@ -486,33 +479,33 @@ onBeforeUnmount(() => {
                   "
                 >
                   <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-                </BProgressBar>
-              </BProgress>
-              <BButton
+                </UiProgressBar>
+              </UiProgress>
+              <UiButton
                 variant="primary"
                 @click.prevent="processTurn('inside', 'fourth_round')"
                 :disabled="
                   gameSession.state !== 'third_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="fa7-solid:sign-in" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="fa7-solid:sign-in" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.inside")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="danger"
                 @click.prevent="processTurn('outside', 'fourth_round')"
                 :disabled="
                   gameSession.state !== 'third_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="fa7-solid:sign-out" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="fa7-solid:sign-out" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.outside")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="secondary"
                 @click.prevent="processTurn('leave', 'won')"
                 :disabled="
@@ -520,23 +513,21 @@ onBeforeUnmount(() => {
                 "
               >
                 {{ $t("games.game.ride_the_bus.actions.quit") }}
-              </BButton>
+              </UiButton>
             </div>
 
-            <div
-              class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
-            >
+            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
               1:3
             </div>
           </div>
 
           <div
-            class="d-flex flex-column gap-2 col-3 transition-opacity justify-content-between"
+            class="flex min-w-0 shrink grow basis-0 flex-col justify-between gap-2 transition-opacity duration-500 ease-in-out"
             :class="gameSession.state !== 'fourth_round' ? 'opacity-0' : ''"
           >
-            <div class="d-flex flex-column gap-2">
-              <BProgress :max="msPerTurn">
-                <BProgressBar
+            <div class="flex flex-col gap-2">
+              <UiProgress :max="msPerTurn">
+                <UiProgressBar
                   :value="
                     gameSession.state === 'fourth_round'
                       ? gameSession.msLeft
@@ -544,57 +535,57 @@ onBeforeUnmount(() => {
                   "
                 >
                   <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-                </BProgressBar>
-              </BProgress>
-              <BButton
+                </UiProgressBar>
+              </UiProgress>
+              <UiButton
                 variant="primary"
                 @click.prevent="processTurn('clubs', 'won')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="mdi:suit-clubs" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="mdi:suit-clubs" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.clubs")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="danger"
                 @click.prevent="processTurn('diamonds', 'won')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="mdi:suit-diamonds" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="mdi:suit-diamonds" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.diamonds")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="primary"
                 @click.prevent="processTurn('spades', 'won')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="mdi:suit-spades" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="mdi:suit-spades" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.spades")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="danger"
                 @click.prevent="processTurn('hearts', 'won')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
               >
-                <iconify-icon icon="mdi:suit-hearts" class="me-md-1" />
-                <span class="d-none d-md-inline-block">{{
+                <iconify-icon icon="mdi:suit-hearts" class="md:mr-1" />
+                <span class="hidden md:inline-block">{{
                   $t("games.game.ride_the_bus.actions.hearts")
                 }}</span>
-              </BButton>
-              <BButton
+              </UiButton>
+              <UiButton
                 variant="secondary"
                 @click.prevent="processTurn('leave', 'won')"
                 :disabled="
@@ -602,22 +593,20 @@ onBeforeUnmount(() => {
                 "
               >
                 {{ $t("games.game.ride_the_bus.actions.quit") }}
-              </BButton>
+              </UiButton>
             </div>
 
-            <div
-              class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-1 text-center w-100"
-            >
+            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
               1:7
             </div>
           </div>
         </div>
       </div>
     </div>
-  </BCard>
+  </UiCard>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;
@@ -626,10 +615,6 @@ onBeforeUnmount(() => {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
-}
-
-.transition-opacity {
-  transition: opacity 0.5s ease;
 }
 
 @media (max-width: 576px) {

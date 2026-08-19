@@ -1,0 +1,145 @@
+/**
+ * Design tokens.
+ */
+
+@theme {
+  /* Bootstrap breakpoints, so the responsive behaviour stays identical */
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-2xl: initial;
+  --breakpoint-xxl: 1400px;
+
+  --font-sans: "Inter", sans-serif;
+
+  /* Custom dark gray colors */
+  --color-dark-gray-500: #3b3b3b;
+  --color-dark-gray-600: #252525;
+  --color-dark-gray-700: #1b1e21;
+  --color-dark-gray-800: #141619;
+  --color-dark-gray-900: #0c0d0f;
+
+  /* Custom additional colors */
+  --color-space-blue: #071c39;
+  --color-aquamarin: #00689b;
+  --color-blue-grey: #1367e4;
+  --color-brown: #766a5f;
+  --color-dark-green: #298363;
+  --color-dark-red: #7d4154;
+
+  /* Semantic colors */
+  --color-primary: var(--color-dark-gray-800);
+  --color-secondary: var(--color-dark-gray-500);
+  --color-tertiary: #343a40;
+  --color-accent: #adb5bd;
+  --color-success: #198754;
+  --color-info: #0dcaf0;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-light: #f8f9fa;
+  --color-dark: #212529;
+
+  /* Hover / active shades of the semantic colors, used by buttons */
+  --color-success-hover: #157347;
+  --color-success-active: #146c43;
+  --color-info-hover: #31d2f2;
+  --color-info-active: #3dd5f3;
+  --color-warning-hover: #ffca2c;
+  --color-warning-active: #ffcd39;
+  --color-danger-hover: #bb2d3b;
+  --color-danger-active: #b02a37;
+  --color-light-hover: #d3d4d5;
+  --color-light-active: #c6c7c8;
+  --color-dark-hover: #424649;
+  --color-dark-active: #4d5154;
+
+  /* Subtle backgrounds/borders used by alerts and toasts */
+  --color-info-subtle: #cff4fc;
+  --color-info-border-subtle: #9eeaf9;
+  --color-info-text-emphasis: #055160;
+  --color-danger-subtle: #f8d7da;
+  --color-danger-border-subtle: #f1aeb5;
+  --color-danger-text-emphasis: #58151c;
+  --color-success-subtle: #d1e7dd;
+  --color-success-border-subtle: #a3cfbb;
+  --color-success-text-emphasis: #0a3622;
+  --color-warning-subtle: #fff3cd;
+  --color-warning-border-subtle: #ffe69c;
+  --color-warning-text-emphasis: #664d03;
+
+  /* Body */
+  --color-body: var(--color-dark-gray-600);
+
+  /* Link colors */
+  --color-link: #dee2e6;
+  --color-link-hover: #adb5bd;
+
+  /*
+   * Typography scale. Body copy runs slightly smaller than the headings and
+   * controls, which sit on a 1rem base
+   */
+  --text-base: 0.95rem;
+  --text-h1: 2.5rem;
+  --text-h2: 2rem;
+  --text-h3: 1.75rem;
+  --text-h4: 1.5rem;
+  --text-h5: 1.25rem;
+  --text-h6: 1rem;
+  --text-display-1: 5rem;
+
+  /* Buttons, inputs and menus */
+  --text-control: 1rem;
+  --text-control-lg: 1.25rem;
+  --text-control-sm: 0.875rem;
+
+  /* Fluid counterparts of the scale above; they lock in at the xl breakpoint */
+  --text-h1-fluid: calc(1.375rem + 1.5vw);
+  --text-h2-fluid: calc(1.325rem + 0.9vw);
+  --text-h3-fluid: calc(1.3rem + 0.6vw);
+  --text-h4-fluid: calc(1.275rem + 0.3vw);
+  --text-display-1-fluid: calc(1.625rem + 4.5vw);
+
+  --leading-heading: 1.2;
+
+  --animate-badge-pulse: badge-pulse 2s infinite;
+
+  @keyframes badge-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  --color-control-accent: #0d6efd;
+  --color-track: #e9ecef;
+
+  /* Surfaces */
+  --color-card: rgb(37 37 37 / 0.5);
+  --radius-card: 0.375rem;
+  --blur-card: 10px;
+  --shadow-card:
+    inset 0 2px 0 -2px rgb(118 118 118 / 0.7),
+    inset 0 0 5px 1px rgb(118 118 118 / 0.3);
+
+  /* Container widths */
+  --container-page: 1320px;
+}
+
+/*
+ * The project status color is configured in the Django admin and interpolated at
+ * runtime (`bg-${status.color}/50`), so those classes have to be generated up
+ * front, Tailwind cannot see them in the source.
+ */
+@source inline(
+  "bg-{red,orange,amber,yellow,lime,green,emerald,teal,cyan,sky,blue,indigo,violet,purple,fuchsia,pink,rose,slate,gray,zinc,neutral,stone}-{50,100,200,300,400,500,600,700,800,900,950}{,/50}"
+);
+@source inline(
+  "bg-{primary,secondary,tertiary,accent,success,info,warning,danger,light,dark,space-blue,aquamarin,blue-grey,brown,dark-green,dark-red}{,/50}"
+);
+@source inline(
+  "bg-dark-gray-{500,600,700,800,900}{,/50}"
+);

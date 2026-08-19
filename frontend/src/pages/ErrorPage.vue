@@ -18,48 +18,50 @@ const errorMessages: Record<number, string> = {
 <template>
   <Head :title="$t('general.error')" />
 
-  <div class="container d-flex flex-column align-items-center pt-5">
-    <div class="position-relative d-flex flex-column align-items-center">
-      <div class="fw-medium lh-1 text-fade position-absolute text-center">
+  <div class="container-fixed flex flex-col items-center pt-12">
+    <div class="relative flex flex-col items-center">
+      <div class="text-fade absolute text-center leading-none font-medium">
         {{ statusCode }}
       </div>
 
-      <div
-        class="d-flex flex-column align-items-center justify-content-center z-3 fs-5"
-      >
-        <div class="text-center fs-1 fw-bold">
+      <div class="z-3 flex flex-col items-center justify-center text-h5">
+        <div class="text-center text-h1-fluid font-bold xl:text-h1">
           {{ $t(errorMessages[statusCode] || "error.unknown_error") }}
         </div>
-        <div class="text-center col-lg-7">
+        <div class="text-center lg:w-7/12">
           {{ $t("error.message") }}
         </div>
-        <BLink variant="light" to="/">
+        <UiLink variant="light" to="/">
           <iconify-icon icon="fa6-solid:house" />
           {{ $t("error.back") }}
-        </BLink>
+        </UiLink>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .text-fade {
   -webkit-background-clip: text;
   background-clip: text;
 
   background-image: linear-gradient(
     transparent,
-    color-mix(in srgb, var(--bs-light) 65%, transparent)
+    color-mix(in srgb, var(--color-light) 65%, transparent)
   );
   color: transparent;
 
   font-size: 25rem;
+}
 
-  @media (max-width: 768px) {
+@media (max-width: 768px) {
+  .text-fade {
     font-size: 15rem;
   }
+}
 
-  @media (max-width: 576px) {
+@media (max-width: 576px) {
+  .text-fade {
     font-size: 10rem;
   }
 }

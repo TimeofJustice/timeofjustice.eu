@@ -1,0 +1,38 @@
+/**
+ * The only two utilities that cannot be expressed inline: both need a
+ * `@custom-variant`-free media chain that Tailwind builds from the theme.
+ */
+
+/* Page container: fluid until the xxl breakpoint */
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: --spacing(3);
+
+  @variant xxl {
+    max-width: var(--container-page);
+  }
+}
+
+/* Page container: snaps to a fixed width at every breakpoint */
+@utility container-fixed {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: --spacing(3);
+
+  @variant sm {
+    max-width: 540px;
+  }
+  @variant md {
+    max-width: 720px;
+  }
+  @variant lg {
+    max-width: 960px;
+  }
+  @variant xl {
+    max-width: 1140px;
+  }
+  @variant xxl {
+    max-width: var(--container-page);
+  }
+}

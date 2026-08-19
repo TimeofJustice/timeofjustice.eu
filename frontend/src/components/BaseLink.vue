@@ -8,6 +8,8 @@ export interface BaseLinkProps extends /* @vue-ignore */ InertiaLinkProps {
 }
 
 defineProps<BaseLinkProps>();
+
+defineOptions({ inheritAttrs: false });
 </script>
 
 <template>

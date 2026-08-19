@@ -21,6 +21,8 @@ const offcanvasComponent = shallowRef<string | null>(
   (offcanvasState && offcanvasState.component) || null,
 );
 
+const showStableHint = ref(true);
+
 watch(
   () => offcanvasState,
   (newOffcanvasState) => {
@@ -58,11 +60,9 @@ const playLizardSound = () => {
 </script>
 
 <template>
-  <div
-    class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column overflow-hidden"
-  >
+  <div class="absolute inset-0 flex flex-col overflow-hidden">
     <div
-      class="position-absolute top-0 bottom-0 start-0 end-0 d-flex justify-content-center align-items-center bg-space-blue vw-100 vh-100"
+      class="absolute inset-0 flex h-screen w-screen items-center justify-center bg-space-blue"
     >
       <div class="gradient"></div>
       <template v-if="$i18n.locale === 'yoda'">
@@ -73,15 +73,16 @@ const playLizardSound = () => {
     </div>
 
     <div
-      class="content-body w-100 z-0 flex-grow-1 d-flex flex-column overflow-y-auto overflow-x-hidden position-relative"
+      class="content-body relative z-0 flex w-full grow flex-col overflow-x-hidden overflow-y-auto"
     >
       <BaseNavbar :size="navbarSize" />
 
       <slot></slot>
 
-      <BOffcanvas
+      <UiOffcanvas
         v-model="showOffcanvas"
         placement="end"
+        class="w-200"
         body-class="px-0"
         @hidden="
           router.visit(offcanvasState?.source || '/', {
@@ -92,34 +93,34 @@ const playLizardSound = () => {
         "
       >
         <template #header>
-          <div class="d-flex w-100 gap-2">
-            <BButton
+          <div class="flex w-full gap-2">
+            <UiButton
               variant="tertiary"
-              class="btn-square"
+              square
               :title="$t('general.close')"
               @click="showOffcanvas = false"
             >
               <iconify-icon icon="ep:close-bold" />
-            </BButton>
-            <BButton
+            </UiButton>
+            <UiButton
               variant="tertiary"
-              class="btn-square"
+              square
               :to="$page.url"
               :title="$t('general.more')"
               target="_blank"
               external
             >
               <iconify-icon icon="pajamas:external-link" />
-            </BButton>
-            <BButton
+            </UiButton>
+            <UiButton
               variant="tertiary"
-              class="btn-square"
+              square
               :title="$t('easter_egg.lizard')"
               @click="playLizardSound"
             >
               <iconify-icon icon="fluent-emoji-high-contrast:lizard" />
-            </BButton>
-            <audio class="d-none" ref="lizardAudio">
+            </UiButton>
+            <audio class="hidden" ref="lizardAudio">
               <source :src="LizardAudio" type="audio/wav" />
             </audio>
           </div>
@@ -132,34 +133,95 @@ const playLizardSound = () => {
             v-if="offcanvasComponent"
           />
         </slot>
-      </BOffcanvas>
+      </UiOffcanvas>
 
-      <div
-        class="container position-fixed bottom-0 start-0 end-0 z-3"
-        v-if="!stable"
-      >
-        <BAlert
-          :model-value="true"
-          variant="info"
-          dismissible
-          close-variant="tertiary"
-          close-class="btn-square"
-        >
+      <div class="container-fixed fixed inset-x-0 bottom-0 z-3" v-if="!stable">
+        <UiAlert v-model="showStableHint" variant="info" dismissible>
           <template #close>
             <iconify-icon icon="ep:close-bold" />
           </template>
 
           <vue-markdown :source="$t('nav.stable_hint')" />
-        </BAlert>
+        </UiAlert>
       </div>
     </div>
 
-    <BOrchestrator no-modals no-popovers />
+    <UiToaster />
   </div>
 </template>
 
-<style lang="scss">
-//.offcanvas-body > .container-xxl {
-//  padding: 0;
-//}
+<style scoped>
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.gradient {
+  --size: 100vh;
+
+  width: var(--size);
+  height: var(--size);
+
+  filter: blur(calc(var(--size) / 7));
+  background-image: linear-gradient(hsl(222 84% 60%), hsl(164 79% 71%));
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+
+  animation: rotate 50s linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translate3d(-30em, 10em, 0);
+  }
+}
+
+/* Values are fixed rather than random so every render looks the same. */
+.x-wing {
+  position: absolute;
+  top: var(--top-offset);
+  left: 0;
+
+  transform: translate3d(150em, -50em, 0);
+  animation: fall var(--fall-duration) var(--fall-delay) linear infinite;
+}
+
+.x-wing:nth-child(1) {
+  --top-offset: 63vh;
+  --fall-duration: 7.4s;
+  --fall-delay: 1.2s;
+}
+.x-wing:nth-child(2) {
+  --top-offset: 92vh;
+  --fall-duration: 10.8s;
+  --fall-delay: 6.5s;
+}
+.x-wing:nth-child(3) {
+  --top-offset: 51vh;
+  --fall-duration: 8.1s;
+  --fall-delay: 3.9s;
+}
+.x-wing:nth-child(4) {
+  --top-offset: 78vh;
+  --fall-duration: 11.6s;
+  --fall-delay: 9.1s;
+}
+.x-wing:nth-child(5) {
+  --top-offset: 69vh;
+  --fall-duration: 6.3s;
+  --fall-delay: 0.4s;
+}
+</style>
+
+<style>
+.content-body {
+  scrollbar-gutter: stable both-edges;
+}
+
+.content-body:has(.fullscreen) {
+  scrollbar-gutter: auto;
+}
 </style>

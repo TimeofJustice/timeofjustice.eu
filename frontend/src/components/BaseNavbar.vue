@@ -14,6 +14,7 @@ interface BaseNavbarProps {
 const { size = "normal" } = defineProps<BaseNavbarProps>();
 
 const isScrolled = ref(false);
+const showNavOffcanvas = ref(false);
 
 onMounted(() => {
   const parent: HTMLElement =
@@ -32,39 +33,39 @@ onMounted(() => {
 
 <template>
   <div
-    class="navbar navbar-expand-lg top-0 z-1 w-100 d-flex align-content-center justify-content-center pe-none"
-    :class="{
-      'position-absolute': size === 'small',
-      'position-sticky': size === 'normal',
-    }"
+    class="pointer-events-none top-0 z-1 flex w-full flex-wrap content-center items-center justify-center py-2 lg:flex-nowrap"
+    :class="size === 'small' ? 'absolute' : 'sticky'"
   >
     <div
-      class="container-xxl navbar-body pe-auto gap-2 flex-row"
-      :class="{ 'scrolled card': isScrolled || size === 'small' }"
+      class="navbar-body container-page pointer-events-auto flex flex-row items-center justify-between gap-2"
+      :class="{
+        'scrolled relative min-w-0 rounded-md bg-card shadow-card backdrop-blur-card':
+          isScrolled || size === 'small',
+      }"
     >
-      <BNavbarToggle
-        target="nav-offcanvas"
-        class="btn btn-tertiary btn-square navbar-toggler border-0"
+      <UiButton
+        variant="tertiary"
+        square
+        class="text-control-lg leading-none lg:hidden"
+        @click="showNavOffcanvas = true"
       >
         <iconify-icon icon="fa6-solid:bars" />
-      </BNavbarToggle>
+      </UiButton>
 
-      <div class="d-flex align-items-center">
-        <LocaleDropdown class="d-block d-lg-none" />
+      <div class="flex items-center">
+        <LocaleDropdown class="block lg:hidden" />
 
-        <BNavbarBrand class="me-0">
+        <div class="py-1.25 text-control-lg whitespace-nowrap">
           <v-lazy-image
-            class="img-fluid rounded brand-picture"
+            class="brand-picture h-auto max-w-full rounded-md"
             :src="TimeofJusticeLogo"
             :alt="$t('nav.brand_alt')"
           />
-        </BNavbarBrand>
+        </div>
       </div>
 
-      <BNavbarNav
-        class="d-none d-lg-flex justify-content-between align-items-center w-100"
-      >
-        <div class="d-flex align-items-center ps-0 pt-0">
+      <div class="hidden w-full items-center justify-between lg:flex">
+        <div class="flex items-center">
           <BaseNavbarLink
             :route="route"
             v-for="route in ROUTES"
@@ -73,40 +74,100 @@ onMounted(() => {
         </div>
 
         <LocaleDropdown />
-      </BNavbarNav>
+      </div>
     </div>
 
-    <div class="pe-auto d-flex d-lg-none">
-      <BOffcanvas
-        id="nav-offcanvas"
+    <div class="pointer-events-auto flex lg:hidden">
+      <UiOffcanvas
+        v-model="showNavOffcanvas"
         placement="start"
-        is-nav
-        class="offcanvas-sm-small"
-        header-close-variant="tertiary"
-        header-close-class="btn-square ms-0"
+        class="w-full sm:w-75"
         :teleport-disabled="true"
       >
-        <template #header-close>
-          <iconify-icon icon="ep:close-bold" />
+        <template #header>
+          <UiButton
+            variant="tertiary"
+            square
+            :title="$t('general.close')"
+            @click="showNavOffcanvas = false"
+          >
+            <iconify-icon icon="ep:close-bold" />
+          </UiButton>
         </template>
 
-        <BNavbarNav>
+        <div class="flex flex-col" @click="showNavOffcanvas = false">
           <BaseNavbarLink
             :route="route"
             v-for="route in ROUTES"
             :key="route.name"
           />
-        </BNavbarNav>
-      </BOffcanvas>
+        </div>
+      </UiOffcanvas>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .brand-picture {
   width: 2.3rem;
   min-width: 2.3rem;
   height: 2.3rem;
   min-height: 2.3rem;
+}
+
+/*
+ * On scroll the bar collapses into a compact pill. Below xxl there is no room
+ * for that, so only the surface treatment changes.
+ */
+.navbar-body {
+  margin: 0;
+  border-radius: 0.5rem;
+
+  transition:
+    backdrop-filter 0.3s ease-in-out,
+    background 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out,
+    padding 0.3s ease-in-out,
+    margin 0.3s ease-in-out;
+}
+
+.navbar-body.scrolled {
+  padding-left: 0.3125rem;
+  padding-right: 0.3125rem;
+  margin-left: 0.4375rem;
+  margin-right: 0.4375rem;
+
+  width: 26rem;
+}
+
+@media (max-width: 1400px) {
+  .navbar-body.scrolled {
+    width: 100%;
+  }
+}
+
+@media (min-width: 1400px) {
+  .navbar-body {
+    transition:
+      width 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+      backdrop-filter 0.3s ease-in-out,
+      background 0.3s ease-in-out,
+      box-shadow 0.3s ease-in-out,
+      padding 0.3s ease-in-out,
+      margin 0.3s ease-in-out;
+  }
+
+  .navbar-body :deep(.link-title) {
+    max-width: 10rem;
+    overflow: hidden;
+
+    transition: max-width 0.3s ease-in-out;
+    transition-delay: 0.2s;
+  }
+
+  .navbar-body.scrolled :deep(.link-title) {
+    max-width: 0;
+    transition-delay: 0s;
+  }
 }
 </style>

@@ -6,7 +6,7 @@
 **timeofjustice.eu** began as a portfolio project to showcase my past and current work.
 Since then, it has evolved into a playground for experimenting with new technologies and frameworks.
 It's not about being perfect, but about having fun and learning new things.
-The frontend is built with Vue.js, TypeScript, and Bootstrap.
+The frontend is built with Vue.js, TypeScript, and Tailwind CSS.
 The backend is powered by Django and a PostgreSQL database.
 
 ![Features of the project](.github/images/features.png)

@@ -124,18 +124,18 @@ watch(
           />
         </div>
 
-        <BButton
+        <UiButton
           variant="primary"
-          class="btn-circle position-absolute top-0 end-0 m-2"
+          circle
+          class="absolute top-0 right-0 m-2"
           @click="openFullscreen()"
         >
           <iconify-icon icon="fa6-solid:maximize" />
-        </BButton>
+        </UiButton>
       </Slide>
 
       <div
-        class="position-absolute bottom-0 start-0 w-100 d-flex justify-content-center gap-1 p-1"
-        style="font-size: 0.6rem"
+        class="absolute bottom-0 left-0 flex w-full justify-center gap-1 p-1 text-[0.6rem]"
       >
         <iconify-icon
           :icon="
@@ -149,30 +149,32 @@ watch(
       </div>
 
       <template #addons>
-        <BButton
+        <UiButton
           variant="primary"
-          class="btn-circle m-2 carousel__prev"
+          circle
+          class="carousel__prev m-2"
           @click="slide(-1)"
         >
           <iconify-icon icon="fa6-solid:chevron-left" />
-        </BButton>
-        <BButton
+        </UiButton>
+        <UiButton
           variant="primary"
-          class="btn-circle m-2 carousel__next"
+          circle
+          class="carousel__next m-2"
           @click="slide(+1)"
         >
           <iconify-icon icon="fa6-solid:chevron-right" />
-        </BButton>
+        </UiButton>
       </template>
     </Carousel>
   </div>
 
   <div
-    class="position-fixed top-0 start-0 w-100 h-100 overflow-hidden fullscreen"
+    class="fullscreen fixed top-0 left-0 h-full w-full overflow-hidden"
     :class="{ open: isFullscreenOpen }"
   >
     <div
-      class="d-flex justify-content-center align-items-center position-relative p-2 w-100 h-100 overflow-hidden fullscreen-body"
+      class="fullscreen-body relative flex h-full w-full items-center justify-center overflow-hidden p-2"
       @click.self="closeFullscreen()"
     >
       <v-lazy-image
@@ -188,77 +190,77 @@ watch(
         v-else
       />
 
-      <BButton
+      <UiButton
         variant="primary"
-        class="btn-circle position-absolute top-0 end-0 m-2"
+        circle
+        class="absolute top-0 right-0 m-2"
         @click="closeFullscreen()"
       >
         <iconify-icon icon="ep:close-bold" />
-      </BButton>
+      </UiButton>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .carousel {
   z-index: 0;
+}
 
-  .slide {
-    border-radius: 8px;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.carousel .slide {
+  width: 100%;
+  height: 100%;
 
-    &.gallery {
-      border-radius: 16px;
-      overflow: hidden;
-      width: 100%;
-      height: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
 
-      > video {
-        border-radius: 16px;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-  }
+.carousel .slide.gallery {
+  width: 100%;
+  height: 100%;
 
-  .carousel__indicator {
-    cursor: pointer;
-  }
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.carousel .slide.gallery > video {
+  width: 100%;
+  height: 100%;
+
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.carousel .carousel__indicator {
+  cursor: pointer;
 }
 
 .fullscreen {
   z-index: 9999;
   opacity: 0;
   pointer-events: none;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgb(0 0 0 / 0.5);
 
   transition: opacity 0.3s ease-in-out;
+}
 
-  &.open {
-    pointer-events: auto;
-    opacity: 1;
+.fullscreen.open {
+  pointer-events: auto;
+  opacity: 1;
+}
 
-    & .fullscreen-body {
-      > video,
-      img {
-        transform: translateY(0);
-      }
-    }
-  }
+.fullscreen .fullscreen-body > video,
+.fullscreen .fullscreen-body img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 
-  & .fullscreen-body {
-    > video,
-    img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+  transform: translateY(50%);
+  transition: transform 0.3s ease-in-out;
+}
 
-      transform: translateY(50%);
-      transition: transform 0.3s ease-in-out;
-    }
-  }
+.fullscreen.open .fullscreen-body > video,
+.fullscreen.open .fullscreen-body img {
+  transform: translateY(0);
 }
 </style>

@@ -12,9 +12,9 @@ defineProps<ProfileToolsCardProps>();
 </script>
 
 <template>
-  <BCard body-class="p-0 py-2 overflow-hidden" v-if="tools.length">
+  <UiCard body-class="overflow-hidden p-0 py-2" v-if="tools.length">
     <Vue3Marquee
-      class="gradient-marquee h-100 overflow-hidden"
+      class="gradient-marquee h-full overflow-hidden"
       pause-on-hover
       clone
       :duration="tools.length * 3"
@@ -26,17 +26,17 @@ defineProps<ProfileToolsCardProps>();
         :key="tool.alt"
       />
     </Vue3Marquee>
-  </BCard>
+  </UiCard>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .gradient-marquee {
   mask-image: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0),
-    rgba(0, 0, 0, 1) 15%,
-    rgba(0, 0, 0, 1) 85%,
-    rgba(0, 0, 0, 0)
+    rgb(0 0 0 / 0),
+    rgb(0 0 0 / 1) 15%,
+    rgb(0 0 0 / 1) 85%,
+    rgb(0 0 0 / 0)
   );
 }
 </style>

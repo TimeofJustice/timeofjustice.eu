@@ -2,23 +2,38 @@ import { createApp, DefineComponent, h } from "vue";
 import { createInertiaApp } from "@inertiajs/vue3";
 import { MotionPlugin } from "@vueuse/motion";
 import { createI18n } from "vue-i18n";
-import { createBootstrap } from "bootstrap-vue-next";
 import VLazyImage from "v-lazy-image";
 import VueMarkdown from "vue-markdown-render";
 import Vue3Marquee from "vue3-marquee";
 import axios from "axios";
 
 import { Icon } from "@iconify/vue";
-import bootstrapVueNextConfig from "@configurations/bootstrapVueNext";
 
 import de from "@assets/locales/de.json";
 import en from "@assets/locales/en.json";
 import yoda from "@assets/locales/en-yoda.json";
 
-import "@assets/scss/_index.scss";
-import "bootstrap";
-import "vue-color/style.css";
-import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
+import "@fontsource/inter";
+import "@fontsource/inter/100.css";
+import "@fontsource/inter/200.css";
+import "@fontsource/inter/300.css";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/inter/800.css";
+import "@fontsource/inter/900.css";
+import "@fontsource/inter/100-italic.css";
+import "@fontsource/inter/200-italic.css";
+import "@fontsource/inter/300-italic.css";
+import "@fontsource/inter/400-italic.css";
+import "@fontsource/inter/500-italic.css";
+import "@fontsource/inter/600-italic.css";
+import "@fontsource/inter/700-italic.css";
+import "@fontsource/inter/800-italic.css";
+import "@fontsource/inter/900-italic.css";
+
+import "@assets/css/index.css";
 
 import BaseLayout from "@layouts/BaseLayout.vue";
 import BaseLink from "@components/BaseLink.vue";
@@ -45,7 +60,6 @@ createInertiaApp({
   setup({ el, App, props, plugin }) {
     createApp({ render: () => h(App, props) })
       .use(plugin)
-      .use(createBootstrap(bootstrapVueNextConfig))
       .component("iconify-icon", Icon)
       .component("v-lazy-image", VLazyImage)
       .component("vue-markdown", VueMarkdown)

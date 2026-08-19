@@ -14,35 +14,33 @@ defineProps<ProjectPageProps>();
 <template>
   <Head :title="project.title" />
 
-  <div class="container-xxl">
-    <div class="d-flex flex-column gap-2">
-      <div class="d-flex gap-2 align-items-center justify-content-between">
-        <h1 class="mb-0 text-truncate">{{ project.title }}</h1>
-        <BBadge
-          class="d-flex align-items-center bg-opacity-50"
-          :class="`bg-` + project.status.color"
+  <div class="container-page">
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between gap-2">
+        <h1 class="mb-0 truncate">{{ project.title }}</h1>
+        <UiBadge
+          class="flex items-center"
+          :class="`bg-${project.status.color}/50`"
           v-if="project.status"
         >
           {{ project.status.name }}
-        </BBadge>
+        </UiBadge>
       </div>
 
-      <div class="d-flex gap-1 flex-wrap">
-        <BBadge
+      <div class="flex flex-wrap gap-1">
+        <UiBadge
           v-for="technology in project.technologies"
           :key="technology.name"
           variant="primary"
         >
           <iconify-icon :icon="technology.icon" v-if="technology.icon" />
           {{ technology.name }}
-        </BBadge>
+        </UiBadge>
       </div>
 
       <ProjectCarousel :items="project.images" />
 
-      <div
-        class="d-flex gap-2 justify-content-between flex-column-reverse flex-lg-row"
-      >
+      <div class="flex flex-col-reverse justify-between gap-2 lg:flex-row">
         <vue-markdown
           class="markdown-body"
           :source="project.description || $t('general.no_description')"
@@ -51,8 +49,8 @@ defineProps<ProjectPageProps>();
           }"
         />
 
-        <div class="d-flex flex-column gap-2 align-items-stretch col-lg-2">
-          <BButton
+        <div class="flex flex-col items-stretch gap-2 lg:w-1/5 lg:shrink-0">
+          <UiButton
             variant="primary"
             :to="project.github"
             external
@@ -62,8 +60,8 @@ defineProps<ProjectPageProps>();
             <iconify-icon icon="fa6-brands:github" />
             Github
             <iconify-icon icon="pajamas:external-link" />
-          </BButton>
-          <BButton
+          </UiButton>
+          <UiButton
             variant="primary"
             :to="project.website"
             external
@@ -73,11 +71,9 @@ defineProps<ProjectPageProps>();
             <iconify-icon icon="fa6-solid:globe" />
             Website
             <iconify-icon icon="pajamas:external-link" />
-          </BButton>
+          </UiButton>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped lang="scss"></style>
