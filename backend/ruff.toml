@@ -2,9 +2,17 @@ target-version = "py312"
 line-length = 170
 exclude = ["migrations"]
 
+[format]
+# Also format code examples inside docstrings
+docstring-code-format = true
+# Always write LF, matching .gitattributes, .editorconfig and Prettier's
+# endOfLine setting. Without this ruff keeps CRLF on Windows checkouts.
+line-ending = "lf"
+
 [lint]
 extend-select = [
     "A",        # detect shadowed builtins
+    "B",        # bugbear: real bug sources (mutable defaults, unused loop vars, ...)
     "BLE",      # disallow catch-all exceptions
     "S",        # disallow things like "exec"; also restricts "assert" but I just NOQA it when I really need it
     "COM",      # enforce trailing comma rules
@@ -27,7 +35,54 @@ extend-select = [
     "PTH",      # Use pathlib instead of os.path
     "TD",       # Be diligent with TODO comments
     "NPY",      # Some numpy-specific things
+    "DJ",       # Django-specific pitfalls
+    "RUF",      # Ruff's own rules, e.g. unclear operator precedence
+    "PIE",      # Unnecessary or duplicated code
+    "PERF",     # Obvious performance traps inside loops
+    "FURB",     # Modernizations that make the code shorter
+    "FLY",      # Prefer str.join(...) over manual concatenation
+    "RSE",      # Redundant parentheses on raise
+    "SLF",      # No access to private attributes of foreign objects
+    "LOG",      # Incorrect use of the logging module
+    "G",        # Parametrize logging calls correctly
+    "T20",      # No forgotten print() in the backend
+    "INT",      # Correct use of gettext
+    "TRY",      # Sensible try/except structure
+    "PLE",      # Pylint: errors
+    "PLW",      # Pylint: warnings
+    "PLC",      # Pylint: conventions
 ]
+
+# Deliberately disabled: either conflicting with the formatter,
+# or simply noise without value in this project.
+ignore = [
+    # --- Conflicts with `ruff format` (see Ruff docs on formatter compatibility) ---
+    "COM812",   # trailing comma - the formatter handles this itself
+    "COM819",   # prohibited trailing comma - the formatter handles this itself
+    "ISC001",   # implicit string concatenation on a single line
+
+    # --- Django idioms that are intentional here ---
+    "DJ001",    # null=True on CharField/TextField: required by django-modeltranslation
+    "RUF012",   # ClassVar annotation for list_display/Meta lists: pure noise in Django
+    "PLC0415",  # local imports: necessary in apps.ready() and manage.py
+
+    # --- Too opinionated for day-to-day work ---
+    "TRY003",   # a long message right in the raise is perfectly fine
+    "G004",     # f-strings in logging are readable enough
+    "TD002",    # TODO without an author is fine (git blame exists)
+    "TD003",    # TODO without an issue link is fine
+]
+
+[lint.per-file-ignores]
+# Tests may use assert and touch private internals
+"**/tests.py" = ["S101", "SLF001"]
+"**/test_*.py" = ["S101", "SLF001"]
+# Django boilerplate
+"manage.py" = ["T20"]
+"**/settings.py" = ["E501"]
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
 
 [lint.pydocstyle]
 convention = "google"

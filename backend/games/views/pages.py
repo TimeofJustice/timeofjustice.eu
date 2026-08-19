@@ -13,7 +13,7 @@ from games.views.core.api import days_since_last_login, get_leaderboard, get_vau
 
 @ensure_csrf_cookie
 def index(request):
-    wallet = request.session.get('wallet_id', None)
+    wallet = request.session.get("wallet_id", None)
 
     if not wallet:
         return render(request, "Games/EntryPage", props=default_props({}, request))
@@ -25,13 +25,13 @@ def login(request):
     post_data = BodyContent(request)
 
     if post_data:
-        wallet_id = post_data.get('walletId')
+        wallet_id = post_data.get("walletId")
         if wallet_id:
             wallet = get_or_none(models.Wallet, wallet_id=wallet_id.lower())
 
             if wallet:
-                request.session['wallet_id'] = wallet.wallet_id
-                return HttpResponseRedirect('/games/')
+                request.session["wallet_id"] = wallet.wallet_id
+                return HttpResponseRedirect("/games/")
             error_text = "games.login.error.invalid_wallet"
         else:
             error_text = "games.login.error.invalid_request"
@@ -55,26 +55,26 @@ def register(request):
 
     wallet = models.Wallet.objects.create(wallet_id=wallet_id, last_visit=timezone.now().date())
 
-    request.session['wallet_id'] = wallet.wallet_id
+    request.session["wallet_id"] = wallet.wallet_id
 
-    return HttpResponseRedirect('/games/')
+    return HttpResponseRedirect("/games/")
 
 
 def logout(request):
-    response = HttpResponseRedirect('/games/login/')
+    response = HttpResponseRedirect("/games/login/")
 
-    if 'wallet_id' in request.session:
-        del request.session['wallet_id']
+    if "wallet_id" in request.session:
+        del request.session["wallet_id"]
 
     return response
 
 
 @wallet_required
 def main(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
 
     if not wallet:
-        return HttpResponseRedirect('/games/login/')
+        return HttpResponseRedirect("/games/login/")
 
     leaderboard, own_index = get_leaderboard(wallet)
     new_bonus = days_since_last_login(wallet) >= 1

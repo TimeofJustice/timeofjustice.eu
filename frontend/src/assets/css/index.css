@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/*
+ * Third-party CSS goes into the base layer so our own utilities keep the upper
+ * hand, the carousel ships its own `.carousel__prev` styling that would
+ * otherwise repaint the buttons rendered inside it.
+ */
+@import "vue3-carousel/carousel.css" layer(base);
+
+@import "./theme.css";
+@import "./base.css";
+@import "./utilities.css";
+@import "./custom.css";

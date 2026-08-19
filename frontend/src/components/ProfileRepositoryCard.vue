@@ -7,19 +7,17 @@ defineProps<ProfileRepositoryCard>();
 </script>
 
 <template>
-  <BCard
-    class="card overflow-hidden"
-    body-class="d-flex flex-column gap-3"
+  <UiCard
+    class="overflow-hidden"
+    body-class="flex flex-col gap-4"
     v-if="repository"
   >
     <h5 class="mb-0">{{ $t("profile.repository.title") }}</h5>
 
     <img
-      class="img-fluid"
+      class="h-auto max-w-full"
       :src="repository"
       :alt="$t('profile.repository.alt')"
     />
-  </BCard>
+  </UiCard>
 </template>
-
-<style scoped lang="scss"></style>

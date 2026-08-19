@@ -2,4 +2,6 @@
 build
 coverage
 dist
-components.d.ts
+harness-dist
+package-lock.json
+src/components.d.ts

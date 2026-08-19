@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, router } from "@inertiajs/vue3";
 import { computed, reactive } from "vue";
-import { useToast } from "bootstrap-vue-next";
+import { useToast } from "@composables/toast";
 import { useI18n } from "vue-i18n";
 import { watch } from "vue";
 
@@ -22,7 +22,6 @@ watch(
         body: i18n.t(newError),
         variant: "danger",
         position: "bottom-start",
-        noProgress: true,
       });
     }
   },
@@ -47,28 +46,23 @@ const validateWalletId = computed(() => {
 <template>
   <Head :title="$t('games.title')" />
 
-  <div
-    class="container d-flex flex-column align-items-center justify-content-center"
-  >
-    <BAlert :model-value="true" variant="danger">
+  <div class="container-fixed flex flex-col items-center justify-center">
+    <UiAlert variant="danger">
       <vue-markdown :source="$t('games.entry.warning')" />
-    </BAlert>
+    </UiAlert>
 
-    <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-3">
-      <BCard
-        class="blur-box border-0"
-        body-class="d-flex flex-column align-items-center gap-2"
-      >
+    <div class="w-full shrink-0 sm:w-1/2 md:w-5/12 lg:w-1/3 xl:w-1/4">
+      <UiCard body-class="flex flex-col items-center gap-2">
         <template #header>
-          <h1 class="text-center m-0">
+          <h1 class="m-0 text-center">
             <iconify-icon icon="fa7-solid:dice" />
             {{ $t("games.login.title") }}
           </h1>
         </template>
 
-        <BForm @submit.prevent="submit" class="d-flex flex-column gap-2 w-100">
-          <BFormGroup id="wallet-id-group" label-for="wallet-id-input">
-            <BFormInput
+        <form @submit.prevent="submit" class="flex w-full flex-col gap-2">
+          <UiFormGroup id="wallet-id-group" label-for="wallet-id-input">
+            <UiInput
               id="wallet-id-input"
               v-model="form.walletId"
               :placeholder="$t('games.login.enter_wallet')"
@@ -76,27 +70,25 @@ const validateWalletId = computed(() => {
               :state="validateWalletId"
               type="password"
             />
-            <BFormInvalidFeedback :state="validateWalletId">
+            <UiInvalidFeedback :state="validateWalletId">
               {{ $t("games.login.error.not_valid") }}
-            </BFormInvalidFeedback>
-          </BFormGroup>
+            </UiInvalidFeedback>
+          </UiFormGroup>
 
-          <BButton
+          <UiButton
             type="submit"
             variant="primary"
-            class="w-100"
+            class="w-full"
             :disabled="!validateWalletId"
           >
             {{ $t("games.login.submit") }}
-          </BButton>
-        </BForm>
+          </UiButton>
+        </form>
 
-        <BLink to="/games/">
+        <UiLink to="/games/">
           {{ $t("games.login.back_to_entry") }}
-        </BLink>
-      </BCard>
+        </UiLink>
+      </UiCard>
     </div>
   </div>
 </template>
-
-<style scoped lang="scss"></style>

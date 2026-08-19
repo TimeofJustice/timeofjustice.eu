@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from "@node_modules/vue";
 import { useI18n } from "@node_modules/vue-i18n";
-import { useToast } from "bootstrap-vue-next";
+import { useToast } from "@composables/toast";
 import axios from "@node_modules/axios";
 
 interface BlackJackProps {
@@ -82,12 +82,7 @@ const validateBet = computed(() => {
 });
 
 const showToast = (message: string, variant: "success" | "danger") => {
-  create({
-    body: message,
-    variant: variant,
-    position: "bottom-start",
-    noProgress: true,
-  });
+  create({ body: message, variant, position: "bottom-start" });
 };
 
 const start = async () => {
@@ -268,10 +263,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <BCard
-    class="blur-box border-0 overflow-hidden"
-    header-class="d-flex align-items-center justify-content-between"
-    body-class="d-flex flex-column p-0"
+  <UiCard
+    class="overflow-hidden border-0"
+    header-class="flex items-center justify-between"
+    body-class="flex flex-col"
+    no-padding
   >
     <template #header>
       <h4 class="m-0">
@@ -279,26 +275,26 @@ onBeforeUnmount(() => {
         {{ $t("games.game.black_jack.title") }}
       </h4>
 
-      <BButton variant="tertiary" class="btn-square opacity-0">
+      <UiButton variant="tertiary" class="opacity-0" square>
         <iconify-icon icon="iconamoon:copy-duotone" />
-      </BButton>
+      </UiButton>
     </template>
 
     <div
-      class="w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 position-relative p-3"
+      class="relative flex h-full w-full flex-col items-center justify-center gap-2 p-4"
     >
-      <BButton
+      <UiButton
         variant="primary"
-        class="btn-circle position-absolute top-0 end-0 m-2 z-3"
+        class="absolute top-0 right-0 z-3 m-2"
         @click="areRulesOpen = true"
+        circle
       >
         <iconify-icon icon="fa7-solid:info" />
-      </BButton>
+      </UiButton>
 
-      <BModal
+      <UiModal
         v-model="areRulesOpen"
-        header-class="justify-content-between align-items-center"
-        :no-footer="true"
+        header-class="justify-between items-center"
         scrollable
         size="xl"
         centered
@@ -308,23 +304,24 @@ onBeforeUnmount(() => {
         <template #header>
           <h2 class="m-0">{{ $t("games.game.black_jack.title") }}</h2>
 
-          <BButton
+          <UiButton
             variant="tertiary"
-            class="btn-square text-light"
+            class="text-light"
             @click="areRulesOpen = false"
+            square
           >
             <iconify-icon icon="ep:close-bold" />
-          </BButton>
+          </UiButton>
         </template>
-      </BModal>
+      </UiModal>
 
       <Transition>
         <div
-          class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-center align-items-center gap-2 bg-black bg-opacity-50 z-2"
+          class="absolute top-0 left-0 z-2 flex h-full w-full flex-col items-center justify-center gap-2 bg-black/50"
           v-if="gameSession.state !== 'playing'"
         >
           <div
-            class="d-flex flex-column col-10 col-md-5 col-lg-4 bg-dark-gray-600 bg-opacity-100 rounded-3 p-2 gap-2"
+            class="flex w-5/6 shrink-0 flex-col gap-2 rounded-lg bg-dark-gray-600 p-2 md:w-5/12 lg:w-1/3"
           >
             <h1 class="text-center" v-if="gameSession.state !== 'not_started'">
               {{
@@ -336,11 +333,11 @@ onBeforeUnmount(() => {
               }}
             </h1>
 
-            <BFormGroup id="input-group-2" label-for="input-2" v-else>
+            <UiFormGroup id="input-group-2" label-for="input-2" v-else>
               <span class="text-center">
                 {{ $t("games.game.black_jack.bet") }}: {{ gameSession.bet }}
               </span>
-              <BInput
+              <UiInput
                 id="input-2"
                 type="range"
                 v-model="gameSession.bet"
@@ -348,13 +345,13 @@ onBeforeUnmount(() => {
                 :max="balance < 1000 ? balance : 1000"
                 :state="validateBet"
               />
-              <BFormInvalidFeedback :state="validateBet">
+              <UiInvalidFeedback :state="validateBet">
                 {{ $t("games.not_enough_tokens") }}
-              </BFormInvalidFeedback>
-            </BFormGroup>
+              </UiInvalidFeedback>
+            </UiFormGroup>
 
             <h5
-              class="rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0"
+              class="mb-0 flex w-full flex-col gap-2 rounded-lg p-2 text-center"
               :class="
                 gameSession.bet - gameSession.initialBet > 0
                   ? 'text-success'
@@ -366,17 +363,16 @@ onBeforeUnmount(() => {
               }}{{ gameSession.bet - gameSession.initialBet }}
             </h5>
 
-            <BButton
+            <UiButton
               variant="primary"
-              class="btn-lg"
               @click.prevent="end"
               v-if="gameSession.state !== 'not_started'"
+              size="lg"
             >
               {{ $t("games.game.black_jack.actions.play_again") }}
-            </BButton>
-            <BButton
+            </UiButton>
+            <UiButton
               variant="primary"
-              class="btn-lg"
               @click.prevent="start"
               v-else
               :disabled="
@@ -384,17 +380,18 @@ onBeforeUnmount(() => {
                 waitingForResponse ||
                 gameSession.state !== 'not_started'
               "
+              size="lg"
             >
               {{ $t("games.game.black_jack.actions.start") }}
-            </BButton>
+            </UiButton>
           </div>
         </div>
       </Transition>
 
-      <div class="d-flex flex-column gap-2 col-12">
-        <div class="d-flex gap-2 pe-2">
+      <div class="flex w-full shrink-0 flex-col gap-2">
+        <div class="flex gap-2 pr-2">
           <h3
-            class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex flex-column gap-2 col-8 col-md-9 text-center"
+            class="flex w-2/3 shrink-0 flex-col gap-2 rounded-lg bg-dark-gray-600/50 p-2 text-center md:w-3/4"
           >
             {{
               gameSession.state === "not_started" ? 0 : gameSession.dealerScore
@@ -402,11 +399,11 @@ onBeforeUnmount(() => {
           </h3>
         </div>
 
-        <div class="d-flex justify-content-center align-items-center gap-2">
-          <div class="d-flex flex-column gap-2 col-8 col-md-9">
-            <div class="d-flex overflow-hidden justify-content-center">
+        <div class="flex items-center justify-center gap-2">
+          <div class="flex w-2/3 shrink-0 flex-col gap-2 md:w-3/4">
+            <div class="flex justify-center overflow-hidden">
               <div
-                class="overflow-hidden col-1"
+                class="w-1/12 shrink-0 overflow-hidden"
                 v-if="shownDealerCards.length < 2"
               >
                 <img
@@ -418,8 +415,10 @@ onBeforeUnmount(() => {
               <div
                 v-for="(card, index) in shownDealerCards"
                 :key="index"
-                class="overflow-hidden position-relative"
-                :class="{ 'col-1': index < shownDealerCards.length - 1 }"
+                class="relative overflow-hidden"
+                :class="{
+                  'w-1/12 shrink-0': index < shownDealerCards.length - 1,
+                }"
               >
                 <v-lazy-image
                   class="playing-card"
@@ -430,8 +429,11 @@ onBeforeUnmount(() => {
               </div>
             </div>
 
-            <div class="d-flex overflow-hidden justify-content-center col-12">
-              <div class="overflow-hidden col-1" v-if="shownCards.length < 2">
+            <div class="flex w-full shrink-0 justify-center overflow-hidden">
+              <div
+                class="w-1/12 shrink-0 overflow-hidden"
+                v-if="shownCards.length < 2"
+              >
                 <img
                   :src="'/files/images/games/cards/back.svg'"
                   alt="back"
@@ -442,7 +444,7 @@ onBeforeUnmount(() => {
                 v-for="(card, index) in shownCards"
                 :key="index"
                 class="overflow-hidden"
-                :class="{ 'col-1': index < shownCards.length - 1 }"
+                :class="{ 'w-1/12 shrink-0': index < shownCards.length - 1 }"
               >
                 <v-lazy-image
                   class="playing-card"
@@ -454,34 +456,34 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <div class="d-flex flex-column gap-2 col-4 col-md-3">
-            <BProgress :max="msPerTurn">
-              <BProgressBar :value="gameSession.msLeft">
+          <div class="flex w-1/3 shrink-0 flex-col gap-2 md:w-1/4">
+            <UiProgress :max="msPerTurn">
+              <UiProgressBar :value="gameSession.msLeft">
                 <small>{{ (gameSession.msLeft / 1000).toFixed(0) }}s</small>
-              </BProgressBar>
-            </BProgress>
-            <BButton
+              </UiProgressBar>
+            </UiProgress>
+            <UiButton
               variant="success"
               @click.prevent="processTurn('hit')"
               :disabled="gameSession.state !== 'playing' || waitingForResponse"
             >
               <iconify-icon icon="fa7-solid:plus" />
               {{ $t("games.game.black_jack.actions.hit") }}
-            </BButton>
-            <BButton
+            </UiButton>
+            <UiButton
               variant="danger"
               @click.prevent="processTurn('stand')"
               :disabled="gameSession.state !== 'playing' || waitingForResponse"
             >
               <iconify-icon icon="fa7-solid:hand" />
               {{ $t("games.game.black_jack.actions.stand") }}
-            </BButton>
+            </UiButton>
           </div>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="flex gap-2">
           <h3
-            class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex flex-column gap-2 w-100 text-center mb-0"
+            class="mb-0 flex w-full flex-col gap-2 rounded-lg bg-dark-gray-600/50 p-2 text-center"
           >
             {{
               gameSession.state === "not_started" ? 0 : gameSession.cardsScore
@@ -489,7 +491,7 @@ onBeforeUnmount(() => {
           </h3>
 
           <h3
-            class="bg-dark-gray-600 bg-opacity-50 rounded-3 p-2 d-flex text-center align-items-center text-light col-4 col-md-3 mb-0"
+            class="mb-0 flex w-1/3 shrink-0 items-center rounded-lg bg-dark-gray-600/50 p-2 text-center text-light md:w-1/4"
           >
             <iconify-icon icon="mdi:cards-playing-heart-multiple" />
             {{ gameSession.leftOverCards }}
@@ -497,10 +499,10 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-  </BCard>
+  </UiCard>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;

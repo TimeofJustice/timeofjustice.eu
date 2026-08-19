@@ -28,16 +28,23 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         count = cache.get("r_place_user_count", 0) + delta
         cache.set("r_place_user_count", count, timeout=None)
 
-        await self.channel_layer.group_send("r_place", {
-            "type": "player_update",
-            "count": count,
-        })
+        await self.channel_layer.group_send(
+            "r_place",
+            {
+                "type": "player_update",
+                "count": count,
+            },
+        )
 
     async def player_update(self, event):
-        await self.send(text_data=json.dumps({
-            "type": "player_update",
-            "count": event["count"],
-        }))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "player_update",
+                    "count": event["count"],
+                }
+            )
+        )
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -87,9 +94,11 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
     async def cell_update(self, event):
         cell = event["cell"]
 
-        await self.send(text_data=json.dumps(
-            {
-                "type": "cell_update",
-                "cell": cell,
-            },
-        ))
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "cell_update",
+                    "cell": cell,
+                },
+            )
+        )

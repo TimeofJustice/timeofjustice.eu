@@ -835,7 +835,6 @@ onMounted(() => {
   });
 
   onBeforeUnmount(() => {
-    console.log("Cleaning up event listeners");
     window.removeEventListener("keydown", keydownHandler);
     canvas.value?.removeEventListener("click", clickBeforeHandler, true);
     canvas.value?.removeEventListener("click", clickAfterHandler, false);
@@ -859,8 +858,6 @@ onMounted(() => {
     wsScheme + "://" + window.location.host + "/ws/r-place/",
   );
   socket.onopen = () => {
-    console.log("WebSocket connection established");
-
     if (!canvas.value || !cursorImage.value) {
       console.error("Canvas element not found");
       return;
@@ -878,7 +875,6 @@ onMounted(() => {
     }
   };
   socket.onclose = () => {
-    console.log("WebSocket connection closed");
     placeState.value.state = "disconnected";
   };
 
@@ -1190,34 +1186,39 @@ watch(
   <Head :title="$t('r_place.title')" />
 
   <div
-    class="h-100 overflow-hidden place-container fullscreen"
+    class="place-container fullscreen h-full overflow-hidden"
     ref="canvasContainer"
   >
-    <div class="w-100 overflow-hidden position-relative h-100">
+    <div class="relative h-full w-full overflow-hidden">
       <Transition>
         <div
-          class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center bg-dark-gray-500 bg-opacity-100"
+          class="absolute inset-0 flex items-center justify-center"
+          :class="
+            placeState.state === 'disconnected'
+              ? 'bg-dark-gray-500/75'
+              : 'bg-dark-gray-500'
+          "
           v-if="
             placeState.state !== 'started' && placeState.state !== 'viewing'
           "
-          :class="{ 'bg-opacity-75': placeState.state === 'disconnected' }"
         >
           <span v-if="placeState.state === 'loading'">
             {{ $t("general.loading") }}
           </span>
 
-          <BButton
-            class="place-button place-button-big d-flex flex-column justify-content-center align-items-center rounded-0"
+          <UiButton
+            unstyled
+            class="place-button place-button-big flex flex-col items-center justify-center"
             to="/r-place/"
             v-if="placeState.state === 'disconnected'"
           >
-            <span class="fw-bold fs-5">
+            <span class="text-h5 font-bold">
               {{ $t("r_place.canvas.disconnected.title") }}
             </span>
             <small>
               {{ $t("r_place.canvas.disconnected.description") }}
             </small>
-          </BButton>
+          </UiButton>
         </div>
       </Transition>
 
@@ -1225,76 +1226,81 @@ watch(
         width="1000"
         height="1000"
         ref="canvas"
-        class="field bg-opacity-100 bg-dark-gray-500"
+        class="field bg-dark-gray-500"
       ></canvas>
 
       <div
-        class="position-absolute top-0 bottom-0 start-0 end-0 d-flex flex-column justify-content-end pe-none place-controls"
+        class="place-controls pointer-events-none absolute inset-0 flex flex-col justify-end"
       >
-        <div
-          class="position-absolute top-0 start-0 end-0 p-2 d-flex gap-2 justify-content-between"
-        >
-          <BDropdown
-            variant="primary"
-            class="pe-auto place-dropdown"
-            offset="5"
+        <div class="absolute inset-x-0 top-0 flex justify-between gap-2 p-2">
+          <UiDropdown
+            unstyled
+            class="pointer-events-auto"
+            toggle-class="place-button"
+            menu-class="place-menu"
+            :offset="5"
           >
             <template #button-content>
-              <iconify-icon icon="fa7-solid:binoculars" class="me-2" />
+              <iconify-icon icon="fa7-solid:binoculars" class="mr-2" />
               <span>{{ activeCanvas.name }}</span>
             </template>
-            <BDropdownItem
-              v-for="canvas in canvases"
-              :key="canvas.name"
-              :to="'/r-place/' + canvas.name + '/'"
-              link-class="d-flex align-items-center justify-content-between gap-2"
+            <UiDropdownItem
+              v-for="canvasObject in canvases"
+              :key="canvasObject.name"
+              :to="'/r-place/' + canvasObject.name + '/'"
+              class="flex items-center justify-between gap-2"
             >
-              {{ canvas.name }}
-              <BBadge variant="success" v-if="canvas.active">
+              {{ canvasObject.name }}
+              <UiBadge variant="success" v-if="canvasObject.active">
                 {{ $t("r_place.canvas.canvas_select.ongoing") }}
-              </BBadge>
-            </BDropdownItem>
-          </BDropdown>
+              </UiBadge>
+            </UiDropdownItem>
+          </UiDropdown>
 
-          <div class="d-flex gap-2">
-            <BButton
+          <div class="flex gap-2">
+            <UiButton
+              unstyled
               class="place-button place-button-small"
               @click="overlay.open()"
             >
               <iconify-icon icon="fa7-solid:layer-group" />
-            </BButton>
+            </UiButton>
           </div>
         </div>
+
         <div
-          class="d-flex justify-content-center align-items-center gap-2 p-2 position-relative"
+          class="relative flex items-center justify-center gap-2 p-2"
           v-if="placeState.state === 'started'"
         >
-          <BButton
+          <UiButton
+            unstyled
             class="place-button place-button-small"
             @click="view.center()"
           >
             <iconify-icon icon="fa7-solid:arrows-to-dot" />
-          </BButton>
-          <BButton
-            class="place-button place-button-big d-flex flex-column justify-content-center align-items-center"
+          </UiButton>
+          <UiButton
+            unstyled
+            class="place-button place-button-big flex flex-col items-center justify-center"
             @click="view.paint()"
           >
-            <span class="fw-bold fs-5">{{
+            <span class="text-h5 font-bold">{{
               $t("r_place.canvas.place_pixel")
             }}</span>
             <span
               >X: {{ placeState.coordinates.x }} Y:
               {{ placeState.coordinates.y }}</span
             >
-          </BButton>
-          <BButton
+          </UiButton>
+          <UiButton
+            unstyled
             class="place-button place-button-small"
             @click="view.pickColor()"
           >
             <iconify-icon icon="fa7-solid:eye-dropper" />
-          </BButton>
+          </UiButton>
           <div
-            class="position-absolute bottom-0 end-0 p-2 text-black fw-bold d-none d-sm-block"
+            class="absolute right-0 bottom-0 hidden p-2 font-bold text-black sm:block"
           >
             {{
               $t("r_place.canvas.players_online", {
@@ -1303,11 +1309,12 @@ watch(
             }}
           </div>
         </div>
+
         <div
           class="place-colors-container"
           :class="{ active: placeState.state === 'started' }"
         >
-          <div class="d-flex justify-content-center align-items-center gap-1">
+          <div class="flex items-center justify-center gap-1">
             <div
               @click="
                 placeState.colorsPage = Math.max(0, placeState.colorsPage - 1)
@@ -1325,7 +1332,7 @@ watch(
               v-show="placeState.colorsPage === index"
             >
               <div
-                class="col place-color"
+                class="place-color"
                 :class="{ active: placeState.color.active === color }"
                 :style="{ backgroundColor: color }"
                 @click="placeState.color.active = color"
@@ -1333,7 +1340,7 @@ watch(
                 :key="color"
               ></div>
               <div
-                class="col place-color d-flex justify-content-center align-items-center"
+                class="place-color flex items-center justify-center"
                 v-for="i in 32 - page.length"
                 :key="i"
                 style="background-color: white"
@@ -1358,11 +1365,8 @@ watch(
               <iconify-icon icon="fa6-solid:chevron-right" />
             </div>
 
-            <div
-              class="position-relative d-none d-sm-block"
-              v-if="!placeState.inOverlay"
-            >
-              <BInput
+            <div class="relative hidden sm:block" v-if="!placeState.inOverlay">
+              <UiInput
                 type="color"
                 v-model="placeState.color.custom"
                 class="place-color place-color-big"
@@ -1376,7 +1380,7 @@ watch(
                 @blur="placeState.color.active = placeState.color.custom"
               />
               <div
-                class="position-absolute top-0 start-0 end-0 bottom-0 d-flex justify-content-center align-items-center pe-none"
+                class="pointer-events-none absolute inset-0 flex items-center justify-center"
               >
                 <iconify-icon icon="fa7-solid:palette" />
               </div>
@@ -1386,47 +1390,51 @@ watch(
       </div>
 
       <div
-        class="position-absolute top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-75 px-2 py-3 p-md-3 overflow-auto"
-        :class="{ 'd-none': !placeState.overlayScreen }"
+        class="absolute inset-0 overflow-auto bg-dark/75 px-2 py-4 md:p-4"
+        :class="{ hidden: !placeState.overlayScreen }"
       >
         <div
-          class="m-auto d-flex flex-column align-items-center gap-2 position-relative p-3 bg-dark-gray-500 bg-opacity-100 border border-2 border-black overflow-auto col-md-6 mt-5 overflow-hidden"
+          class="relative m-auto mt-12 flex flex-col items-center gap-2 overflow-hidden border-2 border-black bg-dark-gray-500 p-4 md:w-1/2"
         >
-          <div class="position-relative">
-            <canvas ref="previewCanvas" class="d-block"></canvas>
+          <div class="relative">
+            <canvas ref="previewCanvas" class="block"></canvas>
 
             <Transition>
               <div
-                class="position-absolute top-0 end-0 start-0 bottom-0 d-flex justify-content-center align-items-center bg-gray-800 bg-opacity-75"
+                class="absolute inset-0 flex items-center justify-center bg-gray-800/75"
                 v-if="!synced"
               >
-                <BButton @click="overlay.preview()" class="place-button fs-5">
+                <UiButton
+                  unstyled
+                  class="place-button text-h5"
+                  @click="overlay.preview()"
+                >
                   <iconify-icon icon="fa7-solid:sync" />
-                </BButton>
+                </UiButton>
               </div>
             </Transition>
           </div>
 
-          <BFormGroup label-for="file-input">
-            <BFormFile
+          <UiFormGroup label-for="file-input">
+            <UiFileInput
               id="file-input"
               v-model="file"
               accept="image/png,image/jpeg,image/gif"
               class="place-input"
               :state="validateFile"
             />
-            <BFormInvalidFeedback :state="validateFile">
+            <UiInvalidFeedback :state="validateFile">
               {{ $t("r_place.canvas.overlay.invalid_file") }}
-            </BFormInvalidFeedback>
-          </BFormGroup>
+            </UiInvalidFeedback>
+          </UiFormGroup>
 
-          <BFormGroup
+          <UiFormGroup
             :label="$t('r_place.canvas.overlay.x', { x: positionOnCanvasX })"
             label-for="position-x-input"
             label-class="mb-1"
-            class="w-100"
+            class="w-full"
           >
-            <BFormInput
+            <UiInput
               id="position-x-input"
               type="range"
               v-model="positionOnCanvasX"
@@ -1434,14 +1442,14 @@ watch(
               :max="activeCanvas.width"
               class="place-range"
             />
-          </BFormGroup>
-          <BFormGroup
+          </UiFormGroup>
+          <UiFormGroup
             :label="$t('r_place.canvas.overlay.y', { y: positionOnCanvasY })"
             label-for="position-y-input"
             label-class="mb-1"
-            class="w-100"
+            class="w-full"
           >
-            <BFormInput
+            <UiInput
               id="position-y-input"
               type="range"
               v-model="positionOnCanvasY"
@@ -1449,17 +1457,17 @@ watch(
               :max="activeCanvas.height"
               class="place-range"
             />
-          </BFormGroup>
+          </UiFormGroup>
 
-          <BFormGroup
+          <UiFormGroup
             :label="
               $t('r_place.canvas.overlay.width', { width: sizeOnCanvasX })
             "
             label-for="width-input"
             label-class="mb-1"
-            class="w-100"
+            class="w-full"
           >
-            <BFormInput
+            <UiInput
               id="width-input"
               type="range"
               v-model="sizeOnCanvasX"
@@ -1467,54 +1475,53 @@ watch(
               :max="limitSizeOnCanvasX"
               class="place-range"
             />
-          </BFormGroup>
+          </UiFormGroup>
 
-          <BFormGroup
+          <UiFormGroup
             :label="
               $t('r_place.canvas.overlay.colors', { colors: numberColors })
             "
-            label-for="width-input"
+            label-for="colors-input"
             label-class="mb-1"
-            class="w-100"
+            class="w-full"
           >
-            <BFormInput
-              id="width-input"
+            <UiInput
+              id="colors-input"
               type="range"
               v-model="numberColors"
               :min="2"
               :max="200"
               class="place-range"
             />
-          </BFormGroup>
+          </UiFormGroup>
 
-          <div class="d-flex gap-2 w-100">
-            <BButton
-              class="place-button place-button"
+          <div class="flex w-full gap-2">
+            <UiButton
+              unstyled
+              class="place-button"
               @click="placeState.overlayScreen = false"
             >
               <iconify-icon icon="ep:close-bold" />
-            </BButton>
-            <BButton
-              class="place-button flex-grow-1"
+            </UiButton>
+            <UiButton
+              unstyled
+              class="place-button grow"
               @click="overlay.calculate()"
             >
               <iconify-icon icon="fa6-solid:check" />
-            </BButton>
+            </UiButton>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="d-none">
+  <div class="hidden">
     <img :src="CursorImage" ref="cursorImage" />
   </div>
 </template>
 
-<style lang="scss">
-$theme-primary: #1a1a1a;
-$theme-secondary: #454545;
-
+<style>
 @media (max-width: 1400px) {
   .place-controls {
     margin-top: 3.5rem !important;
@@ -1552,8 +1559,8 @@ $theme-secondary: #454545;
   max-height: 8rem;
   margin-bottom: -2px;
 
-  background: var(--bs-gray-100);
-  border-top: 2px solid var(--bs-black);
+  background: var(--color-light);
+  border-top: 2px solid var(--color-black);
 
   transition:
     height 0.5s ease-in-out,
@@ -1561,18 +1568,22 @@ $theme-secondary: #454545;
 
   pointer-events: all;
   overflow: hidden;
+}
 
-  &.active {
-    height: 25%;
-    min-height: 4rem;
+.place-colors-container.active {
+  height: 25%;
+  min-height: 4rem;
+}
 
-    @media (max-width: 992px) {
-      min-height: 12rem;
-    }
+@media (max-width: 992px) {
+  .place-colors-container.active {
+    min-height: 12rem;
+  }
+}
 
-    @media (max-width: 576px) {
-      min-height: 10rem;
-    }
+@media (max-width: 576px) {
+  .place-colors-container.active {
+    min-height: 10rem;
   }
 }
 
@@ -1581,8 +1592,10 @@ $theme-secondary: #454545;
   grid-template-rows: repeat(2, fit-content(100%));
   grid-template-columns: repeat(16, fit-content(100%));
   grid-gap: 0.25rem;
+}
 
-  @media (max-width: 992px) {
+@media (max-width: 992px) {
+  .place-colors-grid {
     grid-template-columns: repeat(8, fit-content(100%));
   }
 }
@@ -1595,54 +1608,54 @@ $theme-secondary: #454545;
 
   cursor: pointer;
 
-  border: 2px solid var(--bs-black);
+  border: 2px solid var(--color-black);
 
   transition:
     border 0.2s ease-in-out,
     transform 0.2s ease-in-out;
+}
 
-  &:hover {
-    border: 2px solid var(--bs-gray-500);
-  }
+.place-color:hover {
+  border: 2px solid var(--color-accent);
+}
 
-  @media (max-width: 576px) {
+@media (max-width: 576px) {
+  .place-color {
     width: 1.9rem;
     height: 1.9rem;
   }
+}
 
-  &-big {
-    border: 2px solid var(--bs-black) !important;
-    height: 4.75rem !important;
-    width: 4.75rem !important;
+.place-color.active {
+  border: 4px solid var(--color-black);
+  transform: scale(1.05);
+}
 
-    border-radius: 0 !important;
-    padding: 0 !important;
+.place-color-big {
+  width: 4.75rem !important;
+  height: 4.75rem !important;
+  padding: 0 !important;
 
-    outline: none !important;
+  border: 2px solid var(--color-black) !important;
+  border-radius: 0 !important;
 
-    &:hover {
-      border: 2px solid var(--bs-gray-500) !important;
-    }
+  outline: none !important;
+}
 
-    &.active {
-      border: 4px solid var(--bs-black) !important;
-      transform: scale(1.05) !important;
-    }
-  }
+.place-color-big:hover {
+  border: 2px solid var(--color-accent) !important;
+}
 
-  &.active {
-    border: 4px solid var(--bs-black);
-    transform: scale(1.05);
-  }
+.place-color-big.active {
+  border: 4px solid var(--color-black) !important;
+  transform: scale(1.05) !important;
 }
 
 input[type="color"]::-webkit-color-swatch {
   border-radius: 0;
 }
 
-.place-button,
-.place-dropdown > .btn,
-.place-button.btn {
+.place-button {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1651,79 +1664,86 @@ input[type="color"]::-webkit-color-swatch {
   min-width: 2.5rem;
   padding: 0.5rem;
 
-  --bs-btn-bg: #{$theme-primary};
-  --bs-btn-hover-bg: #{$theme-primary};
-  --bs-btn-active-bg: #{$theme-primary};
-  --bs-btn-color: var(--bs-light);
-  --bs-btn-hover-color: var(--bs-light);
-  background: #{$theme-primary};
-  border: 2px solid var(--bs-black);
+  font-size: var(--text-control);
+  line-height: 1.5;
+
+  color: var(--color-light);
+  background: #1a1a1a;
+  border: 2px solid var(--color-black);
   border-radius: 0;
 
   pointer-events: all;
   transition: border 0.2s ease-in-out;
-
-  &-big {
-    width: 12rem;
-    height: 4.5rem !important;
-  }
-
-  &:hover {
-    border: 2px solid var(--bs-gray-500);
-  }
 }
 
-.place-dropdown > .dropdown-menu {
-  background: #{$theme-primary};
-  border: 2px solid var(--bs-black);
-  border-radius: 0;
+.place-button:hover {
+  color: var(--color-light);
+  border: 2px solid var(--color-accent);
+}
 
-  --bs-dropdown-link-color: var(--bs-light);
-  --bs-dropdown-link-hover-color: var(--bs-light);
+.place-button-big {
+  width: 12rem;
+  height: 4.5rem !important;
+}
+
+.place-menu {
+  background: #1a1a1a;
+  border: 2px solid var(--color-black);
+  border-radius: 0;
+}
+
+.place-menu a,
+.place-menu button {
+  color: var(--color-light);
+}
+
+.place-menu a:hover,
+.place-menu button:hover {
+  color: var(--color-light);
 }
 
 .place-input {
   width: 100%;
 
-  background: #{$theme-primary} !important;
-  border: 2px solid var(--bs-black) !important;
+  background: #1a1a1a !important;
+  border: 2px solid var(--color-black) !important;
   border-radius: 0 !important;
 
   outline: none !important;
   transition: border 0.2s ease-in-out !important;
+}
 
-  &::file-selector-button {
-    background: #{$theme-secondary} !important;
-  }
+.place-input::file-selector-button {
+  background: #454545 !important;
+}
 
-  &:hover {
-    border: 2px solid var(--bs-gray-500) !important;
-  }
+.place-input:hover {
+  border: 2px solid var(--color-accent) !important;
 }
 
 .place-range:hover > .place-range::-webkit-slider-thumb {
-  border: 2px solid var(--bs-gray-500) !important;
+  border: 2px solid var(--color-accent) !important;
 }
 
 .place-range::-webkit-slider-thumb {
-  background: #{$theme-primary} !important;
+  background: #1a1a1a !important;
   border-radius: 0 !important;
-  border: 2px solid var(--bs-black) !important;
+  border: 2px solid var(--color-black) !important;
 }
 
 .place-range::-moz-range-thumb {
-  background: #{$theme-primary} !important;
+  background: #1a1a1a !important;
   border-radius: 0 !important;
-  border: 2px solid var(--bs-black) !important;
+  border: 2px solid var(--color-black) !important;
 }
 
 .place-range::-webkit-slider-runnable-track {
-  background: #{$theme-primary} !important;
+  background: #1a1a1a !important;
   border-radius: 0 !important;
 }
 
 .place-range::-moz-range-track {
-  background: #{$theme-primary} !important;
+  background: #1a1a1a !important;
   border-radius: 0 !important;
 }
 
@@ -1735,13 +1755,13 @@ input[type="color"]::-webkit-color-swatch {
   padding: 0.5rem;
 
   cursor: pointer;
-  color: var(--bs-black);
+  color: var(--color-black);
   opacity: 1;
 
   transition: opacity 0.2s ease-in-out;
+}
 
-  &:hover {
-    color: var(--bs-gray-500);
-  }
+.place-colors-arrow:hover {
+  color: var(--color-accent);
 }
 </style>

@@ -23,20 +23,22 @@ defineProps<ProjectsPageProps>();
 <template>
   <Head title="Projects" />
 
-  <div class="d-flex container-xxl gap-2 flex-column flex-lg-row mb-2">
+  <div class="container-page mb-2 flex flex-col gap-2 lg:flex-row">
     <div
-      class="col-lg-4 flex-grow-0 justify-content-start align-items-lg-end d-flex flex-column"
+      class="flex grow-0 flex-col justify-start lg:w-1/3 lg:shrink-0 lg:items-end"
     >
       <!-- If you found this, keep this our dirty little secret -->
-      <h1 class="d-flex flex-column display-1 lh-1 d-none d-lg-flex invisible">
-        <span class="fw-bold">
+      <h1
+        class="invisible hidden flex-col text-display-1-fluid leading-none font-light lg:flex xl:text-display-1"
+      >
+        <span class="font-bold">
           {{ $t("index.title.top") }}
         </span>
-        <span class="fw-bold text-tertiary">
+        <span class="font-bold text-tertiary">
           {{ $t("index.title.bottom") }}
         </span>
       </h1>
-      <div class="profile position-sticky d-flex flex-column gap-2">
+      <div class="profile sticky flex flex-col gap-2">
         <ProfileCard
           :profile="profile"
           :socials="socials"
@@ -45,27 +47,29 @@ defineProps<ProjectsPageProps>();
         <ProfileToolsCard
           :tools="tools"
           v-if="tools.length"
-          class="d-none d-lg-block"
+          class="hidden lg:block"
         />
         <ProfileRepositoryCard
           :repository="profile?.repository"
           v-if="profile?.repository"
-          class="d-none d-lg-block"
+          class="hidden lg:block"
         />
       </div>
     </div>
 
-    <div class="d-flex flex-column h-100 flex-grow-1 flex-shrink-1 gap-2">
+    <div class="flex h-full shrink grow flex-col gap-2">
       <section v-motion-slide-visible-once-top>
-        <h1 class="d-flex flex-column display-1 lh-1">
-          <span class="fw-bold">
+        <h1
+          class="flex flex-col text-display-1-fluid leading-none font-light xl:text-display-1"
+        >
+          <span class="font-bold">
             {{ $t("index.title.top") }}
           </span>
-          <span class="fw-bold text-tertiary">
+          <span class="font-bold text-tertiary">
             {{ $t("index.title.bottom") }}
           </span>
         </h1>
-        <div class="d-flex flex-column gap-2">
+        <div class="flex flex-col gap-2">
           <ProjectListItem
             :project="project"
             v-for="(project, i) in projects"
@@ -77,16 +81,20 @@ defineProps<ProjectsPageProps>();
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .profile {
   top: 0.5rem;
   max-width: 18rem;
+}
 
-  @media (max-width: 1400px) {
+@media (max-width: 1400px) {
+  .profile {
     top: 4rem;
   }
+}
 
-  @media (max-width: 992px) {
+@media (max-width: 992px) {
+  .profile {
     max-width: 100%;
   }
 }

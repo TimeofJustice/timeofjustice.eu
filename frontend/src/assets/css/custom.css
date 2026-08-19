@@ -1,0 +1,106 @@
+/**
+ * Styling that cannot live in a component, because the class names come from
+ * data (the locale flags) or from a third-party component's internals.
+ */
+
+.fi {
+  position: relative;
+  display: inline-block;
+
+  width: 1.333333em;
+  height: 1em;
+  line-height: 1em;
+  vertical-align: -2px;
+
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+
+.fi-de {
+  background-image: url("@assets/images/flags/de.svg");
+}
+
+.fi-uk {
+  background-image: url("@assets/images/flags/uk.svg");
+}
+
+.fi-yoda {
+  background-image: url("@assets/images/flags/baby-yoda.svg");
+}
+
+.fi-x-wing {
+  width: 2.333333em;
+  height: 2.333333em;
+
+  background-image: url("@assets/images/x-wing.svg");
+  transform: rotate(-120deg);
+}
+
+/* --------------------------------------------------------------------------- */
+/* v-lazy-image: the placeholder shimmer, keyed off the library's own classes  */
+/* --------------------------------------------------------------------------- */
+
+@keyframes lazy-loading {
+  0% {
+    background-position: 50% 0;
+  }
+  100% {
+    background-position: -150% 0;
+  }
+}
+
+@keyframes lazy-loaded {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.v-lazy-image {
+  background-image: linear-gradient(
+    to right,
+    rgb(44 44 46 / 0.5) 0%,
+    rgb(58 58 60 / 0.5) 10%,
+    rgb(44 44 46 / 0.5) 20%,
+    rgb(44 44 46 / 0.5) 100%
+  );
+  background-size: 200% 100%;
+  animation: lazy-loading 1.2s linear infinite;
+
+  backdrop-filter: blur(10px);
+}
+
+.v-lazy-image-loaded {
+  background-image: none;
+  animation: lazy-loaded 1.2s ease-in-out forwards;
+
+  backdrop-filter: none;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Iconify                                                                     */
+/* --------------------------------------------------------------------------- */
+
+/*
+ * Preflight turns every `svg` into a block, which knocks inline icons out of
+ * their line box. Icons are inline content, so put them back.
+ */
+.iconify {
+  display: inline;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+/* --------------------------------------------------------------------------- */
+/* Rendered markdown: the markup comes from `vue-markdown-render`              */
+/* --------------------------------------------------------------------------- */
+
+.markdown-body > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body a {
+  color: var(--color-info);
+}

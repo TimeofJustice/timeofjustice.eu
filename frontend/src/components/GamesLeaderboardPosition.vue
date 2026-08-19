@@ -12,25 +12,21 @@ defineProps<GamesLeaderboardPosition>();
 
 <template>
   <div
-    class="bg-opacity-50 px-3 py-2 d-flex align-items-center justify-content-between rounded border border-gray-800"
-    :class="{ 'bg-blue-400': highlighted, 'bg-gray-900': !highlighted }"
+    class="flex items-center justify-between rounded-md border border-gray-800 px-4 py-2"
+    :class="highlighted ? 'bg-blue-400/50' : 'bg-gray-900/50'"
   >
-    <span class="fw-bold text-truncate"> {{ index }}. {{ name }} </span>
+    <span class="truncate font-bold"> {{ index }}. {{ name }} </span>
 
-    <div
-      class="d-flex flex-row justify-content-end align-items-center gap-2 flex-grow-1"
-    >
+    <div class="flex grow flex-row items-center justify-end gap-2">
       <div
-        class="text-end text-warning text-nowrap d-flex align-items-center gap-1"
+        class="flex items-center gap-1 text-right whitespace-nowrap text-warning"
         v-if="streak > 0"
       >
         {{ streak }}
         <iconify-icon icon="bi:fire" />
       </div>
 
-      <div class="text-end text-nowrap">{{ balance }} TJTs</div>
+      <div class="text-right whitespace-nowrap">{{ balance }} TJTs</div>
     </div>
   </div>
 </template>
-
-<style scoped lang="scss"></style>

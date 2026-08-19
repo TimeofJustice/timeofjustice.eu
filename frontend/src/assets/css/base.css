@@ -1,0 +1,144 @@
+/**
+ * Document defaults.
+ *
+ * Preflight removes all element styling, so the typography the markdown content
+ * and the plain `<h1>`/`<p>` tags in the templates rely on is re-declared here.
+ */
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 400;
+    line-height: 1.5;
+
+    color: var(--color-light);
+    background-color: var(--color-space-blue);
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-bottom: --spacing(2);
+
+    font-weight: 700;
+    line-height: var(--leading-heading);
+  }
+
+  h1 {
+    font-size: var(--text-h1-fluid);
+  }
+  h2 {
+    font-size: var(--text-h2-fluid);
+  }
+  h3 {
+    font-size: var(--text-h3-fluid);
+  }
+  h4 {
+    font-size: var(--text-h4-fluid);
+  }
+  h5 {
+    font-size: var(--text-h5);
+  }
+  h6 {
+    font-size: var(--text-h6);
+  }
+
+  @variant xl {
+    h1 {
+      font-size: var(--text-h1);
+    }
+    h2 {
+      font-size: var(--text-h2);
+    }
+    h3 {
+      font-size: var(--text-h3);
+    }
+    h4 {
+      font-size: var(--text-h4);
+    }
+  }
+
+  p {
+    margin-bottom: --spacing(4);
+  }
+
+  ul,
+  ol {
+    margin-bottom: --spacing(4);
+    padding-left: --spacing(8);
+    list-style: revert;
+  }
+
+  small {
+    font-size: 0.875em;
+  }
+
+  b,
+  strong {
+    font-weight: bolder;
+  }
+
+  hr {
+    margin: --spacing(4) 0;
+
+    border: 0;
+    border-top: 1px solid currentColor;
+    opacity: 0.25;
+  }
+
+  code {
+    font-size: 0.875em;
+    color: var(--color-pink-400);
+    word-wrap: break-word;
+  }
+
+  pre {
+    margin-bottom: --spacing(4);
+    overflow: auto;
+
+    font-size: 0.875em;
+  }
+
+  a {
+    color: var(--color-link);
+    text-decoration: underline;
+
+    transition: color 0.15s ease-in-out;
+  }
+
+  a:hover {
+    color: var(--color-link-hover);
+  }
+
+  /* Scrollbars, globally */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #717171 transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #717171;
+    border-radius: 8px;
+    background-clip: content-box !important;
+    border: 3px solid transparent;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #414141;
+  }
+}

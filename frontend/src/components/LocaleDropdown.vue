@@ -19,20 +19,20 @@ const changeLocale = (lang: string) => {
 </script>
 
 <template>
-  <BDropdown variant="ghost">
+  <UiDropdown variant="ghost" align="end">
     <template #button-content>
       <i
         :class="LOCALES.find((locale) => locale.code === $i18n.locale)?.icon"
-        class="rounded-1"
+        class="rounded-sm"
       />
     </template>
 
-    <BDropdownItemButton
+    <UiDropdownItem
       v-for="locale in LOCALES"
       :key="locale.code"
       @click="changeLocale(locale.code)"
     >
-      <i :class="locale.icon" class="rounded-1" /> {{ locale.name }}
-    </BDropdownItemButton>
-  </BDropdown>
+      <i :class="locale.icon" class="rounded-sm" /> {{ locale.name }}
+    </UiDropdownItem>
+  </UiDropdown>
 </template>

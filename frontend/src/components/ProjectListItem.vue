@@ -17,59 +17,53 @@ const amountOfHiddenTechnologies =
 </script>
 
 <template>
-  <div class="d-flex gap-2 overflow-hidden" v-motion-slide-visible-once-right>
+  <div class="flex gap-2 overflow-hidden" v-motion-slide-visible-once-right>
     <v-lazy-image
-      class="project-image img-fluid object-fit-cover rounded"
+      class="project-image h-auto max-w-full rounded-md object-cover"
       :src="project.title_image ? project.title_image.original : MissingTexture"
     />
 
-    <div
-      class="d-flex w-100 justify-content-between align-items-center overflow-hidden gap-1"
-    >
-      <div class="d-flex flex-column overflow-hidden gap-1">
-        <div class="d-flex flex-row gap-2 align-items-center">
-          <BBadge
-            class="d-flex align-items-center bg-opacity-50"
-            :class="`bg-` + project.status.color"
+    <div class="flex w-full items-center justify-between gap-1 overflow-hidden">
+      <div class="flex flex-col gap-1 overflow-hidden">
+        <div class="flex flex-row items-center gap-2">
+          <UiBadge
+            class="flex items-center"
+            :class="`bg-${project.status.color}/50`"
             v-if="project.status"
           >
             {{ project.status.name }}
-          </BBadge>
-          <h5 class="mb-0 text-truncate">{{ project.title }}</h5>
+          </UiBadge>
+          <h5 class="mb-0 truncate">{{ project.title }}</h5>
         </div>
-        <div class="d-flex gap-1 flex-wrap">
-          <BBadge
+        <div class="flex flex-wrap gap-1">
+          <UiBadge
             v-for="technology in visibleTechnologies"
             :key="technology.name"
-            class="bg-opacity-50"
-            variant="primary"
+            class="bg-primary/50"
           >
             <iconify-icon :icon="technology.icon" v-if="technology.icon" />
             {{ technology.name }}
-          </BBadge>
-          <BBadge
-            v-if="amountOfHiddenTechnologies > 0"
-            class="bg-opacity-50"
-            variant="primary"
-          >
+          </UiBadge>
+          <UiBadge v-if="amountOfHiddenTechnologies > 0" class="bg-primary/50">
             +{{ amountOfHiddenTechnologies }}
-          </BBadge>
+          </UiBadge>
         </div>
       </div>
 
-      <BButton
+      <UiButton
         variant="tertiary"
-        class="btn-square stretched-link"
+        square
+        class="after:absolute after:inset-0 after:z-1 after:content-['']"
         :to="'/projects/' + project.id"
         offcanvas-source="/"
       >
         <iconify-icon icon="fa6-solid:arrow-right" />
-      </BButton>
+      </UiButton>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .project-image {
   min-width: 7rem;
   max-width: 7rem;

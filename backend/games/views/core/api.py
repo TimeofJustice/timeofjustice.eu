@@ -10,7 +10,7 @@ from games.decorators import wallet_required
 @wallet_required
 @require_http_methods(["POST"])
 def update(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
 
     if not wallet:
         return JsonResponse({"error": "games.main.errors.wallet_not_found"}, status=404)
@@ -18,7 +18,7 @@ def update(request):
     post_data = BodyContent(request)
 
     if post_data:
-        name = post_data.get('name')
+        name = post_data.get("name")
 
         if name and 3 <= len(name) <= 32 and name.isalnum():
             wallet.name = name
@@ -34,10 +34,10 @@ def update(request):
 @wallet_required
 @require_http_methods(["POST"])
 def dismiss(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
 
     if not wallet:
-        return HttpResponseRedirect('/core/login/')
+        return HttpResponseRedirect("/core/login/")
 
     wallet.hint_dismissed = True
     wallet.save()
@@ -48,10 +48,10 @@ def dismiss(request):
 @wallet_required
 @require_http_methods(["POST"])
 def redeem(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
 
     if not wallet:
-        return HttpResponseRedirect('/core/login/')
+        return HttpResponseRedirect("/core/login/")
 
     if days_since_last_login(wallet) >= 1:
         wallet.days_played += 1
@@ -86,7 +86,7 @@ def days_since_last_login(wallet):
 
 
 def get_leaderboard(wallet):
-    leaderboard = models.Wallet.objects.order_by('-balance')
+    leaderboard = models.Wallet.objects.order_by("-balance")
     leaderboard = list(leaderboard)
     own_index = leaderboard.index(wallet)
 
@@ -95,17 +95,19 @@ def get_leaderboard(wallet):
 
 @wallet_required
 def leaderboard(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session['wallet_id'])
+    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
 
     if not wallet:
-        return HttpResponseRedirect('/core/login/')
+        return HttpResponseRedirect("/core/login/")
 
     leaderboard, own_index = get_leaderboard(wallet)
 
-    return JsonResponse({
-        "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
-        "ownPosition": own_index + 1,
-    })
+    return JsonResponse(
+        {
+            "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
+            "ownPosition": own_index + 1,
+        }
+    )
 
 
 def get_vault():
@@ -130,7 +132,9 @@ def get_vault():
 def vault(request):
     vault, vault_reset = get_vault()
 
-    return JsonResponse({
-        "vault": vault.balance,
-        "vaultReset": vault_reset.strftime("%Y-%m-%dT%H:%M:%SZ"),
-    })
+    return JsonResponse(
+        {
+            "vault": vault.balance,
+            "vaultReset": vault_reset.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+    )

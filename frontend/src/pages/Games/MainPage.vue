@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { useToast } from "bootstrap-vue-next";
+import { useToast } from "@composables/toast";
 import { useI18n } from "@node_modules/vue-i18n";
 import { reactive, ref, shallowRef } from "vue";
 import { computed, onBeforeUnmount } from "@node_modules/vue";
@@ -13,6 +13,7 @@ import BlackJack from "@components/Games/BlackJack.vue";
 import SicBo from "@components/Games/SicBo.vue";
 import GamesLeaderboardPosition from "@components/GamesLeaderboardPosition.vue";
 import GamesDailyReward from "@components/GamesDailyReward.vue";
+import { TOAST_TRANSITION } from "@components/ui/transitions";
 
 interface Player {
   name: string;
@@ -117,12 +118,7 @@ const vaultCounter = setInterval(() => {
 }, 1000);
 
 const showToast = (message: string, variant: "success" | "danger") => {
-  create({
-    body: message,
-    variant: variant,
-    position: "bottom-start",
-    noProgress: true,
-  });
+  create({ body: message, variant, position: "bottom-start" });
 };
 
 const saveSettings = async () => {
@@ -227,11 +223,10 @@ const dismissHint = () => {
 <template>
   <Head :title="$t('games.title')" />
 
-  <BModal
+  <UiModal
     v-model="showDailyBonus"
-    header-class="justify-content-between align-items-center"
-    body-class="d-flex flex-column gap-2"
-    :no-footer="true"
+    header-class="justify-between items-center"
+    body-class="flex flex-col gap-2"
     scrollable
     centered
   >
@@ -240,16 +235,17 @@ const dismissHint = () => {
         {{ $t("games.main.daily_bonus") }}
       </h2>
 
-      <BButton
+      <UiButton
         variant="tertiary"
-        class="btn-square text-light"
+        class="text-light"
         @click="showDailyBonus = false"
+        square
       >
         <iconify-icon icon="ep:close-bold" />
-      </BButton>
+      </UiButton>
     </template>
 
-    <div class="d-flex gap-2 flex-wrap justify-content-between">
+    <div class="flex flex-wrap justify-between gap-2">
       <GamesDailyReward
         :day="bonus.day"
         :reward="bonus.reward"
@@ -260,20 +256,19 @@ const dismissHint = () => {
       />
     </div>
 
-    <BButton
+    <UiButton
       variant="success"
-      class="w-100"
+      class="w-full"
       @click="redeemDailyBonus"
       :disabled="waitingForResponse"
     >
       {{ $t("games.main.redeem") }}
-    </BButton>
-  </BModal>
+    </UiButton>
+  </UiModal>
 
-  <BModal
+  <UiModal
     v-model="showSettings"
-    header-class="justify-content-between align-items-center"
-    :no-footer="true"
+    header-class="justify-between items-center"
     scrollable
     centered
   >
@@ -282,121 +277,112 @@ const dismissHint = () => {
         {{ $t("games.main.settings") }}
       </h2>
 
-      <BButton
+      <UiButton
         variant="tertiary"
-        class="btn-square text-light"
+        class="text-light"
         @click="showSettings = false"
+        square
       >
         <iconify-icon icon="ep:close-bold" />
-      </BButton>
+      </UiButton>
     </template>
 
-    <BForm
-      @submit.prevent="saveSettings"
-      class="d-flex flex-column gap-2 w-100"
-    >
-      <BFormGroup id="input-group-2" label-for="input-2">
-        <BFormInput
+    <form @submit.prevent="saveSettings" class="flex w-full flex-col gap-2">
+      <UiFormGroup id="input-group-2" label-for="input-2">
+        <UiInput
           id="input-2"
           v-model="settingsForm.name"
           :placeholder="$t('games.login.enter_wallet')"
           required
           :state="validateName"
         />
-        <BFormInvalidFeedback :state="validateName">
+        <UiInvalidFeedback :state="validateName">
           {{ $t("games.main.settings_invalid") }}
-        </BFormInvalidFeedback>
-      </BFormGroup>
+        </UiInvalidFeedback>
+      </UiFormGroup>
 
-      <BButton
+      <UiButton
         type="submit"
         variant="primary"
-        class="w-100"
+        class="w-full"
         :disabled="!validateName || waitingForResponse"
       >
         {{ $t("general.save") }}
-      </BButton>
-    </BForm>
-  </BModal>
+      </UiButton>
+    </form>
+  </UiModal>
 
-  <div
-    class="container-xxl d-flex flex-column flex-lg-row justify-content-center pb-3"
-  >
-    <div class="col-12 col-lg-9">
+  <div class="container-page flex flex-col justify-center pb-4 lg:flex-row">
+    <div class="w-full shrink-0 lg:w-3/4">
       <KeepAlive>
         <component
           :is="gameComponent"
           :balance="walletBalance"
-          @balanceChange="onBalanceChange"
+          @balance-change="onBalanceChange"
         />
       </KeepAlive>
     </div>
 
     <div
-      class="col-12 col-lg-3 d-flex flex-column flex-md-row flex-lg-column gap-2 pt-2 pt-lg-0 ps-lg-2"
+      class="flex w-full shrink-0 flex-col gap-2 pt-2 md:flex-row lg:w-1/4 lg:flex-col lg:pt-0 lg:pl-2"
     >
-      <div class="d-flex flex-column gap-2 col-12 col-md-6 col-lg-12">
-        <BToast
-          :model-value="showCopyReminder"
-          variant="danger"
-          body-class="d-flex align-items-center justify-content-between gap-2"
-          class="w-100"
-          no-close-button
-        >
-          <div>{{ $t("games.main.reminder") }}</div>
+      <div class="flex w-full shrink-0 flex-col gap-2 md:w-1/2 lg:w-full">
+        <Transition v-bind="TOAST_TRANSITION">
+          <UiToast
+            v-if="showCopyReminder"
+            variant="danger"
+            body-class="flex items-center justify-between gap-2"
+            class="w-full"
+          >
+            <div>{{ $t("games.main.reminder") }}</div>
 
-          <BButton variant="tertiary" class="btn-square" @click="dismissHint">
-            <iconify-icon icon="ep:close-bold" />
-          </BButton>
-        </BToast>
+            <UiButton variant="tertiary" @click="dismissHint" square>
+              <iconify-icon icon="ep:close-bold" />
+            </UiButton>
+          </UiToast>
+        </Transition>
 
-        <BCard
-          class="blur-box border-0"
-          header-class="d-flex align-items-center justify-content-between"
-          body-class="d-flex flex-column"
+        <UiCard
+          header-class="flex items-center justify-between"
+          body-class="flex flex-col"
         >
           <template #header>
-            <div class="d-flex align-items-center gap-2">
-              <h4 class="m-0 text-truncate">
+            <div class="flex items-center gap-2">
+              <h4 class="m-0 truncate">
                 <iconify-icon icon="fa6-solid:user" />
               </h4>
-              <h4 class="m-0 text-truncate">
+              <h4 class="m-0 truncate">
                 {{ walletName }}
               </h4>
             </div>
 
-            <div class="d-flex gap-2">
-              <BButton
-                variant="tertiary"
-                class="btn-square"
-                @click="showSettings = true"
-              >
+            <div class="flex gap-2">
+              <UiButton variant="tertiary" @click="showSettings = true" square>
                 <iconify-icon icon="fa7-solid:edit" />
-              </BButton>
-              <BButton variant="danger" class="btn-square" to="/games/logout/">
+              </UiButton>
+              <UiButton variant="danger" to="/games/logout/" square>
                 <iconify-icon icon="fa7-solid:sign-out" />
-              </BButton>
+              </UiButton>
             </div>
           </template>
 
-          <div
-            class="d-flex align-items-center gap-2 justify-content-between position-relative"
-          >
-            <span class="text-truncate d-flex gap-1 align-items-center">
+          <div class="relative flex items-center justify-between gap-2">
+            <span class="flex items-center gap-1 truncate">
               <iconify-icon icon="fa-solid:wallet" />
               {{ wallet.walletId.slice(0, 10) }}...
             </span>
 
-            <BButton
+            <UiButton
               variant="tertiary"
-              class="btn-square stretched-link"
+              class="after:absolute after:inset-0 after:z-1 after:content-['']"
               @click="copyToClipboard()"
+              square
             >
               <iconify-icon icon="iconamoon:copy-duotone" />
-            </BButton>
+            </UiButton>
           </div>
 
-          <div class="d-flex gap-1 align-items-center">
+          <div class="flex items-center gap-1">
             <iconify-icon icon="fa7-solid:coins" />
             <strong>{{ walletBalance }} TJTs</strong>
 
@@ -421,11 +407,10 @@ const dismissHint = () => {
           <small class="text-warning" v-else-if="bonusTimer !== ''">
             {{ $t("games.main.next_bonus") }}
           </small>
-        </BCard>
+        </UiCard>
 
-        <BCard
-          class="blur-box border-0"
-          header-class="d-flex align-items-center justify-content-between position-relative"
+        <UiCard
+          header-class="flex items-center justify-between relative"
           no-body
         >
           <template #header>
@@ -434,10 +419,11 @@ const dismissHint = () => {
               {{ $t("games.main.vault") }}
             </h4>
 
-            <BButton
+            <UiButton
               variant="tertiary"
-              class="btn-square stretched-link"
+              class="after:absolute after:inset-0 after:z-1 after:content-['']"
               @click="showGamesAccount = !showGamesAccount"
+              square
             >
               <iconify-icon
                 icon="fa6-solid:chevron-up"
@@ -446,18 +432,16 @@ const dismissHint = () => {
                     ? 'rotate(180deg)'
                     : 'rotate(0deg)',
                 }"
-                class="transition-transform"
+                class="transition-transform duration-300 ease-in-out"
               />
-            </BButton>
+            </UiButton>
           </template>
 
-          <BCollapse v-model="showGamesAccount">
-            <BCardBody class="d-flex flex-column gap-2">
-              <div
-                class="d-flex gap-1 align-items-center justify-content-between"
-              >
+          <UiCollapse v-model="showGamesAccount">
+            <UiCardBody class="flex flex-col gap-2">
+              <div class="flex items-center justify-between gap-1">
                 <div
-                  class="d-flex gap-1 align-items-center"
+                  class="flex items-center gap-1"
                   :class="updatedVault >= 0 ? 'text-success' : 'text-danger'"
                 >
                   <iconify-icon icon="fa7-solid:coins" />
@@ -468,17 +452,14 @@ const dismissHint = () => {
               <small class="text-accent" v-if="vaultTimer !== ''">
                 {{ $t("games.main.vault_reset_in", { time: vaultTimer }) }}
               </small>
-            </BCardBody>
-          </BCollapse>
-        </BCard>
+            </UiCardBody>
+          </UiCollapse>
+        </UiCard>
       </div>
 
-      <div
-        class="d-flex flex-column gap-2 col-12 col-md-6 col-lg-12 flex-shrink-1"
-      >
-        <BCard
-          class="blur-box border-0"
-          header-class="d-flex align-items-center justify-content-between position-relative"
+      <div class="flex w-full shrink flex-col gap-2 md:w-1/2 lg:w-full">
+        <UiCard
+          header-class="flex items-center justify-between relative"
           no-body
         >
           <template #header>
@@ -487,24 +468,25 @@ const dismissHint = () => {
               {{ $t("games.main.games") }}
             </h4>
 
-            <BButton
+            <UiButton
               variant="tertiary"
-              class="btn-square stretched-link"
+              class="after:absolute after:inset-0 after:z-1 after:content-['']"
               @click="showGames = !showGames"
+              square
             >
               <iconify-icon
                 icon="fa6-solid:chevron-up"
                 :style="{
                   transform: !showGames ? 'rotate(180deg)' : 'rotate(0deg)',
                 }"
-                class="transition-transform"
+                class="transition-transform duration-300 ease-in-out"
               />
-            </BButton>
+            </UiButton>
           </template>
 
-          <BCollapse v-model="showGames">
-            <BCardBody class="d-flex flex-column gap-2">
-              <BButton
+          <UiCollapse v-model="showGames">
+            <UiCardBody class="flex flex-col gap-2">
+              <UiButton
                 variant="secondary"
                 @click="gameComponent = Comp"
                 :active="gameComponent === Comp"
@@ -512,14 +494,13 @@ const dismissHint = () => {
                 :key="index"
               >
                 {{ $t("games.game." + name + ".title") }}
-              </BButton>
-            </BCardBody>
-          </BCollapse>
-        </BCard>
+              </UiButton>
+            </UiCardBody>
+          </UiCollapse>
+        </UiCard>
 
-        <BCard
-          class="blur-box border-0"
-          header-class="d-flex align-items-center justify-content-between position-relative"
+        <UiCard
+          header-class="flex items-center justify-between relative"
           no-body
         >
           <template #header>
@@ -528,10 +509,11 @@ const dismissHint = () => {
               {{ $t("games.main.leaderboard") }}
             </h4>
 
-            <BButton
+            <UiButton
               variant="tertiary"
-              class="btn-square stretched-link"
+              class="after:absolute after:inset-0 after:z-1 after:content-['']"
               @click="showLeaderboard = !showLeaderboard"
+              square
             >
               <iconify-icon
                 icon="fa6-solid:chevron-up"
@@ -540,13 +522,13 @@ const dismissHint = () => {
                     ? 'rotate(180deg)'
                     : 'rotate(0deg)',
                 }"
-                class="transition-transform"
+                class="transition-transform duration-300 ease-in-out"
               />
-            </BButton>
+            </UiButton>
           </template>
 
-          <BCollapse v-model="showLeaderboard">
-            <BCardBody class="d-flex flex-column gap-2">
+          <UiCollapse v-model="showLeaderboard">
+            <UiCardBody class="flex flex-col gap-2">
               <GamesLeaderboardPosition
                 v-for="(player, index) in updatedLeaderboard"
                 :key="index"
@@ -558,7 +540,7 @@ const dismissHint = () => {
               />
 
               <template v-if="updatedOwnPosition > 5">
-                <div class="fw-bold text-center">
+                <div class="text-center font-bold">
                   <iconify-icon icon="fa7-solid:ellipsis" />
                 </div>
 
@@ -570,15 +552,15 @@ const dismissHint = () => {
                   highlighted
                 />
               </template>
-            </BCardBody>
-          </BCollapse>
-        </BCard>
+            </UiCardBody>
+          </UiCollapse>
+        </UiCard>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped>
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.5s ease;
@@ -587,9 +569,5 @@ const dismissHint = () => {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
-}
-
-.transition-transform {
-  transition: transform 0.3s ease;
 }
 </style>

@@ -1,4 +1,3 @@
-
 from inertia import render
 
 from core import models
@@ -39,8 +38,11 @@ def project_details(request, project_id):
     offcanvas_source = request.headers.get("X-Offcanvas-Source")
     if offcanvas_source:
         return call_view_by_url(
-            offcanvas_source, request=request, error_callback=error, offcanvas_component="ProjectPage", **page_props,
+            offcanvas_source,
+            request=request,
+            error_callback=error,
+            offcanvas_component="ProjectPage",
+            **page_props,
         )
 
     return render(request, "ProjectPage", props=default_props(page_props, request))
-
