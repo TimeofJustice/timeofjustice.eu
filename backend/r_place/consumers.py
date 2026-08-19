@@ -88,7 +88,12 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         if not isinstance(cell["color"], str) or len(cell["color"]) != 7 or not cell["color"].startswith("#"):
             return
 
-        await database_sync_to_async(self.save_cell)(cell, active_canvas)
+        painted = await database_sync_to_async(self.save_cell)(cell, active_canvas)
+
+        # Repainting a pixel in the colour it already has changes nothing, so it
+        # is not stored and not sent on: the owner and timestamp stay as they are.
+        if not painted:
+            return
 
         await self.channel_layer.group_send(
             "r_place",
@@ -102,12 +107,20 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         return Canvas.objects.filter(active=True).first()
 
     def save_cell(self, cell, canvas):
+        """Stores the pixel, or reports False when it already looks like this."""
+        existing = Cell.objects.filter(x=cell["x"], y=cell["y"], canvas=canvas).first()
+
+        if existing and existing.color == cell["color"]:
+            return False
+
         Cell.objects.update_or_create(
             x=cell["x"],
             y=cell["y"],
             canvas=canvas,
             defaults={"color": cell["color"], "wallet_id": self.wallet_id},
         )
+
+        return True
 
     async def cell_update(self, event):
         cell = event["cell"]

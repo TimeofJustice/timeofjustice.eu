@@ -700,15 +700,20 @@ const fetchPlacedBy = () => {
       const current = placeState.value.coordinates;
       if (current.x !== x || current.y !== y) return;
 
-      // Nothing to credit on a pixel nobody has painted yet.
-      if (!response.data.wallet) return;
-
+      // Null on a pixel nobody has painted yet, which hides the tooltip.
       placedBy.value = response.data.wallet;
-      view.trackPlacedBy();
+
+      if (placedBy.value) view.trackPlacedBy();
     })
     .catch(() => {
       placedBy.value = null;
     });
+};
+
+/** Looks the owner up again straight away, skipping the dwell delay. */
+const refreshPlacedBy = () => {
+  clearTimeout(placedByTimer);
+  fetchPlacedBy();
 };
 
 watch(
@@ -937,6 +942,13 @@ onMounted(() => {
       const cell = data.cell;
       view.drawCell(cell.x, cell.y, cell.color);
       view.refresh();
+
+      // The tooltip is describing this very pixel, and it just changed hands.
+      const selected = placeState.value.coordinates;
+
+      if (placedBy.value && cell.x === selected.x && cell.y === selected.y) {
+        refreshPlacedBy();
+      }
     } else if (data.type === "player_update") {
       placeState.value.playerCount = data.count;
     }
