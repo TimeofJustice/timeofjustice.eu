@@ -1,6 +1,9 @@
 target-version = "py312"
 line-length = 170
 exclude = ["migrations"]
+# Pre-commit hooks pass staged files explicitly, and an explicit path normally
+# overrides `exclude`. Without this, every generated migration trips the hook.
+force-exclude = true
 
 [format]
 # Also format code examples inside docstrings

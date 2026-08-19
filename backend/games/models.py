@@ -34,7 +34,11 @@ class Avatar(models.Model):
 
 
 class Wallet(models.Model):
-    wallet_id = models.CharField(primary_key=True, max_length=32, editable=False)
+    # Public and safe to show: it tells two players called "Jonas" apart, and it
+    # is what the r/place cells point at. Crockford base32, so no I/L/O/U.
+    public_id = models.CharField(primary_key=True, max_length=6, editable=False)
+    # The recovery phrase itself is never stored — only this keyed hash of it.
+    phrase_hash = models.CharField(max_length=64, unique=True, editable=False)
     name = models.CharField(max_length=32, default="Anonymous")
     balance = models.IntegerField(default=100)
     days_played = models.IntegerField(default=0)
@@ -44,7 +48,7 @@ class Wallet(models.Model):
     avatar = models.ForeignKey(Avatar, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.wallet_id
+        return f"{self.name}#{self.public_id}"
 
     def refresh_streak(self):
         """
@@ -67,18 +71,28 @@ class Wallet(models.Model):
         self.refresh_streak()
 
         return {
+            "publicId": self.public_id,
             "name": self.name,
             "balance": int(self.balance),
             "streak": int(self.days_played),
             "avatar": self.avatar.json() if self.avatar else None,
         }
 
+    def needs_setup(self):
+        """
+        True while the wallet is still wearing its defaults, so the frontend can
+        walk the owner through the settings once.
+        """
+        return self.name == self._meta.get_field("name").default or self.avatar is None
+
     def json(self):
         """The full wallet, only ever sent to its own owner."""
         return {
             **self.public_json(),
-            "walletId": self.wallet_id,
+            # The phrase is deliberately absent: it is the credential, and it is
+            # served once, by its own endpoint, during first-time setup.
             "hintDismissed": self.hint_dismissed,
+            "needsSetup": self.needs_setup(),
         }
 
 

@@ -28,22 +28,29 @@ watch(
   },
 );
 
-const registerUrl = computed(
-  () => `/register/?next=${encodeURIComponent(next)}`,
-);
-
 const form = reactive({
-  walletId: null as string | null,
+  phrase: null as string | null,
 });
 
-const validateWalletId = computed(() => {
-  if (form.walletId === null) return null;
+/**
+ * A loose check for "looks like a phrase". The exact word count lives on the
+ * server, and older wallets were issued shorter phrases, so this only rules
+ * out obvious typos.
+ */
+const validatePhrase = computed(() => {
+  if (form.phrase === null) return null;
 
-  return /^[0-9a-f]{32}$/i.test(form.walletId);
+  const words = form.phrase.split(/[^a-zA-Z]+/).filter(Boolean);
+
+  return words.length >= 4;
 });
 
 function submit() {
   router.post("/login/", { ...form, next });
+}
+
+function register() {
+  router.post("/register/", { next });
 }
 </script>
 
@@ -51,10 +58,6 @@ function submit() {
   <Head :title="$t('games.entry.title')" />
 
   <div class="container-fixed flex flex-col items-center justify-center">
-    <UiAlert variant="danger">
-      <vue-markdown :source="$t('games.entry.warning')" />
-    </UiAlert>
-
     <div class="w-full shrink-0 sm:w-1/2 md:w-5/12 lg:w-1/3 xl:w-1/4">
       <UiCard body-class="flex flex-col gap-4">
         <template #header>
@@ -64,7 +67,7 @@ function submit() {
           </h1>
         </template>
 
-        <UiButton variant="primary" class="w-full" :to="registerUrl">
+        <UiButton variant="primary" class="w-full" @click="register">
           {{ $t("games.entry.enter_with_new_wallet") }}
         </UiButton>
 
@@ -76,19 +79,19 @@ function submit() {
 
         <form @submit.prevent="submit" class="flex w-full flex-col gap-2">
           <UiFormGroup
-            id="wallet-id-group"
-            label-for="wallet-id-input"
+            id="wallet-phrase-group"
+            label-for="wallet-phrase-input"
             :label="$t('games.login.title')"
           >
             <UiInput
-              id="wallet-id-input"
-              v-model="form.walletId"
+              id="wallet-phrase-input"
+              v-model="form.phrase"
               :placeholder="$t('games.login.enter_wallet')"
               required
-              :state="validateWalletId"
+              :state="validatePhrase"
               type="password"
             />
-            <UiInvalidFeedback :state="validateWalletId">
+            <UiInvalidFeedback :state="validatePhrase">
               {{ $t("games.login.error.not_valid") }}
             </UiInvalidFeedback>
           </UiFormGroup>
@@ -97,7 +100,7 @@ function submit() {
             type="submit"
             variant="secondary"
             class="w-full"
-            :disabled="!validateWalletId"
+            :disabled="!validatePhrase"
           >
             {{ $t("games.login.submit") }}
           </UiButton>

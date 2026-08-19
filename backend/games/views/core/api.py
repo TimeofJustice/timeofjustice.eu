@@ -6,7 +6,7 @@ from core.helpers import BodyContent, get_or_none
 from games import models
 from games.decorators import wallet_required
 from games.vault import get_vault
-from games.wallet import get_wallet
+from games.wallet import get_wallet, revealable_phrase, stop_revealing_phrase
 
 
 @wallet_required
@@ -45,7 +45,20 @@ def update(request):
 
     wallet.save()
 
+    # Saving the settings is the end of first-time setup, so the phrase stops
+    # being offered from here on.
+    stop_revealing_phrase(request)
+
     return JsonResponse({"name": wallet.name, "avatar": wallet.avatar.json() if wallet.avatar else None})
+
+
+@wallet_required
+def recovery_phrase(request):
+    """
+    The phrase, but only while it is still new. It is the only credential, so it
+    is shown once during setup and never served again.
+    """
+    return JsonResponse({"recoveryPhrase": revealable_phrase(request)})
 
 
 @wallet_required

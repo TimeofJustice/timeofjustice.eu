@@ -6,9 +6,9 @@ from games.models import Avatar, Vault, Wallet
 # Register your models here.
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):
-    list_display = ("wallet_id", "name", "avatar", "balance", "created_at", "last_visit")
+    list_display = ("public_id", "name", "avatar", "balance", "created_at", "last_visit")
     list_filter = ("avatar",)
-    search_fields = ("wallet_id", "name")
+    search_fields = ("public_id", "name")
 
 
 @admin.register(Vault)

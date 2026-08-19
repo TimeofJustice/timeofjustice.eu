@@ -1,30 +1,8 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import { useToast } from "@composables/toast";
 import { useWallet } from "@composables/wallet";
 import GamesAvatar from "@components/GamesAvatar.vue";
 
-const i18n = useI18n();
-const { create } = useToast();
-const { wallet, balance, isLoaded, openSettings, copyWalletId } = useWallet();
-
-const copy = () => {
-  copyWalletId()
-    .then(() => {
-      create({
-        body: i18n.t("games.main.copy_wallet"),
-        variant: "success",
-        position: "bottom-start",
-      });
-    })
-    .catch(() => {
-      create({
-        body: i18n.t("games.main.copy_wallet_error"),
-        variant: "danger",
-        position: "bottom-start",
-      });
-    });
-};
+const { wallet, balance, isLoaded, openSettings } = useWallet();
 </script>
 
 <template>
@@ -40,7 +18,10 @@ const copy = () => {
     </template>
 
     <div class="px-4 py-1">
-      <strong class="block truncate">{{ wallet.name }}</strong>
+      <strong class="block truncate">
+        {{ wallet.name }}
+        <span class="font-normal opacity-60">#{{ wallet.publicId }}</span>
+      </strong>
 
       <span class="flex items-center gap-1 tabular-nums">
         <iconify-icon icon="fa7-solid:coins" />
@@ -53,11 +34,6 @@ const copy = () => {
     <UiDropdownItem @click="openSettings">
       <iconify-icon icon="fa7-solid:edit" class="mr-1" />
       {{ $t("games.main.settings") }}
-    </UiDropdownItem>
-
-    <UiDropdownItem @click="copy">
-      <iconify-icon icon="iconamoon:copy-duotone" class="mr-1" />
-      {{ $t("games.main.copy_wallet_id") }}
     </UiDropdownItem>
 
     <hr class="my-2 border-black/15" />

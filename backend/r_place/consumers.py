@@ -29,7 +29,7 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
     def get_wallet_id(self):
         wallet = get_wallet_by_session(self.scope.get("session", {}))
 
-        return wallet.wallet_id if wallet else None
+        return wallet.pk if wallet else None
 
     async def disconnect(self, close_code):
         # A socket rejected in connect() never joined the group or counted.

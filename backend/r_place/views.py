@@ -75,6 +75,7 @@ def cell_info(request, canvas, x, y):
     return JsonResponse(
         {
             "wallet": {
+                "publicId": cell.wallet.public_id,
                 "name": cell.wallet.name,
                 "avatar": cell.wallet.avatar.json() if cell.wallet.avatar else None,
             }

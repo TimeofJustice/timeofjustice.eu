@@ -52,14 +52,8 @@ const {
   hintDismissed,
 } = defineProps<MainProps>();
 
-const {
-  wallet,
-  balance,
-  balanceChange,
-  changeBalance,
-  openSettings,
-  copyWalletId,
-} = useWallet();
+const { wallet, balance, balanceChange, changeBalance, openSettings } =
+  useWallet();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -74,6 +68,7 @@ const updatedOwnPosition = ref(ownPosition);
 const updatedVault = ref(vault);
 
 const showCopyReminder = ref(!hintDismissed);
+const showDisclaimer = ref(true);
 const showDailyBonus = ref(newBonus);
 const showGames = ref(true);
 const showLeaderboard = ref(false);
@@ -134,16 +129,6 @@ const redeemDailyBonus = () => {
       showToast(i18n.t(error.response.data.error), "danger");
 
       waitingForResponse.value = false;
-    });
-};
-
-const copyToClipboard = () => {
-  copyWalletId()
-    .then(() => {
-      showToast(i18n.t("games.main.copy_wallet"), "success");
-    })
-    .catch(() => {
-      showToast(i18n.t("games.main.copy_wallet_error"), "danger");
     });
 };
 
@@ -279,22 +264,6 @@ const dismissHint = () => {
               </UiButton>
             </div>
           </template>
-
-          <div class="relative flex items-center justify-between gap-2">
-            <span class="flex items-center gap-1 truncate">
-              <iconify-icon icon="fa-solid:wallet" />
-              {{ wallet.walletId.slice(0, 10) }}...
-            </span>
-
-            <UiButton
-              variant="tertiary"
-              class="after:absolute after:inset-0 after:z-1 after:content-['']"
-              @click="copyToClipboard()"
-              square
-            >
-              <iconify-icon icon="iconamoon:copy-duotone" />
-            </UiButton>
-          </div>
 
           <div class="flex items-center gap-1">
             <iconify-icon icon="fa7-solid:coins" />
@@ -471,6 +440,24 @@ const dismissHint = () => {
         </UiCard>
       </div>
     </div>
+  </div>
+
+  <div
+    class="pointer-events-none fixed inset-x-0 bottom-0 z-3 container-fixed"
+    v-if="showDisclaimer"
+  >
+    <UiAlert
+      v-model="showDisclaimer"
+      class="pointer-events-auto"
+      variant="danger"
+      dismissible
+    >
+      <template #close>
+        <iconify-icon icon="ep:close-bold" />
+      </template>
+
+      <vue-markdown :source="$t('games.entry.warning')" />
+    </UiAlert>
   </div>
 </template>
 

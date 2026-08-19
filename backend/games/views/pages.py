@@ -2,16 +2,20 @@ from django.http.response import HttpResponseRedirect
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
 from inertia import render
 
-from core.helpers import BodyContent, default_props, get_or_none
-from games import models
+from core.helpers import BodyContent, default_props
+from core.throttle import rate_limited
 from games.decorators import wallet_required
 from games.vault import get_vault
 from games.views.core.api import get_leaderboard
-from games.wallet import clear_wallet, create_wallet, get_wallet, set_wallet
+from games.wallet import clear_wallet, create_wallet, find_wallet, get_wallet, reveal_phrase, set_wallet
 
 DEFAULT_REDIRECT = "/games/"
+
+LOGIN_ATTEMPT_LIMIT = 20
+LOGIN_ATTEMPT_WINDOW = 5 * 60
 
 
 def safe_redirect(candidate):
@@ -33,26 +37,36 @@ def login(request):
 
     post_data = BodyContent(request)
     next_url = safe_redirect(post_data.get("next"))
-    wallet_id = post_data.get("walletId")
+    identifier = post_data.get("phrase")
 
-    if wallet_id:
-        wallet = get_or_none(models.Wallet, wallet_id=wallet_id.lower())
+    if rate_limited(request, "wallet-login", LOGIN_ATTEMPT_LIMIT, LOGIN_ATTEMPT_WINDOW):
+        error_text = "games.login.error.too_many_attempts"
+    elif not identifier:
+        error_text = "games.login.error.invalid_request"
+    else:
+        wallet = find_wallet(identifier)
 
         if wallet:
             set_wallet(request, wallet)
             return HttpResponseRedirect(next_url)
 
         error_text = "games.login.error.invalid_wallet"
-    else:
-        error_text = "games.login.error.invalid_request"
 
     return render(request, "WalletLoginPage", props=default_props({"error": error_text, "next": next_url}, request))
 
 
+@require_http_methods(["POST"])
 def register(request):
-    set_wallet(request, create_wallet())
+    """
+    POST only: as a GET this created a wallet for every link prefetcher, crawler
+    and chat preview that touched the URL.
+    """
+    wallet, phrase = create_wallet()
 
-    return HttpResponseRedirect(safe_redirect(request.GET.get("next")))
+    set_wallet(request, wallet)
+    reveal_phrase(request, phrase)
+
+    return HttpResponseRedirect(safe_redirect(BodyContent(request).get("next")))
 
 
 def logout(request):

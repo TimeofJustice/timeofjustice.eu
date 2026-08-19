@@ -52,23 +52,26 @@
     },
     "login": {
       "title": "Anmeldung",
-      "enter_wallet": "Wallet eingeben",
+      "enter_wallet": "Gib deine Wiederherstellungsphrase ein",
       "submit": "Anmelden",
       "or": "oder",
       "error": {
         "invalid_wallet": "Ungültige Wallet",
-        "not_valid": "Deine Wallet muss 32 Zeichen lang sein und darf nur Zahlen und Buchstaben von A-F enthalten.",
+        "too_many_attempts": "Zu viele Versuche. Bitte warte ein paar Minuten und versuche es erneut.",
+        "not_valid": "Gib die Wörter deiner Wiederherstellungsphrase ein, getrennt durch Leerzeichen oder Bindestriche.",
         "unknown": "Unbekannter Fehler"
       }
     },
     "main": {
-      "reminder": "Vergiss nicht, deine Wallet-ID zu kopieren. Du wirst sie benötigen, um dich erneut anzumelden.",
+      "reminder": "Vergiss nicht, deine Wiederherstellungsphrase aufzuschreiben. Du wirst sie benötigen, um dich erneut anzumelden.",
       "wallet": "Wallet",
       "balance": "Kontostand:",
-      "copy_wallet": "Wallet-ID in die Zwischenablage kopiert",
-      "copy_wallet_error": "Fehler beim Kopieren der Wallet-ID in die Zwischenablage",
       "settings": "Einstellungen",
-      "copy_wallet_id": "Wallet-ID kopieren",
+      "copy_recovery_phrase": "Wiederherstellungsphrase kopieren",
+      "recovery_phrase": "Wiederherstellungsphrase",
+      "recovery_phrase_hint": "Schreibe diese Wörter jetzt auf. Sie sind der einzige Weg zurück in deine Wallet und werden nur dieses eine Mal angezeigt.",
+      "copy_phrase": "Wiederherstellungsphrase in die Zwischenablage kopiert",
+      "copy_phrase_error": "Fehler beim Kopieren der Wiederherstellungsphrase",
       "logout": "Abmelden",
       "name": "Benutzername",
       "settings_invalid": "Dein Name muss zwischen 3 und 32 Zeichen lang sein und darf nur alphanumerische Zeichen enthalten.",

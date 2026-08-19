@@ -1,12 +1,24 @@
-import uuid
+import hmac
+import re
+import secrets
+from hashlib import sha256
 
+from django.conf import settings
 from django.utils import timezone
 
 from core.helpers import get_or_none
 from games import models
 from games.vault import get_vault
+from games.wordlist import WORDS, WORDS_PER_PHRASE
 
-SESSION_KEY = "wallet_id"
+SESSION_KEY = "wallet"
+
+# Crockford base32: no I, L, O or U, so a public id cannot be misread aloud.
+PUBLIC_ID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
+PUBLIC_ID_LENGTH = 6
+
+# Set when a wallet is created, so its phrase can be shown exactly once.
+REVEAL_KEY = "reveal_phrase"
 
 
 def get_wallet_by_session(session):
@@ -14,12 +26,12 @@ def get_wallet_by_session(session):
     The wallet a session belongs to, or None. Takes the session rather than a
     request, so websocket consumers can use it too.
     """
-    wallet_id = session.get(SESSION_KEY)
+    phrase = session.get(SESSION_KEY)
 
-    if not wallet_id:
+    if not phrase:
         return None
 
-    return get_or_none(models.Wallet, wallet_id=wallet_id)
+    return get_or_none(models.Wallet, pk=phrase)
 
 
 def get_wallet(request):
@@ -47,7 +59,10 @@ def get_wallet(request):
 
 def set_wallet(request, wallet):
     """Logs the given wallet in for this session."""
-    request.session[SESSION_KEY] = wallet.wallet_id
+    # A fresh session key on sign-in, so a cookie planted beforehand cannot be
+    # reused to ride along on the wallet.
+    request.session.cycle_key()
+    request.session[SESSION_KEY] = wallet.pk
     request.wallet = wallet
 
     return wallet
@@ -55,20 +70,95 @@ def set_wallet(request, wallet):
 
 def clear_wallet(request):
     """Logs the current wallet out."""
-    if SESSION_KEY in request.session:
-        del request.session[SESSION_KEY]
+    for key in (SESSION_KEY, REVEAL_KEY):
+        if key in request.session:
+            del request.session[key]
 
     request.wallet = None
 
 
+def reveal_phrase(request, phrase):
+    """
+    Parks a freshly created phrase in the session so setup can show it once.
+
+    It cannot come from the wallet — only its hash is stored — so this is the
+    single copy, and it goes away as soon as setup is saved.
+    """
+    request.session[REVEAL_KEY] = phrase
+
+
+def revealable_phrase(request):
+    return request.session.get(REVEAL_KEY)
+
+
+def stop_revealing_phrase(request):
+    """Called once setup is saved: the phrase is never shown again."""
+    if REVEAL_KEY in request.session:
+        del request.session[REVEAL_KEY]
+
+
+def generate_recovery_phrase():
+    return "-".join(secrets.choice(WORDS) for _ in range(WORDS_PER_PHRASE))
+
+
+def generate_public_id():
+    return "".join(secrets.choice(PUBLIC_ID_ALPHABET) for _ in range(PUBLIC_ID_LENGTH))
+
+
+def hash_recovery_phrase(phrase):
+    """
+    Keyed hash of a phrase, so the database never holds the phrase itself.
+
+    A plain digest would not be enough: phrases come from a published wordlist,
+    so a dump would be brute-forcable offline. The pepper lives in the settings,
+    not the database. It is a fast hash on purpose — the phrase carries its own
+    entropy, and login stays a single indexed lookup.
+    """
+    return hmac.new(settings.WALLET_PEPPER.encode(), phrase.encode(), sha256).hexdigest()
+
+
+def normalise_recovery_phrase(value):
+    """Accepts spaces, hyphens and any capitalisation people type or paste."""
+    return "-".join(word for word in re.split(r"[^a-zA-Z]+", value) if word).lower()
+
+
+def find_wallet(identifier):
+    """
+    Looks a wallet up by its recovery phrase, which is both its identity and
+    its only credential.
+    """
+    if not isinstance(identifier, str):
+        return None
+
+    phrase = normalise_recovery_phrase(identifier)
+
+    return get_or_none(models.Wallet, phrase_hash=hash_recovery_phrase(phrase)) if phrase else None
+
+
 def create_wallet():
-    """Creates a new wallet with a collision-free id."""
-    wallet_id = uuid.uuid4().hex
+    """
+    Creates a wallet and returns it together with its recovery phrase.
 
-    while get_or_none(models.Wallet, wallet_id=wallet_id):
-        wallet_id = uuid.uuid4().hex
+    The phrase is returned rather than stored: this is the only moment it
+    exists in readable form, and the caller has to show it right away.
+    """
+    public_id = generate_public_id()
 
-    return models.Wallet.objects.create(wallet_id=wallet_id, last_visit=timezone.now().date())
+    while get_or_none(models.Wallet, pk=public_id):
+        public_id = generate_public_id()
+
+    phrase = generate_recovery_phrase()
+
+    while get_or_none(models.Wallet, phrase_hash=hash_recovery_phrase(phrase)):
+        phrase = generate_recovery_phrase()
+
+    wallet = models.Wallet.objects.create(
+        public_id=public_id,
+        phrase_hash=hash_recovery_phrase(phrase),
+        last_visit=timezone.now().date(),
+    )
+
+    return wallet, phrase
 
 
 def update_balance(wallet, amount):

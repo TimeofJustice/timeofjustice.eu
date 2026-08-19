@@ -64,23 +64,26 @@
     },
     "login": {
       "title": "Login",
-      "enter_wallet": "Enter wallet",
+      "enter_wallet": "Enter your recovery phrase",
       "submit": "Login",
       "or": "or",
       "error": {
         "invalid_wallet": "Invalid wallet",
-        "not_valid": "Your wallet must be 32 characters long and contain only numbers and letters from A-F.",
+        "too_many_attempts": "Too many attempts. Please wait a few minutes and try again.",
+        "not_valid": "Enter the words of your recovery phrase, separated by spaces or hyphens.",
         "unknown": "Unknown error"
       }
     },
     "main": {
-      "reminder": "Don't forget to copy your wallet ID. You will need it to log in again.",
+      "reminder": "Don't forget to write down your recovery phrase. You will need it to log in again.",
       "wallet": "Wallet",
       "balance": "Balance:",
-      "copy_wallet": "Wallet ID copied to clipboard",
-      "copy_wallet_error": "Error copying wallet ID to clipboard",
       "settings": "Settings",
-      "copy_wallet_id": "Copy wallet ID",
+      "copy_recovery_phrase": "Copy recovery phrase",
+      "recovery_phrase": "Recovery phrase",
+      "recovery_phrase_hint": "Write these words down now. They are the only way back into your wallet, and they are shown only this once.",
+      "copy_phrase": "Recovery phrase copied to clipboard",
+      "copy_phrase_error": "Error copying recovery phrase to clipboard",
       "logout": "Log out",
       "name": "Username",
       "settings_invalid": "Your name must be between 3 and 32 characters long and can only contain alphanumeric characters.",

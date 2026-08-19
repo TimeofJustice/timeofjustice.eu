@@ -5,11 +5,12 @@ import type { Avatar } from "@/types/Avatar.ts";
 import type { Wallet } from "@/types/Wallet.ts";
 
 const wallet = reactive<Wallet>({
+  publicId: "",
   name: "",
-  walletId: "",
   balance: 0,
   streak: 0,
   avatar: null,
+  needsSetup: false,
 });
 
 const loaded = ref(false);
@@ -25,11 +26,12 @@ const setWallet = (newWallet: Wallet) => {
 
 const clearWallet = () => {
   Object.assign(wallet, {
+    publicId: "",
     name: "",
-    walletId: "",
     balance: 0,
     streak: 0,
     avatar: null,
+    needsSetup: false,
   });
   loaded.value = false;
 };
@@ -41,9 +43,6 @@ const setName = (name: string) => {
 const setAvatar = (avatar: Avatar | null) => {
   wallet.avatar = avatar;
 };
-
-/** Copies the wallet id. The caller reports success or failure. */
-const copyWalletId = () => navigator.clipboard.writeText(wallet.walletId);
 
 /**
  * Shared with the settings modal, which `BaseLayout` renders once so the games
@@ -91,6 +90,7 @@ const setBalance = (balance: number) => {
 };
 
 let syncing = false;
+let promptedForSetup = false;
 
 /**
  * `default_props` shares the wallet on every page, so the store can keep itself
@@ -108,7 +108,21 @@ const startSync = () => {
 
   watch(
     () => page.props?.wallet as Wallet | null | undefined,
-    (incoming) => (incoming ? setWallet(incoming) : clearWallet()),
+    (incoming) => {
+      if (!incoming) {
+        clearWallet();
+        return;
+      }
+
+      setWallet(incoming);
+
+      // A wallet without a name or a face gets walked through the settings,
+      // once per page load, so closing it stays closed while browsing.
+      if (!promptedForSetup && incoming.needsSetup) {
+        promptedForSetup = true;
+        openSettings();
+      }
+    },
     { immediate: true },
   );
 };
@@ -130,7 +144,6 @@ export const useWallet = () => {
     clearWallet,
     setName,
     setAvatar,
-    copyWalletId,
     settingsOpen,
     openSettings,
     avatars: readonly(avatars),

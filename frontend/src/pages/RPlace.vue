@@ -248,7 +248,11 @@ const setUpCanvasSize = (canvas: HTMLCanvasElement) => {
  */
 const PLACED_BY_DELAY = 700;
 
-const placedBy = ref<{ name: string; avatar: Avatar | null } | null>(null);
+const placedBy = ref<{
+  publicId: string;
+  name: string;
+  avatar: Avatar | null;
+} | null>(null);
 const placedByPosition = ref({ x: 0, y: 0 });
 let placedByTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -1303,6 +1307,7 @@ watch(
         >
           <GamesAvatar :avatar="placedBy.avatar" size="sm" />
           {{ placedBy.name }}
+          <span class="opacity-60">#{{ placedBy.publicId }}</span>
         </div>
       </Transition>
 
