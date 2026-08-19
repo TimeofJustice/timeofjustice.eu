@@ -1192,7 +1192,12 @@ watch(
     <div class="relative h-full w-full overflow-hidden">
       <Transition>
         <div
-          class="absolute inset-0 flex items-center justify-center bg-dark-gray-500"
+          class="absolute inset-0 flex items-center justify-center"
+          :class="
+            placeState.state === 'disconnected'
+              ? 'bg-dark-gray-500/75'
+              : 'bg-dark-gray-500'
+          "
           v-if="
             placeState.state !== 'started' && placeState.state !== 'viewing'
           "
