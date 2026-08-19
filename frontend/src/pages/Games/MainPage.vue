@@ -274,7 +274,7 @@ const dismissHint = () => {
               <UiButton variant="tertiary" @click="openSettings" square>
                 <iconify-icon icon="fa7-solid:edit" />
               </UiButton>
-              <UiButton variant="danger" to="/games/logout/" square>
+              <UiButton variant="danger" to="/logout/" square>
                 <iconify-icon icon="fa7-solid:sign-out" />
               </UiButton>
             </div>

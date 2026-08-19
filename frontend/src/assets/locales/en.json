@@ -66,7 +66,7 @@
       "title": "Login",
       "enter_wallet": "Enter wallet",
       "submit": "Login",
-      "back_to_entry": "Back to entry",
+      "or": "or",
       "error": {
         "invalid_wallet": "Invalid wallet",
         "not_valid": "Your wallet must be 32 characters long and contain only numbers and letters from A-F.",

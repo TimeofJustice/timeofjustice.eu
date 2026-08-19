@@ -62,7 +62,7 @@ const copy = () => {
 
     <hr class="my-2 border-black/15" />
 
-    <UiDropdownItem to="/games/logout/" class="text-danger hover:text-danger">
+    <UiDropdownItem to="/logout/" class="text-danger hover:text-danger">
       <iconify-icon icon="fa7-solid:sign-out" class="mr-1" />
       {{ $t("games.main.logout") }}
     </UiDropdownItem>

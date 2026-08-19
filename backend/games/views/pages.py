@@ -1,5 +1,6 @@
 from django.http.response import HttpResponseRedirect
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
 from inertia import render
 
@@ -10,53 +11,59 @@ from games.vault import get_vault
 from games.views.core.api import get_leaderboard
 from games.wallet import clear_wallet, create_wallet, get_wallet, set_wallet
 
+DEFAULT_REDIRECT = "/games/"
 
-@ensure_csrf_cookie
-def index(request):
-    if not get_wallet(request):
-        return render(request, "Games/EntryPage", props=default_props({}, request))
 
-    return main(request)
+def safe_redirect(candidate):
+    """Keeps `next` pointing at this site, falling back to the games page."""
+    if candidate and candidate.startswith("/") and url_has_allowed_host_and_scheme(candidate, allowed_hosts=None):
+        return candidate
+
+    return DEFAULT_REDIRECT
 
 
 def login(request):
+    next_url = safe_redirect(request.GET.get("next"))
+
+    if request.method != "POST":
+        if get_wallet(request):
+            return HttpResponseRedirect(next_url)
+
+        return render(request, "WalletLoginPage", props=default_props({"error": None, "next": next_url}, request))
+
     post_data = BodyContent(request)
+    next_url = safe_redirect(post_data.get("next"))
+    wallet_id = post_data.get("walletId")
 
-    if post_data:
-        wallet_id = post_data.get("walletId")
-        if wallet_id:
-            wallet = get_or_none(models.Wallet, wallet_id=wallet_id.lower())
+    if wallet_id:
+        wallet = get_or_none(models.Wallet, wallet_id=wallet_id.lower())
 
-            if wallet:
-                set_wallet(request, wallet)
-                return HttpResponseRedirect("/games/")
-            error_text = "games.login.error.invalid_wallet"
-        else:
-            error_text = "games.login.error.invalid_request"
+        if wallet:
+            set_wallet(request, wallet)
+            return HttpResponseRedirect(next_url)
+
+        error_text = "games.login.error.invalid_wallet"
     else:
         error_text = "games.login.error.invalid_request"
 
-    page_props = {
-        "error": error_text,
-    }
-
-    return render(request, "Games/LoginPage", props=default_props(page_props, request))
+    return render(request, "WalletLoginPage", props=default_props({"error": error_text, "next": next_url}, request))
 
 
 def register(request):
     set_wallet(request, create_wallet())
 
-    return HttpResponseRedirect("/games/")
+    return HttpResponseRedirect(safe_redirect(request.GET.get("next")))
 
 
 def logout(request):
     clear_wallet(request)
 
-    return HttpResponseRedirect("/games/login/")
+    return HttpResponseRedirect("/login/")
 
 
+@ensure_csrf_cookie
 @wallet_required
-def main(request):
+def index(request):
     wallet = get_wallet(request)
 
     leaderboard, own_index = get_leaderboard(wallet)

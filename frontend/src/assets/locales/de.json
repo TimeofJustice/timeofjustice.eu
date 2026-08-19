@@ -54,7 +54,7 @@
       "title": "Anmeldung",
       "enter_wallet": "Wallet eingeben",
       "submit": "Anmelden",
-      "back_to_entry": "Zurück zum Einstieg",
+      "or": "oder",
       "error": {
         "invalid_wallet": "Ungültige Wallet",
         "not_valid": "Deine Wallet muss 32 Zeichen lang sein und darf nur Zahlen und Buchstaben von A-F enthalten.",

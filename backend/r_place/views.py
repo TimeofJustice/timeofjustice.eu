@@ -3,16 +3,13 @@ from django.shortcuts import redirect
 from inertia import render
 
 from core.helpers import default_props
+from games.decorators import wallet_required
 from games.wallet import get_wallet
 from r_place.models import Canvas, Cell, RenderedCanvas
 
 
+@wallet_required
 def index(request, canvas=None):
-    # Painting is tied to a wallet, so send visitors without one to the entry
-    # page, where they can create or restore theirs.
-    if not get_wallet(request):
-        return redirect("/games/")
-
     selected_canvas = Canvas.objects.filter(active=True).first() if canvas is None else Canvas.objects.filter(name=canvas).first()
 
     if not selected_canvas:

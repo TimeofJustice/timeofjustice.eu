@@ -29,6 +29,7 @@ from backend import settings
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("", include("core.urls")),
+    path("", include("games.session_urls")),
     path("games/", include("games.urls")),
     path("r-place/", include("r_place.urls")),
     path("sendy/", include("postcard.urls")),
