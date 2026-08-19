@@ -1,4 +1,11 @@
 {
+  "scripts": {
+    "prepare": "lefthook install",
+    "format": "npm --prefix frontend run format && ruff format backend",
+    "format:check": "npm --prefix frontend run format:check && ruff format --check backend",
+    "lint": "npm --prefix frontend run lint && ruff check backend",
+    "lint:fix": "npm --prefix frontend run lint:fix && ruff check --fix backend"
+  },
   "devDependencies": {
     "lefthook": "^2.0.13"
   }

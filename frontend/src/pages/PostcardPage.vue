@@ -126,7 +126,7 @@ const report = (event: MouseEvent) => {
     style="padding-top: 4rem"
   >
     <div
-      class="container-page postcard-wrapper"
+      class="postcard-wrapper container-page"
       :class="{ show: showPostcard }"
       :title="$t('postcard.open')"
       @click="showPostcard = !showPostcard"

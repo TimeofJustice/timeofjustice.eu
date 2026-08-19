@@ -9,15 +9,15 @@ def generate_lazy_image(image, directory):
     img = PIL.Image.open(image)
 
     image_name = Path(image.path).name
-    image_path =  f'{settings.FILE_DESTINATION}images/lazy/{directory}/{image_name}'
+    image_path = f"{settings.FILE_DESTINATION}images/lazy/{directory}/{image_name}"
 
     if not Path(Path(image_path).parent).exists():
         Path(image_path).parent.mkdir(parents=True, exist_ok=True)
 
     width, height = img.size
     target_width = 100
-    h_coefficient = width/100
-    target_height = height/h_coefficient
+    h_coefficient = width / 100
+    target_height = height / h_coefficient
 
     img = img.resize((int(target_width), int(target_height)), PIL.Image.LANCZOS)
     img.save(image_path, quality=100)
@@ -30,13 +30,13 @@ def compress(image, directory, size=480, quality=50):
     img = PIL.Image.open(image)
 
     image_name = Path(image.path).name
-    image_path = f'{settings.FILE_DESTINATION}images/{directory}/{image_name}'
+    image_path = f"{settings.FILE_DESTINATION}images/{directory}/{image_name}"
 
     width, height = img.size
 
     if width > size or height > size:
-        h_coefficient = width/size
-        target_height = height/h_coefficient
+        h_coefficient = width / size
+        target_height = height / h_coefficient
 
         img = img.resize((size, int(target_height)), PIL.Image.LANCZOS)
 
@@ -46,8 +46,8 @@ def compress(image, directory, size=480, quality=50):
 
 def lazy_image_to_json(image, base_url):
     return {
-        'lazy': f"/{settings.FILE_DESTINATION}images/lazy/{base_url}/{Path(image.file.name).name}",
-        'original': f"/{settings.FILE_DESTINATION}images/{base_url}/{Path(image.file.name).name}",
+        "lazy": f"/{settings.FILE_DESTINATION}images/lazy/{base_url}/{Path(image.file.name).name}",
+        "original": f"/{settings.FILE_DESTINATION}images/{base_url}/{Path(image.file.name).name}",
     }
 
 
@@ -56,30 +56,30 @@ class Translation(models.Model):
     language = models.CharField(max_length=4)
     text = models.TextField()
 
+    class Meta:
+        unique_together = ("name", "language")
+        ordering = ("name",)
+
     def __str__(self):
         return self.text
-
-    class Meta:
-        unique_together = ('name', 'language')
-        ordering = ('name',)
 
 
 class Profile(models.Model):
     id = models.AutoField(primary_key=True)
-    picture = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/profile/', max_length=1000, null=True, blank=True)
+    picture = models.ImageField(upload_to=f"{settings.FILE_DESTINATION}images/profile/", max_length=1000, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
     repo = models.URLField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return self.short_description if self.short_description else "No Description"
+        return self.short_description or "No Description"
 
     def json(self):
         return {
-            'picture': f"/{settings.FILE_DESTINATION}images/profile/{Path(self.picture.file.name).name}" if self.picture else None,
-            'description': self.description,
-            'short_description': self.short_description,
-            'repository': self.repo if self.repo else None,
+            "picture": f"/{settings.FILE_DESTINATION}images/profile/{Path(self.picture.file.name).name}" if self.picture else None,
+            "description": self.description,
+            "short_description": self.short_description,
+            "repository": self.repo or None,
         }
 
 
@@ -94,9 +94,9 @@ class Tool(models.Model):
 
     def json(self):
         return {
-            'icon': self.icon,
-            'alt': self.alt,
-            'url': self.url,
+            "icon": self.icon,
+            "alt": self.alt,
+            "url": self.url,
         }
 
 
@@ -110,8 +110,8 @@ class Technology(models.Model):
 
     def json(self):
         return {
-            'name': self.name,
-            'icon': self.icon,
+            "name": self.name,
+            "icon": self.icon,
         }
 
 
@@ -122,16 +122,16 @@ class Social(models.Model):
     url = models.URLField(max_length=100, null=False, blank=False)
 
     class Meta:
-        ordering = ['id']
+        ordering = ["id"]
 
     def __str__(self):
-        return self.title if self.title else ""
+        return self.title or ""
 
     def json(self):
         return {
-            'icon': self.icon,
-            'title': self.title,
-            'url': self.url,
+            "icon": self.icon,
+            "title": self.title,
+            "url": self.url,
         }
 
 
@@ -142,79 +142,79 @@ class Status(models.Model):
     order = models.IntegerField(null=True, blank=True)
 
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]
 
     def __str__(self):
-        return self.name if self.name else ""
+        return self.name or ""
 
     def json(self):
         return {
-            'name': self.name,
-            'color': self.color,
+            "name": self.name,
+            "color": self.color,
         }
 
 
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=100)
-    status = models.ForeignKey('Status', on_delete=models.CASCADE, null=True, blank=True)
+    status = models.ForeignKey("Status", on_delete=models.CASCADE, null=True, blank=True)
     short_description = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
-    technology = models.ManyToManyField('Technology', blank=True)
-    title_image = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/project/', null=True, blank=True, max_length=1000)
+    technology = models.ManyToManyField("Technology", blank=True)
+    title_image = models.ImageField(upload_to=f"{settings.FILE_DESTINATION}images/project/", null=True, blank=True, max_length=1000)
     alt = models.CharField(max_length=255, null=True, blank=True)
     github = models.URLField(max_length=100, null=True, blank=True)
     webpage = models.URLField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        ordering = ["status", "-id"]
+
+    def __str__(self):
+        return self.title
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
         if self.title_image:
-            generate_lazy_image(self.title_image, 'project')
-            compress(self.title_image, 'project')
-
-    class Meta:
-        ordering = ['status', '-id']
-
-    def __str__(self):
-        return self.title
+            generate_lazy_image(self.title_image, "project")
+            compress(self.title_image, "project")
 
     def json(self):
         return {
-            'id': self.id,
-            'title': self.title,
-            'status': self.status.json() if self.status else None,
-            'short_description': self.short_description,
-            'description': self.description,
-            'technologies': [tech.json() for tech in self.technology.all()],
-            'title_image': lazy_image_to_json(self.title_image, 'project') if self.title_image else None,
-            'alt': self.alt,
-            'github': self.github,
-            'website': self.webpage,
-            'images': [image.json() for image in Image.objects.filter(project=self)],
+            "id": self.id,
+            "title": self.title,
+            "status": self.status.json() if self.status else None,
+            "short_description": self.short_description,
+            "description": self.description,
+            "technologies": [tech.json() for tech in self.technology.all()],
+            "title_image": lazy_image_to_json(self.title_image, "project") if self.title_image else None,
+            "alt": self.alt,
+            "github": self.github,
+            "website": self.webpage,
+            "images": [image.json() for image in Image.objects.filter(project=self)],
         }
 
 
 class Image(models.Model):
     id = models.AutoField(primary_key=True)
-    project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    image = models.ImageField(upload_to=f'{settings.FILE_DESTINATION}images/project/', max_length=1000, null=True, blank=True)
-    video = models.FileField(upload_to=f'{settings.FILE_DESTINATION}video/project/', max_length=1000, null=True, blank=True)
+    project = models.ForeignKey("Project", on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=f"{settings.FILE_DESTINATION}images/project/", max_length=1000, null=True, blank=True)
+    video = models.FileField(upload_to=f"{settings.FILE_DESTINATION}video/project/", max_length=1000, null=True, blank=True)
     alt = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return self.alt if self.alt else ""
+        return self.alt or ""
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
         if self.image:
-            generate_lazy_image(self.image, 'project')
-            compress(self.image, 'project', size=1080, quality=80)
+            generate_lazy_image(self.image, "project")
+            compress(self.image, "project", size=1080, quality=80)
 
     def json(self):
         return {
-            'image': lazy_image_to_json(self.image, 'project') if self.image else None,
-            'video': f"/{settings.FILE_DESTINATION}video/project/{Path(self.video.file.name).name}" if self.video else None,
-            'alt': self.alt,
+            "image": lazy_image_to_json(self.image, "project") if self.image else None,
+            "video": f"/{settings.FILE_DESTINATION}video/project/{Path(self.video.file.name).name}" if self.video else None,
+            "alt": self.alt,
         }

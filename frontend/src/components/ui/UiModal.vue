@@ -71,7 +71,7 @@ useScrollLock(show);
           :class="[
             SIZES[size],
             centered &&
-              'flex items-center min-h-[calc(100%-1rem)] sm:min-h-[calc(100%-3.5rem)]',
+              'flex min-h-[calc(100%-1rem)] items-center sm:min-h-[calc(100%-3.5rem)]',
             scrollable && 'h-[calc(100%-1rem)] sm:h-[calc(100%-3.5rem)]',
           ]"
           @click.self="close"

@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
       :variant="variant"
       :size="size"
       :unstyled="unstyled"
-      class="whitespace-nowrap after:ml-[0.255em] after:inline-block after:align-[0.255em] after:border-t-[0.3em] after:border-r-[0.3em] after:border-b-0 after:border-l-[0.3em] after:border-t-current after:border-r-transparent after:border-l-transparent after:content-['']"
+      class="whitespace-nowrap after:ml-[0.255em] after:inline-block after:border-t-[0.3em] after:border-r-[0.3em] after:border-b-0 after:border-l-[0.3em] after:border-t-current after:border-r-transparent after:border-l-transparent after:align-[0.255em] after:content-['']"
       :class="toggleClass"
       :aria-expanded="isOpen"
       @click="isOpen = !isOpen"
@@ -68,7 +68,7 @@ onBeforeUnmount(() => {
     >
       <div
         v-if="isOpen"
-        class="absolute top-full z-1000 min-w-40 rounded-md border border-black/15 bg-light bg-clip-padding py-2 text-control text-left text-dark"
+        class="absolute top-full z-1000 min-w-40 rounded-md border border-black/15 bg-light bg-clip-padding py-2 text-left text-control text-dark"
         :class="[align === 'end' ? 'right-0' : 'left-0', menuClass]"
         :style="{ marginTop: `${offset}px` }"
         @click="isOpen = false"

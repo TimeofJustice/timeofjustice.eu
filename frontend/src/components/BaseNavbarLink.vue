@@ -12,7 +12,7 @@ defineProps<INavbarLink>();
 <template>
   <div
     :class="{
-      'underline font-medium': route.activeComponents.includes($page.component),
+      'font-medium underline': route.activeComponents.includes($page.component),
     }"
   >
     <BaseLink
@@ -27,7 +27,7 @@ defineProps<INavbarLink>();
       <UiBadge
         variant="danger"
         dot
-        class="animate-badge-pulse absolute top-0 left-full mt-2 -translate-x-1/2 -translate-y-1/2"
+        class="absolute top-0 left-full mt-2 -translate-x-1/2 -translate-y-1/2 animate-badge-pulse"
         v-if="route.isHighlighted"
       />
     </BaseLink>

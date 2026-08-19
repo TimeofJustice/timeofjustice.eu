@@ -245,7 +245,7 @@ const dismissHint = () => {
       </UiButton>
     </template>
 
-    <div class="flex gap-2 flex-wrap justify-between">
+    <div class="flex flex-wrap justify-between gap-2">
       <GamesDailyReward
         :day="bonus.day"
         :reward="bonus.reward"
@@ -287,7 +287,7 @@ const dismissHint = () => {
       </UiButton>
     </template>
 
-    <form @submit.prevent="saveSettings" class="flex flex-col gap-2 w-full">
+    <form @submit.prevent="saveSettings" class="flex w-full flex-col gap-2">
       <UiFormGroup id="input-group-2" label-for="input-2">
         <UiInput
           id="input-2"
@@ -312,13 +312,13 @@ const dismissHint = () => {
     </form>
   </UiModal>
 
-  <div class="container-page flex flex-col lg:flex-row justify-center pb-4">
+  <div class="container-page flex flex-col justify-center pb-4 lg:flex-row">
     <div class="w-full shrink-0 lg:w-3/4">
       <KeepAlive>
         <component
           :is="gameComponent"
           :balance="walletBalance"
-          @balanceChange="onBalanceChange"
+          @balance-change="onBalanceChange"
         />
       </KeepAlive>
     </div>
@@ -366,8 +366,8 @@ const dismissHint = () => {
             </div>
           </template>
 
-          <div class="flex items-center gap-2 justify-between relative">
-            <span class="truncate flex gap-1 items-center">
+          <div class="relative flex items-center justify-between gap-2">
+            <span class="flex items-center gap-1 truncate">
               <iconify-icon icon="fa-solid:wallet" />
               {{ wallet.walletId.slice(0, 10) }}...
             </span>
@@ -382,7 +382,7 @@ const dismissHint = () => {
             </UiButton>
           </div>
 
-          <div class="flex gap-1 items-center">
+          <div class="flex items-center gap-1">
             <iconify-icon icon="fa7-solid:coins" />
             <strong>{{ walletBalance }} TJTs</strong>
 
@@ -439,9 +439,9 @@ const dismissHint = () => {
 
           <UiCollapse v-model="showGamesAccount">
             <UiCardBody class="flex flex-col gap-2">
-              <div class="flex gap-1 items-center justify-between">
+              <div class="flex items-center justify-between gap-1">
                 <div
-                  class="flex gap-1 items-center"
+                  class="flex items-center gap-1"
                   :class="updatedVault >= 0 ? 'text-success' : 'text-danger'"
                 >
                   <iconify-icon icon="fa7-solid:coins" />
@@ -457,7 +457,7 @@ const dismissHint = () => {
         </UiCard>
       </div>
 
-      <div class="flex flex-col gap-2 w-full md:w-1/2 lg:w-full shrink">
+      <div class="flex w-full shrink flex-col gap-2 md:w-1/2 lg:w-full">
         <UiCard
           header-class="flex items-center justify-between relative"
           no-body
@@ -540,7 +540,7 @@ const dismissHint = () => {
               />
 
               <template v-if="updatedOwnPosition > 5">
-                <div class="font-bold text-center">
+                <div class="text-center font-bold">
                   <iconify-icon icon="fa7-solid:ellipsis" />
                 </div>
 

@@ -29,7 +29,7 @@ defineProps<ProjectsPageProps>();
     >
       <!-- If you found this, keep this our dirty little secret -->
       <h1
-        class="invisible hidden flex-col text-display-1-fluid leading-none font-light xl:text-display-1 lg:flex"
+        class="invisible hidden flex-col text-display-1-fluid leading-none font-light lg:flex xl:text-display-1"
       >
         <span class="font-bold">
           {{ $t("index.title.top") }}

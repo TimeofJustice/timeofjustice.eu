@@ -1,23 +1,38 @@
 #   Refer for explanation to following link:
 #   https://lefthook.dev/configuration/
+#
+#   The order is intentional:
+#     1. linter with --fix (may rewrite code)
+#     2. formatter (irons out the result)
+#   Each job only runs on the files that are actually staged.
 
 pre-commit:
+  parallel: false
   jobs:
     - name: Frontend eslint
       root: frontend
-      run: npx eslint . --fix
+      glob: "*.{js,mjs,cjs,ts,mts,cts,vue}"
+      run: npx eslint --fix --no-warn-ignored {staged_files}
       stage_fixed: true
       fail_text: "ESLint found some issues. Please fix them before committing."
 
     - name: Frontend prettier
       root: frontend
-      run: npx prettier --write .
+      glob: "*.{js,mjs,cjs,ts,mts,cts,vue,json,jsonc,css,scss,html,md,yml,yaml}"
+      run: npx prettier --write --ignore-unknown {staged_files}
       stage_fixed: true
       fail_text: "Prettier found some issues. Please fix them before committing."
 
-    - name: Backend ruff
+    - name: Backend ruff lint
       root: backend
-      run: ruff check . --fix
-      stage_fixed: true
       glob: "*.py"
-      fail_text: "Ruff found some issues. Please fix them before committing."
+      run: ruff check --fix {staged_files}
+      stage_fixed: true
+      fail_text: "Ruff found some issues. Please fix them before committing. (Is ruff installed? `pip install -r backend/requirements.txt`)"
+
+    - name: Backend ruff format
+      root: backend
+      glob: "*.py"
+      run: ruff format {staged_files}
+      stage_fixed: true
+      fail_text: "Ruff could not format these files. (Is ruff installed? `pip install -r backend/requirements.txt`)"

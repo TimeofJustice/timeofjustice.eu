@@ -250,7 +250,7 @@ const removeBet = () => {
 
 <template>
   <UiCard
-    class="border-0 overflow-hidden"
+    class="overflow-hidden border-0"
     header-class="flex items-center justify-between"
     body-class="flex flex-col"
     no-padding
@@ -267,11 +267,11 @@ const removeBet = () => {
     </template>
 
     <div
-      class="w-full h-full flex flex-col justify-center items-center gap-2 relative p-4"
+      class="relative flex h-full w-full flex-col items-center justify-center gap-2 p-4"
     >
       <UiButton
         variant="primary"
-        class="absolute top-0 right-0 m-2 z-3"
+        class="absolute top-0 right-0 z-3 m-2"
         @click="areRulesOpen = true"
         circle
       >
@@ -303,13 +303,13 @@ const removeBet = () => {
 
       <Transition>
         <div
-          class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center gap-2 bg-black/50 z-2"
+          class="absolute top-0 left-0 z-2 flex h-full w-full flex-col items-center justify-center gap-2 bg-black/50"
           v-if="
             gameSession.state !== 'betting' && gameSession.state !== 'playing'
           "
         >
           <div
-            class="flex flex-col w-5/6 shrink-0 md:w-5/12 lg:w-1/3 bg-dark-gray-600 rounded-lg p-2 gap-2"
+            class="flex w-5/6 shrink-0 flex-col gap-2 rounded-lg bg-dark-gray-600 p-2 md:w-5/12 lg:w-1/3"
           >
             <h1 class="text-center" v-if="gameSession.state !== 'settingBet'">
               {{
@@ -320,7 +320,7 @@ const removeBet = () => {
             </h1>
 
             <h5
-              class="rounded-lg p-2 flex flex-col gap-2 w-full text-center mb-0"
+              class="mb-0 flex w-full flex-col gap-2 rounded-lg p-2 text-center"
               :class="
                 gameSession.bet - gameSession.initialBet >= 0
                   ? 'text-success'
@@ -364,7 +364,7 @@ const removeBet = () => {
             >
               {{ $t("games.game.sic_bo.actions.play_again") }}
             </UiButton>
-            <div v-else class="flex gap-2 w-full">
+            <div v-else class="flex w-full gap-2">
               <UiButton
                 variant="primary"
                 class="w-full truncate"
@@ -382,20 +382,20 @@ const removeBet = () => {
         </div>
       </Transition>
 
-      <div class="flex flex-col gap-2 w-full">
-        <div class="flex justify-center items-center gap-2 w-full">
+      <div class="flex w-full flex-col gap-2">
+        <div class="flex w-full items-center justify-center gap-2">
           <GamesDice :value="diceValues[0]" />
           <GamesDice :value="diceValues[1]" />
           <GamesDice :value="diceValues[2]" />
         </div>
-        <div class="flex flex-col gap-2 w-full">
+        <div class="flex w-full flex-col gap-2">
           <div
-            class="flex justify-between items-stretch gap-2 w-full flex-wrap"
+            class="flex w-full flex-wrap items-stretch justify-between gap-2"
           >
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('small')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -409,7 +409,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['small']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["small"] }}
@@ -419,19 +419,19 @@ const removeBet = () => {
                 <div>{{ $t("games.game.sic_bo.loss_3") }}</div>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:1
               </div>
             </div>
 
-            <div class="flex flex-col gap-2 grow items-stretch">
+            <div class="flex grow flex-col items-stretch gap-2">
               <div
-                class="flex gap-2 justify-center items-stretch w-full h-full"
+                class="flex h-full w-full items-stretch justify-center gap-2"
               >
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('double-1')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -447,7 +447,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['double-1']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["double-1"] }}
@@ -457,7 +457,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('double-2')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -473,7 +473,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['double-2']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["double-2"] }}
@@ -483,7 +483,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('double-3')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -494,7 +494,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['double-3']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["double-3"] }}
@@ -504,19 +504,19 @@ const removeBet = () => {
                 </UiButton>
               </div>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:11
               </div>
             </div>
 
-            <div class="flex flex-col gap-2 grow items-stretch">
+            <div class="flex grow flex-col items-stretch gap-2">
               <div
-                class="flex flex-col gap-2 justify-center items-stretch w-full h-full"
+                class="flex h-full w-full flex-col items-stretch justify-center gap-2"
               >
                 <UiButton
                   variant="secondary"
-                  class="flex gap-2 p-2 h-full justify-center items-center relative overflow-hidden"
+                  class="relative flex h-full items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('triple-1')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -532,7 +532,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['triple-1']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["triple-1"] }}
@@ -543,7 +543,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex gap-2 p-2 h-full justify-center items-center relative overflow-hidden"
+                  class="relative flex h-full items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('triple-2')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -559,7 +559,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['triple-2']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["triple-2"] }}
@@ -570,7 +570,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex gap-2 p-2 h-full justify-center items-center relative overflow-hidden"
+                  class="relative flex h-full items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('triple-3')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -586,7 +586,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['triple-3']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["triple-3"] }}
@@ -597,16 +597,16 @@ const removeBet = () => {
                 </UiButton>
               </div>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:180
               </div>
             </div>
 
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 relative overflow-hidden"
+                class="relative flex flex-col gap-2 overflow-hidden p-2"
                 @click="startBet('triple-any')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -622,56 +622,56 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['triple-any']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning relative"
+                  class="absolute relative top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["triple-any"] }}
                 </div>
-                <div class="flex gap-2 justify-center items-center w-full">
+                <div class="flex w-full items-center justify-center gap-2">
                   <GamesDice :value="1" size="sm" />
                   <GamesDice :value="1" size="sm" />
                   <GamesDice :value="1" size="sm" />
                 </div>
-                <div class="flex gap-2 justify-center items-center w-full">
+                <div class="flex w-full items-center justify-center gap-2">
                   <GamesDice :value="2" size="sm" />
                   <GamesDice :value="2" size="sm" />
                   <GamesDice :value="2" size="sm" />
                 </div>
-                <div class="flex gap-2 justify-center items-center w-full">
+                <div class="flex w-full items-center justify-center gap-2">
                   <GamesDice :value="3" size="sm" />
                   <GamesDice :value="3" size="sm" />
                   <GamesDice :value="3" size="sm" />
                 </div>
-                <div class="flex gap-2 justify-center items-center w-full">
+                <div class="flex w-full items-center justify-center gap-2">
                   <GamesDice :value="4" size="sm" />
                   <GamesDice :value="4" size="sm" />
                   <GamesDice :value="4" size="sm" />
                 </div>
-                <div class="flex gap-2 justify-center items-center w-full">
+                <div class="flex w-full items-center justify-center gap-2">
                   <GamesDice :value="5" size="sm" />
                   <GamesDice :value="5" size="sm" />
                   <GamesDice :value="5" size="sm" />
                 </div>
-                <div class="flex gap-2 justify-center items-center w-full">
+                <div class="flex w-full items-center justify-center gap-2">
                   <GamesDice :value="6" size="sm" />
                   <GamesDice :value="6" size="sm" />
                   <GamesDice :value="6" size="sm" />
                 </div>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:30
               </div>
             </div>
 
-            <div class="flex flex-col gap-2 grow items-stretch">
+            <div class="flex grow flex-col items-stretch gap-2">
               <div
-                class="flex flex-col gap-2 justify-center items-stretch w-full h-full"
+                class="flex h-full w-full flex-col items-stretch justify-center gap-2"
               >
                 <UiButton
                   variant="secondary"
-                  class="flex gap-2 p-2 h-full justify-center items-center relative overflow-hidden"
+                  class="relative flex h-full items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('triple-4')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -687,7 +687,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['triple-4']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["triple-4"] }}
@@ -698,7 +698,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex gap-2 p-2 h-full justify-center items-center relative overflow-hidden"
+                  class="relative flex h-full items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('triple-5')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -714,7 +714,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['triple-5']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["triple-5"] }}
@@ -725,7 +725,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex gap-2 p-2 h-full justify-center items-center relative overflow-hidden"
+                  class="relative flex h-full items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('triple-6')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -741,7 +741,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['triple-6']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["triple-6"] }}
@@ -752,19 +752,19 @@ const removeBet = () => {
                 </UiButton>
               </div>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:180
               </div>
             </div>
 
-            <div class="flex flex-col gap-2 grow items-stretch">
+            <div class="flex grow flex-col items-stretch gap-2">
               <div
-                class="flex gap-2 justify-center items-stretch w-full h-full"
+                class="flex h-full w-full items-stretch justify-center gap-2"
               >
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('double-4')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -780,7 +780,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['double-4']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["double-4"] }}
@@ -790,7 +790,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('double-5')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -806,7 +806,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['double-5']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["double-5"] }}
@@ -816,7 +816,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('double-6')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -832,7 +832,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['double-6']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["double-6"] }}
@@ -842,16 +842,16 @@ const removeBet = () => {
                 </UiButton>
               </div>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:11
               </div>
             </div>
 
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('big')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -865,7 +865,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['big']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["big"] }}
@@ -875,7 +875,7 @@ const removeBet = () => {
                 <div>{{ $t("games.game.sic_bo.loss_3") }}</div>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:1
               </div>
@@ -883,12 +883,12 @@ const removeBet = () => {
           </div>
 
           <div
-            class="flex justify-between items-stretch gap-2 w-full flex-wrap"
+            class="flex w-full flex-wrap items-stretch justify-between gap-2"
           >
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-4')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -902,7 +902,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-4']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-4"] }}
@@ -910,15 +910,15 @@ const removeBet = () => {
                 <h3>4</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:60
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-5')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -932,7 +932,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-5']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-5"] }}
@@ -940,15 +940,15 @@ const removeBet = () => {
                 <h3>5</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:20
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-6')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -962,7 +962,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-6']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-6"] }}
@@ -970,15 +970,15 @@ const removeBet = () => {
                 <h3>6</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:18
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-7')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -992,7 +992,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-7']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-7"] }}
@@ -1000,15 +1000,15 @@ const removeBet = () => {
                 <h3>7</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:12
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-8')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1022,7 +1022,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-8']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-8"] }}
@@ -1030,16 +1030,16 @@ const removeBet = () => {
                 <h3>8</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:8
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
-              <div class="flex gap-2 justify-center items-center">
+            <div class="flex grow flex-col gap-2">
+              <div class="flex items-center justify-center gap-2">
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('total-9')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -1055,7 +1055,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['total-9']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["total-9"] }}
@@ -1064,7 +1064,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('total-10')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -1080,7 +1080,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['total-10']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["total-10"] }}
@@ -1089,7 +1089,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('total-11')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -1105,7 +1105,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['total-11']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["total-11"] }}
@@ -1114,7 +1114,7 @@ const removeBet = () => {
                 </UiButton>
                 <UiButton
                   variant="secondary"
-                  class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                  class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                   @click="startBet('total-12')"
                   :disabled="
                     gameSession.state !== 'betting' || waitingForResponse
@@ -1130,7 +1130,7 @@ const removeBet = () => {
                 >
                   <div
                     v-if="gameSession.bets['total-12']"
-                    class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                    class="absolute top-0 right-0 z-3 bg-warning p-1"
                     style="border-bottom-left-radius: 0.5em"
                   >
                     {{ gameSession.bets["total-12"] }}
@@ -1139,15 +1139,15 @@ const removeBet = () => {
                 </UiButton>
               </div>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:6
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-13')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1163,7 +1163,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-13']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-13"] }}
@@ -1171,15 +1171,15 @@ const removeBet = () => {
                 <h3>13</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:8
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-14')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1195,7 +1195,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-14']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-14"] }}
@@ -1203,15 +1203,15 @@ const removeBet = () => {
                 <h3>14</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:12
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-15')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1227,7 +1227,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-15']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-15"] }}
@@ -1235,15 +1235,15 @@ const removeBet = () => {
                 <h3>15</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:18
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-16')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1259,7 +1259,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-16']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-16"] }}
@@ -1267,15 +1267,15 @@ const removeBet = () => {
                 <h3>16</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:20
               </div>
             </div>
-            <div class="flex flex-col gap-2 grow">
+            <div class="flex grow flex-col gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center w-full relative overflow-hidden"
+                class="relative flex w-full flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('total-17')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1291,7 +1291,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['total-17']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["total-17"] }}
@@ -1299,7 +1299,7 @@ const removeBet = () => {
                 <h3>17</h3>
               </UiButton>
               <div
-                class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full"
+                class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center"
               >
                 1:60
               </div>
@@ -1307,11 +1307,11 @@ const removeBet = () => {
           </div>
 
           <div
-            class="flex justify-between items-stretch gap-2 w-full flex-wrap"
+            class="flex w-full flex-wrap items-stretch justify-between gap-2"
           >
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-1-2')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1323,7 +1323,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-1-2']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-1-2"] }}
@@ -1333,7 +1333,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-1-3')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1345,7 +1345,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-1-3']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-1-3"] }}
@@ -1355,7 +1355,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-1-4')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1367,7 +1367,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-1-4']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-1-4"] }}
@@ -1377,7 +1377,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-1-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1389,7 +1389,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-1-5']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-1-5"] }}
@@ -1399,7 +1399,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-1-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1411,7 +1411,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-1-6']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-1-6"] }}
@@ -1421,7 +1421,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-2-3')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1433,7 +1433,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-2-3']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-2-3"] }}
@@ -1443,7 +1443,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-2-4')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1455,7 +1455,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-2-4']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-2-4"] }}
@@ -1465,7 +1465,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-2-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1477,7 +1477,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-2-5']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-2-5"] }}
@@ -1487,7 +1487,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-2-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1499,7 +1499,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-2-6']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-2-6"] }}
@@ -1509,7 +1509,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-3-4')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1521,7 +1521,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-3-4']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-3-4"] }}
@@ -1531,7 +1531,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-3-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1543,7 +1543,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-3-5']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-3-5"] }}
@@ -1553,7 +1553,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-3-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1565,7 +1565,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-3-6']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-3-6"] }}
@@ -1575,7 +1575,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-4-5')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1587,7 +1587,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-4-5']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-4-5"] }}
@@ -1597,7 +1597,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-4-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1609,7 +1609,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-4-6']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-4-6"] }}
@@ -1619,7 +1619,7 @@ const removeBet = () => {
             </UiButton>
             <UiButton
               variant="secondary"
-              class="flex flex-col gap-2 p-2 justify-center items-center relative overflow-hidden"
+              class="relative flex flex-col items-center justify-center gap-2 overflow-hidden p-2"
               @click="startBet('pair-5-6')"
               :disabled="gameSession.state !== 'betting' || waitingForResponse"
               :class="
@@ -1631,7 +1631,7 @@ const removeBet = () => {
             >
               <div
                 v-if="gameSession.bets['pair-5-6']"
-                class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                class="absolute top-0 right-0 z-3 bg-warning p-1"
                 style="border-bottom-left-radius: 0.5em"
               >
                 {{ gameSession.bets["pair-5-6"] }}
@@ -1641,15 +1641,15 @@ const removeBet = () => {
             </UiButton>
           </div>
 
-          <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
+          <div class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center">
             1:6
           </div>
 
-          <div class="flex flex-col justify-between gap-2 w-full">
-            <div class="flex grow gap-2 flex-wrap">
+          <div class="flex w-full flex-col justify-between gap-2">
+            <div class="flex grow flex-wrap gap-2">
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('face-1')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1663,7 +1663,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['face-1']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["face-1"] }}
@@ -1672,7 +1672,7 @@ const removeBet = () => {
               </UiButton>
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('face-2')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1686,7 +1686,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['face-2']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["face-2"] }}
@@ -1695,7 +1695,7 @@ const removeBet = () => {
               </UiButton>
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('face-3')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1709,7 +1709,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['face-3']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["face-3"] }}
@@ -1718,7 +1718,7 @@ const removeBet = () => {
               </UiButton>
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('face-4')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1732,7 +1732,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['face-4']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["face-4"] }}
@@ -1741,7 +1741,7 @@ const removeBet = () => {
               </UiButton>
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('face-5')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1755,7 +1755,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['face-5']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["face-5"] }}
@@ -1764,7 +1764,7 @@ const removeBet = () => {
               </UiButton>
               <UiButton
                 variant="secondary"
-                class="flex flex-col gap-2 p-2 justify-center items-center grow relative overflow-hidden"
+                class="relative flex grow flex-col items-center justify-center gap-2 overflow-hidden p-2"
                 @click="startBet('face-6')"
                 :disabled="
                   gameSession.state !== 'betting' || waitingForResponse
@@ -1778,7 +1778,7 @@ const removeBet = () => {
               >
                 <div
                   v-if="gameSession.bets['face-6']"
-                  class="absolute top-0 right-0 p-1 z-3 bg-warning"
+                  class="absolute top-0 right-0 z-3 bg-warning p-1"
                   style="border-bottom-left-radius: 0.5em"
                 >
                   {{ gameSession.bets["face-6"] }}
@@ -1786,14 +1786,14 @@ const removeBet = () => {
                 <GamesDice :value="6" size="md" />
               </UiButton>
             </div>
-            <div class="flex grow rounded-lg overflow-hidden">
-              <div class="bg-dark-gray-600/50 p-1 text-center w-full">
+            <div class="flex grow overflow-hidden rounded-lg">
+              <div class="w-full bg-dark-gray-600/50 p-1 text-center">
                 1:1 {{ $t("games.game.sic_bo.on_one_die") }}
               </div>
-              <div class="bg-dark-gray-600/50 p-1 text-center w-full">
+              <div class="w-full bg-dark-gray-600/50 p-1 text-center">
                 1:2 {{ $t("games.game.sic_bo.on_two_dice") }}
               </div>
-              <div class="bg-dark-gray-600/50 p-1 text-center w-full">
+              <div class="w-full bg-dark-gray-600/50 p-1 text-center">
                 1:3 {{ $t("games.game.sic_bo.on_three_dice") }}
               </div>
             </div>

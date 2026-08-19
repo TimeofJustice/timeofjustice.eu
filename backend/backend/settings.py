@@ -8,6 +8,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+
 import os
 import re
 from pathlib import Path
@@ -23,12 +24,12 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "django-insecure-4!@#%&*()_+{}:
 # Keep the url a secret to prevent bots from accessing the admin page
 ADMIN_URL = os.environ.get("ADMIN_URL", "admin/")
 # Indicate if the project is in production or not
-IS_STABLE = os.getenv("IS_STABLE", 'False').lower() in ('true', '1', 't')
+IS_STABLE = os.getenv("IS_STABLE", "False").lower() in ("true", "1", "t")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
+DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "t")
 # If you want to serve static files in local testing, set this to True
-LOCAL_PRODUCTION = os.getenv("LOCAL_PRODUCTION", 'False').lower() in ('true', '1', 't')
+LOCAL_PRODUCTION = os.getenv("LOCAL_PRODUCTION", "False").lower() in ("true", "1", "t")
 PROPAGATE_EXCEPTIONS = True
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",")
@@ -37,33 +38,33 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 INSTALLED_APPS = [
     "daphne",
-    'modeltranslation',
-    'django_admin_dracula',
-    'subadmin',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "modeltranslation",
+    "django_admin_dracula",
+    "subadmin",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     "django_vite",
-    'inertia',
-    'django_cleanup.apps.CleanupConfig',
-    'django_otp',
-    'django_otp.plugins.otp_totp',
-    'django_otp.plugins.otp_static',
-    'background_task',
-    'core',
-    'games',
-    'r_place',
-    'postcard',
+    "inertia",
+    "django_cleanup.apps.CleanupConfig",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
+    "background_task",
+    "core",
+    "games",
+    "r_place",
+    "postcard",
 ]
 
 ASGI_APPLICATION = "backend.asgi.application"
 
 # channels_redis needs a full URL, so a bare hostname gets the redis:// scheme.
 # The compose setup talks to Redis over a unix socket: unix:///data/redis.sock
-REDIS_HOST = os.getenv('REDIS_HOST', 'unix:///data/redis.sock')
+REDIS_HOST = os.getenv("REDIS_HOST", "unix:///data/redis.sock")
 if not re.match(r"^(redis|rediss|unix)://", REDIS_HOST):
     REDIS_HOST = f"redis://{REDIS_HOST}"
 
@@ -77,14 +78,14 @@ CHANNEL_LAYERS = {
 }
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django_otp.middleware.OTPMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "inertia.middleware.InertiaMiddleware",
     "django.middleware.locale.LocaleMiddleware",
 ]
@@ -92,37 +93,37 @@ MIDDLEWARE = [
 if LOCAL_PRODUCTION:
     MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
-ROOT_URLCONF = 'backend.urls'
+ROOT_URLCONF = "backend.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "core" / "templates"],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "core" / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+WSGI_APPLICATION = "backend.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': f"django.db.backends.{os.getenv('DATABASE_ENGINE', 'postgresql')}",
-        'NAME': os.getenv('DATABASE_NAME', 'timeofjustice'),
-        'USER': os.getenv('DATABASE_USERNAME', 'postgres'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD', 'password'),
-        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
-        'PORT': int(os.getenv('DATABASE_PORT', 5432)),
+    "default": {
+        "ENGINE": f"django.db.backends.{os.getenv('DATABASE_ENGINE', 'postgresql')}",
+        "NAME": os.getenv("DATABASE_NAME", "timeofjustice"),
+        "USER": os.getenv("DATABASE_USERNAME", "postgres"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", "password"),
+        "HOST": os.getenv("DATABASE_HOST", "127.0.0.1"),
+        "PORT": int(os.getenv("DATABASE_PORT", "5432")),
     },
 }
 
@@ -131,47 +132,49 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = "en"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
+
 
 def gettext(s):
     return s
 
+
 LANGUAGES = (
-    ('de', gettext('German')),
-    ('en', gettext('English')),
-    ('en-yoda', gettext('Yoda')),
+    ("de", gettext("German")),
+    ("en", gettext("English")),
+    ("en-yoda", gettext("Yoda")),
 )
 
-MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+MODELTRANSLATION_DEFAULT_LANGUAGE = "en"
 
-MODELTRANSLATION_FALLBACK_LANGUAGES = ('en',)
+MODELTRANSLATION_FALLBACK_LANGUAGES = ("en",)
 
 USE_TZ = True
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # django-vite settings
 # https://github.com/MrBin99/django-vite
@@ -193,12 +196,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Include DJANGO_VITE_ASSETS_PATH into STATICFILES_DIRS to be copied inside
 # when run command python manage.py collectstatic
-STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH, Path(BASE_DIR, 'assets')]
+STATICFILES_DIRS = [DJANGO_VITE_ASSETS_PATH, Path(BASE_DIR, "assets")]
 
 # Inertia settings
 INERTIA_LAYOUT = BASE_DIR / "core" / "templates" / "index.html"
 
-FILE_DESTINATION = os.getenv('FILE_DESTINATION', "files/")
+FILE_DESTINATION = os.getenv("FILE_DESTINATION", "files/")
 
 if LOCAL_PRODUCTION:
     # Vite generates files with 8 hash digits
@@ -208,10 +211,9 @@ if LOCAL_PRODUCTION:
         # e.g. app.db8f2edc0c8a.js
         return re.match(r"^.+\.[0-9a-f]{8,12}\..+$", url)
 
-
     WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
-LOGGING_DESTINATION = os.getenv('LOGGING_DESTINATION', "logs/")
+LOGGING_DESTINATION = os.getenv("LOGGING_DESTINATION", "logs/")
 
 if not DEBUG and Path(LOGGING_DESTINATION).exists():
     LOGGING = {
@@ -235,10 +237,7 @@ if not DEBUG and Path(LOGGING_DESTINATION).exists():
         },
         "formatters": {
             "app": {
-                "format": (
-                    "%(asctime)s [%(levelname)-8s] "
-                    "(%(module)s.%(funcName)s) %(message)s"
-                ),
+                "format": ("%(asctime)s [%(levelname)-8s] (%(module)s.%(funcName)s) %(message)s"),
                 "datefmt": "%Y-%m-%d %H:%M:%S",
             },
         },

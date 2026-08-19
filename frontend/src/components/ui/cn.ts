@@ -54,7 +54,6 @@ export const useUi = (
   return {
     ui: computed(() => cn(base(), attrs.class as ClassNameValue)),
     rest: computed(() => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { class: _ignored, ...rest } = attrs;
       return rest;
     }),

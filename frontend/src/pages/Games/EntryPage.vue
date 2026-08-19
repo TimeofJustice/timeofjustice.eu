@@ -19,7 +19,7 @@ defineProps<EntryPageProps>();
     <div class="w-full shrink-0 sm:w-1/2 md:w-5/12 lg:w-1/3 xl:w-1/4">
       <UiCard body-class="flex flex-col items-center">
         <template #header>
-          <h1 class="text-center m-0">
+          <h1 class="m-0 text-center">
             <iconify-icon icon="fa7-solid:dice" />
             {{ $t("games.entry.title") }}
           </h1>

@@ -54,13 +54,13 @@ const validateWalletId = computed(() => {
     <div class="w-full shrink-0 sm:w-1/2 md:w-5/12 lg:w-1/3 xl:w-1/4">
       <UiCard body-class="flex flex-col items-center gap-2">
         <template #header>
-          <h1 class="text-center m-0">
+          <h1 class="m-0 text-center">
             <iconify-icon icon="fa7-solid:dice" />
             {{ $t("games.login.title") }}
           </h1>
         </template>
 
-        <form @submit.prevent="submit" class="flex flex-col gap-2 w-full">
+        <form @submit.prevent="submit" class="flex w-full flex-col gap-2">
           <UiFormGroup id="wallet-id-group" label-for="wallet-id-input">
             <UiInput
               id="wallet-id-input"

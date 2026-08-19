@@ -835,7 +835,6 @@ onMounted(() => {
   });
 
   onBeforeUnmount(() => {
-    console.log("Cleaning up event listeners");
     window.removeEventListener("keydown", keydownHandler);
     canvas.value?.removeEventListener("click", clickBeforeHandler, true);
     canvas.value?.removeEventListener("click", clickAfterHandler, false);
@@ -859,8 +858,6 @@ onMounted(() => {
     wsScheme + "://" + window.location.host + "/ws/r-place/",
   );
   socket.onopen = () => {
-    console.log("WebSocket connection established");
-
     if (!canvas.value || !cursorImage.value) {
       console.error("Canvas element not found");
       return;
@@ -878,7 +875,6 @@ onMounted(() => {
     }
   };
   socket.onclose = () => {
-    console.log("WebSocket connection closed");
     placeState.value.state = "disconnected";
   };
 
@@ -1244,13 +1240,13 @@ watch(
               <span>{{ activeCanvas.name }}</span>
             </template>
             <UiDropdownItem
-              v-for="canvas in canvases"
-              :key="canvas.name"
-              :to="'/r-place/' + canvas.name + '/'"
+              v-for="canvasObject in canvases"
+              :key="canvasObject.name"
+              :to="'/r-place/' + canvasObject.name + '/'"
               class="flex items-center justify-between gap-2"
             >
-              {{ canvas.name }}
-              <UiBadge variant="success" v-if="canvas.active">
+              {{ canvasObject.name }}
+              <UiBadge variant="success" v-if="canvasObject.active">
                 {{ $t("r_place.canvas.canvas_select.ongoing") }}
               </UiBadge>
             </UiDropdownItem>

@@ -7,11 +7,7 @@ from r_place.models import Canvas, Cell, RenderedCanvas
 
 
 def index(request, canvas=None):
-    selected_canvas = (
-        Canvas.objects.filter(active=True).first()
-        if canvas is None
-        else Canvas.objects.filter(name=canvas).first()
-    )
+    selected_canvas = Canvas.objects.filter(active=True).first() if canvas is None else Canvas.objects.filter(name=canvas).first()
 
     if not selected_canvas:
         return redirect("/")
@@ -31,9 +27,13 @@ def index(request, canvas=None):
 
 
 def load_canvas(request, canvas):
-    rendered_canvas = RenderedCanvas.objects.filter(
-        canvas__name=canvas,
-    ).order_by("-created_at").first()
+    rendered_canvas = (
+        RenderedCanvas.objects.filter(
+            canvas__name=canvas,
+        )
+        .order_by("-created_at")
+        .first()
+    )
 
     if rendered_canvas:
         cells = Cell.objects.filter(

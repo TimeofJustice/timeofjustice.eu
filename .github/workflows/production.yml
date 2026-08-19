@@ -58,6 +58,11 @@ jobs:
         run: |
           ruff check .
 
+      - name: Check ruff format
+        working-directory: ./backend
+        run: |
+          ruff format --check .
+
       - name: Test backend
         working-directory: ./backend
         run: |

@@ -1,0 +1,23 @@
+# Consistent line endings in the repo AND in the working tree.
+# Without this, Git checks out CRLF on Windows and `prettier --check`
+# fails locally on files that are green in CI.
+* text=auto eol=lf
+
+# Shell scripts must keep LF (they run inside the containers).
+*.sh   text eol=lf
+
+# Never touch binary files
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary
+*.pdf  binary
+
+# Generated: keep it out of diffs and conflicts
+package-lock.json -diff linguist-generated

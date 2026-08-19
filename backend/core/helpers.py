@@ -35,12 +35,16 @@ def get_or_none(model, **kwargs):
 
 
 def default_props(additional_props, request, offcanvas_component=None, **kwargs):
-    offcanvas_state = {
-        "source": request.headers.get("X-Offcanvas-Source"),
-        "target": request.headers.get("X-Offcanvas-Target", request.headers.get("X-Offcanvas-Source")),
-        "component": offcanvas_component,
-        "props": kwargs,
-    } if offcanvas_component else None
+    offcanvas_state = (
+        {
+            "source": request.headers.get("X-Offcanvas-Source"),
+            "target": request.headers.get("X-Offcanvas-Target", request.headers.get("X-Offcanvas-Source")),
+            "component": offcanvas_component,
+            "props": kwargs,
+        }
+        if offcanvas_component
+        else None
+    )
 
     return {
         "production": settings.DEBUG is False,
@@ -52,7 +56,7 @@ def default_props(additional_props, request, offcanvas_component=None, **kwargs)
 
 def call_view_by_url(url, request, error_callback, offcanvas_component=None, **kwargs):
     try:
-        if url.startswith("http://") or url.startswith("https://"):
+        if url.startswith(("http://", "https://")):
             url = urlparse(url).path
 
         match = resolve(url)

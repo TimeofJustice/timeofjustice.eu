@@ -182,7 +182,7 @@ onBeforeUnmount(() => {
 
 <template>
   <UiCard
-    class="border-0 overflow-hidden"
+    class="overflow-hidden border-0"
     header-class="flex items-center justify-between"
     body-class="flex flex-col"
     no-padding
@@ -199,11 +199,11 @@ onBeforeUnmount(() => {
     </template>
 
     <div
-      class="w-full h-full flex flex-col justify-center items-center gap-2 relative p-4"
+      class="relative flex h-full w-full flex-col items-center justify-center gap-2 p-4"
     >
       <UiButton
         variant="primary"
-        class="absolute top-0 right-0 m-2 z-3"
+        class="absolute top-0 right-0 z-3 m-2"
         @click="areRulesOpen = true"
         circle
       >
@@ -235,7 +235,7 @@ onBeforeUnmount(() => {
 
       <Transition>
         <div
-          class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center gap-2 bg-black/50 z-2"
+          class="absolute top-0 left-0 z-2 flex h-full w-full flex-col items-center justify-center gap-2 bg-black/50"
           v-if="
             gameSession.state === 'not_started' ||
             gameSession.state === 'won' ||
@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
           "
         >
           <div
-            class="flex flex-col w-5/6 shrink-0 md:w-5/12 lg:w-1/3 bg-dark-gray-600 rounded-lg p-2 gap-2"
+            class="flex w-5/6 shrink-0 flex-col gap-2 rounded-lg bg-dark-gray-600 p-2 md:w-5/12 lg:w-1/3"
           >
             <h1 class="text-center" v-if="gameSession.state !== 'not_started'">
               {{
@@ -271,7 +271,7 @@ onBeforeUnmount(() => {
             </UiFormGroup>
 
             <h5
-              class="rounded-lg p-2 flex flex-col gap-2 w-full text-center mb-0"
+              class="mb-0 flex w-full flex-col gap-2 rounded-lg p-2 text-center"
               :class="
                 gameSession.bet - gameSession.initialBet > 0
                   ? 'text-success'
@@ -308,7 +308,7 @@ onBeforeUnmount(() => {
         </div>
       </Transition>
 
-      <div class="flex flex-col gap-2 w-full">
+      <div class="flex w-full flex-col gap-2">
         <div class="flex gap-2">
           <img
             :src="'/files/images/games/cards/' + gameSession.cards[0] + '.svg'"
@@ -338,7 +338,7 @@ onBeforeUnmount(() => {
 
         <div class="flex">
           <h3
-            class="bg-dark-gray-600/50 rounded-lg p-2 flex flex-col gap-2 w-full text-center m-0"
+            class="m-0 flex w-full flex-col gap-2 rounded-lg bg-dark-gray-600/50 p-2 text-center"
           >
             {{ gameSession.state === "not_started" ? 0 : gameSession.bet }}
           </h3>
@@ -404,7 +404,7 @@ onBeforeUnmount(() => {
               </UiButton>
             </div>
 
-            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
+            <div class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center">
               1:1
             </div>
           </div>
@@ -460,7 +460,7 @@ onBeforeUnmount(() => {
               </UiButton>
             </div>
 
-            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
+            <div class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center">
               1:2
             </div>
           </div>
@@ -516,7 +516,7 @@ onBeforeUnmount(() => {
               </UiButton>
             </div>
 
-            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
+            <div class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center">
               1:3
             </div>
           </div>
@@ -596,7 +596,7 @@ onBeforeUnmount(() => {
               </UiButton>
             </div>
 
-            <div class="bg-dark-gray-600/50 rounded-lg p-1 text-center w-full">
+            <div class="w-full rounded-lg bg-dark-gray-600/50 p-1 text-center">
               1:7
             </div>
           </div>

@@ -4,8 +4,8 @@ from django.apps import AppConfig
 
 
 class RPlaceConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'r_place'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "r_place"
 
     def ready(self):
         if "runserver" not in sys.argv and "/usr/local/bin/gunicorn" not in sys.argv:

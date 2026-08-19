@@ -37,7 +37,7 @@ onMounted(() => {
     :class="size === 'small' ? 'absolute' : 'sticky'"
   >
     <div
-      class="navbar-body container-page pointer-events-auto flex flex-row items-center justify-between gap-2"
+      class="navbar-body pointer-events-auto container-page flex flex-row items-center justify-between gap-2"
       :class="{
         'scrolled relative min-w-0 rounded-md bg-card shadow-card backdrop-blur-card':
           isScrolled || size === 'small',

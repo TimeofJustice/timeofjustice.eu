@@ -18,31 +18,35 @@ def render_canvas():
 
     current_time = datetime.datetime.now(datetime.UTC)
 
-    image_name = f'{canvas.name}-{current_time.strftime("%Y%m%d-%H%M%S")}.png'
+    image_name = f"{canvas.name}-{current_time.strftime('%Y%m%d-%H%M%S')}.png"
 
     canvas_image = f"{settings.FILE_DESTINATION}images/r-place/{image_name}"
     Path(canvas_image).parent.mkdir(parents=True, exist_ok=True)
 
-    cells = models.Cell.objects.filter(
-        canvas=canvas,
-    ).exclude(color__iexact="#ffffff").values("x", "y", "color")
+    cells = (
+        models.Cell.objects.filter(
+            canvas=canvas,
+        )
+        .exclude(color__iexact="#ffffff")
+        .values("x", "y", "color")
+    )
     cells = list(cells)
 
-    image = Image.new('RGBA', (canvas.width, canvas.height), (255, 255, 255, 255))
+    image = Image.new("RGBA", (canvas.width, canvas.height), (255, 255, 255, 255))
     data = np.array(image)
 
     for cell in cells:
-        x = cell['x']
-        y = cell['y']
-        color = cell['color']
+        x = cell["x"]
+        y = cell["y"]
+        color = cell["color"]
 
         if color:
-            r, g, b = tuple(int(color[i:i + 2], 16) for i in (1, 3, 5))
+            r, g, b = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5))
             if 0 <= x < canvas.width and 0 <= y < canvas.height:
                 data[y, x] = [r, g, b, 255]
 
-    image = Image.fromarray(data, 'RGBA')
-    image.save(canvas_image, format='PNG')
+    image = Image.fromarray(data, "RGBA")
+    image.save(canvas_image, format="PNG")
     image.close()
 
     rendered_canvas = models.RenderedCanvas(

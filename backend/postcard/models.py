@@ -11,7 +11,7 @@ class Design(models.Model):
     icon = models.CharField(max_length=50, default="twemoji:teddy-bear")
 
     class Meta:
-        ordering = ['id']
+        ordering = ["id"]
 
     def __str__(self):
         return f"Design {self.id}"

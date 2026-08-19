@@ -135,7 +135,7 @@ const playLizardSound = () => {
         </slot>
       </UiOffcanvas>
 
-      <div class="container-fixed fixed inset-x-0 bottom-0 z-3" v-if="!stable">
+      <div class="fixed inset-x-0 bottom-0 z-3 container-fixed" v-if="!stable">
         <UiAlert v-model="showStableHint" variant="info" dismissible>
           <template #close>
             <iconify-icon icon="ep:close-bold" />
