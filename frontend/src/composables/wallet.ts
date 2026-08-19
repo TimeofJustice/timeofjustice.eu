@@ -42,6 +42,9 @@ const setAvatar = (avatar: Avatar | null) => {
   wallet.avatar = avatar;
 };
 
+/** Copies the wallet id. The caller reports success or failure. */
+const copyWalletId = () => navigator.clipboard.writeText(wallet.walletId);
+
 /**
  * Shared with the settings modal, which `BaseLayout` renders once so the games
  * page and the navbar open the same dialog. The wallet badge sits in three
@@ -127,6 +130,7 @@ export const useWallet = () => {
     clearWallet,
     setName,
     setAvatar,
+    copyWalletId,
     settingsOpen,
     openSettings,
     avatars: readonly(avatars),

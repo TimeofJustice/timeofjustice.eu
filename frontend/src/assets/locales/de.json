@@ -68,6 +68,8 @@
       "copy_wallet": "Wallet-ID in die Zwischenablage kopiert",
       "copy_wallet_error": "Fehler beim Kopieren der Wallet-ID in die Zwischenablage",
       "settings": "Einstellungen",
+      "copy_wallet_id": "Wallet-ID kopieren",
+      "logout": "Abmelden",
       "name": "Benutzername",
       "settings_invalid": "Dein Name muss zwischen 3 und 32 Zeichen lang sein und darf nur alphanumerische Zeichen enthalten.",
       "settings_success": "Einstellungen gespeichert",

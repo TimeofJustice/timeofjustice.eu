@@ -52,8 +52,14 @@ const {
   hintDismissed,
 } = defineProps<MainProps>();
 
-const { wallet, balance, balanceChange, changeBalance, openSettings } =
-  useWallet();
+const {
+  wallet,
+  balance,
+  balanceChange,
+  changeBalance,
+  openSettings,
+  copyWalletId,
+} = useWallet();
 
 const gameComponent = shallowRef<object>(HigherOrLower);
 const gameComponents = new Map<string, object>([
@@ -132,8 +138,7 @@ const redeemDailyBonus = () => {
 };
 
 const copyToClipboard = () => {
-  navigator.clipboard
-    .writeText(wallet.walletId)
+  copyWalletId()
     .then(() => {
       showToast(i18n.t("games.main.copy_wallet"), "success");
     })

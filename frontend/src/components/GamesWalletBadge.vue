@@ -1,8 +1,30 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+import { useToast } from "@composables/toast";
 import { useWallet } from "@composables/wallet";
 import GamesAvatar from "@components/GamesAvatar.vue";
 
-const { wallet, balance, isLoaded, openSettings } = useWallet();
+const i18n = useI18n();
+const { create } = useToast();
+const { wallet, balance, isLoaded, openSettings, copyWalletId } = useWallet();
+
+const copy = () => {
+  copyWalletId()
+    .then(() => {
+      create({
+        body: i18n.t("games.main.copy_wallet"),
+        variant: "success",
+        position: "bottom-start",
+      });
+    })
+    .catch(() => {
+      create({
+        body: i18n.t("games.main.copy_wallet_error"),
+        variant: "danger",
+        position: "bottom-start",
+      });
+    });
+};
 </script>
 
 <template>
@@ -31,6 +53,18 @@ const { wallet, balance, isLoaded, openSettings } = useWallet();
     <UiDropdownItem @click="openSettings">
       <iconify-icon icon="fa7-solid:edit" class="mr-1" />
       {{ $t("games.main.settings") }}
+    </UiDropdownItem>
+
+    <UiDropdownItem @click="copy">
+      <iconify-icon icon="iconamoon:copy-duotone" class="mr-1" />
+      {{ $t("games.main.copy_wallet_id") }}
+    </UiDropdownItem>
+
+    <hr class="my-2 border-black/15" />
+
+    <UiDropdownItem to="/games/logout/" class="text-danger hover:text-danger">
+      <iconify-icon icon="fa7-solid:sign-out" class="mr-1" />
+      {{ $t("games.main.logout") }}
     </UiDropdownItem>
   </UiDropdown>
 </template>
