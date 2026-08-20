@@ -13,6 +13,7 @@ export default defineConfig({
     tailwindcss(),
     vueDevTools({
       appendTo: "main.ts",
+      launchEditor: "code-insiders",
     }),
     Components({
       // Auto-import the custom UI components that replaced bootstrap-vue-next

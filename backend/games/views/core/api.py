@@ -1,59 +1,80 @@
-from django.http.response import HttpResponseRedirect, JsonResponse
+from django.http.response import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from core.helpers import BodyContent, get_or_none
 from games import models
 from games.decorators import wallet_required
+from games.vault import get_vault
+from games.wallet import get_wallet, revealable_phrase, stop_revealing_phrase
 
 
 @wallet_required
 @require_http_methods(["POST"])
 def update(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
-
-    if not wallet:
-        return JsonResponse({"error": "games.main.errors.wallet_not_found"}, status=404)
-
+    """Updates the name, the avatar, or both, whichever the body contains."""
+    wallet = get_wallet(request)
     post_data = BodyContent(request)
 
-    if post_data:
-        name = post_data.get("name")
-
-        if name and 3 <= len(name) <= 32 and name.isalnum():
-            wallet.name = name
-            wallet.save()
-        else:
-            return JsonResponse({"error": "games.main.errors.name_invalid"}, status=400)
-    else:
+    if not post_data:
         return JsonResponse({"error": "games.main.errors.invalid_request"}, status=400)
 
-    return JsonResponse({"name": wallet.name})
+    name = post_data.get("name")
+    avatar_id = post_data.get("avatarId", False)
+
+    if name is None and avatar_id is False:
+        return JsonResponse({"error": "games.main.errors.invalid_request"}, status=400)
+
+    if name is not None:
+        if not (isinstance(name, str) and 3 <= len(name) <= 32 and name.isalnum()):
+            return JsonResponse({"error": "games.main.errors.name_invalid"}, status=400)
+
+        wallet.name = name
+
+    if avatar_id is not False:
+        # An explicit null clears the avatar again.
+        if avatar_id is None:
+            wallet.avatar = None
+        else:
+            avatar = get_or_none(models.Avatar, id=avatar_id)
+
+            if not avatar:
+                return JsonResponse({"error": "games.main.errors.avatar_invalid"}, status=400)
+
+            wallet.avatar = avatar
+
+    wallet.save()
+
+    # Saving the settings is the end of first-time setup, so the phrase stops
+    # being offered from here on.
+    stop_revealing_phrase(request)
+
+    return JsonResponse({"name": wallet.name, "avatar": wallet.avatar.json() if wallet.avatar else None})
 
 
 @wallet_required
-@require_http_methods(["POST"])
-def dismiss(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
+def wallet_phrase(request):
+    """
+    The phrase, but only while it is still new. It is the only credential, so it
+    is shown once during setup and never served again.
+    """
+    reveal = revealable_phrase(request)
 
-    if not wallet:
-        return HttpResponseRedirect("/core/login/")
+    return JsonResponse({"walletPhrase": reveal.get("phrase"), "reason": reveal.get("reason")})
 
-    wallet.hint_dismissed = True
-    wallet.save()
 
-    return JsonResponse({"hintDismissed": wallet.hint_dismissed})
+@wallet_required
+def avatars(request):
+    """The avatars players can choose from, for the picker."""
+    return JsonResponse({"avatars": [avatar.json() for avatar in models.Avatar.objects.all()]})
 
 
 @wallet_required
 @require_http_methods(["POST"])
 def redeem(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
+    wallet = get_wallet(request)
 
-    if not wallet:
-        return HttpResponseRedirect("/core/login/")
-
-    if days_since_last_login(wallet) >= 1:
+    if wallet.refresh_streak() >= 1:
         wallet.days_played += 1
         wallet.last_visit = timezone.now().date()
         reward = 50
@@ -74,17 +95,6 @@ def redeem(request):
     return JsonResponse({"error": "games.main.errors.already_claimed"}, status=400)
 
 
-def days_since_last_login(wallet):
-    if wallet.last_visit is None:
-        wallet.last_visit = timezone.now().date()
-        wallet.save()
-    elif (timezone.now().date() - wallet.last_visit).days >= 2:
-        wallet.days_played = 0
-        wallet.save()
-
-    return (timezone.now().date() - wallet.last_visit).days
-
-
 def get_leaderboard(wallet):
     leaderboard = models.Wallet.objects.order_by("-balance")
     leaderboard = list(leaderboard)
@@ -95,10 +105,7 @@ def get_leaderboard(wallet):
 
 @wallet_required
 def leaderboard(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
-
-    if not wallet:
-        return HttpResponseRedirect("/core/login/")
+    wallet = get_wallet(request)
 
     leaderboard, own_index = get_leaderboard(wallet)
 
@@ -108,24 +115,6 @@ def leaderboard(request):
             "ownPosition": own_index + 1,
         }
     )
-
-
-def get_vault():
-    vault = get_or_none(models.Vault, id=1)
-
-    if not vault:
-        vault = models.Vault.objects.create(id=1, last_redemption=timezone.now().date())
-
-    vault_reset = timezone.datetime.combine(vault.last_redemption, timezone.datetime.min.time()) if vault.last_redemption else timezone.now()
-    vault_reset = timezone.make_aware(vault_reset) if timezone.is_naive(vault_reset) else vault_reset
-    vault_reset = vault_reset + timezone.timedelta(days=1)
-
-    if vault_reset < timezone.now():
-        vault.balance = 0
-        vault.last_redemption = timezone.now().date()
-        vault.save()
-
-    return vault, vault_reset
 
 
 @wallet_required

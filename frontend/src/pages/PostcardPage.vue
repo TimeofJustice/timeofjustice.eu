@@ -195,11 +195,9 @@ const report = (event: MouseEvent) => {
           v-model="form.greetings"
           :placeholder="$t('postcard.form.greetings_placeholder')"
           :state="validateGreetings"
+          :error="$t('postcard.form.greetings_help')"
           required
         />
-        <UiInvalidFeedback :state="validateGreetings">
-          {{ $t("postcard.form.greetings_help") }}
-        </UiInvalidFeedback>
       </UiFormGroup>
 
       <UiFormGroup :label="$t('postcard.form.message')" label-for="message">
@@ -209,11 +207,9 @@ const report = (event: MouseEvent) => {
           :placeholder="$t('postcard.form.message_placeholder')"
           rows="5"
           :state="validateMessage"
+          :error="$t('postcard.form.message_help')"
           required
         />
-        <UiInvalidFeedback :state="validateMessage">
-          {{ $t("postcard.form.message_help") }}
-        </UiInvalidFeedback>
       </UiFormGroup>
 
       <div>
@@ -266,7 +262,7 @@ const report = (event: MouseEvent) => {
       </span>
 
       <div
-        class="relative flex w-full items-center justify-between rounded-md bg-black/25 p-2 text-center"
+        class="relative flex w-full items-center justify-between rounded-md border border-hairline bg-field p-2 text-center"
       >
         <UiLink
           :href="`${baseURL}/sendy/${sendMessageId}`"

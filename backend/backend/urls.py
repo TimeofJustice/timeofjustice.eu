@@ -29,7 +29,11 @@ from backend import settings
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("", include("core.urls")),
+    path("", include("games.session_urls")),
     path("games/", include("games.urls")),
+    # "Momentum" is the name it wears; the app stays `habits`, the way
+    # `postcard` is served as "Sendy".
+    path("momentum/", include("habits.urls")),
     path("r-place/", include("r_place.urls")),
     path("sendy/", include("postcard.urls")),
 ]

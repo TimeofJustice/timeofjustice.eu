@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useScrollLock } from "@composables/scrollLock";
 
 export interface UiModalProps {
@@ -33,6 +33,21 @@ const close = () => {
   show.value = false;
 };
 
+/**
+ * Whether the press now under way began on the backdrop.
+ *
+ * A `click` goes to the nearest ancestor of press and release, so a selection
+ * dragged from the dialog out onto the backdrop used to close the modal. Press
+ * and release both have to land out here; the dialog clears the flag on the way
+ * down.
+ */
+const fromBackdrop = ref(false);
+
+/** Only a press that started out here may close on the way up. */
+const release = () => {
+  if (fromBackdrop.value) close();
+};
+
 const onKeydown = (event: KeyboardEvent) => {
   if (event.key === "Escape" && show.value) close();
 };
@@ -64,7 +79,8 @@ useScrollLock(show);
       <div
         v-if="show"
         class="fixed inset-0 z-1055 overflow-x-hidden overflow-y-auto"
-        @click.self="close"
+        @pointerdown.self.left="fromBackdrop = true"
+        @pointerup.self.left="release"
       >
         <div
           class="mx-auto my-2 w-auto sm:my-7"
@@ -74,15 +90,18 @@ useScrollLock(show);
               'flex min-h-[calc(100%-1rem)] items-center sm:min-h-[calc(100%-3.5rem)]',
             scrollable && 'h-[calc(100%-1rem)] sm:h-[calc(100%-3.5rem)]',
           ]"
-          @click.self="close"
+          @pointerdown.self.left="fromBackdrop = true"
+          @pointerup.self.left="release"
         >
+          <!-- The dialog is never a backdrop, however far a press is dragged. -->
           <div
-            class="flex w-full flex-col rounded-lg border border-black/20 bg-dark-gray-600 bg-clip-padding"
+            class="flex w-full flex-col rounded-surface border border-hairline bg-surface bg-clip-padding shadow-overlay"
             :class="scrollable && 'max-h-full overflow-hidden'"
+            @pointerdown="fromBackdrop = false"
           >
             <div
               v-if="$slots.header"
-              class="flex shrink-0 items-center border-b border-black/17.5 p-4"
+              class="flex shrink-0 items-center border-b border-hairline p-4"
               :class="headerClass"
             >
               <slot name="header" />
@@ -97,7 +116,7 @@ useScrollLock(show);
 
             <div
               v-if="$slots.footer"
-              class="flex shrink-0 items-center justify-end gap-2 border-t border-black/17.5 p-4"
+              class="flex shrink-0 items-center justify-end gap-2 border-t border-hairline p-4"
               :class="footerClass"
             >
               <slot name="footer" />

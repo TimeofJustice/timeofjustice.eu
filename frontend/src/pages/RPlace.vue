@@ -5,6 +5,9 @@ import axios from "@node_modules/axios";
 import { computed } from "@node_modules/vue";
 import RgbQuant from "rgbquant";
 
+import GamesAvatar from "@components/GamesAvatar.vue";
+import { Avatar } from "@/types/Avatar.ts";
+
 import CursorImage from "@assets/images/Cursor.png";
 
 interface PlaceState {
@@ -238,6 +241,20 @@ const setUpCanvasSize = (canvas: HTMLCanvasElement) => {
     deltaHeight,
   };
 };
+
+/**
+ * Who painted the selected pixel. Shown only once the selection has been
+ * sitting on the same pixel for a moment, so panning around stays quiet.
+ */
+const PLACED_BY_DELAY = 700;
+
+const placedBy = ref<{
+  publicId: string;
+  name: string;
+  avatar: Avatar | null;
+} | null>(null);
+const placedByPosition = ref({ x: 0, y: 0 });
+let placedByTimer: ReturnType<typeof setTimeout> | undefined;
 
 const view = {
   canvas: null as HTMLCanvasElement | null,
@@ -502,6 +519,17 @@ const view = {
       cellSize + 0.2,
       cellSize + 0.2,
     );
+
+    if (placedBy.value) this.trackPlacedBy();
+  },
+  /** Screen position of the selected cell's top centre, in canvas pixels. */
+  trackPlacedBy() {
+    const size = cellSize * this.scale;
+
+    placedByPosition.value = {
+      x: this.position.x + this.cursorPosition.x * size + size / 2,
+      y: this.position.y + this.cursorPosition.y * size,
+    };
   },
   center() {
     const targetX =
@@ -661,6 +689,49 @@ function keydownHandler(e: KeyboardEvent) {
     }
   }
 }
+
+const fetchPlacedBy = () => {
+  const { x, y } = placeState.value.coordinates;
+
+  axios
+    .get(`/r-place/api/cell/${activeCanvas.name}/${x}/${y}/`)
+    .then((response) => {
+      // The selection may have moved on while the request was in flight.
+      const current = placeState.value.coordinates;
+      if (current.x !== x || current.y !== y) return;
+
+      // Null on a pixel nobody has painted yet, which hides the tooltip.
+      placedBy.value = response.data.wallet;
+
+      if (placedBy.value) view.trackPlacedBy();
+    })
+    .catch(() => {
+      placedBy.value = null;
+    });
+};
+
+/** Looks the owner up again straight away, skipping the dwell delay. */
+const refreshPlacedBy = () => {
+  clearTimeout(placedByTimer);
+  fetchPlacedBy();
+};
+
+watch(
+  () => [
+    placeState.value.coordinates.x,
+    placeState.value.coordinates.y,
+    placeState.value.state,
+  ],
+  () => {
+    placedBy.value = null;
+    clearTimeout(placedByTimer);
+
+    if (placeState.value.state === "loading") return;
+
+    placedByTimer = setTimeout(fetchPlacedBy, PLACED_BY_DELAY);
+  },
+  { immediate: true },
+);
 
 function clickBeforeHandler(e: MouseEvent) {
   if (
@@ -835,6 +906,7 @@ onMounted(() => {
   });
 
   onBeforeUnmount(() => {
+    clearTimeout(placedByTimer);
     window.removeEventListener("keydown", keydownHandler);
     canvas.value?.removeEventListener("click", clickBeforeHandler, true);
     canvas.value?.removeEventListener("click", clickAfterHandler, false);
@@ -870,6 +942,13 @@ onMounted(() => {
       const cell = data.cell;
       view.drawCell(cell.x, cell.y, cell.color);
       view.refresh();
+
+      // The tooltip is describing this very pixel, and it just changed hands.
+      const selected = placeState.value.coordinates;
+
+      if (placedBy.value && cell.x === selected.x && cell.y === selected.y) {
+        refreshPlacedBy();
+      }
     } else if (data.type === "player_update") {
       placeState.value.playerCount = data.count;
     }
@@ -1229,6 +1308,21 @@ watch(
         class="field bg-dark-gray-500"
       ></canvas>
 
+      <Transition>
+        <div
+          class="place-tooltip"
+          :style="{
+            left: `${placedByPosition.x}px`,
+            top: `${placedByPosition.y}px`,
+          }"
+          v-if="placedBy"
+        >
+          <GamesAvatar :avatar="placedBy.avatar" size="sm" />
+          {{ placedBy.name }}
+          <span class="opacity-60">#{{ placedBy.publicId }}</span>
+        </div>
+      </Transition>
+
       <div
         class="place-controls pointer-events-none absolute inset-0 flex flex-col justify-end"
       >
@@ -1422,10 +1516,8 @@ watch(
               accept="image/png,image/jpeg,image/gif"
               class="place-input"
               :state="validateFile"
+              :error="$t('r_place.canvas.overlay.invalid_file')"
             />
-            <UiInvalidFeedback :state="validateFile">
-              {{ $t("r_place.canvas.overlay.invalid_file") }}
-            </UiInvalidFeedback>
           </UiFormGroup>
 
           <UiFormGroup
@@ -1526,6 +1618,39 @@ watch(
   .place-controls {
     margin-top: 3.5rem !important;
   }
+}
+
+.place-tooltip {
+  position: absolute;
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+
+  background: rgb(0 0 0 / 0.75);
+  color: var(--color-light);
+  font-size: 0.875rem;
+  white-space: nowrap;
+
+  /* Sits above the cell it describes and never eats a click meant for it. */
+  transform: translate(-50%, calc(-100% - 0.5rem));
+  pointer-events: none;
+}
+
+.place-tooltip::after {
+  content: "";
+
+  position: absolute;
+  top: 100%;
+  left: 50%;
+
+  border: 0.35rem solid transparent;
+  border-top-color: rgb(0 0 0 / 0.75);
+  transform: translateX(-50%);
 }
 
 .place-container.fullscreen {

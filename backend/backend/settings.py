@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "background_task",
     "core",
     "games",
+    "habits",
     "r_place",
     "postcard",
 ]
@@ -188,6 +189,18 @@ DJANGO_VITE_DEV_SERVER_PORT = 5173
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
+
+# Wallets are the only login and people lose the id, so keep them signed in for
+# a year rather than Django's default fortnight.
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
+
+# Keys the wallet phrase hashes. Wallet phrases are never stored, only their
+# keyed hash, so a database dump on its own reveals nothing.
+#
+# NEVER CHANGE THIS ON A LIVE SITE: every phrase would stop matching and every
+# wallet would become unreachable. It defaults to SECRET_KEY so the site runs
+# without extra configuration; set it explicitly to decouple the two.
+WALLET_PEPPER = os.getenv("WALLET_PEPPER", SECRET_KEY)
 
 STATIC_URL = "static/"
 

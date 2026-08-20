@@ -3,11 +3,10 @@ import secrets
 from django.http.response import JsonResponse
 from django.views.decorators.http import require_http_methods
 
-from core.helpers import BodyContent, get_or_none
-from games import models
+from core.helpers import BodyContent
 from games.decorators import wallet_required
-from games.views.core.api import get_vault
 from games.views.dice import get_wins
+from games.wallet import get_wallet, update_balance
 
 wins = {
     "small": 1,
@@ -77,23 +76,11 @@ def session_json(session):
     }
 
 
-def update_wallet(wallet, bet):
-    wallet.balance += bet
-    wallet.save()
-
-    vault, _ = get_vault()
-    vault.balance += bet * -1
-    vault.save()
-
-
 @wallet_required
 @require_http_methods(["POST"])
 def start(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
+    wallet = get_wallet(request)
     post_data = BodyContent(request)
-
-    if not wallet:
-        return JsonResponse({"error": "games.game.sic_bo.errors.session_expired"}, status=400)
 
     if not post_data or not post_data.get("bets"):
         return JsonResponse({"error": "games.game.sic_bo.errors.invalid_request"}, status=400)
@@ -108,7 +95,7 @@ def start(request):
     if total_bet <= 0 or total_bet > wallet.balance or total_bet > 500:
         return JsonResponse({"error": "games.game.sic_bo.errors.invalid_bet"}, status=400)
 
-    update_wallet(wallet, -total_bet)
+    update_balance(wallet, -total_bet)
 
     dice = [secrets.randbelow(6) + 1 for _ in range(3)]
     possible_wins = get_wins(dice)
@@ -127,7 +114,7 @@ def start(request):
                 won += amount + amount * amount_turn_in_wins
 
     if won > 0:
-        update_wallet(wallet, won)
+        update_balance(wallet, won)
 
     session = create_session(dice, bets, total_bet, won, possible_wins)
 

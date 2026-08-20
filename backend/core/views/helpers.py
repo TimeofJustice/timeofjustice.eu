@@ -47,6 +47,11 @@ def profile_images(request, name):
     return static_files(path)
 
 
+def games_avatars(request, name):
+    path = f"{settings.FILE_DESTINATION}images/games/avatars/{name}"
+    return static_files(path)
+
+
 def games_cards(request, name):
     path = f"{settings.FILE_DESTINATION}images/games/cards/{name}"
     return static_files(path)

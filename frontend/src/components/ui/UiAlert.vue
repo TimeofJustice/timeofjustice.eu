@@ -15,7 +15,7 @@ const show = defineModel<boolean>({ default: true });
 defineOptions({ inheritAttrs: false });
 
 const { ui, rest } = useUi(() => [
-  "relative mb-4 rounded-md border p-4",
+  "relative mb-4 rounded-surface border p-4 shadow-overlay backdrop-blur-card",
   "[&_p]:m-0 [&_a]:text-info",
   SUBTLE[variant],
   dismissible && "pr-12",

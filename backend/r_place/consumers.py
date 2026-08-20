@@ -4,11 +4,20 @@ from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.core.cache import cache
 
+from games.wallet import get_wallet_by_session
 from r_place.models import Canvas, Cell
 
 
 class RPlaceConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        # Painting requires a wallet, so a socket without one is refused
+        # outright rather than connecting and silently dropping every update.
+        self.wallet_id = await database_sync_to_async(self.get_wallet_id)()
+
+        if not self.wallet_id:
+            await self.close()
+            return
+
         await self.channel_layer.group_add(
             "r_place",
             self.channel_name,
@@ -17,7 +26,16 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.update_player_count(1)
 
+    def get_wallet_id(self):
+        wallet = get_wallet_by_session(self.scope.get("session", {}))
+
+        return wallet.pk if wallet else None
+
     async def disconnect(self, close_code):
+        # A socket rejected in connect() never joined the group or counted.
+        if not getattr(self, "wallet_id", None):
+            return
+
         await self.channel_layer.group_discard(
             "r_place",
             self.channel_name,
@@ -70,7 +88,12 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         if not isinstance(cell["color"], str) or len(cell["color"]) != 7 or not cell["color"].startswith("#"):
             return
 
-        await database_sync_to_async(self.save_cell)(cell, active_canvas)
+        painted = await database_sync_to_async(self.save_cell)(cell, active_canvas)
+
+        # Repainting a pixel in the colour it already has changes nothing, so it
+        # is not stored and not sent on: the owner and timestamp stay as they are.
+        if not painted:
+            return
 
         await self.channel_layer.group_send(
             "r_place",
@@ -84,12 +107,20 @@ class RPlaceConsumer(AsyncWebsocketConsumer):
         return Canvas.objects.filter(active=True).first()
 
     def save_cell(self, cell, canvas):
+        """Stores the pixel, or reports False when it already looks like this."""
+        existing = Cell.objects.filter(x=cell["x"], y=cell["y"], canvas=canvas).first()
+
+        if existing and existing.color == cell["color"]:
+            return False
+
         Cell.objects.update_or_create(
             x=cell["x"],
             y=cell["y"],
             canvas=canvas,
-            defaults={"color": cell["color"]},
+            defaults={"color": cell["color"], "wallet_id": self.wallet_id},
         )
+
+        return True
 
     async def cell_update(self, event):
         cell = event["cell"]

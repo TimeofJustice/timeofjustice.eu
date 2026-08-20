@@ -1,12 +1,15 @@
 <script setup lang="ts" generic="T extends string | number | null | undefined">
 import { computed, useAttrs } from "vue";
 import { useUi } from "./cn";
+import { FIELD, fieldState } from "./field";
 import { RANGE, type Variant } from "./variants";
 
 export interface UiInputProps {
   type?: string;
-  /** `true` marks the field valid, `false` invalid, `null` leaves it neutral. */
+  /** `false` marks the field invalid; `true` and `null` leave it neutral. */
   state?: boolean | null;
+  /** Why the value is wrong. Reaches the reader through the icon's tooltip. */
+  error?: string;
   /** Colour of the thumb and of the filled track. Only a range reads this. */
   variant?: Variant;
 }
@@ -14,6 +17,7 @@ export interface UiInputProps {
 const {
   type = "text",
   state = null,
+  error = undefined,
   variant = undefined,
 } = defineProps<UiInputProps>();
 
@@ -24,6 +28,12 @@ defineOptions({ inheritAttrs: false });
 const attrs = useAttrs();
 
 const isRange = computed(() => type === "range");
+
+/**
+ * A swatch is too small to hold an icon and a slider has no box to put one in,
+ * so those two say "wrong" with colour alone.
+ */
+const boxed = computed(() => !isRange.value && type !== "color");
 
 /**
  * How far along the track the value sits, as a 0…1 fraction. The track paints
@@ -54,17 +64,13 @@ const { ui, rest } = useUi(() =>
         "[--range-thumb:var(--color-control-accent)]",
         variant && RANGE[variant],
         // Validity outranks the variant, an invalid slider has to read as one.
-        state === true && "[--range-thumb:var(--color-success)]",
         state === false && "[--range-thumb:var(--color-danger)]",
       ]
     : [
-        "block w-full rounded-md border border-[#dee2e6] bg-body bg-clip-padding px-3 py-1.5",
-        "text-control leading-normal text-light placeholder:text-accent",
-        "transition-[border-color,box-shadow] duration-150",
-        "focus:border-[#8a8b8c] focus:shadow-[0_0_0_0.25rem_rgb(20_22_25_/_0.25)] focus:outline-none",
-        type === "color" && "h-[calc(1.5em+0.75rem+2px)] w-12 p-1.5",
-        state === true && "border-success",
-        state === false && "border-danger",
+        FIELD,
+        type === "color" &&
+          "h-[calc(1.5em+0.75rem+2px)] w-12 cursor-pointer p-1.5",
+        fieldState(state, boxed.value),
       ],
 );
 
@@ -78,14 +84,21 @@ const onInput = (event: Event) => {
 </script>
 
 <template>
-  <input
-    :type="type"
-    :value="model"
-    :class="ui"
-    v-bind="rest"
-    :style="style"
-    @input="onInput"
-  />
+  <!-- The wrapper is what the error icon hangs off. It is there whether or not
+       the field is currently wrong, so turning invalid does not re-create the
+       input and steal the focus from whoever is typing in it. -->
+  <span class="relative block" :class="type === 'color' ? 'w-fit' : 'w-full'">
+    <input
+      :type="type"
+      :value="model"
+      :class="ui"
+      v-bind="rest"
+      :style="style"
+      @input="onInput"
+    />
+
+    <UiFieldError v-if="boxed && state === false" :message="error" />
+  </span>
 </template>
 
 <style scoped>

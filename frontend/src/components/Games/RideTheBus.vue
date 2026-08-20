@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
           "
         >
           <div
-            class="flex w-5/6 shrink-0 flex-col gap-2 rounded-lg bg-dark-gray-600 p-2 md:w-5/12 lg:w-1/3"
+            class="flex w-5/6 shrink-0 flex-col gap-2 rounded-surface border border-hairline bg-surface p-2 shadow-overlay md:w-5/12 lg:w-1/3"
           >
             <h1 class="text-center" v-if="gameSession.state !== 'not_started'">
               {{

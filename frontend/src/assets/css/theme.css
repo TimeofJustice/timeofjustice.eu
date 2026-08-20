@@ -114,16 +114,91 @@
     }
   }
 
-  --color-control-accent: #0d6efd;
-  --color-track: #e9ecef;
+  /* A streak that is still running. The flicker is deliberately off a whole
+     number of seconds, so several flames on one page drift apart instead of
+     pulsing in lockstep. */
+  --animate-flame: flame 1.7s ease-in-out infinite;
 
-  /* Surfaces */
+  @keyframes flame {
+    0%,
+    100% {
+      transform: scale(1) rotate(-3deg);
+      filter: drop-shadow(0 0 2px var(--color-warning));
+    }
+    50% {
+      transform: scale(1.18) rotate(3deg);
+      filter: drop-shadow(0 0 7px var(--color-danger));
+    }
+  }
+
+  /* A record being set right now: the trophy catches the light. Slower than
+     the flame, and off its period, so the two never fall into step. */
+  --animate-sparkle: sparkle 2.3s ease-in-out infinite;
+
+  @keyframes sparkle {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    40% {
+      transform: scale(1.2) rotate(-9deg);
+      filter: drop-shadow(0 0 6px var(--color-warning));
+    }
+    60% {
+      transform: scale(1.2) rotate(9deg);
+      filter: drop-shadow(0 0 6px var(--color-warning));
+    }
+  }
+
+  --color-control-accent: #0d6efd;
+
+  /*
+   * The groove a value is drawn into: a range's track, a progress bar's rail.
+   * Translucent rather than a fixed grey, so it sits on any of the surfaces
+   * below without being lighter than the thing it is carved into.
+   */
+  --color-track: rgb(248 249 250 / 0.12);
+
+  /*
+   * Form controls. The field sits a shade below the surface it lives on, so a
+   * boxed control reads as recessed rather than as a rectangle drawn on top.
+   * Only the edge reacts: hover lifts it, focus lifts it further and adds a
+   * ring, and an invalid field turns the same pair red.
+   */
+  --color-field: var(--color-dark-gray-700);
+  --color-field-edge: #3f4247;
+  --color-field-edge-hover: #5a5e63;
+  --color-field-edge-focus: #8a8b8c;
+
+  /*
+   * The ring around whatever has keyboard focus. One ring for every control,
+   * be it button, link, field or menu item, so focus looks the same wherever
+   * it lands.
+   */
+  --color-focus-ring: rgb(248 249 250 / 0.1);
+  --color-focus-ring-danger: rgb(220 53 69 / 0.25);
+
+  /*
+   * Surfaces, from the page upwards.
+   *
+   * `card` is the glass panel that floats over the background; `surface` is the
+   * opaque panel that has to hide what is behind it: a modal, an offcanvas, a
+   * menu. Both share one radius and one hairline, which is what makes a dialog
+   * and a card read as the same family.
+   */
   --color-card: rgb(37 37 37 / 0.5);
-  --radius-card: 0.375rem;
+  --color-surface: var(--color-dark-gray-600);
+  --color-surface-raised: var(--color-dark-gray-500);
+  /* Separators and outlines on a dark surface: light, never black. */
+  --color-hairline: rgb(248 249 250 / 0.1);
+  --radius-surface: 0.5rem;
   --blur-card: 10px;
   --shadow-card:
     inset 0 2px 0 -2px rgb(118 118 118 / 0.7),
     inset 0 0 5px 1px rgb(118 118 118 / 0.3);
+  /* Anything that floats above the page carries the same drop shadow. */
+  --shadow-overlay: 0 0.75rem 2rem rgb(0 0 0 / 0.45);
 
   /* Container widths */
   --container-page: 1320px;

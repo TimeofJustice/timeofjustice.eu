@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseLink from "@components/BaseLink.vue";
 import { useUi } from "./cn";
+import { FOCUS_RING } from "./focus";
 import { BUTTON, BUTTON_ACTIVE, type Size, type Variant } from "./variants";
 
 export interface UiButtonProps {
@@ -48,6 +49,7 @@ const { ui, rest } = useUi(() =>
         RESET,
         "inline-block rounded-md border border-transparent px-3 py-1.5 text-control leading-normal",
         "transition-[color,background-color,border-color,box-shadow] duration-150",
+        FOCUS_RING,
         BUTTON[variant],
         active && BUTTON_ACTIVE[variant],
 

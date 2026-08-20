@@ -1,83 +1,107 @@
-import uuid
-
 from django.http.response import HttpResponseRedirect
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_http_methods
 from inertia import render
 
-from core.helpers import BodyContent, default_props, get_or_none
-from games import models
+from core.helpers import BodyContent, default_props
+from core.throttle import rate_limited
 from games.decorators import wallet_required
-from games.views.core.api import days_since_last_login, get_leaderboard, get_vault
+from games.vault import get_vault
+from games.views.core.api import get_leaderboard
+from games.wallet import (
+    clear_wallet,
+    create_wallet,
+    find_legacy_wallet,
+    find_wallet,
+    get_wallet,
+    reveal_phrase,
+    set_wallet,
+    upgrade_legacy_wallet,
+)
+
+DEFAULT_REDIRECT = "/games/"
+
+LOGIN_ATTEMPT_LIMIT = 20
+LOGIN_ATTEMPT_WINDOW = 5 * 60
 
 
-@ensure_csrf_cookie
-def index(request):
-    wallet = request.session.get("wallet_id", None)
+def safe_redirect(candidate):
+    """Keeps `next` pointing at this site, falling back to the games page."""
+    if candidate and candidate.startswith("/") and url_has_allowed_host_and_scheme(candidate, allowed_hosts=None):
+        return candidate
 
-    if not wallet:
-        return render(request, "Games/EntryPage", props=default_props({}, request))
-
-    return main(request)
+    return DEFAULT_REDIRECT
 
 
 def login(request):
+    next_url = safe_redirect(request.GET.get("next"))
+
+    if request.method != "POST":
+        if get_wallet(request):
+            return HttpResponseRedirect(next_url)
+
+        return render(request, "WalletLoginPage", props=default_props({"error": None, "next": next_url}, request))
+
     post_data = BodyContent(request)
+    next_url = safe_redirect(post_data.get("next"))
+    identifier = post_data.get("phrase")
 
-    if post_data:
-        wallet_id = post_data.get("walletId")
-        if wallet_id:
-            wallet = get_or_none(models.Wallet, wallet_id=wallet_id.lower())
-
-            if wallet:
-                request.session["wallet_id"] = wallet.wallet_id
-                return HttpResponseRedirect("/games/")
-            error_text = "games.login.error.invalid_wallet"
-        else:
-            error_text = "games.login.error.invalid_request"
-    else:
+    if rate_limited(request, "wallet-login", LOGIN_ATTEMPT_LIMIT, LOGIN_ATTEMPT_WINDOW):
+        error_text = "games.login.error.too_many_attempts"
+    elif not identifier:
         error_text = "games.login.error.invalid_request"
+    else:
+        wallet = find_wallet(identifier)
 
-    page_props = {
-        "error": error_text,
-    }
+        if wallet:
+            set_wallet(request, wallet)
+            return HttpResponseRedirect(next_url)
 
-    return render(request, "Games/LoginPage", props=default_props(page_props, request))
+        legacy_wallet = find_legacy_wallet(identifier)
+
+        if legacy_wallet:
+            # An old hex id, spent by using it: the wallet leaves with a phrase.
+            phrase = upgrade_legacy_wallet(legacy_wallet)
+
+            set_wallet(request, legacy_wallet)
+            reveal_phrase(request, phrase, reason="migrated")
+
+            return HttpResponseRedirect(next_url)
+
+        error_text = "games.login.error.invalid_wallet"
+
+    return render(request, "WalletLoginPage", props=default_props({"error": error_text, "next": next_url}, request))
 
 
+@require_http_methods(["POST"])
 def register(request):
-    wallet_id = uuid.uuid4().hex
-    wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
+    """
+    POST only: as a GET this created a wallet for every link prefetcher, crawler
+    and chat preview that touched the URL.
+    """
+    wallet, phrase = create_wallet()
 
-    while wallet:
-        wallet_id = uuid.uuid4().hex
-        wallet = get_or_none(models.Wallet, wallet_id=wallet_id)
+    set_wallet(request, wallet)
+    reveal_phrase(request, phrase)
 
-    wallet = models.Wallet.objects.create(wallet_id=wallet_id, last_visit=timezone.now().date())
-
-    request.session["wallet_id"] = wallet.wallet_id
-
-    return HttpResponseRedirect("/games/")
+    return HttpResponseRedirect(safe_redirect(BodyContent(request).get("next")))
 
 
 def logout(request):
-    response = HttpResponseRedirect("/games/login/")
+    clear_wallet(request)
 
-    if "wallet_id" in request.session:
-        del request.session["wallet_id"]
-
-    return response
+    return HttpResponseRedirect("/login/")
 
 
+@ensure_csrf_cookie
 @wallet_required
-def main(request):
-    wallet = get_or_none(models.Wallet, wallet_id=request.session["wallet_id"])
-
-    if not wallet:
-        return HttpResponseRedirect("/games/login/")
+def index(request):
+    wallet = get_wallet(request)
 
     leaderboard, own_index = get_leaderboard(wallet)
-    new_bonus = days_since_last_login(wallet) >= 1
+    new_bonus = wallet.refresh_streak() >= 1
 
     last_visit = timezone.datetime.combine(wallet.last_visit, timezone.datetime.min.time()) if wallet.last_visit else timezone.now()
     next_bonus = last_visit + timezone.timedelta(days=1)
@@ -85,7 +109,6 @@ def main(request):
     vault, vault_reset = get_vault()
 
     page_props = {
-        "wallet": wallet.json(),
         "leaderboard": [wallet.public_json() for wallet in leaderboard[:5]],
         "ownPosition": own_index + 1,
         "newBonus": new_bonus,
@@ -100,7 +123,6 @@ def main(request):
         ],
         "vault": vault.balance,
         "vaultReset": vault_reset.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "hintDismissed": wallet.hint_dismissed,
     }
 
     return render(request, "Games/MainPage", props=default_props(page_props, request))

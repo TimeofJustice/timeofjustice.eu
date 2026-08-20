@@ -12,8 +12,8 @@ defineProps<GamesLeaderboardPosition>();
 
 <template>
   <div
-    class="flex items-center justify-between rounded-md border border-gray-800 px-4 py-2"
-    :class="highlighted ? 'bg-blue-400/50' : 'bg-gray-900/50'"
+    class="flex items-center justify-between rounded-md border border-hairline px-4 py-2"
+    :class="highlighted ? 'bg-blue-grey/40' : 'bg-card'"
   >
     <span class="truncate font-bold"> {{ index }}. {{ name }} </span>
 

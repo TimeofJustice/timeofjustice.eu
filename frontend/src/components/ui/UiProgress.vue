@@ -15,7 +15,7 @@ provide(
 </script>
 
 <template>
-  <div class="flex h-4 overflow-hidden rounded-md bg-dark-gray-600 text-xs">
+  <div class="flex h-4 overflow-hidden rounded-md bg-track text-xs">
     <slot />
   </div>
 </template>

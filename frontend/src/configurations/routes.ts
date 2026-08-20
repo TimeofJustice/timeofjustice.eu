@@ -17,7 +17,14 @@ export const ROUTES: Route[] = [
     name: "nav.games",
     path: "/games/",
     icon: "fa7-solid:dice",
-    activeComponents: ["Games/EntryPage", "Games/LoginPage", "Games/MainPage"],
+    activeComponents: ["Games/MainPage"],
+  },
+  {
+    name: "nav.habits",
+    path: "/momentum/",
+    icon: "fa6-solid:bolt",
+    activeComponents: ["HabitTrackerPage"],
+    isHighlighted: true,
   },
   {
     name: "nav.place",
@@ -30,6 +37,5 @@ export const ROUTES: Route[] = [
     path: "/sendy/",
     icon: "bi:envelope-heart-fill",
     activeComponents: ["PostcardPage"],
-    isHighlighted: true,
   },
 ];

@@ -14,8 +14,8 @@ const show = defineModel<boolean>({ default: true });
 defineOptions({ inheritAttrs: false });
 
 const { ui, rest } = useUi(() => [
-  "w-[350px] max-w-full rounded-md border border-black/[0.175] bg-clip-padding",
-  "text-sm shadow-[0_0.5rem_1rem_rgb(0_0_0_/_0.15)]",
+  "w-[350px] max-w-full rounded-surface border border-hairline bg-clip-padding",
+  "text-sm shadow-overlay",
   FILL[variant],
 ]);
 </script>

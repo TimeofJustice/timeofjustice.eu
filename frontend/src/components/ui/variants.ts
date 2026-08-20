@@ -113,24 +113,25 @@ export const RANGE: Record<Variant, string> = {
   "dark-red": "[--range-thumb:var(--color-dark-red)]",
 };
 
-/** Tinted surface plus matching border and text, used by alerts. */
+/**
+ * Tinted surface plus matching border, used by alerts. Translucent throughout,
+ * and the text stays the site's usual light: a pale blue box with near-black
+ * type would be the one bright rectangle on a dark page.
+ */
 export const SUBTLE: Record<Variant, string> = {
-  primary: "bg-primary/20 border-primary text-light",
-  secondary: "bg-secondary/20 border-secondary text-light",
-  tertiary: "bg-tertiary/20 border-tertiary text-light",
-  ghost: "bg-transparent border-transparent text-light",
-  success:
-    "bg-success-subtle border-success-border-subtle text-success-text-emphasis",
-  info: "bg-info-subtle border-info-border-subtle text-info-text-emphasis",
-  warning:
-    "bg-warning-subtle border-warning-border-subtle text-warning-text-emphasis",
-  danger:
-    "bg-danger-subtle border-danger-border-subtle text-danger-text-emphasis",
-  light: "bg-light border-light text-black",
-  dark: "bg-dark border-dark text-light",
-  aquamarin: "bg-aquamarin/20 border-aquamarin text-light",
-  "blue-grey": "bg-blue-grey/20 border-blue-grey text-light",
-  brown: "bg-brown/20 border-brown text-light",
-  "dark-green": "bg-dark-green/20 border-dark-green text-light",
-  "dark-red": "bg-dark-red/20 border-dark-red text-light",
+  primary: "border-hairline bg-primary/60 text-light",
+  secondary: "border-hairline bg-secondary/50 text-light",
+  tertiary: "border-hairline bg-tertiary/50 text-light",
+  ghost: "border-transparent bg-transparent text-light",
+  success: "border-success/40 bg-success/15 text-light",
+  info: "border-info/40 bg-info/15 text-light",
+  warning: "border-warning/40 bg-warning/15 text-light",
+  danger: "border-danger/40 bg-danger/15 text-light",
+  light: "border-light/40 bg-light/15 text-light",
+  dark: "border-hairline bg-dark/70 text-light",
+  aquamarin: "border-aquamarin/40 bg-aquamarin/20 text-light",
+  "blue-grey": "border-blue-grey/40 bg-blue-grey/20 text-light",
+  brown: "border-brown/40 bg-brown/20 text-light",
+  "dark-green": "border-dark-green/40 bg-dark-green/20 text-light",
+  "dark-red": "border-dark-red/40 bg-dark-red/20 text-light",
 };

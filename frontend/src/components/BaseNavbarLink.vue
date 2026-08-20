@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Route } from "@/types/Route.ts";
 import BaseLink from "@components/BaseLink.vue";
+import { FOCUS_RING } from "@components/ui/focus";
 
 interface INavbarLink {
   route: Route;
@@ -17,11 +18,14 @@ defineProps<INavbarLink>();
   >
     <BaseLink
       :href="route.path"
-      class="relative block px-2 py-2 text-light no-underline transition-colors duration-150 hover:text-accent"
+      class="nav-link relative block rounded-md px-2 py-2 text-light no-underline transition-colors duration-150 hover:text-accent"
+      :class="FOCUS_RING"
     >
       <div class="flex items-center whitespace-nowrap">
-        <iconify-icon :icon="route.icon" class="mr-1" />
-        <div class="link-title">{{ $t(route.name) }}</div>
+        <iconify-icon :icon="route.icon" />
+        <!-- The space in front of a title belongs to the title: in the collapsed
+             navbar the two go away together. -->
+        <div class="link-title ml-1">{{ $t(route.name) }}</div>
       </div>
 
       <UiBadge

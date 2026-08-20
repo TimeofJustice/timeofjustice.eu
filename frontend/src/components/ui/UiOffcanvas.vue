@@ -57,13 +57,17 @@ useScrollLock(show);
     >
       <div
         v-if="show"
-        class="fixed top-0 bottom-0 z-1045 flex max-w-full flex-col bg-dark-gray-600 bg-clip-padding outline-none"
-        :class="placement === 'end' ? 'right-0' : 'left-0'"
+        class="fixed top-0 bottom-0 z-1045 flex max-w-full flex-col bg-surface bg-clip-padding shadow-overlay outline-none"
+        :class="
+          placement === 'end'
+            ? 'right-0 border-l border-hairline'
+            : 'left-0 border-r border-hairline'
+        "
         v-bind="$attrs"
       >
         <div
           v-if="$slots.header"
-          class="flex items-center justify-between p-3 pr-4"
+          class="flex items-center justify-between border-b border-hairline p-3 pr-4"
           :class="headerClass"
         >
           <slot name="header" />
