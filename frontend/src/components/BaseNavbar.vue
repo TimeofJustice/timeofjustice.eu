@@ -139,7 +139,7 @@ onMounted(() => {
       </div>
 
       <div class="hidden w-full items-center justify-between lg:flex">
-        <div class="flex items-center">
+        <div class="flex items-center gap-1">
           <BaseNavbarLink
             :route="route"
             v-for="route in ROUTES"

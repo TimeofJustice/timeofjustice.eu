@@ -276,6 +276,10 @@
     "next_year": "Next year",
     "archived": "Archived",
     "drag": "Drag to rearrange",
+    "drop": {
+      "own_row": "A row of its own",
+      "share_row": "Share this row"
+    },
     "toggle": "Fold away",
     "empty": "No habits yet. Create one and every day of the year gets a square to fill.",
     "goal_label": "{goal} {unit} a day",

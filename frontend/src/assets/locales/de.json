@@ -264,6 +264,10 @@
     "next_year": "Nächstes Jahr",
     "archived": "Archiviert",
     "drag": "Ziehen zum Umsortieren",
+    "drop": {
+      "own_row": "Eigene Reihe",
+      "share_row": "Reihe teilen"
+    },
     "toggle": "Ein-/ausklappen",
     "empty": "Noch keine Gewohnheiten. Lege eine an und jeder Tag des Jahres bekommt ein Kästchen zum Füllen.",
     "goal_label": "{goal} {unit} pro Tag",

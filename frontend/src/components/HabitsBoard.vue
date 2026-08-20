@@ -70,12 +70,32 @@ const rows = computed(() => {
 });
 
 const dragged = ref<Habit | null>(null);
-/** Where the panel would land: the habit it goes before, and at what width. */
-const target = ref<{ id: number | null; wide: boolean } | null>(null);
+
+/**
+ * Where a drop would put the panel: the habit it lands in front of — `null` for
+ * the very end — and how it will sit there.
+ *
+ * Every zone names both outright instead of it being worked out from which half
+ * of a panel the pointer happens to be over. That is what makes the board
+ * readable while dragging: each zone means one thing, and it is the thing it
+ * looks like. It is also what gives a wide panel its way back to half a row,
+ * which a gesture that preserved the width could never do.
+ */
+const target = ref<{
+  zone: string;
+  before: number | null;
+  wide: boolean;
+} | null>(null);
 
 const valuesOf = (habit: Habit) => entries[String(habit.id)] ?? {};
 
-const start = (habit: Habit) => {
+const start = (event: DragEvent, habit: Habit) => {
+  // Firefox abandons a drag whose `dragstart` set no data at all, so this is
+  // not optional even though nothing ever reads it back.
+  event.dataTransfer?.setData("text/plain", String(habit.id));
+
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
+
   dragged.value = habit;
 };
 
@@ -84,46 +104,35 @@ const stop = () => {
   target.value = null;
 };
 
-/**
- * Marks where a drop would put the panel.
- *
- * Which half of the panel the pointer is over decides before or after — along
- * the axis the panels actually lie on. Two sharing a row are side by side, so
- * there it is left and right; a panel that owns its row is above and below the
- * next one, so there it is top and bottom. Reading the wrong axis is what makes
- * a drop feel arbitrary.
- */
-const over = (event: DragEvent, habit: Habit, alongside: boolean) => {
-  if (!dragged.value || dragged.value.id === habit.id) return;
+const aim = (
+  event: DragEvent,
+  zone: string,
+  before: number | null,
+  wide: boolean,
+) => {
+  if (!dragged.value) return;
 
-  event.preventDefault();
+  if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
 
-  const box = (event.currentTarget as HTMLElement).getBoundingClientRect();
-  const after = alongside
-    ? event.clientX > box.left + box.width / 2
-    : event.clientY > box.top + box.height / 2;
+  target.value = { zone, before, wide };
+};
 
+const isAimed = (zone: string) => target.value?.zone === zone;
+
+/** The habit that follows this one in the running order, for a trailing zone. */
+const after = (habit: Habit) => {
   const index = habits.findIndex((entry) => entry.id === habit.id);
-  const next = habits[index + 1];
 
-  target.value = {
-    id: after ? (next?.id ?? null) : habit.id,
-    wide: dragged.value.wide,
-  };
+  return habits[index + 1]?.id ?? null;
 };
 
 /**
- * The seam between two panels of a row: landing there means "take the whole
- * row". It is the only gesture on the board that changes a panel's width rather
- * than its place.
+ * Below `xl` a panel owns its row whatever the flag says, so there is nothing
+ * to choose there and the width it already has is left alone.
  */
-const overSeam = (event: DragEvent, habit: Habit) => {
-  if (!dragged.value || dragged.value.id === habit.id) return;
-
-  event.preventDefault();
-
-  target.value = { id: habit.id, wide: true };
-};
+const ownRow = computed(() =>
+  isWide.value ? true : (dragged.value?.wide ?? false),
+);
 
 const drop = () => {
   const moving = dragged.value;
@@ -135,9 +144,9 @@ const drop = () => {
 
   const rest = habits.filter((habit) => habit.id !== moving.id);
   const at =
-    landing.id === null
+    landing.before === null
       ? rest.length
-      : rest.findIndex((habit) => habit.id === landing.id);
+      : rest.findIndex((habit) => habit.id === landing.before);
 
   const arranged = [...rest];
 
@@ -157,8 +166,17 @@ const drop = () => {
   if (!unchanged) emit("arrange", arranged);
 };
 
-const isTarget = (habit: Habit, wide: boolean) =>
-  target.value?.id === habit.id && target.value.wide === wide;
+/**
+ * Zones are in the page at all times and only *light up* while dragging, rather
+ * than being created when a drag begins.
+ *
+ * Two reasons. They are laid over the gaps instead of sitting in them, so the
+ * board does not jump the instant a panel is picked up — which used to move
+ * every target out from under the pointer. And a drop target that appears
+ * mid-gesture is exactly the kind of thing a browser is entitled to ignore.
+ */
+const ZONE = "absolute z-10 transition-all duration-150";
+const SLEEPING = "pointer-events-none opacity-0";
 </script>
 
 <template>
@@ -166,79 +184,126 @@ const isTarget = (habit: Habit, wide: boolean) =>
     <div
       v-for="(row, index) in rows"
       :key="index"
-      class="flex flex-col gap-4 xl:flex-row xl:items-start"
+      class="relative flex flex-col gap-4 xl:flex-row xl:items-start"
     >
-      <template v-for="(habit, position) in row" :key="habit.id">
-        <!-- The seam between two panels of a row. It only takes a drop while
-             something is being dragged, and what it means is "stretch across
-             the whole row" — hence the tall bar rather than a thin line. -->
+      <!-- Straddling the gap above the row: the panel arrives as a row of its
+           own. The label earns its space — a bare bar would leave the reader
+           guessing which of the two things a drop here means. -->
+      <div
+        :class="[
+          ZONE,
+          'inset-x-0 -top-5 flex h-8 items-center justify-center rounded-surface border border-dashed text-sm',
+          dragged ? 'opacity-100' : SLEEPING,
+          isAimed(`row-${index}`)
+            ? 'border-success bg-success/20 text-success'
+            : 'border-hairline bg-surface text-accent',
+        ]"
+        @dragover.prevent.stop="aim($event, `row-${index}`, row[0].id, ownRow)"
+        @drop.prevent.stop="drop"
+      >
+        {{ $t("habits.drop.own_row") }}
+      </div>
+
+      <div
+        v-for="(habit, position) in row"
+        :key="habit.id"
+        class="relative min-w-0 flex-1"
+      >
+        <!-- Down the left edge of every panel: the dragged one takes a place in
+             this row and shares its width. This is the way back from a whole
+             row to half of one, which is why it stands beside every panel and
+             not only between two. -->
         <div
-          v-if="position > 0 && dragged"
-          class="hidden w-2 shrink-0 self-stretch rounded-full transition-colors xl:block"
-          :class="isTarget(habit, true) ? 'bg-success' : 'bg-light/15'"
-          @dragover="overSeam($event, habit)"
-          @drop.prevent="drop"
+          :class="[
+            ZONE,
+            'top-0 -left-3 hidden w-6 rounded-full xl:block',
+            'h-full',
+            dragged ? 'opacity-100' : SLEEPING,
+            isAimed(`share-${habit.id}`) ? 'bg-success' : 'bg-light/15',
+          ]"
+          :title="$t('habits.drop.share_row')"
+          @dragover.prevent.stop="
+            aim($event, `share-${habit.id}`, habit.id, false)
+          "
+          @drop.prevent.stop="drop"
         />
 
+        <!-- And down the right edge of the last one, so a row can be joined
+             from that side too. -->
         <div
-          class="relative min-w-0 flex-1"
-          @dragover="over($event, habit, row.length > 1)"
-          @drop.prevent="drop"
-        >
-          <!-- Where the panel would land, drawn on the edge it would arrive at
-               and along the axis its row runs on. Laid over the panel rather
-               than pushed between them, so a row does not reflow while the
-               pointer is still moving. -->
-          <div
-            v-if="isTarget(habit, false)"
-            class="pointer-events-none absolute rounded-full bg-success"
-            :class="
-              row.length > 1
-                ? 'top-0 bottom-0 -left-2 w-1'
-                : '-top-2 right-0 left-0 h-1'
-            "
-          />
+          v-if="position === row.length - 1"
+          :class="[
+            ZONE,
+            'top-0 -right-3 hidden h-full w-6 rounded-full xl:block',
+            dragged ? 'opacity-100' : SLEEPING,
+            isAimed(`end-${index}`) ? 'bg-success' : 'bg-light/15',
+          ]"
+          :title="$t('habits.drop.share_row')"
+          @dragover.prevent.stop="
+            aim($event, `end-${index}`, after(habit), false)
+          "
+          @drop.prevent.stop="drop"
+        />
 
-          <HabitsPanel
-            :habit="habit"
-            :year="year"
-            :values="valuesOf(habit)"
-            :today="today"
-            :loading="loading"
-            :expanded="expanded[habit.id] ?? true"
-            :class="dragged?.id === habit.id && 'opacity-40'"
-            @update:expanded="emit('toggle', habit.id, $event)"
-            @edit="emit('edit', habit)"
-            @select="emit('select', habit, $event)"
-          >
-            <template #handle>
-              <!-- Only the grip drags. The panel itself has a chart and a year
-                   of squares in it, both of which want their own pointer. -->
+        <HabitsPanel
+          :habit="habit"
+          :year="year"
+          :values="valuesOf(habit)"
+          :today="today"
+          :loading="loading"
+          :expanded="expanded[habit.id] ?? true"
+          :class="dragged?.id === habit.id && 'opacity-40'"
+          @update:expanded="emit('toggle', habit.id, $event)"
+          @edit="emit('edit', habit)"
+          @select="emit('select', habit, $event)"
+        >
+          <template #handle>
+            <!-- Only the grip drags: the panel has a chart and a year of squares
+                 in it, and both want their own pointer.
+
+                 The draggable element is this span and not the button inside
+                 it. A `<button>` is a form control, and browsers are inconsistent
+                 about letting one be dragged at all however plainly it is
+                 marked; a span has no such history. The button keeps the look
+                 and stays out of the way of the pointer. -->
+            <span
+              class="relative z-2 inline-flex cursor-grab active:cursor-grabbing"
+              draggable="true"
+              :title="$t('habits.drag')"
+              @dragstart="start($event, habit)"
+              @dragend="stop"
+            >
               <UiButton
                 variant="tertiary"
                 square
                 size="sm"
-                class="relative z-2 cursor-grab active:cursor-grabbing"
-                draggable="true"
-                :title="$t('habits.drag')"
-                @dragstart="start(habit)"
-                @dragend="stop"
+                class="pointer-events-none"
+                tabindex="-1"
+                aria-hidden="true"
               >
                 <iconify-icon icon="fa6-solid:grip-vertical" />
               </UiButton>
-            </template>
-          </HabitsPanel>
-        </div>
-      </template>
-    </div>
+            </span>
+          </template>
+        </HabitsPanel>
+      </div>
 
-    <!-- Somewhere to drop a panel that belongs at the very end. -->
-    <div
-      v-if="dragged"
-      class="h-8 rounded-surface border border-dashed transition-colors"
-      :class="target?.id === null ? 'border-success' : 'border-hairline'"
-      @dragover.prevent="target = { id: null, wide: dragged.wide }"
-      @drop.prevent="drop"
-    />
+      <!-- A row of its own at the very bottom, below the last row. -->
+      <div
+        v-if="index === rows.length - 1"
+        :class="[
+          ZONE,
+          'inset-x-0 -bottom-5 flex h-8 items-center justify-center rounded-surface border border-dashed text-sm',
+          dragged ? 'opacity-100' : SLEEPING,
+          isAimed('row-last')
+            ? 'border-success bg-success/20 text-success'
+            : 'border-hairline bg-surface text-accent',
+        ]"
+        @dragover.prevent.stop="aim($event, 'row-last', null, ownRow)"
+        @drop.prevent.stop="drop"
+      >
+        {{ $t("habits.drop.own_row") }}
+      </div>
+    </div>
   </div>
 </template>

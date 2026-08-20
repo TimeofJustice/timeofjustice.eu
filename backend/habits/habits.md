@@ -57,13 +57,26 @@ row anyway.
 
 Panels are dragged by the **grip in the header, never by the panel**: a panel
 has a chart and a year of squares in it, and both want the pointer for
-themselves. Where a drop lands is read along the axis the row actually runs on —
-left/right for two sharing a row, top/bottom for one that owns it. Reading the
-wrong axis is what makes a drop feel arbitrary.
+themselves.
 
-Between two panels of a row there is a **seam**, which appears only while
-something is being dragged. Landing on it is the one gesture that changes a
-panel's *width* rather than its place: it stretches across the whole row.
+While something is being dragged the board shows its **drop zones outright**,
+and there are exactly two kinds:
+
+| Zone | Where | What it means |
+| ---- | ----- | ------------- |
+| A labelled bar | between two rows, and at either end of the board | the panel arrives as **a row of its own** |
+| A slim upright bar | either side of every panel in a row | the panel **shares that row**, at half width |
+
+Both directions are therefore a drag: dropping between rows widens a panel,
+dropping beside one narrows it. That is why there is no width button — a width
+you can only set and never unset is a trap, and working the width out from
+*which half of a panel* the pointer was over made drops feel arbitrary. Each
+zone names its position and its width outright, and it looks like what it does.
+
+Only the zone under the pointer lights up, keyed on the zone rather than on the
+place it names: the right-hand end of a row and the left-hand end of the next
+one are the same slot, and highlighting both would read as though the panel were
+about to land in two places at once.
 
 `POST /momentum/api/layout/` takes the **whole arrangement**, not a move to
 apply — dragging produces the finished order anyway, and sending it whole means
