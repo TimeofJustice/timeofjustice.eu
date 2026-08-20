@@ -12,7 +12,7 @@ const { create } = useToast();
 const { wallet, settingsOpen, setName, setAvatar } = useWallet();
 
 const saving = ref(false);
-const recoveryPhrase = ref<string | null>(null);
+const walletPhrase = ref<string | null>(null);
 const revealReason = ref<string | null>(null);
 
 const showToast = (message: string, variant: "success" | "danger") => {
@@ -25,22 +25,22 @@ const showToast = (message: string, variant: "success" | "danger") => {
  */
 const loadRecoveryPhrase = () => {
   axios
-    .get("/games/api/user/recovery-phrase/")
+    .get("/games/api/user/wallet-phrase/")
     .then((response) => {
-      recoveryPhrase.value = response.data.recoveryPhrase;
+      walletPhrase.value = response.data.walletPhrase;
       revealReason.value = response.data.reason;
     })
     .catch(() => {
-      recoveryPhrase.value = null;
+      walletPhrase.value = null;
       revealReason.value = null;
     });
 };
 
 const copyPhrase = () => {
-  if (!recoveryPhrase.value) return;
+  if (!walletPhrase.value) return;
 
   navigator.clipboard
-    .writeText(recoveryPhrase.value)
+    .writeText(walletPhrase.value)
     .then(() => showToast("games.main.copy_phrase", "success"))
     .catch(() => showToast("games.main.copy_phrase_error", "danger"));
 };
@@ -124,23 +124,23 @@ const save = () => {
     <!-- First thing in the modal, and only ever rendered while the server is
          still willing to hand the phrase over: this is the one chance to
          write it down. -->
-    <UiAlert variant="warning" class="mb-0" v-if="recoveryPhrase">
-      <h4 class="mt-0 mb-2">{{ $t("games.main.recovery_phrase") }}</h4>
+    <UiAlert variant="warning" class="mb-0" v-if="walletPhrase">
+      <h4 class="mt-0 mb-2">{{ $t("games.main.wallet_phrase") }}</h4>
 
       <p class="mb-2" v-if="revealReason === 'migrated'">
-        {{ $t("games.main.recovery_phrase_migrated") }}
+        {{ $t("games.main.wallet_phrase_migrated") }}
       </p>
 
       <div class="flex items-center gap-2">
         <code
           class="grow rounded-md bg-black/25 px-3 py-2 break-all select-all"
         >
-          {{ recoveryPhrase }}
+          {{ walletPhrase }}
         </code>
 
         <UiButton
           variant="tertiary"
-          :title="$t('games.main.copy_recovery_phrase')"
+          :title="$t('games.main.copy_wallet_phrase')"
           @click="copyPhrase"
           square
         >
@@ -149,7 +149,7 @@ const save = () => {
       </div>
 
       <small class="mt-2 block">
-        {{ $t("games.main.recovery_phrase_hint") }}
+        {{ $t("games.main.wallet_phrase_hint") }}
       </small>
     </UiAlert>
 

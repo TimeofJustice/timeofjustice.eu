@@ -1,5 +1,5 @@
 """Replaces the hex wallet id with a public id, and stores only a keyed hash of
-the recovery phrase.
+the wallet phrase.
 
 Written by hand and kept as one step, because a primary key swap has no valid
 intermediate state for the autodetector — and because the r/place foreign key

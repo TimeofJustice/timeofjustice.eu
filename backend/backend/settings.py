@@ -193,7 +193,7 @@ DJANGO_VITE_DEV_SERVER_PORT = 5173
 # a year rather than Django's default fortnight.
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 365
 
-# Keys the recovery phrase hashes. Recovery phrases are never stored, only their
+# Keys the wallet phrase hashes. Wallet phrases are never stored, only their
 # keyed hash, so a database dump on its own reveals nothing.
 #
 # NEVER CHANGE THIS ON A LIVE SITE: every phrase would stop matching and every

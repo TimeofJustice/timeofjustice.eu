@@ -17,7 +17,7 @@ SESSION_KEY = "wallet"
 PUBLIC_ID_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ"
 PUBLIC_ID_LENGTH = 6
 
-# The 32 character hex ids wallets used before recovery phrases existed.
+# The 32 character hex ids wallets used before wallet phrases existed.
 LEGACY_ID_PATTERN = re.compile(r"[0-9a-f]{32}", re.IGNORECASE)
 
 # Set when a wallet is created, so its phrase can be shown exactly once.
@@ -107,7 +107,7 @@ def stop_revealing_phrase(request):
         del request.session[REVEAL_KEY]
 
 
-def generate_recovery_phrase():
+def generate_wallet_phrase():
     return "-".join(secrets.choice(WORDS) for _ in range(WORDS_PER_PHRASE))
 
 
@@ -115,7 +115,7 @@ def generate_public_id():
     return "".join(secrets.choice(PUBLIC_ID_ALPHABET) for _ in range(PUBLIC_ID_LENGTH))
 
 
-def hash_recovery_phrase(phrase):
+def hash_wallet_phrase(phrase):
     """
     Keyed hash of a phrase, so the database never holds the phrase itself.
 
@@ -127,7 +127,7 @@ def hash_recovery_phrase(phrase):
     return hmac.new(settings.WALLET_PEPPER.encode(), phrase.encode(), sha256).hexdigest()
 
 
-def normalise_recovery_phrase(value):
+def normalise_wallet_phrase(value):
     """Accepts spaces, hyphens and any capitalisation people type or paste."""
     return "-".join(word for word in re.split(r"[^a-zA-Z]+", value) if word).lower()
 
@@ -155,19 +155,19 @@ def find_legacy_wallet(identifier):
     return get_or_none(models.Wallet, legacy_id_hash=hash_legacy_id(candidate))
 
 
-def assign_recovery_phrase(wallet):
+def assign_wallet_phrase(wallet):
     """
     Gives an existing wallet a new phrase and returns it.
 
     Whatever phrase it had stops working, and the returned one is the only
     readable copy, so the caller has to put it in front of somebody.
     """
-    phrase = generate_recovery_phrase()
+    phrase = generate_wallet_phrase()
 
-    while get_or_none(models.Wallet, phrase_hash=hash_recovery_phrase(phrase)):
-        phrase = generate_recovery_phrase()
+    while get_or_none(models.Wallet, phrase_hash=hash_wallet_phrase(phrase)):
+        phrase = generate_wallet_phrase()
 
-    wallet.phrase_hash = hash_recovery_phrase(phrase)
+    wallet.phrase_hash = hash_wallet_phrase(phrase)
     wallet.save(update_fields=["phrase_hash"])
 
     return phrase
@@ -175,7 +175,7 @@ def assign_recovery_phrase(wallet):
 
 def upgrade_legacy_wallet(wallet):
     """Issues a phrase to a wallet arriving on its old id, and burns that id."""
-    phrase = assign_recovery_phrase(wallet)
+    phrase = assign_wallet_phrase(wallet)
 
     wallet.legacy_id_hash = None
     wallet.save(update_fields=["legacy_id_hash"])
@@ -185,20 +185,20 @@ def upgrade_legacy_wallet(wallet):
 
 def find_wallet(identifier):
     """
-    Looks a wallet up by its recovery phrase, which is both its identity and
+    Looks a wallet up by its wallet phrase, which is both its identity and
     its only credential.
     """
     if not isinstance(identifier, str):
         return None
 
-    phrase = normalise_recovery_phrase(identifier)
+    phrase = normalise_wallet_phrase(identifier)
 
-    return get_or_none(models.Wallet, phrase_hash=hash_recovery_phrase(phrase)) if phrase else None
+    return get_or_none(models.Wallet, phrase_hash=hash_wallet_phrase(phrase)) if phrase else None
 
 
 def create_wallet():
     """
-    Creates a wallet and returns it together with its recovery phrase.
+    Creates a wallet and returns it together with its wallet phrase.
 
     The phrase is returned rather than stored: this is the only moment it
     exists in readable form, and the caller has to show it right away.
@@ -208,14 +208,14 @@ def create_wallet():
     while get_or_none(models.Wallet, pk=public_id):
         public_id = generate_public_id()
 
-    phrase = generate_recovery_phrase()
+    phrase = generate_wallet_phrase()
 
-    while get_or_none(models.Wallet, phrase_hash=hash_recovery_phrase(phrase)):
-        phrase = generate_recovery_phrase()
+    while get_or_none(models.Wallet, phrase_hash=hash_wallet_phrase(phrase)):
+        phrase = generate_wallet_phrase()
 
     wallet = models.Wallet.objects.create(
         public_id=public_id,
-        phrase_hash=hash_recovery_phrase(phrase),
+        phrase_hash=hash_wallet_phrase(phrase),
         last_visit=timezone.now().date(),
     )
 

@@ -1,5 +1,5 @@
 """
-Wordlist for wallet recovery phrases.
+Wordlist for wallet wallet phrases.
 
 The words live in `wordlist.txt` next to this module rather than inline, because
 there are several thousand of them. See that file for the source and licence.

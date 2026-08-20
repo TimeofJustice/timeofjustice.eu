@@ -1,4 +1,4 @@
-# Recovery phrase wordlist.
+# Wallet phrase wordlist.
 # Filtered to words of 5 to 9 letters, a-z only, plus a small extra safety net.
 # Lines starting with # and blank lines are ignored by the loader.
 abacus

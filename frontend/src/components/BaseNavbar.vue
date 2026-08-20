@@ -44,17 +44,18 @@ onMounted(() => {
           isScrolled || size === 'small',
       }"
     >
-      <UiButton
-        variant="tertiary"
-        square
-        class="text-control-lg leading-none lg:hidden"
-        @click="showNavOffcanvas = true"
-      >
-        <iconify-icon icon="fa6-solid:bars" />
-      </UiButton>
-
-      <div class="flex items-center">
-        <LocaleDropdown class="block lg:hidden" />
+      <!-- Menu and brand travel together, so the logo is never wedged between
+           the controls on the right. On lg the button disappears and the logo
+           is left alone on the left, where it has always been. -->
+      <div class="flex items-center gap-2">
+        <UiButton
+          variant="tertiary"
+          square
+          class="text-control-lg leading-none lg:hidden"
+          @click="showNavOffcanvas = true"
+        >
+          <iconify-icon icon="fa6-solid:bars" />
+        </UiButton>
 
         <div class="py-1.25 text-control-lg whitespace-nowrap">
           <v-lazy-image
@@ -77,7 +78,11 @@ onMounted(() => {
         <LocaleDropdown />
       </div>
 
-      <GamesWalletBadge />
+      <div class="flex items-center gap-1">
+        <LocaleDropdown class="block lg:hidden" />
+
+        <GamesWalletBadge />
+      </div>
     </div>
 
     <div class="pointer-events-auto flex lg:hidden">

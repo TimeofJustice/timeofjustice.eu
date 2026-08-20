@@ -53,14 +53,14 @@ def update(request):
 
 
 @wallet_required
-def recovery_phrase(request):
+def wallet_phrase(request):
     """
     The phrase, but only while it is still new. It is the only credential, so it
     is shown once during setup and never served again.
     """
     reveal = revealable_phrase(request)
 
-    return JsonResponse({"recoveryPhrase": reveal.get("phrase"), "reason": reveal.get("reason")})
+    return JsonResponse({"walletPhrase": reveal.get("phrase"), "reason": reveal.get("reason")})
 
 
 @wallet_required
