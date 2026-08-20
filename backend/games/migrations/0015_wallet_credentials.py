@@ -5,8 +5,10 @@ Written by hand and kept as one step, because a primary key swap has no valid
 intermediate state for the autodetector — and because the r/place foreign key
 has to be carried across in the same breath.
 
-Existing wallets are given a phrase here, which is the only moment it can ever
-be read: it is printed once and then only its hash survives.
+Existing wallets keep their old hex id as a one-shot credential: it is hashed
+into `legacy_id_hash`, and the first sign-in that uses it issues a phrase and
+clears it. They are also given a phrase here, printed once, as a fallback for
+whoever runs the deploy — after this the plaintext is gone either way.
 """
 
 import hmac
@@ -40,14 +42,16 @@ def issue_credentials(apps, schema_editor):
 
         wallet.public_id = public_id
         wallet.phrase_hash = hmac.new(settings.WALLET_PEPPER.encode(), phrase.encode(), sha256).hexdigest()
-        wallet.save(update_fields=["public_id", "phrase_hash"])
+        # The id everyone was told to save still works, once.
+        wallet.legacy_id_hash = hmac.new(settings.WALLET_PEPPER.encode(), wallet.wallet_id.lower().encode(), sha256).hexdigest()
+        wallet.save(update_fields=["public_id", "phrase_hash", "legacy_id_hash"])
 
         issued.append((public_id, wallet.name, phrase))
 
     if issued:
         # The one and only chance to see these. Wallets that existed before this
         # migration have no other way back in.
-        print("\nRecovery phrases issued to existing wallets — save them now:")
+        print("\nPhrases issued to existing wallets. Their old ids also still work, once:")
         for public_id, name, phrase in issued:
             print(f"  {public_id}  {name:<20} {phrase}")
         print()
@@ -119,6 +123,11 @@ class Migration(migrations.Migration):
             model_name="wallet",
             name="phrase_hash",
             field=models.CharField(max_length=64, null=True),
+        ),
+        migrations.AddField(
+            model_name="wallet",
+            name="legacy_id_hash",
+            field=models.CharField(blank=True, editable=False, max_length=64, null=True, unique=True),
         ),
         migrations.RunPython(issue_credentials, migrations.RunPython.noop),
         migrations.SeparateDatabaseAndState(

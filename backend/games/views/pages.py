@@ -10,7 +10,16 @@ from core.throttle import rate_limited
 from games.decorators import wallet_required
 from games.vault import get_vault
 from games.views.core.api import get_leaderboard
-from games.wallet import clear_wallet, create_wallet, find_wallet, get_wallet, reveal_phrase, set_wallet
+from games.wallet import (
+    clear_wallet,
+    create_wallet,
+    find_legacy_wallet,
+    find_wallet,
+    get_wallet,
+    reveal_phrase,
+    set_wallet,
+    upgrade_legacy_wallet,
+)
 
 DEFAULT_REDIRECT = "/games/"
 
@@ -48,6 +57,17 @@ def login(request):
 
         if wallet:
             set_wallet(request, wallet)
+            return HttpResponseRedirect(next_url)
+
+        legacy_wallet = find_legacy_wallet(identifier)
+
+        if legacy_wallet:
+            # An old hex id, spent by using it: the wallet leaves with a phrase.
+            phrase = upgrade_legacy_wallet(legacy_wallet)
+
+            set_wallet(request, legacy_wallet)
+            reveal_phrase(request, phrase, reason="migrated")
+
             return HttpResponseRedirect(next_url)
 
         error_text = "games.login.error.invalid_wallet"
@@ -103,7 +123,6 @@ def index(request):
         ],
         "vault": vault.balance,
         "vaultReset": vault_reset.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "hintDismissed": wallet.hint_dismissed,
     }
 
     return render(request, "Games/MainPage", props=default_props(page_props, request))

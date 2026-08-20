@@ -13,6 +13,7 @@ const { wallet, settingsOpen, setName, setAvatar } = useWallet();
 
 const saving = ref(false);
 const recoveryPhrase = ref<string | null>(null);
+const revealReason = ref<string | null>(null);
 
 const showToast = (message: string, variant: "success" | "danger") => {
   create({ body: i18n.t(message), variant, position: "bottom-start" });
@@ -27,9 +28,11 @@ const loadRecoveryPhrase = () => {
     .get("/games/api/user/recovery-phrase/")
     .then((response) => {
       recoveryPhrase.value = response.data.recoveryPhrase;
+      revealReason.value = response.data.reason;
     })
     .catch(() => {
       recoveryPhrase.value = null;
+      revealReason.value = null;
     });
 };
 
@@ -118,6 +121,38 @@ const save = () => {
       </UiButton>
     </template>
 
+    <!-- First thing in the modal, and only ever rendered while the server is
+         still willing to hand the phrase over: this is the one chance to
+         write it down. -->
+    <UiAlert variant="warning" class="mb-0" v-if="recoveryPhrase">
+      <h4 class="mt-0 mb-2">{{ $t("games.main.recovery_phrase") }}</h4>
+
+      <p class="mb-2" v-if="revealReason === 'migrated'">
+        {{ $t("games.main.recovery_phrase_migrated") }}
+      </p>
+
+      <div class="flex items-center gap-2">
+        <code
+          class="grow rounded-md bg-black/25 px-3 py-2 break-all select-all"
+        >
+          {{ recoveryPhrase }}
+        </code>
+
+        <UiButton
+          variant="tertiary"
+          :title="$t('games.main.copy_recovery_phrase')"
+          @click="copyPhrase"
+          square
+        >
+          <iconify-icon icon="iconamoon:copy-duotone" />
+        </UiButton>
+      </div>
+
+      <small class="mt-2 block">
+        {{ $t("games.main.recovery_phrase_hint") }}
+      </small>
+    </UiAlert>
+
     <form @submit.prevent="save" class="flex w-full flex-col gap-4">
       <UiFormGroup
         id="wallet-name-group"
@@ -149,32 +184,5 @@ const save = () => {
         {{ $t("general.save") }}
       </UiButton>
     </form>
-
-    <!-- Only rendered for a brand new wallet: once setup is saved the server
-         stops handing the phrase out, and it is never shown again. -->
-    <UiAlert variant="warning" v-if="recoveryPhrase">
-      <h4 class="mt-0 mb-2">{{ $t("games.main.recovery_phrase") }}</h4>
-
-      <div class="flex items-center gap-2">
-        <code
-          class="grow rounded-md bg-black/25 px-3 py-2 break-all select-all"
-        >
-          {{ recoveryPhrase }}
-        </code>
-
-        <UiButton
-          variant="tertiary"
-          :title="$t('games.main.copy_recovery_phrase')"
-          @click="copyPhrase"
-          square
-        >
-          <iconify-icon icon="iconamoon:copy-duotone" />
-        </UiButton>
-      </div>
-
-      <small class="mt-2 block">
-        {{ $t("games.main.recovery_phrase_hint") }}
-      </small>
-    </UiAlert>
   </UiModal>
 </template>

@@ -39,6 +39,9 @@ class Wallet(models.Model):
     public_id = models.CharField(primary_key=True, max_length=6, editable=False)
     # The recovery phrase itself is never stored — only this keyed hash of it.
     phrase_hash = models.CharField(max_length=64, unique=True, editable=False)
+    # Keyed hash of the pre-phrase hex id. Good for exactly one sign-in, which
+    # issues a phrase and clears this. Null once used, and for new wallets.
+    legacy_id_hash = models.CharField(max_length=64, unique=True, null=True, blank=True, editable=False)
     name = models.CharField(max_length=32, default="Anonymous")
     balance = models.IntegerField(default=100)
     days_played = models.IntegerField(default=0)
@@ -91,7 +94,6 @@ class Wallet(models.Model):
             **self.public_json(),
             # The phrase is deliberately absent: it is the credential, and it is
             # served once, by its own endpoint, during first-time setup.
-            "hintDismissed": self.hint_dismissed,
             "needsSetup": self.needs_setup(),
         }
 

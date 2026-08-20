@@ -63,12 +63,12 @@
       }
     },
     "main": {
-      "reminder": "Vergiss nicht, deine Wiederherstellungsphrase aufzuschreiben. Du wirst sie benötigen, um dich erneut anzumelden.",
       "wallet": "Wallet",
       "balance": "Kontostand:",
       "settings": "Einstellungen",
       "copy_recovery_phrase": "Wiederherstellungsphrase kopieren",
       "recovery_phrase": "Wiederherstellungsphrase",
+      "recovery_phrase_migrated": "Deine alte Wallet-ID wurde verbraucht und funktioniert nicht mehr. Ab jetzt meldest du dich mit dieser Wiederherstellungsphrase an.",
       "recovery_phrase_hint": "Schreibe diese Wörter jetzt auf. Sie sind der einzige Weg zurück in deine Wallet und werden nur dieses eine Mal angezeigt.",
       "copy_phrase": "Wiederherstellungsphrase in die Zwischenablage kopiert",
       "copy_phrase_error": "Fehler beim Kopieren der Wiederherstellungsphrase",

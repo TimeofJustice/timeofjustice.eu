@@ -11,6 +11,7 @@ const wallet = reactive<Wallet>({
   streak: 0,
   avatar: null,
   needsSetup: false,
+  mustSavePhrase: false,
 });
 
 const loaded = ref(false);
@@ -25,6 +26,8 @@ const setWallet = (newWallet: Wallet) => {
 };
 
 const clearWallet = () => {
+  promptedFor = null;
+
   Object.assign(wallet, {
     publicId: "",
     name: "",
@@ -32,6 +35,7 @@ const clearWallet = () => {
     streak: 0,
     avatar: null,
     needsSetup: false,
+    mustSavePhrase: false,
   });
   loaded.value = false;
 };
@@ -90,7 +94,11 @@ const setBalance = (balance: number) => {
 };
 
 let syncing = false;
-let promptedForSetup = false;
+
+// Which wallet the settings have already been opened for. Tracked per wallet
+// rather than per page load, so signing out and creating a new one prompts
+// again, while browsing on with the same wallet does not.
+let promptedFor: string | null = null;
 
 /**
  * `default_props` shares the wallet on every page, so the store can keep itself
@@ -116,10 +124,13 @@ const startSync = () => {
 
       setWallet(incoming);
 
-      // A wallet without a name or a face gets walked through the settings,
-      // once per page load, so closing it stays closed while browsing.
-      if (!promptedForSetup && incoming.needsSetup) {
-        promptedForSetup = true;
+      // A wallet without a name or a face is walked through the settings, as is
+      // one holding a phrase that has not been written down yet — even if it is
+      // otherwise set up. Closing them stays closed until the wallet changes.
+      const needsPrompt = incoming.needsSetup || incoming.mustSavePhrase;
+
+      if (needsPrompt && promptedFor !== incoming.publicId) {
+        promptedFor = incoming.publicId;
         openSettings();
       }
     },

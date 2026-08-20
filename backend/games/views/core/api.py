@@ -58,24 +58,15 @@ def recovery_phrase(request):
     The phrase, but only while it is still new. It is the only credential, so it
     is shown once during setup and never served again.
     """
-    return JsonResponse({"recoveryPhrase": revealable_phrase(request)})
+    reveal = revealable_phrase(request)
+
+    return JsonResponse({"recoveryPhrase": reveal.get("phrase"), "reason": reveal.get("reason")})
 
 
 @wallet_required
 def avatars(request):
     """The avatars players can choose from, for the picker."""
     return JsonResponse({"avatars": [avatar.json() for avatar in models.Avatar.objects.all()]})
-
-
-@wallet_required
-@require_http_methods(["POST"])
-def dismiss(request):
-    wallet = get_wallet(request)
-
-    wallet.hint_dismissed = True
-    wallet.save()
-
-    return JsonResponse({"hintDismissed": wallet.hint_dismissed})
 
 
 @wallet_required

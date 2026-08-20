@@ -36,9 +36,15 @@ def get_or_none(model, **kwargs):
 
 def default_props(additional_props, request, offcanvas_component=None, **kwargs):
     # Imported here because games.wallet imports this module for get_or_none.
-    from games.wallet import get_wallet
+    from games.wallet import get_wallet, phrase_is_pending
 
     wallet = get_wallet(request)
+    wallet_props = None
+
+    if wallet:
+        # `mustSavePhrase` opens the settings by itself, so a phrase issued on
+        # sign-in cannot be missed even by a wallet that is otherwise set up.
+        wallet_props = wallet.json() | {"mustSavePhrase": phrase_is_pending(request)}
 
     offcanvas_state = (
         {
@@ -56,7 +62,7 @@ def default_props(additional_props, request, offcanvas_component=None, **kwargs)
         "stable": settings.IS_STABLE,
         "offcanvasState": offcanvas_state,
         # Shared on every page so the navbar can show the wallet site-wide.
-        "wallet": wallet.json() if wallet else None,
+        "wallet": wallet_props,
         **additional_props,
     }
 

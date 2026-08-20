@@ -75,12 +75,12 @@
       }
     },
     "main": {
-      "reminder": "Don't forget to write down your recovery phrase. You will need it to log in again.",
       "wallet": "Wallet",
       "balance": "Balance:",
       "settings": "Settings",
       "copy_recovery_phrase": "Copy recovery phrase",
       "recovery_phrase": "Recovery phrase",
+      "recovery_phrase_migrated": "Your old wallet ID has been used up and no longer works. From now on you sign in with this recovery phrase instead.",
       "recovery_phrase_hint": "Write these words down now. They are the only way back into your wallet, and they are shown only this once.",
       "copy_phrase": "Recovery phrase copied to clipboard",
       "copy_phrase_error": "Error copying recovery phrase to clipboard",

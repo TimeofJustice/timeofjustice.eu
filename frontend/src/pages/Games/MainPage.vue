@@ -14,7 +14,6 @@ import SicBo from "@components/Games/SicBo.vue";
 import GamesLeaderboardPosition from "@components/GamesLeaderboardPosition.vue";
 import GamesAvatar from "@components/GamesAvatar.vue";
 import GamesDailyReward from "@components/GamesDailyReward.vue";
-import { TOAST_TRANSITION } from "@components/ui/transitions";
 
 interface Player {
   name: string;
@@ -36,21 +35,13 @@ interface MainProps {
   dailyBonus: DailyBonus[];
   vault: number;
   vaultReset: string;
-  hintDismissed: boolean;
 }
 
 const i18n = useI18n();
 const { create } = useToast();
 
-const {
-  leaderboard,
-  ownPosition,
-  newBonus,
-  nextBonus,
-  vault,
-  vaultReset,
-  hintDismissed,
-} = defineProps<MainProps>();
+const { leaderboard, ownPosition, newBonus, nextBonus, vault, vaultReset } =
+  defineProps<MainProps>();
 
 const { wallet, balance, balanceChange, changeBalance, openSettings } =
   useWallet();
@@ -67,7 +58,6 @@ const updatedLeaderboard = ref<Player[]>(leaderboard);
 const updatedOwnPosition = ref(ownPosition);
 const updatedVault = ref(vault);
 
-const showCopyReminder = ref(!hintDismissed);
 const showDisclaimer = ref(true);
 const showDailyBonus = ref(newBonus);
 const showGames = ref(true);
@@ -156,14 +146,6 @@ onBeforeUnmount(() => {
   clearInterval(vaultCounter);
   clearInterval(vaultFetch);
 });
-
-const dismissHint = () => {
-  showCopyReminder.value = false;
-
-  axios.post("/games/api/hint/dismiss/").catch((error) => {
-    console.error("Failed to dismiss hint:", error);
-  });
-};
 </script>
 
 <template>
@@ -227,21 +209,6 @@ const dismissHint = () => {
       class="flex w-full shrink-0 flex-col gap-2 pt-2 md:flex-row lg:w-1/4 lg:flex-col lg:pt-0 lg:pl-2"
     >
       <div class="flex w-full shrink-0 flex-col gap-2 md:w-1/2 lg:w-full">
-        <Transition v-bind="TOAST_TRANSITION">
-          <UiToast
-            v-if="showCopyReminder"
-            variant="danger"
-            body-class="flex items-center justify-between gap-2"
-            class="w-full"
-          >
-            <div>{{ $t("games.main.reminder") }}</div>
-
-            <UiButton variant="tertiary" @click="dismissHint" square>
-              <iconify-icon icon="ep:close-bold" />
-            </UiButton>
-          </UiToast>
-        </Transition>
-
         <UiCard
           header-class="flex items-center justify-between"
           body-class="flex flex-col"

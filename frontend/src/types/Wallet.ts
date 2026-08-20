@@ -9,4 +9,6 @@ export interface Wallet {
   avatar: Avatar | null;
   /** Still on the default name and/or without an avatar. */
   needsSetup: boolean;
+  /** A freshly issued phrase is waiting to be written down. */
+  mustSavePhrase: boolean;
 }

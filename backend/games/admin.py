@@ -1,6 +1,7 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 
 from games.models import Avatar, Vault, Wallet
+from games.wallet import assign_recovery_phrase
 
 
 # Register your models here.
@@ -9,6 +10,22 @@ class WalletAdmin(admin.ModelAdmin):
     list_display = ("public_id", "name", "avatar", "balance", "created_at", "last_visit")
     list_filter = ("avatar",)
     search_fields = ("public_id", "name")
+    actions = ("issue_recovery_phrase",)
+
+    @admin.action(description="Issue a new recovery phrase (the old one stops working)")
+    def issue_recovery_phrase(self, request, queryset):
+        """
+        Phrases are stored only as a keyed hash, so there is no way to look one
+        up — the replacement is shown here once and has to be passed on by hand.
+        """
+        for wallet in queryset:
+            phrase = assign_recovery_phrase(wallet)
+
+            self.message_user(
+                request,
+                f"{wallet.public_id} ({wallet.name}) — new recovery phrase: {phrase}",
+                messages.WARNING,
+            )
 
 
 @admin.register(Vault)
