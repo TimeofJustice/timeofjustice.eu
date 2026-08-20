@@ -1,15 +1,32 @@
-# Habits
+# Momentum
 
-A year of squares per habit, in the spirit of a contribution graph. It belongs
-to a [wallet](../games/wallet.md) — there is still no user model — and it is
-reachable at `/habits/`.
+Keeping something going, and watching something move. It belongs to a
+[wallet](../games/wallet.md) — there is still no user model — and it lives at
+`/momentum/`.
+
+**The app is `habits`, the product is "Momentum".** The same split `postcard`
+has, which is served as "Sendy": the brand is in the route and the UI, the
+module and the tables keep the name the data was written under. Renaming the app
+would buy nothing and cost a table migration.
 
 ## The two models
 
 | Model   | What it is                                                                                     |
 | ------- | ---------------------------------------------------------------------------------------------- |
-| `Habit` | Name, daily `goal`, `unit`, `color`, and a `step`. Owned by a wallet, `CASCADE` on delete.      |
+| `Habit` | Name, `goal`, `unit`, `color`, `step`, and a `kind`. Owned by a wallet, `CASCADE` on delete.    |
 | `Entry` | One `value` on one `date` for one habit. Unique per `(habit, date)`.                            |
+
+## The two kinds
+
+One model, two things, because they differ only in how they are read:
+
+| `kind`    | What it is                                | Drawn as        | `goal` means | Streaks |
+| --------- | ----------------------------------------- | --------------- | ------------ | ------- |
+| `goal`    | A daily target, met or missed. "6000 steps." | A year of squares | The bar to clear | Yes |
+| `measure` | A reading tracked *against* a target. "75 kg." | A line          | The target itself | Yes |
+
+Everything else — logging, the day editor, the quick-add, the year API, the
+wallet gating — is shared, which is the whole reason they are not two models.
 
 `goal`, `step` and `value` are **decimals** with two places — half an hour of
 sleep and a quarter litre of water are ordinary things to track. They cross the
@@ -39,20 +56,100 @@ year could never get right. One query brings back only the days that actually
 met their goal (`value__gte=F("habit__goal")`), so it costs one round trip for
 every habit a wallet has, not one each.
 
-The current run counts back from today, or from **yesterday while today is still
-open**: a streak is not broken until a day has been missed outright, otherwise
-every streak would read zero until the evening.
+For a `goal`, the current run counts back from today, or from **yesterday while
+today is still open**: a streak is not broken until a day has been missed
+outright, otherwise every streak would read zero until the evening.
+
+For a `measure`, `approach_streak()` counts the readings that did not move away
+from the target — closing on it, or holding. Three things about it are choices
+worth knowing:
+
+- It counts **readings, not days**. A weight is not taken daily, and a fortnight
+  without a weigh-in is no news rather than a broken run.
+- **Holding counts.** Not sliding back is its own kind of progress.
+- It counts the *steps between* readings, so one reading alone is a run of
+  nothing, and **overshooting ends a run**: with a target of 75, going 75 → 74
+  moves away from it. The measure is distance to the target, not "past it".
 
 It rides along on `Habit.json()` via `with_streak()`, and `log` sends the
 refreshed run back with the value so the flame in the header follows the tap
 that fed it. `update` recomputes rather than carrying the old number over —
 moving the goal changes which days ever met it.
 
-In the header a running streak burns (`animate-flame`), and when it *is* the
-longest there has ever been the trophy sparkles with it (`animate-sparkle`).
+In the header both kinds carry the same two figures — a burning run and the best
+one there has ever been — and only the wording under them differs. A running
+streak burns (`animate-flame`), and when it *is* the longest there has ever been
+the trophy sparkles with it (`animate-sparkle`).
 Both stand still under `prefers-reduced-motion`, and their periods are
 deliberately unequal so nothing on the page falls into step. Each figure carries
 a `UiTooltip` saying what it counts.
+
+## Drawing a progression
+
+`HabitsTrendChart.vue` — one series, so no legend box: the card header already
+names it. Straight segments between readings (interpolation is the only honest
+curve for days nobody measured), no per-point markers at 365 points, a hairline
+grid one shade off the surface, and hover snapping to the **nearest reading**
+rather than to the day under the pointer — sparse data means most days have
+nothing to say.
+
+The target is drawn as a *threshold*, not a second series: a dashed muted rule
+labelled on the canvas, by a small inline plugin. **It is always inside the y
+window**, however far the readings are from it — a measurement is kept in order
+to watch it approach its target, and a chart that cropped the target away would
+hide the one relationship the card exists for. The headline figure is what the year
+*moved*, and it is the one place the tracker does pass a verdict — because the
+target makes one possible. `measureStats().closed` is how much of the gap was
+closed, so a falling weight and a rising balance both come out green without the
+tracker having to know which it is looking at. The arrow stays factual (which
+way it went); only the colour judges.
+
+**The line holds a value on every day up to today.** Between two readings it
+*runs from one to the other* — a day in the middle takes its share of the way,
+so two weigh-ins a fortnight apart are joined by a steady slope rather than by a
+step that drops all at once on the second day. Outside that span there is no
+second point to run towards, so the nearest reading is simply held: forward past
+the last one, and backwards into the days before the first.
+
+Past today it stops dead: no fill, no line, and no click. A weigh-in says
+nothing about a day that has not happened, the year grid draws those days inert
+for the same reason, and `log` would refuse them anyway.
+
+What keeps that honest is that the fill never pretends to be a measurement. The
+dots are the days actually weighed; the line between them is fill. Every filled
+day says on hover where its number comes from — "on the way from 21 June to
+21 July", "as measured on 21 July", "before the first measurement, on 21 June" —
+so a slope is never mistaken for a run of daily weigh-ins. And **nothing is
+stored**: this is presentation, not data.
+
+Hit testing goes through a **custom interaction mode**, `habitDay`, registered on
+`Interaction.modes`. A year is 365 days across a few hundred pixels — one day is
+about a pixel and a half, so aiming at a particular one is hopeless, and the dots
+are what anyone is aiming at anyway. Within 12 pixels of a day that was actually
+measured, that reading wins; anywhere else the day under the pointer is taken as
+it is, so an empty stretch can still be opened to fill a gap.
+
+The crosshair, the tooltip **and the click** all resolve through that one mode,
+so the day that is highlighted and the day that opens can never disagree. That
+was the real complaint behind "hard to hit": a click reading the raw pixel while
+the highlight read the nearest point could land a day off.
+
+The day editor carries a date field as the exact fallback (on a line there is no
+square to aim at), and on an empty day it offers `carriedValue()` as a starting
+point, so correcting a gap means nudging a real number instead of typing one
+from nothing.
+
+Its height comes from `gridHeight()`, measured against its own width with a
+`ResizeObserver`. A ratio cannot express it: the grid's height grows with its
+width but carries a fixed month band on top, and stops growing at
+`GRID.maxWidth` while the chart panel keeps going — the relationship is affine
+and clamped, not proportional. Both read their numbers from `GRID` in
+`composables/habits.ts`, and `HabitsYearGrid` spends them as inline style rather
+than Tailwind classes for exactly that reason: a hard-coded `gap-[2px]` in that
+template is how the two would drift apart.
+
+chart.js is pulled in with `defineAsyncComponent`, so a page of nothing but
+daily goals never fetches its 50 kB.
 
 ## Painting the squares
 
@@ -63,15 +160,15 @@ never sends a level, so changing the scale is a one-file change.
 
 ## Routes
 
-| Route                                 | Notes                                                      |
-| ------------------------------------- | ---------------------------------------------------------- |
-| `GET /habits/`                        | Current year                                               |
-| `GET /habits/<year>/`                 | Clamped to `views.year_bounds()`, never a 404              |
-| `GET /habits/api/year/<year>/`        | `{year, entries}` — switching years without a page reload  |
-| `POST /habits/api/habit/`             | Create. Capped at `MAX_HABITS_PER_WALLET`                  |
-| `POST /habits/api/habit/<id>/`        | Edit; every field optional                                 |
-| `POST /habits/api/habit/<id>/delete/` | Takes the entries with it                                  |
-| `POST /habits/api/habit/<id>/log/`    | `{date, value}` for one day; answers with the fresh streak |
+| Route                                   | Notes                                                      |
+| --------------------------------------- | ---------------------------------------------------------- |
+| `GET /momentum/`                        | Current year                                               |
+| `GET /momentum/<year>/`                 | Clamped to `views.year_bounds()`, never a 404              |
+| `GET /momentum/api/year/<year>/`        | `{year, entries}` — switching years without a page reload  |
+| `POST /momentum/api/habit/`             | Create. Capped at `MAX_HABITS_PER_WALLET`                  |
+| `POST /momentum/api/habit/<id>/`        | Edit; every field optional                                 |
+| `POST /momentum/api/habit/<id>/delete/` | Takes the entries with it                                  |
+| `POST /momentum/api/habit/<id>/log/`    | `{date, value}` for one day; answers with the fresh streak |
 
 Every JSON endpoint is behind `wallet_api_required` (403, not a redirect), and
 each one looks the habit up **through the wallet** — `habit_of(wallet, id)` —
@@ -89,7 +186,8 @@ know the current number, and a retried request must not count twice.
 - `HabitsYearGrid.vue` — the 53 columns, Monday at the top. Resting on a square
   floats `UiTooltip` over it, after the same 700 ms dwell r/place uses, so
   sweeping across a year stays quiet.
-- `HabitsDayModal.vue` — any day, opened by clicking its square.
+- `HabitsTrendChart.vue` — the line, for `measure`. Lazily loaded.
+- `HabitsDayModal.vue` — any day, opened by clicking its square or its reading.
 - `HabitsHabitModal.vue` — create, edit, archive, delete.
 
 Entries live in one reactive `{habit id: {date: value}}` map, and `setValue()`
@@ -112,6 +210,13 @@ from `visible` to `auto`, so a square swelling under the pointer, or a weekday
 label in a row shorter than its own text, would otherwise raise a vertical
 scrollbar. The padding is what those overhangs live in.
 
+Each square's **hit area is larger than the square**, through an `after` that
+reaches a pixel past the gap on every side. Nine pixels with a two-pixel gap
+either side left dead ground between the days: the pointer would sit in a gap,
+the neighbouring square would still show as hovered, and the click would land on
+nothing. Where two hit areas overlap the later square wins, which is consistent,
+and `GRID.padding` is exactly deep enough to hold the outermost ones.
+
 The weekday column is a second grid that has to divide exactly the same height
 as the squares. It carries `h-0 min-h-0 grow` for that reason: seven lines of
 text are taller than seven small squares, and a flex item is never shrunk below
@@ -129,6 +234,9 @@ rather than shrinking into a smudge.
 
 - A value of `0` is a delete, not an update — do not expect a row per day.
 - The entry map is keyed by the habit id **as a string**; JSON has no int keys.
+- A carried value on the line is never a stored one. If you ever find yourself
+  writing the fill back to `Entry`, stop: the whole point is that only real
+  weigh-ins are data.
 - Numbers are decimals. Do arithmetic through `roundValue()`, or `+0.5` twice on
   a 0.1 step puts `0.30000000000000004` on the screen. The goal, step and value
   fields are `type="text"` with `inputmode="decimal"`, because a `number` field

@@ -61,14 +61,16 @@ onBeforeUnmount(() => {
     </UiButton>
 
     <Transition
-      enter-active-class="transition-opacity duration-150"
-      leave-active-class="transition-opacity duration-150"
-      enter-from-class="opacity-0"
-      leave-to-class="opacity-0"
+      enter-active-class="transition duration-150 ease-out"
+      leave-active-class="transition duration-150 ease-in"
+      enter-from-class="-translate-y-1 opacity-0"
+      leave-to-class="-translate-y-1 opacity-0"
     >
+      <!-- A menu is a surface like a dialog is, and wears the same clothes:
+           opaque panel, hairline outline, the shared drop shadow. -->
       <div
         v-if="isOpen"
-        class="absolute top-full z-1000 min-w-40 rounded-md border border-black/15 bg-light bg-clip-padding py-2 text-left text-control text-dark"
+        class="absolute top-full z-1000 min-w-40 rounded-surface border border-hairline bg-surface bg-clip-padding py-2 text-left text-control text-light shadow-overlay"
         :class="[align === 'end' ? 'right-0' : 'left-0', menuClass]"
         :style="{ marginTop: `${offset}px` }"
         @click="isOpen = false"

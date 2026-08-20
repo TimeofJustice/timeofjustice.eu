@@ -29,14 +29,14 @@ const { wallet, balance, isLoaded, openSettings } = useWallet();
       </span>
     </div>
 
-    <hr class="my-2 border-black/15" />
+    <hr class="my-2 border-hairline" />
 
     <UiDropdownItem @click="openSettings">
       <iconify-icon icon="fa7-solid:edit" class="mr-1" />
       {{ $t("games.main.settings") }}
     </UiDropdownItem>
 
-    <hr class="my-2 border-black/15" />
+    <hr class="my-2 border-hairline" />
 
     <UiDropdownItem to="/logout/" class="text-danger hover:text-danger">
       <iconify-icon icon="fa7-solid:sign-out" class="mr-1" />

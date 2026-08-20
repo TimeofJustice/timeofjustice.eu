@@ -16,7 +16,7 @@ defineProps<UiCardProps>();
 defineOptions({ inheritAttrs: false });
 
 const { ui, rest } = useUi(() => [
-  "relative flex min-w-0 flex-col break-words rounded-md",
+  "relative flex min-w-0 flex-col break-words rounded-surface",
   "bg-card shadow-card backdrop-blur-card",
 ]);
 </script>
@@ -25,7 +25,7 @@ const { ui, rest } = useUi(() => [
   <div :class="ui" v-bind="rest">
     <div
       v-if="$slots.header"
-      class="rounded-t-md bg-black/[0.03] px-4 py-2"
+      class="border-b border-hairline px-4 py-2"
       :class="headerClass"
     >
       <slot name="header" />
@@ -38,7 +38,7 @@ const { ui, rest } = useUi(() => [
 
     <div
       v-if="$slots.footer"
-      class="rounded-b-md bg-black/[0.03] px-4 py-2"
+      class="border-t border-hairline px-4 py-2"
       :class="footerClass"
     >
       <slot name="footer" />

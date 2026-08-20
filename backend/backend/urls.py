@@ -31,7 +31,9 @@ urlpatterns = [
     path("", include("core.urls")),
     path("", include("games.session_urls")),
     path("games/", include("games.urls")),
-    path("habits/", include("habits.urls")),
+    # "Momentum" is the name it wears; the app stays `habits`, the way
+    # `postcard` is served as "Sendy".
+    path("momentum/", include("habits.urls")),
     path("r-place/", include("r_place.urls")),
     path("sendy/", include("postcard.urls")),
 ]

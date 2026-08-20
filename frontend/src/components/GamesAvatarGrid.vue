@@ -5,6 +5,7 @@ import { useToast } from "@composables/toast";
 import { useWallet } from "@composables/wallet";
 
 import GamesAvatar from "@components/GamesAvatar.vue";
+import { FOCUS_RING } from "@components/ui/focus";
 
 interface GamesAvatarGridProps {
   disabled?: boolean;
@@ -56,11 +57,12 @@ onMounted(() => {
     <button
       type="button"
       class="aspect-square cursor-pointer rounded-full border-2 p-0 transition-transform duration-150 hover:scale-105 focus-visible:scale-105"
-      :class="
+      :class="[
+        FOCUS_RING,
         avatar.id === selected
           ? 'border-accent'
-          : 'border-transparent hover:border-light'
-      "
+          : 'border-transparent hover:border-light',
+      ]"
       :title="avatar.name"
       :aria-pressed="avatar.id === selected"
       @click="selected = avatar.id"

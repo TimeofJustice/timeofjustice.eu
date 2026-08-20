@@ -23,7 +23,7 @@
     "place": "r/Place",
     "farming_stats": "Farming Stats",
     "games": "Spiele",
-    "habits": "Gewohnheiten",
+    "habits": "Momentum",
     "stable_hint": "Du verwendest die Staging-Version. Diese Version ist nicht für den produktiven Einsatz gedacht und kann Fehler oder unvollständige Funktionen enthalten. Bitte nutze die Produktionsversion unter [timeofjustice.eu](https://timeofjustice.eu) für eine stabile Erfahrung."
   },
   "index": {
@@ -257,7 +257,7 @@
     }
   },
   "habits": {
-    "title": "Gewohnheiten",
+    "title": "Momentum",
     "today": "Heute",
     "new_habit": "Neue Gewohnheit",
     "previous_year": "Vorheriges Jahr",
@@ -301,13 +301,26 @@
       "current": "Aktuelle Serie: {count} Tage",
       "streak": "Längste Serie: {count} Tage",
       "record": "Längste Serie: {count} Tage — und die läuft gerade",
-      "total": "{total} {unit} insgesamt"
+      "total": "{total} {unit} insgesamt",
+      "latest": "Zuletzt gemessen am {date}",
+      "no_readings": "Noch nichts gemessen",
+      "change": "Veränderung in {year}: {delta} {unit}",
+      "entries": "{count} Messungen in {year}",
+      "at_target": "Auf Ziel ({goal})",
+      "above_target": "{delta} {unit} über dem Ziel von {goal}",
+      "below_target": "{delta} {unit} unter dem Ziel von {goal}",
+      "current_measure": "{count} Messungen in Folge näher am Ziel oder gehalten",
+      "streak_measure": "Beste Serie: {count} Messungen näher am Ziel",
+      "record_measure": "Beste Serie: {count} Messungen näher am Ziel — und die läuft gerade",
+      "closer": "{delta} {unit} in {year} — näher am Ziel",
+      "further": "{delta} {unit} in {year} — weiter weg vom Ziel"
     },
     "day": {
       "add": "{step} hinzufügen",
       "subtract": "{step} abziehen",
       "exact_value": "Genauer Wert",
-      "clear": "Tag leeren"
+      "clear": "Tag leeren",
+      "pick": "Tag wählen"
     },
     "form": {
       "new_title": "Neue Gewohnheit",
@@ -322,7 +335,17 @@
       "color": "Farbe",
       "archived": "Archiviert — nicht mehr in der Schnellerfassung",
       "delete": "Löschen",
-      "delete_confirm": "Wirklich löschen?"
+      "delete_confirm": "Wirklich löschen?",
+      "kind": "Was ist das?",
+      "kind_goal": "Tagesziel",
+      "kind_goal_hint": "Geschafft oder nicht — ein Jahr aus Kästchen",
+      "kind_measure": "Verlauf",
+      "kind_measure_hint": "Ein Wert über die Zeit — eine Linie",
+      "target": "Zielwert",
+      "name_placeholder_measure": "Gewicht",
+      "unit_placeholder_measure": "kg",
+      "name_invalid": "Gib der Gewohnheit einen Namen.",
+      "number_invalid": "Gib eine Zahl zwischen {min} und {max} ein."
     },
     "errors": {
       "name_invalid": "Bitte gib der Gewohnheit einen Namen mit höchstens 40 Zeichen.",
@@ -335,7 +358,15 @@
       "date_invalid": "Dieser Tag lässt sich nicht erfassen.",
       "future": "Dieser Tag ist noch nicht gewesen.",
       "value_invalid": "Bitte gib einen Wert zwischen 0 und 1.000.000.000 ein.",
-      "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut."
+      "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut.",
+      "kind_invalid": "Bitte wähle eine der beiden Arten."
+    },
+    "trend": {
+      "target": "Ziel {value} {unit}",
+      "empty": "Noch nichts in {year} gemessen. Trag einen Wert ein, dann beginnt die Linie hier.",
+      "carried": "Stand vom {date}",
+      "before": "Vor der ersten Messung am {date}",
+      "between": "Auf dem Weg vom {from} zum {to}"
     }
   }
 }

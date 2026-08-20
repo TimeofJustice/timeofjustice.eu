@@ -10,14 +10,16 @@ defineProps<GamesDailyRewardProps>();
 </script>
 
 <template>
+  <!-- Three states, one scale of brightness: a locked day is dim, the one that
+       can be claimed is lit, and a claimed one keeps a trace of the colour. -->
   <div
-    class="flex shrink-0 flex-col items-center gap-1 rounded-lg p-2"
+    class="flex shrink-0 flex-col items-center gap-1 rounded-md border border-hairline p-2"
     :class="{
       'w-1/6': !overflow,
       'w-full': overflow,
-      'bg-dark-gray-800': status === 'locked',
-      'bg-green-400': status === 'unlocked',
-      'bg-green-700': status === 'claimed',
+      'bg-card text-accent': status === 'locked',
+      'bg-success text-white': status === 'unlocked',
+      'bg-success/25': status === 'claimed',
     }"
   >
     <span class="text-center">

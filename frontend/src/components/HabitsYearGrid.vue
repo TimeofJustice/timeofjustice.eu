@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formatNumber,
+  GRID,
   levelColor,
   monthColumns,
   yearWeeks,
@@ -56,7 +57,24 @@ const label = (date: string, value: number) =>
  */
 const gridStyle = computed(() => ({
   gridTemplateColumns: `repeat(${weeks.value.length}, minmax(0, 1fr))`,
-  gridTemplateRows: "repeat(7, auto)",
+  gridTemplateRows: `repeat(${GRID.rows}, auto)`,
+  gap: `${GRID.gap}px`,
+}));
+
+/**
+ * Everything a chart beside this one has to agree with lives in `GRID`, so it
+ * is spent here as inline style rather than as Tailwind classes — a hard-coded
+ * `gap-[2px]` in this template is exactly how the two would drift apart.
+ */
+const frameStyle = computed(() => ({
+  minWidth: `${GRID.minWidth}px`,
+  maxWidth: `${GRID.maxWidth}px`,
+  gap: `${GRID.labelGap}px`,
+}));
+
+const labelStyle = computed(() => ({
+  gridTemplateRows: `repeat(${GRID.rows}, minmax(0, 1fr))`,
+  gap: `${GRID.gap}px`,
 }));
 
 // One tooltip for the whole year, moved from square to square. Wrapping each of
@@ -95,11 +113,18 @@ const leave = () => {
          an edge — a square swelling under the pointer, the Sunday label in a
          row shorter than its own text — would raise a scrollbar. The padding
          gives both of them the room they need instead of clipping them. -->
-    <div class="overflow-x-auto overflow-y-hidden p-1" @scroll="leave">
-      <div class="flex max-w-[860px] min-w-[420px] items-stretch gap-1">
-        <div class="flex shrink-0 flex-col text-[0.6rem] text-accent">
+    <div
+      class="overflow-x-auto overflow-y-hidden"
+      :style="{ padding: `${GRID.padding}px` }"
+      @scroll="leave"
+    >
+      <div class="flex items-stretch" :style="frameStyle">
+        <div
+          class="flex shrink-0 flex-col text-[0.6rem] text-accent"
+          :style="{ width: `${GRID.labelWidth}px` }"
+        >
           <!-- Lines the weekdays up under the month row next to them. -->
-          <div class="h-[1.05rem]" />
+          <div :style="{ height: `${GRID.header}px` }" />
 
           <!-- `h-0 min-h-0` before `grow` is what keeps these in step with the
                squares. Left to itself this grid is seven lines of text tall,
@@ -110,9 +135,9 @@ const leave = () => {
                and the two would drift further apart with every row. At a base
                height of zero the squares decide, and both grids divide exactly
                the same space. -->
-          <div class="grid h-0 min-h-0 grow grid-rows-7 gap-[2px]">
+          <div class="grid h-0 min-h-0 grow" :style="labelStyle">
             <div
-              v-for="row in 7"
+              v-for="row in GRID.rows"
               :key="row"
               class="flex items-center leading-none"
             >
@@ -127,8 +152,8 @@ const leave = () => {
 
         <div class="min-w-0 grow">
           <div
-            class="grid h-[1.05rem] gap-[2px] text-[0.6rem] text-accent"
-            :style="gridStyle"
+            class="grid text-[0.6rem] text-accent"
+            :style="{ ...gridStyle, height: `${GRID.header}px` }"
           >
             <div
               v-for="month in months"
@@ -140,7 +165,7 @@ const leave = () => {
             </div>
           </div>
 
-          <div class="grid grid-flow-col gap-[2px]" :style="gridStyle">
+          <div class="grid grid-flow-col" :style="gridStyle">
             <template v-for="(week, column) in weeks" :key="column">
               <template v-for="(day, row) in week" :key="row">
                 <!-- Padding around the year keeps the columns aligned. -->
@@ -153,10 +178,19 @@ const leave = () => {
                   class="aspect-square rounded-xs bg-dark-gray-500/15"
                 />
 
+                <!-- The `after` is the hit area, and it is deliberately larger
+                     than the square it belongs to. A day is only about nine
+                     pixels wide with a two-pixel gap either side, and those gaps
+                     were dead: the pointer would sit in one, the neighbouring
+                     square would still show as hovered, and the click would land
+                     on nothing. Reaching a pixel past the gap leaves no dead
+                     ground at all — where two hit areas overlap the later square
+                     wins, which is consistent, and the ring of scroller padding
+                     is exactly deep enough to hold the outermost ones. -->
                 <button
                   v-else
                   type="button"
-                  class="aspect-square cursor-pointer rounded-xs transition-transform duration-100 hover:scale-125 focus:outline-none focus-visible:ring-2 focus-visible:ring-light"
+                  class="relative aspect-square cursor-pointer rounded-xs transition-transform duration-100 after:absolute after:-inset-1 after:content-[''] hover:scale-125 focus:outline-none focus-visible:ring-2 focus-visible:ring-light"
                   :class="[
                     day.level === 0 && 'bg-dark-gray-500/40',
                     day.date === today && 'ring-1 ring-light/70',

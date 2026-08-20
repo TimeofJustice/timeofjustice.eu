@@ -1516,10 +1516,8 @@ watch(
               accept="image/png,image/jpeg,image/gif"
               class="place-input"
               :state="validateFile"
+              :error="$t('r_place.canvas.overlay.invalid_file')"
             />
-            <UiInvalidFeedback :state="validateFile">
-              {{ $t("r_place.canvas.overlay.invalid_file") }}
-            </UiInvalidFeedback>
           </UiFormGroup>
 
           <UiFormGroup

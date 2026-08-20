@@ -21,9 +21,10 @@ export const ROUTES: Route[] = [
   },
   {
     name: "nav.habits",
-    path: "/habits/",
-    icon: "fa6-solid:calendar-check",
+    path: "/momentum/",
+    icon: "fa6-solid:bolt",
     activeComponents: ["HabitTrackerPage"],
+    isHighlighted: true,
   },
   {
     name: "nav.place",
@@ -36,6 +37,5 @@ export const ROUTES: Route[] = [
     path: "/sendy/",
     icon: "bi:envelope-heart-fill",
     activeComponents: ["PostcardPage"],
-    isHighlighted: true,
   },
 ];

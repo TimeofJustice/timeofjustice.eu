@@ -25,7 +25,7 @@
     "place": "r/Place",
     "farming_stats": "Farming Stats",
     "games": "Games",
-    "habits": "Habits",
+    "habits": "Momentum",
     "postcard": "Sendy",
     "stable_hint": "You are using the staging version. This version is not intended for production use and may contain bugs or incomplete features. Please use the production version at [timeofjustice.eu](https://timeofjustice.eu) for a stable experience."
   },
@@ -269,7 +269,7 @@
     }
   },
   "habits": {
-    "title": "Habits",
+    "title": "Momentum",
     "today": "Today",
     "new_habit": "New habit",
     "previous_year": "Previous year",
@@ -313,13 +313,26 @@
       "current": "Current streak: {count} days",
       "streak": "Longest streak: {count} days",
       "record": "Longest streak: {count} days — and it is the one running now",
-      "total": "{total} {unit} in total"
+      "total": "{total} {unit} in total",
+      "latest": "Last measured on {date}",
+      "no_readings": "Nothing measured yet",
+      "change": "Change over {year}: {delta} {unit}",
+      "entries": "{count} readings in {year}",
+      "at_target": "On target ({goal})",
+      "above_target": "{delta} {unit} above the target of {goal}",
+      "below_target": "{delta} {unit} below the target of {goal}",
+      "current_measure": "{count} readings in a row closer to the target, or holding",
+      "streak_measure": "Best run: {count} readings closing on the target",
+      "record_measure": "Best run: {count} readings closing on the target — and it is the one going now",
+      "closer": "{delta} {unit} over {year} — closer to the target",
+      "further": "{delta} {unit} over {year} — further from the target"
     },
     "day": {
       "add": "Add {step}",
       "subtract": "Subtract {step}",
       "exact_value": "Exact value",
-      "clear": "Clear this day"
+      "clear": "Clear this day",
+      "pick": "Pick a day"
     },
     "form": {
       "new_title": "New habit",
@@ -334,7 +347,17 @@
       "color": "Colour",
       "archived": "Archived — hidden from the quick-add list",
       "delete": "Delete",
-      "delete_confirm": "Really delete?"
+      "delete_confirm": "Really delete?",
+      "kind": "What is this?",
+      "kind_goal": "Daily goal",
+      "kind_goal_hint": "Hit it or miss it — a year of squares",
+      "kind_measure": "Progression",
+      "kind_measure_hint": "A reading over time — a line",
+      "target": "Target",
+      "name_placeholder_measure": "Weight",
+      "unit_placeholder_measure": "kg",
+      "name_invalid": "Give the habit a name.",
+      "number_invalid": "Enter a number between {min} and {max}."
     },
     "errors": {
       "name_invalid": "Please give the habit a name of at most 40 characters.",
@@ -347,7 +370,15 @@
       "date_invalid": "That day cannot be tracked.",
       "future": "That day has not happened yet.",
       "value_invalid": "Please enter a value between 0 and 1,000,000,000.",
-      "unknown": "Something went wrong. Please try again."
+      "unknown": "Something went wrong. Please try again.",
+      "kind_invalid": "Please pick one of the two kinds."
+    },
+    "trend": {
+      "target": "Target {value} {unit}",
+      "empty": "Nothing measured in {year} yet. Log a reading and the line starts here.",
+      "carried": "As measured on {date}",
+      "before": "Before the first measurement, on {date}",
+      "between": "On the way from {from} to {to}"
     }
   }
 }

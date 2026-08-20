@@ -23,6 +23,31 @@ const percentage = computed(() =>
 );
 
 const reached = computed(() => levelOf(value, habit.goal) === 5);
+
+const isMeasure = computed(() => habit.kind === "measure");
+
+/**
+ * Where today's reading stands to the target — the thing a measurement is kept
+ * for. Falls back to naming the target while nothing has been read today.
+ */
+const targetHint = computed(() => {
+  const goal = `${format(habit.goal)} ${habit.unit}`.trim();
+
+  if (value <= 0)
+    return i18n.t("habits.trend.target", {
+      value: format(habit.goal),
+      unit: habit.unit,
+    });
+
+  const toTarget = roundValue(value - habit.goal);
+
+  if (toTarget === 0) return i18n.t("habits.stats.at_target", { goal });
+
+  return i18n.t(
+    toTarget > 0 ? "habits.stats.above_target" : "habits.stats.below_target",
+    { delta: format(Math.abs(toTarget)), unit: habit.unit, goal },
+  );
+});
 </script>
 
 <template>
@@ -41,14 +66,32 @@ const reached = computed(() => levelOf(value, habit.goal) === 5);
         {{ habit.name }}
       </button>
 
-      <span class="shrink-0 text-sm whitespace-nowrap text-accent">
+      <!-- A measurement is not a fraction of anything: showing "82,4 / 75" would
+           read as four-fifths of a goal rather than as five kilos to go. -->
+      <span
+        v-if="isMeasure"
+        class="shrink-0 text-sm whitespace-nowrap text-accent"
+      >
+        <span :class="value > 0 && 'text-light'">
+          {{ value > 0 ? format(value) : "—" }}
+        </span>
+        {{ habit.unit }}
+      </span>
+
+      <span v-else class="shrink-0 text-sm whitespace-nowrap text-accent">
         <span :class="reached && 'text-success'">{{ format(value) }}</span>
         / {{ format(habit.goal) }} {{ habit.unit }}
       </span>
     </div>
 
     <div class="flex items-center gap-2">
-      <UiProgress class="h-2 grow">
+      <!-- No bar for a measurement — there is no meter to fill. How far it is
+           from the target sits there instead, which is the thing being kept. -->
+      <span v-if="isMeasure" class="grow truncate text-sm text-accent">
+        {{ targetHint }}
+      </span>
+
+      <UiProgress v-else class="h-2 grow">
         <UiProgressBar
           :value="percentage"
           :variant="reached ? 'success' : undefined"

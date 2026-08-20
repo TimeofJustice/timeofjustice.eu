@@ -25,11 +25,27 @@ HEX_COLOR = RegexValidator(r"^#[0-9a-fA-F]{6}$", "Colors are six-digit hex, e.g.
 
 class Habit(models.Model):
     """
-    Something the owner wants to do every day, with a daily target — "6000
-    steps", "30 minutes of reading". Progress is one `Entry` per day.
+    Something the owner tracks a day at a time. Two flavours, one model:
+
+    - `GOAL` — a daily target that is either met or not. "6000 steps." Drawn as
+      a year of squares, and it is the kind that has streaks.
+    - `MEASURE` — a reading whose *course* is the point, not any single day.
+      "Weight." Drawn as a line, and `goal` reads as a target to move towards.
+
+    They share everything else — logging, the day editor, the quick-add — which
+    is the whole reason they are one model and not two.
     """
 
+    GOAL = "goal"
+    MEASURE = "measure"
+
+    KINDS = (
+        (GOAL, "Daily goal"),
+        (MEASURE, "Measurement over time"),
+    )
+
     id = models.AutoField(primary_key=True)
+    kind = models.CharField(max_length=8, choices=KINDS, default=GOAL)
     wallet = models.ForeignKey("games.Wallet", on_delete=models.CASCADE, related_name="habits")
     name = models.CharField(max_length=40)
     # Free text shown next to the numbers ("steps", "min", "pages"). Optional,
@@ -66,6 +82,7 @@ class Habit(models.Model):
     def json(self):
         return {
             "id": self.id,
+            "kind": self.kind,
             "name": self.name,
             "unit": self.unit,
             # Floats on the wire: JSON has no decimal, and two places survive

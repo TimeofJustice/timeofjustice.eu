@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import BaseLink from "@components/BaseLink.vue";
 import { useUi } from "./cn";
+import { FOCUS_RING } from "./focus";
 import type { Variant } from "./variants";
 
 export interface UiLinkProps {
@@ -32,7 +33,11 @@ const VARIANTS: Partial<Record<Variant, string>> = {
   danger: "text-danger hover:text-danger/80",
 };
 
-const { ui, rest } = useUi(() => variant && VARIANTS[variant]);
+const { ui, rest } = useUi(() => [
+  "rounded-sm",
+  FOCUS_RING,
+  variant && VARIANTS[variant],
+]);
 </script>
 
 <template>
@@ -51,7 +56,7 @@ const { ui, rest } = useUi(() => variant && VARIANTS[variant]);
   <button
     v-else
     type="button"
-    class="cursor-pointer text-link underline transition-colors duration-150 hover:text-link-hover"
+    class="cursor-pointer rounded-sm text-link underline transition-colors duration-150 hover:text-link-hover"
     :class="ui"
     v-bind="rest"
   >

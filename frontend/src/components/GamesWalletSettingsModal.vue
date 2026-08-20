@@ -133,7 +133,7 @@ const save = () => {
 
       <div class="flex items-center gap-2">
         <code
-          class="grow rounded-md bg-black/25 px-3 py-2 break-all select-all"
+          class="grow rounded-md border border-hairline bg-field px-3 py-2 break-all select-all"
         >
           {{ walletPhrase }}
         </code>
@@ -165,10 +165,8 @@ const save = () => {
           :placeholder="$t('games.main.name')"
           required
           :state="validateName"
+          :error="$t('games.main.settings_invalid')"
         />
-        <UiInvalidFeedback :state="validateName">
-          {{ $t("games.main.settings_invalid") }}
-        </UiInvalidFeedback>
       </UiFormGroup>
 
       <UiFormGroup id="wallet-avatar-group" :label="$t('games.main.avatar')">

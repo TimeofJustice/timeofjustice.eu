@@ -89,11 +89,9 @@ function register() {
               :placeholder="$t('games.login.enter_wallet')"
               required
               :state="validatePhrase"
+              :error="$t('games.login.error.not_valid')"
               type="password"
             />
-            <UiInvalidFeedback :state="validatePhrase">
-              {{ $t("games.login.error.not_valid") }}
-            </UiInvalidFeedback>
           </UiFormGroup>
 
           <UiButton

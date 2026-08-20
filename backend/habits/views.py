@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
+from itertools import pairwise
 
 from django.db import IntegrityError, transaction
 from django.db.models import F, Max
@@ -100,28 +101,67 @@ def streak_of(met, today):
     return {"current": current, "longest": longest}
 
 
+def approach_streak(readings, target):
+    """
+    Runs of readings that did not move away from the target.
+
+    Counted per **reading**, not per day: a weight is not taken daily, and a
+    fortnight without a weigh-in is not a broken run — it is simply no news.
+    Staying put counts as holding the run, since not sliding back is its own
+    kind of progress. What is counted is the steps between readings, so a single
+    reading is a run of nothing.
+    """
+    distances = [abs(value - target) for value in readings]
+
+    current = 0
+    longest = 0
+
+    for previous, distance in pairwise(distances):
+        current = current + 1 if distance <= previous else 0
+        longest = max(longest, current)
+
+    return {"current": current, "longest": longest}
+
+
 def streaks_for(wallet, habit=None):
     """
-    Runs of goal-met days, per habit id.
+    Runs, per habit id — of goal-met days for one kind, of readings that closed
+    on their target for the other.
 
     Deliberately over all time rather than over the year on screen: a streak is
     about now, and one that started in December does not stop counting because
-    January is being looked at. Only the days that actually met their goal come
-    back — a small fraction of the rows, and one query instead of one per habit.
+    January is being looked at.
     """
-    entries = Entry.objects.filter(habit__wallet=wallet, value__gte=F("habit__goal"))
+    habits = Habit.objects.filter(wallet=wallet)
 
     if habit is not None:
-        entries = entries.filter(habit=habit)
+        habits = habits.filter(id=habit.id)
 
-    met = {}
-
-    for habit_id, day in entries.values_list("habit_id", "date"):
-        met.setdefault(habit_id, set()).add(day)
-
+    streaks = {}
     today = timezone.now().date()
 
-    return {habit_id: streak_of(days, today) for habit_id, days in met.items()}
+    # Only the days that actually met their goal come back — a small fraction of
+    # the rows, and one query rather than one per habit.
+    met = {}
+
+    for habit_id, day in Entry.objects.filter(habit__in=habits, habit__kind=Habit.GOAL, value__gte=F("habit__goal")).values_list("habit_id", "date"):
+        met.setdefault(habit_id, set()).add(day)
+
+    for habit_id, days in met.items():
+        streaks[habit_id] = streak_of(days, today)
+
+    targets = dict(habits.filter(kind=Habit.MEASURE).values_list("id", "goal"))
+
+    if targets:
+        readings = {}
+
+        for habit_id, value in Entry.objects.filter(habit__in=habits, habit__kind=Habit.MEASURE).order_by("date").values_list("habit_id", "value"):
+            readings.setdefault(habit_id, []).append(value)
+
+        for habit_id, values in readings.items():
+            streaks[habit_id] = approach_streak(values, targets[habit_id])
+
+    return streaks
 
 
 def with_streak(habit, streaks):
@@ -182,6 +222,14 @@ def read_habit_fields(post_data, habit):
             return "habits.errors.color_invalid"
 
         habit.color = color
+
+    kind = post_data.get("kind")
+
+    if kind is not None:
+        if kind not in dict(Habit.KINDS):
+            return "habits.errors.kind_invalid"
+
+        habit.kind = kind
 
     archived = post_data.get("archived")
 

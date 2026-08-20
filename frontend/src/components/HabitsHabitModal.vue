@@ -2,8 +2,9 @@
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useToast } from "@composables/toast";
-import { api, parseDecimal } from "@composables/habits";
-import type { Habit } from "@/types/Habit.ts";
+import { api, formatNumber, parseDecimal } from "@composables/habits";
+import type { Habit, HabitKind } from "@/types/Habit.ts";
+import { FOCUS_RING } from "@components/ui/focus";
 
 interface HabitsHabitModalProps {
   /** The habit being edited, or null to create a new one. */
@@ -24,6 +25,7 @@ const { create } = useToast();
 // `goal` and `step` are held as text so a half-typed "0," survives; they are
 // turned into numbers once, on submit.
 const form = reactive({
+  kind: "goal" as HabitKind,
   name: "",
   unit: "",
   goal: "1",
@@ -46,6 +48,7 @@ watch(show, (open) => {
   confirmingDelete.value = false;
 
   Object.assign(form, {
+    kind: habit?.kind ?? "goal",
     name: habit?.name ?? "",
     unit: habit?.unit ?? "",
     goal: String(habit?.goal ?? 1),
@@ -58,6 +61,11 @@ watch(show, (open) => {
 const nameState = computed(() =>
   form.name.length === 0 ? null : form.name.trim().length > 0,
 );
+
+const isMeasure = computed(() => form.kind === "measure");
+
+/** Both kinds ask for the same numbers; only the words around them change. */
+const KINDS: HabitKind[] = ["goal", "measure"];
 
 const isPositive = (input: string) => {
   const number = parseDecimal(input);
@@ -72,6 +80,14 @@ const goalState = computed(() =>
 
 const stepState = computed(() =>
   form.step.length === 0 ? null : isPositive(form.step),
+);
+
+/** What the number fields ask for, spelled out for the tooltip. */
+const numberError = computed(() =>
+  i18n.t("habits.form.number_invalid", {
+    min: formatNumber(0.01, i18n.locale.value),
+    max: formatNumber(MAX_VALUE, i18n.locale.value),
+  }),
 );
 
 const isValid = computed(
@@ -148,6 +164,35 @@ const remove = () => {
     </template>
 
     <form class="flex flex-col gap-3" @submit.prevent="submit">
+      <!-- The one choice that decides what the card becomes: a year of squares,
+           or a line. Everything below reads slightly differently for each. -->
+      <UiFormGroup :label="$t('habits.form.kind')">
+        <div class="grid gap-2 sm:grid-cols-2">
+          <UiButton
+            v-for="option in KINDS"
+            :key="option"
+            variant="secondary"
+            :active="form.kind === option"
+            class="flex flex-col items-start gap-0.5 text-left"
+            @click="form.kind = option"
+          >
+            <span class="flex items-center gap-2">
+              <iconify-icon
+                :icon="
+                  option === 'goal'
+                    ? 'fa6-solid:table-cells'
+                    : 'fa6-solid:chart-line'
+                "
+              />
+              {{ $t(`habits.form.kind_${option}`) }}
+            </span>
+            <span class="text-sm opacity-75">
+              {{ $t(`habits.form.kind_${option}_hint`) }}
+            </span>
+          </UiButton>
+        </div>
+      </UiFormGroup>
+
       <UiFormGroup
         id="habit-name-group"
         label-for="habit-name"
@@ -156,8 +201,15 @@ const remove = () => {
         <UiInput
           id="habit-name"
           v-model="form.name"
-          :placeholder="$t('habits.form.name_placeholder')"
+          :placeholder="
+            $t(
+              isMeasure
+                ? 'habits.form.name_placeholder_measure'
+                : 'habits.form.name_placeholder',
+            )
+          "
           :state="nameState"
+          :error="$t('habits.form.name_invalid')"
           maxlength="40"
           required
         />
@@ -167,7 +219,7 @@ const remove = () => {
         <UiFormGroup
           class="grow"
           label-for="habit-goal"
-          :label="$t('habits.form.goal')"
+          :label="$t(isMeasure ? 'habits.form.target' : 'habits.form.goal')"
         >
           <!-- Text, not `number`: a comma is what a German keyboard types, and
                a number field silently throws it away. -->
@@ -177,6 +229,7 @@ const remove = () => {
             type="text"
             inputmode="decimal"
             :state="goalState"
+            :error="numberError"
           />
         </UiFormGroup>
 
@@ -188,7 +241,13 @@ const remove = () => {
           <UiInput
             id="habit-unit"
             v-model="form.unit"
-            :placeholder="$t('habits.form.unit_placeholder')"
+            :placeholder="
+              $t(
+                isMeasure
+                  ? 'habits.form.unit_placeholder_measure'
+                  : 'habits.form.unit_placeholder',
+              )
+            "
             maxlength="16"
           />
         </UiFormGroup>
@@ -201,6 +260,7 @@ const remove = () => {
           type="text"
           inputmode="decimal"
           :state="stepState"
+          :error="numberError"
         />
         <p class="mt-1 mb-0 text-sm text-accent">
           {{ $t("habits.form.step_hint") }}
@@ -214,10 +274,11 @@ const remove = () => {
             :key="option"
             type="button"
             class="size-8 cursor-pointer rounded-md transition-transform duration-100 hover:scale-110"
-            :class="
+            :class="[
+              FOCUS_RING,
               form.color === option &&
-              'ring-2 ring-light ring-offset-2 ring-offset-dark-gray-600'
-            "
+                'ring-2 ring-light ring-offset-2 ring-offset-surface',
+            ]"
             :style="{ backgroundColor: option }"
             :aria-label="option"
             :aria-pressed="form.color === option"

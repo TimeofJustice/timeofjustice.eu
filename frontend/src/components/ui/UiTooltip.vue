@@ -16,6 +16,11 @@ export interface UiTooltipProps {
   /** Milliseconds the pointer has to rest before the pill appears. */
   delay?: number;
   /**
+   * Let a long text break across lines instead of stretching the pill into a
+   * strip. For labels a single line is right; for a sentence it is not.
+   */
+  wrap?: boolean;
+  /**
    * Anchored mode: the element the pill points at, driven from outside.
    *
    * Leave it out to wrap a trigger with the default slot instead. Anchored mode
@@ -29,6 +34,7 @@ const {
   text,
   placement = "top",
   delay = 400,
+  wrap = false,
   anchor,
 } = defineProps<UiTooltipProps>();
 
@@ -186,7 +192,7 @@ onBeforeUnmount(() => {
         ref="pill"
         role="tooltip"
         class="ui-tooltip"
-        :class="position.below && 'below'"
+        :class="[position.below && 'below', wrap && 'wrap']"
         :style="{
           left: `${position.x}px`,
           top: `${position.y}px`,
@@ -201,6 +207,13 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .ui-tooltip {
+  /* Darker than a panel, because a tooltip is read on top of one. */
+  --tooltip-surface: color-mix(
+    in srgb,
+    var(--color-dark-gray-900) 92%,
+    transparent
+  );
+
   position: fixed;
   z-index: 1060;
 
@@ -211,14 +224,22 @@ onBeforeUnmount(() => {
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
 
-  background: rgb(0 0 0 / 0.75);
+  background: var(--tooltip-surface);
   color: var(--color-light);
   font-size: 0.8125rem;
   white-space: nowrap;
 
   /* Sits above the thing it describes and never eats a click meant for it. */
+  box-shadow: var(--shadow-overlay);
+
   transform: translate(-50%, -100%);
   pointer-events: none;
+}
+
+.ui-tooltip.wrap {
+  max-width: min(18rem, calc(100vw - 2rem));
+  text-align: left;
+  white-space: normal;
 }
 
 .ui-tooltip::after {
@@ -229,7 +250,7 @@ onBeforeUnmount(() => {
   left: var(--caret, 50%);
 
   border: 0.3rem solid transparent;
-  border-top-color: rgb(0 0 0 / 0.75);
+  border-top-color: var(--tooltip-surface);
   transform: translateX(-50%);
 }
 
@@ -242,6 +263,6 @@ onBeforeUnmount(() => {
   bottom: 100%;
 
   border-top-color: transparent;
-  border-bottom-color: rgb(0 0 0 / 0.75);
+  border-bottom-color: var(--tooltip-surface);
 }
 </style>

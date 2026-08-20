@@ -77,12 +77,12 @@ useScrollLock(show);
           @click.self="close"
         >
           <div
-            class="flex w-full flex-col rounded-lg border border-black/20 bg-dark-gray-600 bg-clip-padding"
+            class="flex w-full flex-col rounded-surface border border-hairline bg-surface bg-clip-padding shadow-overlay"
             :class="scrollable && 'max-h-full overflow-hidden'"
           >
             <div
               v-if="$slots.header"
-              class="flex shrink-0 items-center border-b border-black/17.5 p-4"
+              class="flex shrink-0 items-center border-b border-hairline p-4"
               :class="headerClass"
             >
               <slot name="header" />
@@ -97,7 +97,7 @@ useScrollLock(show);
 
             <div
               v-if="$slots.footer"
-              class="flex shrink-0 items-center justify-end gap-2 border-t border-black/17.5 p-4"
+              class="flex shrink-0 items-center justify-end gap-2 border-t border-hairline p-4"
               :class="footerClass"
             >
               <slot name="footer" />

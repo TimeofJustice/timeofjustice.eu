@@ -15,13 +15,31 @@ interface HabitsDayModalProps {
   date: string | null;
   /** Currently logged value, kept in sync with the page's optimistic state. */
   value: number;
+  /**
+   * What to offer on a day that has nothing logged — the reading in force
+   * around it. Only measurements have one; a missed daily goal is a zero.
+   */
+  suggestion?: number | null;
+  /** The days that may be picked, so the past stays reachable and the future does not. */
+  firstDate: string;
+  lastDate: string;
 }
 
-const { habit, date, value } = defineProps<HabitsDayModalProps>();
+const {
+  habit,
+  date,
+  value,
+  suggestion = null,
+  firstDate,
+  lastDate,
+} = defineProps<HabitsDayModalProps>();
 
 const show = defineModel<boolean>({ default: false });
 
-const emit = defineEmits<{ update: [value: number] }>();
+const emit = defineEmits<{
+  update: [value: number];
+  navigate: [date: string];
+}>();
 
 const i18n = useI18n();
 
@@ -30,12 +48,17 @@ const i18n = useI18n();
 // a half-typed "7," survives long enough to become "7,5".
 const draft = ref(String(value));
 
-watch(
-  () => value,
-  (incoming) => {
-    draft.value = String(incoming);
-  },
-);
+/**
+ * What the field starts on. A day with nothing logged offers the reading in
+ * force around it, so correcting a gap in the past means nudging a real number
+ * rather than typing one from scratch.
+ */
+const startingPoint = () =>
+  value > 0 || suggestion === null ? String(value) : String(suggestion);
+
+watch([() => value, () => date], () => {
+  draft.value = startingPoint();
+});
 
 /** Thousands separators make a step count readable at a glance. */
 const format = (number: number) => formatNumber(number, i18n.locale.value);
@@ -133,6 +156,18 @@ const bump = (direction: number) => {
           +{{ format(habit.step) }}
         </UiButton>
       </div>
+
+      <!-- Any day, not just the one that was clicked. On a line there is no
+           square to aim at, so this is how a day that was never logged gets
+           reached at all. -->
+      <UiInput
+        :model-value="date ?? ''"
+        type="date"
+        :min="firstDate"
+        :max="lastDate"
+        :aria-label="$t('habits.day.pick')"
+        @update:model-value="emit('navigate', String($event))"
+      />
 
       <div class="flex items-center gap-2">
         <!-- Text, not `number`: a comma is what a German keyboard types, and a

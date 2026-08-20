@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { computed, reactive, ref } from "vue";
+import { computed, defineAsyncComponent, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useToast } from "@composables/toast";
 import { useMediaQuery } from "@composables/mediaQuery";
-import { api, formatNumber, habitStats, LEVEL_MIX } from "@composables/habits";
+import {
+  api,
+  carriedValue,
+  formatNumber,
+  habitStats,
+  LEVEL_MIX,
+  measureStats,
+} from "@composables/habits";
 import HabitsYearGrid from "@components/HabitsYearGrid.vue";
 import HabitsQuickRow from "@components/HabitsQuickRow.vue";
 import HabitsDayModal from "@components/HabitsDayModal.vue";
@@ -24,6 +31,12 @@ interface HabitTrackerPageProps {
 
 const { year, firstYear, lastYear, today, colors, habits, entries } =
   defineProps<HabitTrackerPageProps>();
+
+// chart.js is 50 kB gzipped and only a progression needs it. Loaded on demand,
+// so a page of nothing but daily goals never fetches it at all.
+const HabitsTrendChart = defineAsyncComponent(
+  () => import("@components/HabitsTrendChart.vue"),
+);
 
 const i18n = useI18n();
 const { create } = useToast();
@@ -83,6 +96,15 @@ const valueOf = (habit: Habit, date: string) => valuesOf(habit)[date] ?? 0;
 const dayValue = computed(() =>
   dayHabit.value && dayDate.value ? valueOf(dayHabit.value, dayDate.value) : 0,
 );
+
+/** Only a measurement carries a value forward; a missed daily goal is a zero. */
+const daySuggestion = computed(() =>
+  dayHabit.value && dayDate.value && isMeasure(dayHabit.value)
+    ? carriedValue(valuesOf(dayHabit.value), dayDate.value)
+    : null,
+);
+
+const firstDate = computed(() => `${firstYear}-01-01`);
 
 const formattedToday = computed(() =>
   new Date(`${today}T00:00:00`).toLocaleDateString(i18n.locale.value, {
@@ -174,7 +196,7 @@ const selectYear = (next: number) => {
       selectedYear.value = data.year;
 
       // Keeps a reload — and a shared link — on the year being looked at.
-      window.history.replaceState({}, "", `/habits/${data.year}/`);
+      window.history.replaceState({}, "", `/momentum/${data.year}/`);
     })
     .catch(fail)
     .finally(() => {
@@ -184,9 +206,76 @@ const selectYear = (next: number) => {
 
 const statsOf = (habit: Habit) => habitStats(valuesOf(habit), habit.goal);
 
+const measuresOf = (habit: Habit) => measureStats(valuesOf(habit), habit.goal);
+
+const longDate = (date: string) =>
+  new Date(`${date}T00:00:00`).toLocaleDateString(i18n.locale.value, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+/** A movement reads as a movement only with its sign on it. */
+const signed = (delta: number) => `${delta > 0 ? "+" : ""}${format(delta)}`;
+
+/**
+ * What the year moved, and whether that counted as progress.
+ *
+ * The target is what makes the verdict possible at all: it decides which way is
+ * forwards, so a falling weight and a rising balance both read as progress
+ * without the tracker having to know which one it is looking at.
+ */
+const changeText = (habit: Habit) => {
+  const { count, delta, closed } = measuresOf(habit);
+
+  if (count === 0) return i18n.t("habits.stats.no_readings");
+
+  const values = {
+    delta: signed(delta),
+    unit: habit.unit,
+    year: selectedYear.value,
+  };
+
+  if (closed === 0) return i18n.t("habits.stats.change", values);
+
+  return i18n.t(
+    closed > 0 ? "habits.stats.closer" : "habits.stats.further",
+    values,
+  );
+};
+
+const progressClass = (habit: Habit) => {
+  const { closed } = measuresOf(habit);
+
+  if (closed > 0) return "text-success";
+  if (closed < 0) return "text-danger";
+
+  return "text-accent";
+};
+
+/** Which way it went. Whether that is good is the colour's job, not the icon's. */
+const trendIcon = (delta: number) => {
+  if (delta > 0) return "fa6-solid:arrow-trend-up";
+  if (delta < 0) return "fa6-solid:arrow-trend-down";
+
+  return "fa6-solid:minus";
+};
+
+/** A reading whose course is the point, rather than a goal met or missed. */
+const isMeasure = (habit: Habit) => habit.kind === "measure";
+
 /** The run going now is the best there has ever been. */
 const atRecord = (habit: Habit) =>
   habit.streak.current > 0 && habit.streak.current === habit.streak.longest;
+
+/** Four ways to say "longest run", by kind and by whether it is the one running. */
+const recordKey = (habit: Habit) => {
+  const measure = isMeasure(habit) ? "_measure" : "";
+
+  return atRecord(habit)
+    ? `habits.stats.record${measure}`
+    : `habits.stats.streak${measure}`;
+};
 
 const format = (number: number) => formatNumber(number, i18n.locale.value);
 
@@ -203,7 +292,7 @@ const legendColors = (color: string) =>
   <div class="container-page flex flex-col gap-4 py-4">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <h1 class="m-0 text-h3-fluid">
-        <iconify-icon icon="fa6-solid:calendar-check" />
+        <iconify-icon icon="fa6-solid:bolt" />
         {{ $t("habits.title") }}
       </h1>
 
@@ -323,12 +412,20 @@ const legendColors = (color: string) =>
 
               <h2 class="m-0 truncate text-h6">{{ habit.name }}</h2>
 
+              <!-- "6000 steps a day" for a goal, but a target weight is not a
+                   daily quota — it is the number being moved towards. -->
               <span class="text-sm text-accent">
                 {{
-                  $t("habits.goal_label", {
-                    goal: format(habit.goal),
-                    unit: habit.unit,
-                  })
+                  $t(
+                    isMeasure(habit)
+                      ? "habits.trend.target"
+                      : "habits.goal_label",
+                    {
+                      goal: format(habit.goal),
+                      value: format(habit.goal),
+                      unit: habit.unit,
+                    },
+                  )
                 }}
               </span>
 
@@ -344,7 +441,47 @@ const legendColors = (color: string) =>
                    over everything here and would otherwise swallow the hover —
                    and with it every one of these tooltips. -->
               <div class="relative z-2 flex flex-wrap items-center gap-x-2">
+                <!-- A measurement has no streak to run: what matters is where
+                     it stands, how far it has moved, and how often it was
+                     taken. -->
+                <template v-if="isMeasure(habit)">
+                  <UiTooltip
+                    :text="
+                      measuresOf(habit).latestDate
+                        ? $t('habits.stats.latest', {
+                            date: longDate(measuresOf(habit).latestDate!),
+                          })
+                        : $t('habits.stats.no_readings')
+                    "
+                  >
+                    <span class="text-sm text-light">
+                      {{
+                        measuresOf(habit).latest === null
+                          ? "—"
+                          : format(measuresOf(habit).latest!)
+                      }}
+                      {{ habit.unit }}
+                    </span>
+                  </UiTooltip>
+
+                  <!-- What moved this year, and whether that was progress.
+                       The arrow is the fact — which way it went — and the
+                       colour is the verdict, which only the target can give. -->
+                  <UiTooltip :text="changeText(habit)">
+                    <span
+                      class="flex items-center gap-1 text-sm"
+                      :class="progressClass(habit)"
+                    >
+                      <iconify-icon
+                        :icon="trendIcon(measuresOf(habit).delta)"
+                      />
+                      {{ signed(measuresOf(habit).delta) }}
+                    </span>
+                  </UiTooltip>
+                </template>
+
                 <UiTooltip
+                  v-if="!isMeasure(habit)"
                   :text="
                     $t('habits.stats.done', {
                       count: format(statsOf(habit).done),
@@ -358,12 +495,17 @@ const legendColors = (color: string) =>
                   </span>
                 </UiTooltip>
 
-                <!-- A running streak burns; a broken one is just a number. -->
+                <!-- A running streak burns; a broken one is just a number.
+                     Both kinds have one — days that met their goal, or readings
+                     that kept closing on their target. -->
                 <UiTooltip
                   :text="
-                    $t('habits.stats.current', {
-                      count: format(habit.streak.current),
-                    })
+                    $t(
+                      isMeasure(habit)
+                        ? 'habits.stats.current_measure'
+                        : 'habits.stats.current',
+                      { count: format(habit.streak.current) },
+                    )
                   "
                 >
                   <span
@@ -386,13 +528,9 @@ const legendColors = (color: string) =>
                 <!-- Standing on the record right now: the trophy joins in. -->
                 <UiTooltip
                   :text="
-                    atRecord(habit)
-                      ? $t('habits.stats.record', {
-                          count: format(habit.streak.longest),
-                        })
-                      : $t('habits.stats.streak', {
-                          count: format(habit.streak.longest),
-                        })
+                    $t(recordKey(habit), {
+                      count: format(habit.streak.longest),
+                    })
                   "
                 >
                   <span
@@ -448,7 +586,17 @@ const legendColors = (color: string) =>
 
           <UiCollapse v-model="expanded[habit.id]">
             <UiCardBody class="flex flex-col gap-2">
+              <HabitsTrendChart
+                v-if="isMeasure(habit)"
+                :habit="habit"
+                :year="selectedYear"
+                :values="valuesOf(habit)"
+                :today="today"
+                @select="openDay(habit, $event)"
+              />
+
               <HabitsYearGrid
+                v-else
                 :habit="habit"
                 :year="selectedYear"
                 :values="valuesOf(habit)"
@@ -459,7 +607,18 @@ const legendColors = (color: string) =>
               <div
                 class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-accent"
               >
-                <span>
+                <span v-if="isMeasure(habit)">
+                  {{
+                    measuresOf(habit).count > 0
+                      ? $t("habits.stats.entries", {
+                          count: format(measuresOf(habit).count),
+                          year: selectedYear,
+                        })
+                      : ""
+                  }}
+                </span>
+
+                <span v-else>
                   {{
                     $t("habits.stats.total", {
                       total: format(statsOf(habit).total),
@@ -468,8 +627,9 @@ const legendColors = (color: string) =>
                   }}
                 </span>
 
-                <!-- Legend: how full a square is says how close that day came. -->
-                <div class="flex items-center gap-1">
+                <!-- Legend: how full a square is says how close that day came.
+                     A line needs none — its axis says the same thing. -->
+                <div v-if="!isMeasure(habit)" class="flex items-center gap-1">
                   {{ $t("habits.legend.less") }}
                   <span
                     v-for="(swatch, level) in legendColors(habit.color)"
@@ -501,6 +661,10 @@ const legendColors = (color: string) =>
     :habit="dayHabit"
     :date="dayDate"
     :value="dayValue"
+    :suggestion="daySuggestion"
+    :first-date="firstDate"
+    :last-date="today"
+    @navigate="dayDate = $event"
     @update="dayHabit && dayDate && setValue(dayHabit.id, dayDate, $event)"
   />
 </template>

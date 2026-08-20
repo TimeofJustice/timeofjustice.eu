@@ -6,8 +6,16 @@ export interface HabitStreak {
   longest: number;
 }
 
+/**
+ * `goal` is a daily target that is met or missed — a year of squares, with
+ * streaks. `measure` is a reading whose course is the point — a line, where
+ * `goal` reads as a target to move towards.
+ */
+export type HabitKind = "goal" | "measure";
+
 export interface Habit {
   id: number;
+  kind: HabitKind;
   name: string;
   /** Shown next to the numbers ("steps", "min"). May be empty. */
   unit: string;
