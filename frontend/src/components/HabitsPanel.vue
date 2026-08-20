@@ -36,8 +36,6 @@ const {
 
 const emit = defineEmits<{ edit: []; select: [date: string] }>();
 
-const expanded = defineModel<boolean>("expanded", { default: true });
-
 const i18n = useI18n();
 
 const format = (number: number) => formatNumber(number, i18n.locale.value);
@@ -125,7 +123,7 @@ const legendColors = computed(() =>
 <template>
   <UiCard
     no-body
-    header-class="flex items-center justify-between gap-2 relative"
+    header-class="flex items-center justify-between gap-2"
     :class="loading && 'opacity-60'"
   >
     <template #header>
@@ -153,14 +151,9 @@ const legendColors = computed(() =>
           {{ $t("habits.archived") }}
         </UiBadge>
 
-        <!-- Kept in the header so a folded-away habit still says how it
-             is doing: days reached this year, the run going now, and the
-             best run there has ever been.
-  
-             Lifted above the chevron's full-header hit area, which lies
-             over everything here and would otherwise swallow the hover —
-             and with it every one of these tooltips. -->
-        <div class="relative z-2 flex flex-wrap items-center gap-x-2">
+        <!-- How the habit is doing, up beside its name: days reached this
+             year, the run going now, and the best run there has ever been. -->
+        <div class="flex flex-wrap items-center gap-x-2">
           <!-- A measurement has no streak to run: what matters is where
                it stands, how far it has moved, and how often it was
                taken. -->
@@ -262,99 +255,77 @@ const legendColors = computed(() =>
       </div>
 
       <div class="flex shrink-0 items-center gap-1">
-        <!-- The board puts its drag grip here. Above the chevron's full-header
-             hit area, like the gear, or it could not be picked up. -->
+        <!-- The board puts its drag grip here. -->
         <slot name="handle" />
 
-        <!-- Above the chevron's full-header hit area, which would swallow it. -->
         <UiButton
           variant="tertiary"
           square
           size="sm"
-          class="relative z-2"
           :title="$t('habits.form.edit_title')"
           @click="emit('edit')"
         >
           <iconify-icon icon="fa6-solid:gear" />
         </UiButton>
-
-        <UiButton
-          variant="tertiary"
-          square
-          size="sm"
-          class="after:absolute after:inset-0 after:z-1 after:content-['']"
-          :title="$t('habits.toggle')"
-          @click="expanded = !expanded"
-        >
-          <iconify-icon
-            icon="fa6-solid:chevron-up"
-            class="transition-transform duration-300 ease-in-out"
-            :style="{
-              transform: expanded ? 'rotate(0deg)' : 'rotate(180deg)',
-            }"
-          />
-        </UiButton>
       </div>
     </template>
 
-    <UiCollapse v-model="expanded">
-      <UiCardBody class="flex flex-col gap-2">
-        <HabitsTrendChart
-          v-if="isMeasure"
-          :habit="habit"
-          :year="year"
-          :values="values"
-          :today="today"
-          @select="emit('select', $event)"
-        />
+    <UiCardBody class="flex flex-col gap-2">
+      <HabitsTrendChart
+        v-if="isMeasure"
+        :habit="habit"
+        :year="year"
+        :values="values"
+        :today="today"
+        @select="emit('select', $event)"
+      />
 
-        <HabitsYearGrid
-          v-else
-          :habit="habit"
-          :year="year"
-          :values="values"
-          :today="today"
-          @select="emit('select', $event)"
-        />
+      <HabitsYearGrid
+        v-else
+        :habit="habit"
+        :year="year"
+        :values="values"
+        :today="today"
+        @select="emit('select', $event)"
+      />
 
-        <div
-          class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-accent"
-        >
-          <span v-if="isMeasure">
-            {{
-              measures.count > 0
-                ? $t("habits.stats.entries", {
-                    count: format(measures.count),
-                    year,
-                  })
-                : ""
-            }}
-          </span>
+      <div
+        class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm text-accent"
+      >
+        <span v-if="isMeasure">
+          {{
+            measures.count > 0
+              ? $t("habits.stats.entries", {
+                  count: format(measures.count),
+                  year,
+                })
+              : ""
+          }}
+        </span>
 
-          <span v-else>
-            {{
-              $t("habits.stats.total", {
-                total: format(stats.total),
-                unit: habit.unit,
-              })
-            }}
-          </span>
+        <span v-else>
+          {{
+            $t("habits.stats.total", {
+              total: format(stats.total),
+              unit: habit.unit,
+            })
+          }}
+        </span>
 
-          <!-- Legend: how full a square is says how close that day came.
+        <!-- Legend: how full a square is says how close that day came.
                A line needs none — its axis says the same thing. -->
-          <div v-if="!isMeasure" class="flex items-center gap-1">
-            {{ $t("habits.legend.less") }}
-            <span
-              v-for="(swatch, level) in legendColors"
-              :key="level"
-              class="size-2.5 rounded-xs"
-              :class="!swatch && 'bg-dark-gray-500/40'"
-              :style="{ backgroundColor: swatch ?? undefined }"
-            />
-            {{ $t("habits.legend.more") }}
-          </div>
+        <div v-if="!isMeasure" class="flex items-center gap-1">
+          {{ $t("habits.legend.less") }}
+          <span
+            v-for="(swatch, level) in legendColors"
+            :key="level"
+            class="size-2.5 rounded-xs"
+            :class="!swatch && 'bg-dark-gray-500/40'"
+            :style="{ backgroundColor: swatch ?? undefined }"
+          />
+          {{ $t("habits.legend.more") }}
         </div>
-      </UiCardBody>
-    </UiCollapse>
+      </div>
+    </UiCardBody>
   </UiCard>
 </template>

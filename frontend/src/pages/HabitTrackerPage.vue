@@ -30,12 +30,9 @@ const { create } = useToast();
 const habitList = ref<Habit[]>([...habits]);
 const entryMap = reactive<HabitEntries>({ ...entries });
 
-// Which cards are unfolded. Everything starts open; folding one away is for
-// getting a long list of habits back onto one screen.
-const expanded = reactive<Record<number, boolean>>(
-  Object.fromEntries(habits.map((habit) => [habit.id, true])),
-);
-
+// The quick rows fold away, so a long list of habits does not push the year
+// grids off the screen. The panels below stay as they are: each one is a year
+// at a glance, which is the thing the page is for.
 const showToday = ref(true);
 
 const selectedYear = ref(year);
@@ -133,14 +130,11 @@ const onHabitSaved = (saved: Habit) => {
 
   if (index === -1) habitList.value.push(saved);
   else habitList.value[index] = saved;
-
-  expanded[saved.id] ??= true;
 };
 
 const onHabitDeleted = (id: number) => {
   habitList.value = habitList.value.filter((habit) => habit.id !== id);
   delete entryMap[String(id)];
-  delete expanded[id];
 };
 
 const selectYear = (next: number) => {
@@ -294,10 +288,8 @@ const arrange = (arranged: Habit[]) => {
       :year="selectedYear"
       :today="today"
       :loading="loadingYear"
-      :expanded="expanded"
       @edit="editHabit"
       @select="openDay"
-      @toggle="(id, open) => (expanded[id] = open)"
       @arrange="arrange"
     />
   </div>

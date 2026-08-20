@@ -266,7 +266,8 @@
     "drag": "Ziehen zum Umsortieren",
     "drop": {
       "own_row": "Eigene Reihe",
-      "share_row": "Reihe teilen"
+      "share_row": "Reihe teilen",
+      "unchanged": "Schon hier"
     },
     "toggle": "Ein-/ausklappen",
     "empty": "Noch keine Gewohnheiten. Lege eine an und jeder Tag des Jahres bekommt ein Kästchen zum Füllen.",

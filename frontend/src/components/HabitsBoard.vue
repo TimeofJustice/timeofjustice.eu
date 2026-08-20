@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { useMediaQuery } from "@composables/mediaQuery";
 import HabitsPanel from "@components/HabitsPanel.vue";
+import HabitsDropZone from "@components/HabitsDropZone.vue";
 import type { Habit, HabitEntries } from "@/types/Habit.ts";
 
 interface HabitsBoardProps {
@@ -11,8 +12,6 @@ interface HabitsBoardProps {
   year: number;
   today: string;
   loading?: boolean;
-  /** Which panels are unfolded, keyed by habit id. */
-  expanded: Record<number, boolean>;
 }
 
 const {
@@ -21,13 +20,11 @@ const {
   year,
   today,
   loading = false,
-  expanded,
 } = defineProps<HabitsBoardProps>();
 
 const emit = defineEmits<{
   edit: [habit: Habit];
   select: [habit: Habit, date: string];
-  toggle: [id: number, open: boolean];
   /** The finished arrangement, ready to be saved. */
   arrange: [habits: Habit[]];
 }>();
@@ -81,20 +78,71 @@ const dragged = ref<Habit | null>(null);
  * looks like. It is also what gives a wide panel its way back to half a row,
  * which a gesture that preserved the width could never do.
  */
-const target = ref<{
+interface Landing {
   zone: string;
   before: number | null;
   wide: boolean;
-} | null>(null);
+  /** The panel the drop would come to rest beside, if any. */
+  partner: number | null;
+}
+
+const target = ref<Landing | null>(null);
 
 const valuesOf = (habit: Habit) => entries[String(habit.id)] ?? {};
+
+/**
+ * What follows the cursor: a chip naming the habit, rather than the browser's
+ * snapshot of the grip — which is a picture of a grip, and says nothing about
+ * what is being carried.
+ *
+ * Built by hand rather than rendered by Vue, because `setDragImage` only counts
+ * during `dragstart` itself and a node Vue is asked for there does not exist
+ * until the tick after. The browser photographs it once and never looks again,
+ * so it waits off-screen and is cleared up on the next frame.
+ */
+const chipFor = (habit: Habit) => {
+  const chip = document.createElement("div");
+
+  chip.textContent = habit.name;
+  chip.style.cssText = `
+    position: fixed; top: -1000px; left: -1000px;
+    padding: 0.35rem 0.85rem 0.35rem 1.85rem;
+    border: 1px solid ${habit.color};
+    border-radius: 9999px;
+    background: var(--color-surface);
+    color: var(--color-light);
+    font: 500 0.875rem/1.3 Inter, sans-serif;
+    white-space: nowrap;
+    box-shadow: var(--shadow-overlay);
+  `;
+
+  const dot = document.createElement("span");
+
+  dot.style.cssText = `
+    position: absolute; left: 0.7rem; top: 50%;
+    width: 0.7rem; height: 0.7rem; margin-top: -0.35rem;
+    border-radius: 9999px; background: ${habit.color};
+  `;
+
+  chip.append(dot);
+  document.body.append(chip);
+
+  return chip;
+};
 
 const start = (event: DragEvent, habit: Habit) => {
   // Firefox abandons a drag whose `dragstart` set no data at all, so this is
   // not optional even though nothing ever reads it back.
   event.dataTransfer?.setData("text/plain", String(habit.id));
 
-  if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
+  if (event.dataTransfer) {
+    const chip = chipFor(habit);
+
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setDragImage(chip, 24, 18);
+
+    requestAnimationFrame(() => chip.remove());
+  }
 
   dragged.value = habit;
 };
@@ -105,16 +153,14 @@ const stop = () => {
 };
 
 const aim = (
-  event: DragEvent,
   zone: string,
   before: number | null,
   wide: boolean,
+  partner: number | null,
 ) => {
   if (!dragged.value) return;
 
-  if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
-
-  target.value = { zone, before, wide };
+  target.value = { zone, before, wide, partner };
 };
 
 const isAimed = (zone: string) => target.value?.zone === zone;
@@ -134,53 +180,85 @@ const ownRow = computed(() =>
   isWide.value ? true : (dragged.value?.wide ?? false),
 );
 
-const drop = () => {
+/** The board as it would stand if the drag ended on this zone. */
+const arrangeWith = (before: number | null, wide: boolean) => {
   const moving = dragged.value;
-  const landing = target.value;
 
-  stop();
+  if (!moving) return habits;
 
-  if (!moving || !landing) return;
+  // The panel is its own anchor for the zones that sit against it — its own
+  // lane, its own left seam. Once it is lifted out it can no longer be found
+  // there, so the slot it was holding is named by whatever came next instead.
+  // Without this the search fails and the panel is swept to the end of the
+  // board, which is the one place the reader was not pointing at.
+  const anchor = before === moving.id ? after(moving) : before;
 
   const rest = habits.filter((habit) => habit.id !== moving.id);
   const at =
-    landing.before === null
+    anchor === null
       ? rest.length
-      : rest.findIndex((habit) => habit.id === landing.before);
+      : rest.findIndex((habit) => habit.id === anchor);
 
   const arranged = [...rest];
 
-  arranged.splice(at === -1 ? rest.length : at, 0, {
-    ...moving,
-    wide: landing.wide,
-  });
+  arranged.splice(at === -1 ? rest.length : at, 0, { ...moving, wide });
+
+  return arranged;
+};
+
+/** Whether an arrangement is the one already on screen. */
+const settled = (arranged: Habit[]) =>
+  arranged.every(
+    (habit, index) =>
+      habit.id === habits[index].id && habit.wide === habits[index].wide,
+  );
+
+/**
+ * A zone that would put the panel back exactly where it already is.
+ *
+ * Every panel carries zones on both sides, so a few of them always lead
+ * nowhere. Saying so up front — half-lit, and never lighting up — is what stops
+ * the board offering a dozen targets when only some of them mean anything.
+ */
+const isUnchanged = (before: number | null, wide: boolean) =>
+  settled(arrangeWith(before, wide));
+
+const drop = () => {
+  const landing = target.value;
+
+  // Worked out while the drag is still standing: `arrangeWith` needs to know
+  // what is being carried, and `stop` is what puts it down.
+  const arranged =
+    dragged.value && landing
+      ? arrangeWith(landing.before, landing.wide)
+      : habits;
+
+  stop();
 
   // Nothing moved: not worth a request.
-  const unchanged =
-    arranged.length === habits.length &&
-    arranged.every(
-      (habit, index) =>
-        habit.id === habits[index].id && habit.wide === habits[index].wide,
-    );
-
-  if (!unchanged) emit("arrange", arranged);
+  if (!settled(arranged)) emit("arrange", arranged);
 };
 
 /**
- * Zones are in the page at all times and only *light up* while dragging, rather
- * than being created when a drag begins.
- *
- * Two reasons. They are laid over the gaps instead of sitting in them, so the
- * board does not jump the instant a panel is picked up — which used to move
- * every target out from under the pointer. And a drop target that appears
- * mid-gesture is exactly the kind of thing a browser is entitled to ignore.
+ * The panel a drop would come to rest beside, outlined in the dragged habit's
+ * colour while that seam is aimed at — so "share this row" points at the row it
+ * means instead of leaving the reader to work out which two panels pair up.
  */
-const ZONE = "absolute z-10 transition-all duration-150";
-const SLEEPING = "pointer-events-none opacity-0";
+const partnerStyle = (habit: Habit) => {
+  if (target.value?.partner !== habit.id || !dragged.value) return undefined;
+
+  return {
+    outline: `2px dashed ${dragged.value.color}`,
+    outlineOffset: "4px",
+  };
+};
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <!-- A drag across a board of year grids selects text everywhere it passes,
+       and the selection then hangs about after the drop. Nothing here is worth
+       selecting mid-gesture. -->
+  <div class="flex flex-col gap-4" :class="dragged && 'select-none'">
     <div
       v-for="(row, index) in rows"
       :key="index"
@@ -189,20 +267,18 @@ const SLEEPING = "pointer-events-none opacity-0";
       <!-- Straddling the gap above the row: the panel arrives as a row of its
            own. The label earns its space — a bare bar would leave the reader
            guessing which of the two things a drop here means. -->
-      <div
-        :class="[
-          ZONE,
-          'inset-x-0 -top-5 flex h-8 items-center justify-center rounded-surface border border-dashed text-sm',
-          dragged ? 'opacity-100' : SLEEPING,
-          isAimed(`row-${index}`)
-            ? 'border-success bg-success/20 text-success'
-            : 'border-hairline bg-surface text-accent',
-        ]"
-        @dragover.prevent.stop="aim($event, `row-${index}`, row[0].id, ownRow)"
-        @drop.prevent.stop="drop"
-      >
-        {{ $t("habits.drop.own_row") }}
-      </div>
+      <HabitsDropZone
+        class="inset-x-0 top-0 -mt-2"
+        orientation="row"
+        layout="full"
+        :active="!!dragged"
+        :aimed="isAimed(`row-${index}`)"
+        :unchanged="isUnchanged(row[0].id, ownRow)"
+        :color="dragged?.color ?? ''"
+        :label="$t('habits.drop.own_row')"
+        @aim="aim(`row-${index}`, row[0].id, ownRow, null)"
+        @drop="drop"
+      />
 
       <div
         v-for="(habit, position) in row"
@@ -213,36 +289,35 @@ const SLEEPING = "pointer-events-none opacity-0";
              this row and shares its width. This is the way back from a whole
              row to half of one, which is why it stands beside every panel and
              not only between two. -->
-        <div
-          :class="[
-            ZONE,
-            'top-0 -left-3 hidden w-6 rounded-full xl:block',
-            'h-full',
-            dragged ? 'opacity-100' : SLEEPING,
-            isAimed(`share-${habit.id}`) ? 'bg-success' : 'bg-light/15',
-          ]"
-          :title="$t('habits.drop.share_row')"
-          @dragover.prevent.stop="
-            aim($event, `share-${habit.id}`, habit.id, false)
-          "
-          @drop.prevent.stop="drop"
+        <HabitsDropZone
+          class="top-0 -left-4 h-full"
+          orientation="seam"
+          layout="left"
+          wide-only
+          :active="!!dragged"
+          :aimed="isAimed(`share-${habit.id}`)"
+          :unchanged="isUnchanged(habit.id, false)"
+          :color="dragged?.color ?? ''"
+          :label="$t('habits.drop.share_row')"
+          @aim="aim(`share-${habit.id}`, habit.id, false, habit.id)"
+          @drop="drop"
         />
 
         <!-- And down the right edge of the last one, so a row can be joined
              from that side too. -->
-        <div
+        <HabitsDropZone
           v-if="position === row.length - 1"
-          :class="[
-            ZONE,
-            'top-0 -right-3 hidden h-full w-6 rounded-full xl:block',
-            dragged ? 'opacity-100' : SLEEPING,
-            isAimed(`end-${index}`) ? 'bg-success' : 'bg-light/15',
-          ]"
-          :title="$t('habits.drop.share_row')"
-          @dragover.prevent.stop="
-            aim($event, `end-${index}`, after(habit), false)
-          "
-          @drop.prevent.stop="drop"
+          class="top-0 -right-4 h-full"
+          orientation="seam"
+          layout="right"
+          wide-only
+          :active="!!dragged"
+          :aimed="isAimed(`end-${index}`)"
+          :unchanged="isUnchanged(after(habit), false)"
+          :color="dragged?.color ?? ''"
+          :label="$t('habits.drop.share_row')"
+          @aim="aim(`end-${index}`, after(habit), false, habit.id)"
+          @drop="drop"
         />
 
         <HabitsPanel
@@ -251,9 +326,11 @@ const SLEEPING = "pointer-events-none opacity-0";
           :values="valuesOf(habit)"
           :today="today"
           :loading="loading"
-          :expanded="expanded[habit.id] ?? true"
-          :class="dragged?.id === habit.id && 'opacity-40'"
-          @update:expanded="emit('toggle', habit.id, $event)"
+          class="transition-all duration-200"
+          :class="
+            dragged?.id === habit.id && 'scale-[0.98] opacity-30 grayscale'
+          "
+          :style="partnerStyle(habit)"
           @edit="emit('edit', habit)"
           @select="emit('select', habit, $event)"
         >
@@ -289,21 +366,19 @@ const SLEEPING = "pointer-events-none opacity-0";
       </div>
 
       <!-- A row of its own at the very bottom, below the last row. -->
-      <div
+      <HabitsDropZone
         v-if="index === rows.length - 1"
-        :class="[
-          ZONE,
-          'inset-x-0 -bottom-5 flex h-8 items-center justify-center rounded-surface border border-dashed text-sm',
-          dragged ? 'opacity-100' : SLEEPING,
-          isAimed('row-last')
-            ? 'border-success bg-success/20 text-success'
-            : 'border-hairline bg-surface text-accent',
-        ]"
-        @dragover.prevent.stop="aim($event, 'row-last', null, ownRow)"
-        @drop.prevent.stop="drop"
-      >
-        {{ $t("habits.drop.own_row") }}
-      </div>
+        class="inset-x-0 top-full mt-2"
+        orientation="row"
+        layout="full"
+        :active="!!dragged"
+        :aimed="isAimed('row-last')"
+        :unchanged="isUnchanged(null, ownRow)"
+        :color="dragged?.color ?? ''"
+        :label="$t('habits.drop.own_row')"
+        @aim="aim('row-last', null, ownRow, null)"
+        @drop="drop"
+      />
     </div>
   </div>
 </template>
