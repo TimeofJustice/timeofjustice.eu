@@ -31,6 +31,7 @@ urlpatterns = [
     path("", include("core.urls")),
     path("", include("games.session_urls")),
     path("games/", include("games.urls")),
+    path("habits/", include("habits.urls")),
     path("r-place/", include("r_place.urls")),
     path("sendy/", include("postcard.urls")),
 ]

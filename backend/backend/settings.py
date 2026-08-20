@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "background_task",
     "core",
     "games",
+    "habits",
     "r_place",
     "postcard",
 ]

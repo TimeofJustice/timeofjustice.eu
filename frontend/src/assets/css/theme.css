@@ -114,6 +114,43 @@
     }
   }
 
+  /* A streak that is still running. The flicker is deliberately off a whole
+     number of seconds, so several flames on one page drift apart instead of
+     pulsing in lockstep. */
+  --animate-flame: flame 1.7s ease-in-out infinite;
+
+  @keyframes flame {
+    0%,
+    100% {
+      transform: scale(1) rotate(-3deg);
+      filter: drop-shadow(0 0 2px var(--color-warning));
+    }
+    50% {
+      transform: scale(1.18) rotate(3deg);
+      filter: drop-shadow(0 0 7px var(--color-danger));
+    }
+  }
+
+  /* A record being set right now: the trophy catches the light. Slower than
+     the flame, and off its period, so the two never fall into step. */
+  --animate-sparkle: sparkle 2.3s ease-in-out infinite;
+
+  @keyframes sparkle {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    40% {
+      transform: scale(1.2) rotate(-9deg);
+      filter: drop-shadow(0 0 6px var(--color-warning));
+    }
+    60% {
+      transform: scale(1.2) rotate(9deg);
+      filter: drop-shadow(0 0 6px var(--color-warning));
+    }
+  }
+
   --color-control-accent: #0d6efd;
   --color-track: #e9ecef;
 

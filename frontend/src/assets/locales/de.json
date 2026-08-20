@@ -23,6 +23,7 @@
     "place": "r/Place",
     "farming_stats": "Farming Stats",
     "games": "Spiele",
+    "habits": "Gewohnheiten",
     "stable_hint": "Du verwendest die Staging-Version. Diese Version ist nicht für den produktiven Einsatz gedacht und kann Fehler oder unvollständige Funktionen enthalten. Bitte nutze die Produktionsversion unter [timeofjustice.eu](https://timeofjustice.eu) für eine stabile Erfahrung."
   },
   "index": {
@@ -118,7 +119,7 @@
           "deck_empty": "Deck ist leer",
           "invalid_bet": "Ungültiger Einsatz"
         },
-        "rules": "### \uD83D\uDCDC Regeln\n\n#### \uD83C\uDFAE Ziel:\nErrate, ob die **nächste Karte** im Deck im Rang **höher**, **niedriger** oder **gleich** der aktuellen Karte ist.\n\n---\n\n#### \uD83D\uDD79\uFE0F So wird gespielt:\n\n1. **Beginne mit einer Karte** und platziere deinen **Grundeinsatz** (z. B. 10).\n2. Wähle zwischen **\"Höher\"**, **\"Niedriger\"** oder **\"Gleichstand\"** für die nächste Karte.\n3. Wenn deine Vermutung richtig ist:\n   - Du erhältst eine **feste Auszahlung basierend auf deinem Grundeinsatz**:\n      - **Höher / Niedriger** → +1× deines Grundeinsatzes\n      - **Gleichstand** → +8× deines Grundeinsatzes\n   - Deine Gewinne stapeln sich **linear** auf deinen Grundeinsatz.\n4. Nach jedem Gewinn kannst du entweder:\n   - **Weiter spielen** (alle Gewinne für den nächsten Tipp riskieren)\n   - Oder **auszahlen** (deinen aktuellen Gesamtgewinn sichern)\n\n---\n\n#### \uD83E\uDDEE Beispiel:\n\n- 1 richtiger Tipp → 10 + 10 = **20**\n- 2 richtige → 10 + 10 + 10 = **30**\n- 5 richtige → **60**\n- Wenn du \"Gleichstand\" richtig tippst: 10 + (8 × 10) = **90**\n\n---\n\n#### \uD83C\uDFC6 Perfekter Lauf (52 richtige Tipps):\n\nWenn du **alle 51 Karten** in einem vollständigen Deck richtig tippst:\n\n- Du erhältst deine reguläre Auszahlung: **10 + (51 × 10) = 520**\n- PLUS einen **legendären Bonus**:\n   - **+100.000× deines Grundeinsatzes**\n   - Beispiel: Einsatz von 10 → **1.000.000 Bonusauszahlung**\n\n---\n\n#### ❗ Wichtige Hinweise:\n\n- Ein **einziger falscher Tipp** beendet das Spiel und du verlierst alles.\n- Wenn du \"Höher\" oder \"Niedriger\" wählst und die nächste Karte ist **gleich**, wird dies als **falsch** gewertet.\n- Wenn du \"Gleichstand\" wählst und die nächste Karte **genau mit der vorherigen übereinstimmt** → **richtig**, und du gewinnst 8× deines Einsatzes.\n\n---\n\n#### \uD83D\uDCA1 Tipp:\n\n- Längere Serien = höhere Gesamtgewinne.\n- Du musst nicht den perfekten Lauf anstreben, um groß zu gewinnen — selbst 10–15 richtige Tipps können sich lohnen!"
+        "rules": "### 📜 Regeln\n\n#### 🎮 Ziel:\nErrate, ob die **nächste Karte** im Deck im Rang **höher**, **niedriger** oder **gleich** der aktuellen Karte ist.\n\n---\n\n#### 🕹️ So wird gespielt:\n\n1. **Beginne mit einer Karte** und platziere deinen **Grundeinsatz** (z. B. 10).\n2. Wähle zwischen **\"Höher\"**, **\"Niedriger\"** oder **\"Gleichstand\"** für die nächste Karte.\n3. Wenn deine Vermutung richtig ist:\n   - Du erhältst eine **feste Auszahlung basierend auf deinem Grundeinsatz**:\n      - **Höher / Niedriger** → +1× deines Grundeinsatzes\n      - **Gleichstand** → +8× deines Grundeinsatzes\n   - Deine Gewinne stapeln sich **linear** auf deinen Grundeinsatz.\n4. Nach jedem Gewinn kannst du entweder:\n   - **Weiter spielen** (alle Gewinne für den nächsten Tipp riskieren)\n   - Oder **auszahlen** (deinen aktuellen Gesamtgewinn sichern)\n\n---\n\n#### 🧮 Beispiel:\n\n- 1 richtiger Tipp → 10 + 10 = **20**\n- 2 richtige → 10 + 10 + 10 = **30**\n- 5 richtige → **60**\n- Wenn du \"Gleichstand\" richtig tippst: 10 + (8 × 10) = **90**\n\n---\n\n#### 🏆 Perfekter Lauf (52 richtige Tipps):\n\nWenn du **alle 51 Karten** in einem vollständigen Deck richtig tippst:\n\n- Du erhältst deine reguläre Auszahlung: **10 + (51 × 10) = 520**\n- PLUS einen **legendären Bonus**:\n   - **+100.000× deines Grundeinsatzes**\n   - Beispiel: Einsatz von 10 → **1.000.000 Bonusauszahlung**\n\n---\n\n#### ❗ Wichtige Hinweise:\n\n- Ein **einziger falscher Tipp** beendet das Spiel und du verlierst alles.\n- Wenn du \"Höher\" oder \"Niedriger\" wählst und die nächste Karte ist **gleich**, wird dies als **falsch** gewertet.\n- Wenn du \"Gleichstand\" wählst und die nächste Karte **genau mit der vorherigen übereinstimmt** → **richtig**, und du gewinnst 8× deines Einsatzes.\n\n---\n\n#### 💡 Tipp:\n\n- Längere Serien = höhere Gesamtgewinne.\n- Du musst nicht den perfekten Lauf anstreben, um groß zu gewinnen — selbst 10–15 richtige Tipps können sich lohnen!"
       },
       "ride_the_bus": {
         "title": "Ride the Bus",
@@ -148,7 +149,7 @@
           "deck_empty": "Deck ist leer",
           "invalid_bet": "Ungültiger Einsatz"
         },
-        "rules": "### \uD83D\uDE8C Ride the Bus – Spielanleitung\n\n#### \uD83C\uDFAF Ziel:\nBestehe **vier aufeinanderfolgende Kartenherausforderungen**, die jeweils schwieriger werden.  \nErhalte steigende Auszahlungen für jede richtige Antwort basierend auf deinem **Einsatz**.\n\n---\n\n#### \uD83C\uDCCF Schritt-für-Schritt-Anleitung:\n\nDu wirst mit **4 Fragen** konfrontiert, eine nach der anderen. Jede richtige Antwort erhöht deine Gesamtauszahlung.  \nEine falsche Antwort beendet das Spiel — du \"crashst den Bus\" \uD83D\uDE8D\uD83D\uDCA5\n\n---\n\n### \uD83D\uDD39 Runde 1: Farbe\n\n**Frage:** Wird die nächste Karte **Rot** oder **Schwarz** sein?\n\n- ♠\uFE0F♣\uFE0F = Schwarz\n- ♥\uFE0F♦\uFE0F = Rot\n\n**Richtige Antwort:**  \n✅ Gewinne **2× deinen Einsatz**\n\n---\n\n### \uD83D\uDD38 Runde 2: Höher oder Niedriger\n\n**Frage:** Wird die **nächste Karte** **höher** oder **niedriger** als die letzte sein?\n\n- Asse sind niedrig\n- Gleicher Wert = **Falsch**\n\n**Richtige Antwort:**  \n✅ Gewinne **3× deinen Einsatz**\n\n---\n\n### \uD83D\uDD3A Runde 3: Innerhalb oder Außerhalb\n\n**Frage:** Wird der **Wert der dritten Karte** **innerhalb** oder **außerhalb** des Bereichs der ersten beiden Karten liegen?\n\n- **Innerhalb** = zwischen den Werten der ersten beiden Karten\n- **Außerhalb** = niedriger als beide oder höher als beide\n- **Gleich einer der Grenzen = Falsch**\n\n**Richtige Antwort:**  \n✅ Gewinne **4× deinen Einsatz**\n\n---\n\n### \uD83D\uDD3B Runde 4: Kartenfarbe\n\n**Frage:** Welche **Farbe** wird die nächste Karte haben? (♠\uFE0F ♥\uFE0F ♦\uFE0F ♣\uFE0F)\n\n- Wähle **1 von 4 Farben**\n\n**Richtige Antwort:**  \n✅ Gewinne **8× deinen Einsatz**\n\n---\n\n#### \uD83D\uDCA5 Verlustbedingung:\n- Eine falsche Antwort in einer Runde = ❌ **Spiel vorbei**\n- Du verlierst deine angesammelten Gewinne, es sei denn, du hast vorher ausgezahlt"
+        "rules": "### 🚌 Ride the Bus – Spielanleitung\n\n#### 🎯 Ziel:\nBestehe **vier aufeinanderfolgende Kartenherausforderungen**, die jeweils schwieriger werden.  \nErhalte steigende Auszahlungen für jede richtige Antwort basierend auf deinem **Einsatz**.\n\n---\n\n#### 🃏 Schritt-für-Schritt-Anleitung:\n\nDu wirst mit **4 Fragen** konfrontiert, eine nach der anderen. Jede richtige Antwort erhöht deine Gesamtauszahlung.  \nEine falsche Antwort beendet das Spiel — du \"crashst den Bus\" 🚍💥\n\n---\n\n### 🔹 Runde 1: Farbe\n\n**Frage:** Wird die nächste Karte **Rot** oder **Schwarz** sein?\n\n- ♠️♣️ = Schwarz\n- ♥️♦️ = Rot\n\n**Richtige Antwort:**  \n✅ Gewinne **2× deinen Einsatz**\n\n---\n\n### 🔸 Runde 2: Höher oder Niedriger\n\n**Frage:** Wird die **nächste Karte** **höher** oder **niedriger** als die letzte sein?\n\n- Asse sind niedrig\n- Gleicher Wert = **Falsch**\n\n**Richtige Antwort:**  \n✅ Gewinne **3× deinen Einsatz**\n\n---\n\n### 🔺 Runde 3: Innerhalb oder Außerhalb\n\n**Frage:** Wird der **Wert der dritten Karte** **innerhalb** oder **außerhalb** des Bereichs der ersten beiden Karten liegen?\n\n- **Innerhalb** = zwischen den Werten der ersten beiden Karten\n- **Außerhalb** = niedriger als beide oder höher als beide\n- **Gleich einer der Grenzen = Falsch**\n\n**Richtige Antwort:**  \n✅ Gewinne **4× deinen Einsatz**\n\n---\n\n### 🔻 Runde 4: Kartenfarbe\n\n**Frage:** Welche **Farbe** wird die nächste Karte haben? (♠️ ♥️ ♦️ ♣️)\n\n- Wähle **1 von 4 Farben**\n\n**Richtige Antwort:**  \n✅ Gewinne **8× deinen Einsatz**\n\n---\n\n#### 💥 Verlustbedingung:\n- Eine falsche Antwort in einer Runde = ❌ **Spiel vorbei**\n- Du verlierst deine angesammelten Gewinne, es sei denn, du hast vorher ausgezahlt"
       },
       "black_jack": {
         "title": "Black Jack",
@@ -169,7 +170,7 @@
           "deck_empty": "Deck ist leer",
           "invalid_bet": "Ungültiger Einsatz"
         },
-        "rules": "# \uD83C\uDCCF Blackjack Regeln\n\n## \uD83C\uDFAF Ziel des Spiels\n- Erreiche eine **Handsumme so nah wie möglich an 21**, ohne diese zu überschreiten.\n- **Schlage die Hand des Dealers**, indem du:\n    - Eine höhere Summe hast, ohne zu überziehen (über 21), oder\n    - Der Dealer überzieht und du nicht.\n\n---\n\n## \uD83E\uDDEE Kartenwerte\n- **2–10:** Kartenwert entspricht der Zahl\n- **Bube, Dame, König:** 10 Punkte\n- **Ass (A):** 1 **oder** 11 Punkte, je nachdem, was für die Hand günstiger ist\n\n---\n\n## \uD83C\uDFB2 Spielablauf\n\n### 1. Erste Kartenverteilung\n- Spieler: 2 Karten offen\n- Dealer: 1 Karte offen, 1 Karte verdeckt (die \"Hole Card\")\n\n### 2. Spielerzug\nJeder Spieler kann:\n- **Hit** – Eine weitere Karte nehmen\n- **Stand** – Die aktuelle Hand behalten\n\n### 3. Dealerzug\n- Der Dealer deckt seine verdeckte Karte auf\n- Muss ziehen, bis die Summe **17 oder höher** erreicht\n- Der Dealer überzieht, wenn die Summe 21 überschreitet\n\n### 4. Vergleich der Hände\n- Die Hand, die am nächsten an 21 ist, gewinnt\n- **Blackjack** (Ass + 10-Wert-Karte) bei der ersten Verteilung schlägt eine normale 21\n\n---\n\n## \uD83D\uDCB0 Auszahlungen\n- **Gewinn:** 1:1\n- **Blackjack:** 3:2\n- **Unentschieden (Push):** Einsatz zurück\n- **Verlust:** Einsatz verloren\n\n---\n\n## \uD83D\uDCDD Beispiel\n- **Spieler:** A♠ + 8♣ = 19 → Stand\n- **Dealer:** 10♦ + 6♥ + 7♠ = 23 → Überzogen → Spieler gewinnt\n\n---\n\n## ✅ Schnelle Tipps\n- Immer **bei 17 oder mehr stehen**\n- Ziehe bei 11 oder weniger – du kannst nicht überziehen\n- Überlege, ob du bei 10 oder 11 verdoppeln solltest, wenn der Dealer eine schwache Karte hat (z. B. 4, 5 oder 6)\n- Asse zu teilen ist normalerweise eine gute Entscheidung\n\n"
+        "rules": "# 🃏 Blackjack Regeln\n\n## 🎯 Ziel des Spiels\n- Erreiche eine **Handsumme so nah wie möglich an 21**, ohne diese zu überschreiten.\n- **Schlage die Hand des Dealers**, indem du:\n    - Eine höhere Summe hast, ohne zu überziehen (über 21), oder\n    - Der Dealer überzieht und du nicht.\n\n---\n\n## 🧮 Kartenwerte\n- **2–10:** Kartenwert entspricht der Zahl\n- **Bube, Dame, König:** 10 Punkte\n- **Ass (A):** 1 **oder** 11 Punkte, je nachdem, was für die Hand günstiger ist\n\n---\n\n## 🎲 Spielablauf\n\n### 1. Erste Kartenverteilung\n- Spieler: 2 Karten offen\n- Dealer: 1 Karte offen, 1 Karte verdeckt (die \"Hole Card\")\n\n### 2. Spielerzug\nJeder Spieler kann:\n- **Hit** – Eine weitere Karte nehmen\n- **Stand** – Die aktuelle Hand behalten\n\n### 3. Dealerzug\n- Der Dealer deckt seine verdeckte Karte auf\n- Muss ziehen, bis die Summe **17 oder höher** erreicht\n- Der Dealer überzieht, wenn die Summe 21 überschreitet\n\n### 4. Vergleich der Hände\n- Die Hand, die am nächsten an 21 ist, gewinnt\n- **Blackjack** (Ass + 10-Wert-Karte) bei der ersten Verteilung schlägt eine normale 21\n\n---\n\n## 💰 Auszahlungen\n- **Gewinn:** 1:1\n- **Blackjack:** 3:2\n- **Unentschieden (Push):** Einsatz zurück\n- **Verlust:** Einsatz verloren\n\n---\n\n## 📝 Beispiel\n- **Spieler:** A♠ + 8♣ = 19 → Stand\n- **Dealer:** 10♦ + 6♥ + 7♠ = 23 → Überzogen → Spieler gewinnt\n\n---\n\n## ✅ Schnelle Tipps\n- Immer **bei 17 oder mehr stehen**\n- Ziehe bei 11 oder weniger – du kannst nicht überziehen\n- Überlege, ob du bei 10 oder 11 verdoppeln solltest, wenn der Dealer eine schwache Karte hat (z. B. 4, 5 oder 6)\n- Asse zu teilen ist normalerweise eine gute Entscheidung\n\n"
       },
       "sic_bo": {
         "title": "Sic Bo",
@@ -253,6 +254,88 @@
       "greetings_too_short": "Die Grußformel ist zu kurz. Sie muss mindestens 1 Zeichen lang sein.",
       "design_not_found": "Das ausgewählte Design existiert nicht.",
       "missing_fields": "Bitte fülle alle Felder aus."
+    }
+  },
+  "habits": {
+    "title": "Gewohnheiten",
+    "today": "Heute",
+    "new_habit": "Neue Gewohnheit",
+    "previous_year": "Vorheriges Jahr",
+    "next_year": "Nächstes Jahr",
+    "archived": "Archiviert",
+    "toggle": "Ein-/ausklappen",
+    "empty": "Noch keine Gewohnheiten. Lege eine an und jeder Tag des Jahres bekommt ein Kästchen zum Füllen.",
+    "goal_label": "{goal} {unit} pro Tag",
+    "weekdays": {
+      "0": "Mo",
+      "1": "Di",
+      "2": "Mi",
+      "3": "Do",
+      "4": "Fr",
+      "5": "Sa",
+      "6": "So"
+    },
+    "months": {
+      "0": "Jan",
+      "1": "Feb",
+      "2": "Mär",
+      "3": "Apr",
+      "4": "Mai",
+      "5": "Jun",
+      "6": "Jul",
+      "7": "Aug",
+      "8": "Sep",
+      "9": "Okt",
+      "10": "Nov",
+      "11": "Dez"
+    },
+    "grid": {
+      "day_title": "{date}: {value} von {goal} {unit}"
+    },
+    "legend": {
+      "less": "Weniger",
+      "more": "Mehr"
+    },
+    "stats": {
+      "done": "{count} Tage in {year} geschafft",
+      "current": "Aktuelle Serie: {count} Tage",
+      "streak": "Längste Serie: {count} Tage",
+      "record": "Längste Serie: {count} Tage — und die läuft gerade",
+      "total": "{total} {unit} insgesamt"
+    },
+    "day": {
+      "add": "{step} hinzufügen",
+      "subtract": "{step} abziehen",
+      "exact_value": "Genauer Wert",
+      "clear": "Tag leeren"
+    },
+    "form": {
+      "new_title": "Neue Gewohnheit",
+      "edit_title": "Gewohnheit bearbeiten",
+      "name": "Name",
+      "name_placeholder": "Spazieren",
+      "goal": "Tagesziel",
+      "unit": "Einheit",
+      "unit_placeholder": "Schritte",
+      "step": "Schnell-Schritt",
+      "step_hint": "Wie viel ein Tippen auf + hinzufügt.",
+      "color": "Farbe",
+      "archived": "Archiviert — nicht mehr in der Schnellerfassung",
+      "delete": "Löschen",
+      "delete_confirm": "Wirklich löschen?"
+    },
+    "errors": {
+      "name_invalid": "Bitte gib der Gewohnheit einen Namen mit höchstens 40 Zeichen.",
+      "unit_invalid": "Die Einheit ist zu lang.",
+      "goal_invalid": "Das Tagesziel muss eine positive Zahl sein.",
+      "step_invalid": "Der Schnell-Schritt muss eine positive Zahl sein.",
+      "color_invalid": "Bitte wähle eine der angebotenen Farben.",
+      "too_many": "Mehr Gewohnheiten gehen nicht.",
+      "unknown_habit": "Diese Gewohnheit gibt es nicht.",
+      "date_invalid": "Dieser Tag lässt sich nicht erfassen.",
+      "future": "Dieser Tag ist noch nicht gewesen.",
+      "value_invalid": "Bitte gib einen Wert zwischen 0 und 1.000.000.000 ein.",
+      "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut."
     }
   }
 }

@@ -20,6 +20,12 @@ export const ROUTES: Route[] = [
     activeComponents: ["Games/MainPage"],
   },
   {
+    name: "nav.habits",
+    path: "/habits/",
+    icon: "fa6-solid:calendar-check",
+    activeComponents: ["HabitTrackerPage"],
+  },
+  {
     name: "nav.place",
     path: "/r-place/",
     icon: "fa6-solid:paintbrush",
