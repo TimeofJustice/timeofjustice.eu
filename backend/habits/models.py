@@ -68,6 +68,9 @@ class Habit(models.Model):
     )
     color = models.CharField(max_length=7, default="#198754", validators=[HEX_COLOR])
     order = models.IntegerField(default=0)
+    # Whether the panel takes a whole row rather than sharing one. A year of
+    # squares reads better wide; a habit with little history does not need it.
+    wide = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -91,6 +94,7 @@ class Habit(models.Model):
             "step": float(self.step),
             "color": self.color,
             "order": self.order,
+            "wide": self.wide,
             "archived": self.archived,
             "createdAt": self.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         }

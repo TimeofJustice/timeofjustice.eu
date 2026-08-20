@@ -13,7 +13,7 @@ would buy nothing and cost a table migration.
 
 | Model   | What it is                                                                                     |
 | ------- | ---------------------------------------------------------------------------------------------- |
-| `Habit` | Name, `goal`, `unit`, `color`, `step`, and a `kind`. Owned by a wallet, `CASCADE` on delete.    |
+| `Habit` | Name, `goal`, `unit`, `color`, `step`, `kind`, and its place on the board. Owned by a wallet, `CASCADE` on delete. |
 | `Entry` | One `value` on one `date` for one habit. Unique per `(habit, date)`.                            |
 
 ## The two kinds
@@ -46,6 +46,29 @@ entry?" — and a year of untouched days costs nothing.
 `color` has to be one of `views.COLORS`; the model validator only checks that it
 is six-digit hex, the view is what pins it to the palette. Both ends read the
 same list, which the page ships as the `colors` prop.
+
+## The board
+
+`order` and `wide` are the arrangement: the running order of the panels, and
+which of them take a whole row instead of sharing one. `HabitsBoard.vue` cuts
+the ordered list into rows — a `wide` habit takes one to itself, the rest pair
+up — and below `xl` the flag makes no difference, since only one panel fits a
+row anyway.
+
+Panels are dragged by the **grip in the header, never by the panel**: a panel
+has a chart and a year of squares in it, and both want the pointer for
+themselves. Where a drop lands is read along the axis the row actually runs on —
+left/right for two sharing a row, top/bottom for one that owns it. Reading the
+wrong axis is what makes a drop feel arbitrary.
+
+Between two panels of a row there is a **seam**, which appears only while
+something is being dragged. Landing on it is the one gesture that changes a
+panel's *width* rather than its place: it stretches across the whole row.
+
+`POST /momentum/api/layout/` takes the **whole arrangement**, not a move to
+apply — dragging produces the finished order anyway, and sending it whole means
+a dropped request cannot leave the board in a state nobody arranged. A forged id
+returns 404 before anything is written, so it rearranges nothing.
 
 ## Streaks
 
@@ -166,6 +189,7 @@ never sends a level, so changing the scale is a one-file change.
 | `GET /momentum/<year>/`                 | Clamped to `views.year_bounds()`, never a 404              |
 | `GET /momentum/api/year/<year>/`        | `{year, entries}` — switching years without a page reload  |
 | `POST /momentum/api/habit/`             | Create. Capped at `MAX_HABITS_PER_WALLET`                  |
+| `POST /momentum/api/layout/`            | `{habits: [{id, wide}]}` — the arrangement, in full        |
 | `POST /momentum/api/habit/<id>/`        | Edit; every field optional                                 |
 | `POST /momentum/api/habit/<id>/delete/` | Takes the entries with it                                  |
 | `POST /momentum/api/habit/<id>/log/`    | `{date, value}` for one day; answers with the fresh streak |
@@ -181,6 +205,8 @@ know the current number, and a retried request must not count twice.
 
 `HabitTrackerPage.vue` holds all the state; the components are dumb.
 
+- `HabitsBoard.vue` — the rows, and the dragging that rearranges them.
+- `HabitsPanel.vue` — one habit's card: the figures, the fold, the grid or line.
 - `HabitsQuickRow.vue` — today's row per habit, two abreast from `xl` up. The
   fast path: `+step` / `−step`.
 - `HabitsYearGrid.vue` — the 53 columns, Monday at the top. Resting on a square
@@ -198,11 +224,10 @@ Every panel folds away, the same `UiCollapse`-in-a-`no-body`-card pattern the
 games page uses. The header keeps the numbers worth seeing while it is folded —
 days reached and the longest run — so a page of habits still reads at a glance.
 
-Cards sit two abreast from `xl` up. The columns are **two stacked flex columns,
-not a two-column grid**: a grid makes every row as tall as its tallest card, so
-folding one away would leave a hole rather than pulling the card below it up.
-That is why the page needs `useMediaQuery` — the breakpoint decides which column
-a card goes in, and no CSS class can tell the template that.
+Cards sit two abreast from `xl` up, in explicit rows — which is what makes
+"stretch across the row" expressible at all. The board still needs
+`useMediaQuery`, because the breakpoint decides how the rows are cut and no CSS
+class can tell the template that.
 
 The scroller around the year is `overflow-x-auto overflow-y-hidden` with a
 padding ring, and both halves matter: naming one axis `auto` promotes the other

@@ -275,6 +275,7 @@
     "previous_year": "Previous year",
     "next_year": "Next year",
     "archived": "Archived",
+    "drag": "Drag to rearrange",
     "toggle": "Fold away",
     "empty": "No habits yet. Create one and every day of the year gets a square to fill.",
     "goal_label": "{goal} {unit} a day",
@@ -371,7 +372,8 @@
       "future": "That day has not happened yet.",
       "value_invalid": "Please enter a value between 0 and 1,000,000,000.",
       "unknown": "Something went wrong. Please try again.",
-      "kind_invalid": "Please pick one of the two kinds."
+      "kind_invalid": "Please pick one of the two kinds.",
+      "invalid_layout": "That arrangement could not be saved."
     },
     "trend": {
       "target": "Target {value} {unit}",

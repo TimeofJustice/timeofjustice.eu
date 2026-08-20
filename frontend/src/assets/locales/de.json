@@ -263,6 +263,7 @@
     "previous_year": "Vorheriges Jahr",
     "next_year": "Nächstes Jahr",
     "archived": "Archiviert",
+    "drag": "Ziehen zum Umsortieren",
     "toggle": "Ein-/ausklappen",
     "empty": "Noch keine Gewohnheiten. Lege eine an und jeder Tag des Jahres bekommt ein Kästchen zum Füllen.",
     "goal_label": "{goal} {unit} pro Tag",
@@ -359,7 +360,8 @@
       "future": "Dieser Tag ist noch nicht gewesen.",
       "value_invalid": "Bitte gib einen Wert zwischen 0 und 1.000.000.000 ein.",
       "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut.",
-      "kind_invalid": "Bitte wähle eine der beiden Arten."
+      "kind_invalid": "Bitte wähle eine der beiden Arten.",
+      "invalid_layout": "Diese Anordnung ließ sich nicht speichern."
     },
     "trend": {
       "target": "Ziel {value} {unit}",

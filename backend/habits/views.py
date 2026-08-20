@@ -231,6 +231,11 @@ def read_habit_fields(post_data, habit):
 
         habit.kind = kind
 
+    wide = post_data.get("wide")
+
+    if wide is not None:
+        habit.wide = bool(wide)
+
     archived = post_data.get("archived")
 
     if archived is not None:
@@ -308,6 +313,46 @@ def update(request, habit_id):
 
     # Recomputed, not carried over: moving the goal changes which days met it.
     return JsonResponse({"habit": with_streak(habit, streaks_for(habit.wallet, habit))})
+
+
+@wallet_api_required
+@require_http_methods(["POST"])
+def layout(request):
+    """
+    Rewrites the running order of the panels, and which of them take a whole row.
+
+    The body carries the arrangement in full — `[{"id": .., "wide": ..}, ..]` —
+    rather than a move to apply. Dragging produces the finished order anyway,
+    and sending it whole means a dropped request cannot leave the board in a
+    state nobody arranged.
+    """
+    wallet = get_wallet(request)
+    panels = BodyContent(request).get("habits")
+
+    if not isinstance(panels, list):
+        return JsonResponse({"error": "habits.errors.invalid_layout"}, status=400)
+
+    habits = {habit.id: habit for habit in Habit.objects.filter(wallet=wallet)}
+    ordered = []
+
+    for position, panel in enumerate(panels):
+        if not isinstance(panel, dict):
+            return JsonResponse({"error": "habits.errors.invalid_layout"}, status=400)
+
+        habit = habits.get(panel.get("id"))
+
+        # A habit that is not this wallet's simply is not in the map, so a
+        # forged id rearranges nothing.
+        if habit is None:
+            return JsonResponse({"error": "habits.errors.unknown_habit"}, status=404)
+
+        habit.order = position
+        habit.wide = bool(panel.get("wide"))
+        ordered.append(habit)
+
+    Habit.objects.bulk_update(ordered, ("order", "wide"))
+
+    return JsonResponse({"habits": [habit.json() for habit in ordered]})
 
 
 @wallet_api_required

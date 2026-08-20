@@ -26,6 +26,8 @@ export interface Habit {
   /** Hex colour the year grid is painted in. */
   color: string;
   order: number;
+  /** Takes a whole row on the board rather than sharing one. */
+  wide: boolean;
   archived: boolean;
   createdAt: string;
   streak: HabitStreak;

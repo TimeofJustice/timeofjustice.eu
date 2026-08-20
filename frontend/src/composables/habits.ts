@@ -303,6 +303,12 @@ export const api = {
 
   remove: (id: number) => axios.post(`/momentum/api/habit/${id}/delete/`),
 
+  /** Saves the whole arrangement, not a move — see the view's docstring. */
+  layout: (habits: { id: number; wide: boolean }[]) =>
+    axios
+      .post<{ habits: Habit[] }>("/momentum/api/layout/", { habits })
+      .then((response) => response.data.habits),
+
   log: (id: number, date: string, value: number) =>
     axios
       .post<{
