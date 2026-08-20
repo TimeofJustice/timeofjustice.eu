@@ -1,12 +1,9 @@
 import { onBeforeUnmount, readonly, ref } from "vue";
 
 /**
- * Tracks a CSS media query from script.
- *
- * For painting, a Tailwind breakpoint class is always the better answer. This
- * is for the cases where the breakpoint changes *what* is rendered rather than
- * how it looks — deciding which column a card belongs to, say, which no amount
- * of CSS can tell the template.
+ * Tracks a CSS media query from script. For painting, use a Tailwind breakpoint
+ * class; this is for when the breakpoint changes *what* is rendered, which CSS
+ * cannot tell the template.
  */
 export const useMediaQuery = (query: string) => {
   const matches = ref(false);

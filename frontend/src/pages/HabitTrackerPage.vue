@@ -30,9 +30,7 @@ const { create } = useToast();
 const habitList = ref<Habit[]>([...habits]);
 const entryMap = reactive<HabitEntries>({ ...entries });
 
-// The quick rows fold away, so a long list of habits does not push the year
-// grids off the screen. The panels below stay as they are: each one is a year
-// at a glance, which is the thing the page is for.
+// Only the quick rows fold; the panels below stay open.
 const showToday = ref(true);
 
 const selectedYear = ref(year);
@@ -87,16 +85,14 @@ const setValue = (habitId: number, date: string, value: number) => {
   const values = entryMap[key] ?? (entryMap[key] = {});
   const previous = values[date] ?? 0;
 
-  // Painted first, saved second: tapping "+1000" six times in a row must not
-  // wait for six round trips to show what it did.
+  // Painted first, saved second: six taps must not wait for six round trips.
   if (value > 0) values[date] = value;
   else delete values[date];
 
   api
     .log(habitId, date, value)
     .then((logged) => {
-      // The server counts streaks, because they run past New Year and the page
-      // only holds one year. So the flame follows the tap that fed it.
+      // Streaks run past New Year, so only the server can count them.
       const habit = habitList.value.find((entry) => entry.id === habitId);
 
       if (habit) habit.streak = logged.streak;
@@ -145,14 +141,13 @@ const selectYear = (next: number) => {
   api
     .year(next)
     .then((data) => {
-      // Replaced rather than merged: only one year is ever on screen, and stale
-      // days from the previous one would paint themselves into the new grid.
+      // Replaced, not merged: stale days would paint into the new grid.
       Object.keys(entryMap).forEach((key) => delete entryMap[key]);
       Object.assign(entryMap, data.entries);
 
       selectedYear.value = data.year;
 
-      // Keeps a reload — and a shared link — on the year being looked at.
+      // Keeps a reload, and a shared link, on the year being looked at.
       window.history.replaceState({}, "", `/momentum/${data.year}/`);
     })
     .catch(fail)
@@ -162,11 +157,8 @@ const selectYear = (next: number) => {
 };
 
 /**
- * Takes the arrangement the board hands over, and saves it.
- *
- * Painted first, saved second, like everything else here — a drop that has to
- * wait for a round trip before the panel settles feels broken. The whole
- * arrangement goes over, so a lost request cannot leave the board half moved.
+ * Saves what the board hands over. The whole arrangement goes, not a move, so a
+ * lost request cannot leave the board half rearranged.
  */
 const arrange = (arranged: Habit[]) => {
   const previous = habitList.value;
@@ -245,7 +237,7 @@ const arrange = (arranged: Habit[]) => {
       <template #header>
         <h2 class="m-0 truncate text-h6">
           {{ $t("habits.today") }}
-          <span class="text-accent">— {{ formattedToday }}</span>
+          <span class="text-accent">· {{ formattedToday }}</span>
         </h2>
 
         <UiButton
@@ -267,8 +259,7 @@ const arrange = (arranged: Habit[]) => {
       </template>
 
       <UiCollapse v-model="showToday">
-        <!-- Every row is the same height, so a plain grid does here what the
-             panels below need stacked columns for. -->
+        <!-- Every row is the same height, so a plain grid is enough here. -->
         <UiCardBody class="grid gap-x-6 gap-y-4 xl:grid-cols-2">
           <HabitsQuickRow
             v-for="habit in activeHabits"

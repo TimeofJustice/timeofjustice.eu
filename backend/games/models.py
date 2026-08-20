@@ -9,7 +9,7 @@ class Avatar(models.Model):
     """
     A picture players can pick for their wallet, managed in the Django admin.
 
-    The upload is deliberately stored untouched — the lazy/compress helpers in
+    The upload is deliberately stored untouched, because the lazy/compress helpers in
     core.models re-encode through Pillow, which would drop the animation of an
     animated GIF.
     """
@@ -37,7 +37,7 @@ class Wallet(models.Model):
     # Public and safe to show: it tells two players called "Jonas" apart, and it
     # is what the r/place cells point at. Crockford base32, so no I/L/O/U.
     public_id = models.CharField(primary_key=True, max_length=6, editable=False)
-    # The wallet phrase itself is never stored — only this keyed hash of it.
+    # The wallet phrase itself is never stored, only this keyed hash of it.
     phrase_hash = models.CharField(max_length=64, unique=True, editable=False)
     # Keyed hash of the pre-phrase hex id. Good for exactly one sign-in, which
     # issues a phrase and clears this. Null once used, and for new wallets.

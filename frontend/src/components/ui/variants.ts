@@ -114,12 +114,9 @@ export const RANGE: Record<Variant, string> = {
 };
 
 /**
- * Tinted surface plus matching border, used by alerts.
- *
- * Everything here is translucent: an alert is a note laid over the page, not a
- * second page. The colour lives in the border and in a wash of the fill, while
- * the text stays the same light the rest of the site is set in — a pale blue
- * box with near-black type would be the one bright rectangle on a dark site.
+ * Tinted surface plus matching border, used by alerts. Translucent throughout,
+ * and the text stays the site's usual light: a pale blue box with near-black
+ * type would be the one bright rectangle on a dark page.
  */
 export const SUBTLE: Record<Variant, string> = {
   primary: "border-hairline bg-primary/60 text-light",

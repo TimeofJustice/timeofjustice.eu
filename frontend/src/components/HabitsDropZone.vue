@@ -4,7 +4,7 @@ import { computed } from "vue";
 interface HabitsDropZoneProps {
   /** A lane across the board, or a seam down the side of a panel. */
   orientation: "row" | "seam";
-  /** A drag is under way. Zones are only worth showing while one is. */
+  /** A drag is under way; zones are invisible otherwise. */
   active: boolean;
   /** The pointer is over this zone. */
   aimed?: boolean;
@@ -32,10 +32,8 @@ const {
 
 const emit = defineEmits<{ aim: []; drop: [] }>();
 
-/**
- * The cursor says "move", not "copy". Firefox in particular shows the copy
- * badge for the whole gesture unless every `dragover` says otherwise.
- */
+// Firefox shows the copy badge for the whole gesture unless every `dragover`
+// says otherwise.
 const over = (event: DragEvent) => {
   if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
 
@@ -45,10 +43,7 @@ const over = (event: DragEvent) => {
 /** Lit only when a drop here would actually move something. */
 const lit = computed(() => aimed && !unchanged);
 
-/**
- * Asleep until a drag starts, and half-lit for a zone that leads nowhere — the
- * board says which targets are real before the pointer ever reaches them.
- */
+/** Asleep until a drag starts, half-lit for a zone that leads nowhere. */
 const shade = computed(() => {
   if (!active) return "pointer-events-none opacity-0";
 
@@ -56,13 +51,9 @@ const shade = computed(() => {
 });
 
 /**
- * The rail: a hairline lying in the gap the panel would drop into, which swells
- * and takes the habit's colour once the drop would land there.
- *
- * A lane and a seam are the same object turned ninety degrees, and drawing them
- * that way is what makes the board legible. The rail's own shape says which of
- * the two a drop means — one runs the width of the board, the other stands
- * between two panels — so neither needs a caption to be told apart.
+ * A hairline in the gap the panel would drop into. A lane and a seam are the same
+ * rail turned ninety degrees, and that shape is the caption: one runs the width
+ * of the board, the other stands between two panels.
  */
 const rail = computed(() =>
   orientation === "row"
@@ -70,12 +61,7 @@ const rail = computed(() =>
     : ["h-full", lit.value ? "w-2.5" : "w-1.5"],
 );
 
-/**
- * The row the drop would produce, drawn as bars: the dragged panel in its own
- * colour, and whatever it ends up sharing the row with beside it in grey.
- *
- * "Share this row" is a sentence about a layout; two bars are the layout.
- */
+/** The resulting row as bars: the dragged panel coloured, its neighbour grey. */
 const bars = computed(() => {
   if (layout === "full") return [true];
 
@@ -105,10 +91,7 @@ const bars = computed(() => {
       "
     />
 
-    <!-- What the board would look like afterwards, and what to call it. Floated
-         over the rail rather than set into it: the rail has to stay a hairline
-         to read as a gap, and neither a lane nor a seam is thick enough to
-         carry a word. -->
+    <!-- Floated over the rail, which stays a hairline and cannot carry a word. -->
     <div
       v-if="aimed"
       class="pointer-events-none absolute top-1/2 left-1/2 flex w-max -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-surface border bg-surface px-2 py-1 text-sm shadow-overlay"

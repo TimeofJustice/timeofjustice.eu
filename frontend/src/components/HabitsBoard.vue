@@ -33,10 +33,8 @@ const emit = defineEmits<{
 const isWide = useMediaQuery("(min-width: 1200px)");
 
 /**
- * The board, cut into rows.
- *
- * A `wide` habit takes a row to itself; the rest pair up. Below `xl` there is
- * only ever one panel to a row, so the flag makes no difference there.
+ * The board, cut into rows. A `wide` habit takes one to itself, the rest pair up.
+ * Below `xl` only one panel fits a row, so the flag makes no difference.
  */
 const rows = computed(() => {
   if (!isWide.value) return habits.map((habit) => [habit]);
@@ -69,14 +67,11 @@ const rows = computed(() => {
 const dragged = ref<Habit | null>(null);
 
 /**
- * Where a drop would put the panel: the habit it lands in front of — `null` for
- * the very end — and how it will sit there.
+ * Where a drop would put the panel: the habit it lands in front of, `null` for
+ * the very end, and how wide it will sit there.
  *
- * Every zone names both outright instead of it being worked out from which half
- * of a panel the pointer happens to be over. That is what makes the board
- * readable while dragging: each zone means one thing, and it is the thing it
- * looks like. It is also what gives a wide panel its way back to half a row,
- * which a gesture that preserved the width could never do.
+ * Each zone names the width outright rather than preserving the dragged panel's,
+ * which is what gives a wide panel a way back to half a row.
  */
 interface Landing {
   zone: string;
@@ -91,14 +86,12 @@ const target = ref<Landing | null>(null);
 const valuesOf = (habit: Habit) => entries[String(habit.id)] ?? {};
 
 /**
- * What follows the cursor: a chip naming the habit, rather than the browser's
- * snapshot of the grip — which is a picture of a grip, and says nothing about
- * what is being carried.
+ * The drag image: a chip naming the habit, instead of the browser's snapshot of
+ * the grip button.
  *
- * Built by hand rather than rendered by Vue, because `setDragImage` only counts
- * during `dragstart` itself and a node Vue is asked for there does not exist
- * until the tick after. The browser photographs it once and never looks again,
- * so it waits off-screen and is cleared up on the next frame.
+ * Built by hand because `setDragImage` only counts during `dragstart` itself,
+ * and a node Vue is asked for there does not exist until the tick after. The
+ * browser photographs it once, so it waits off-screen and goes on the next frame.
  */
 const chipFor = (habit: Habit) => {
   const chip = document.createElement("div");
@@ -131,8 +124,8 @@ const chipFor = (habit: Habit) => {
 };
 
 const start = (event: DragEvent, habit: Habit) => {
-  // Firefox abandons a drag whose `dragstart` set no data at all, so this is
-  // not optional even though nothing ever reads it back.
+  // Firefox abandons a drag whose `dragstart` set no data, though nothing reads
+  // it back.
   event.dataTransfer?.setData("text/plain", String(habit.id));
 
   if (event.dataTransfer) {
@@ -172,10 +165,7 @@ const after = (habit: Habit) => {
   return habits[index + 1]?.id ?? null;
 };
 
-/**
- * Below `xl` a panel owns its row whatever the flag says, so there is nothing
- * to choose there and the width it already has is left alone.
- */
+/** Below `xl` a panel owns its row regardless, so its width is left alone. */
 const ownRow = computed(() =>
   isWide.value ? true : (dragged.value?.wide ?? false),
 );
@@ -186,11 +176,9 @@ const arrangeWith = (before: number | null, wide: boolean) => {
 
   if (!moving) return habits;
 
-  // The panel is its own anchor for the zones that sit against it — its own
-  // lane, its own left seam. Once it is lifted out it can no longer be found
-  // there, so the slot it was holding is named by whatever came next instead.
-  // Without this the search fails and the panel is swept to the end of the
-  // board, which is the one place the reader was not pointing at.
+  // The panel anchors the zones against it, but is filtered out of `rest` below,
+  // so the lookup would fail and sweep it to the end of the board. Name the slot
+  // by whatever follows instead.
   const anchor = before === moving.id ? after(moving) : before;
 
   const rest = habits.filter((habit) => habit.id !== moving.id);
@@ -214,11 +202,8 @@ const settled = (arranged: Habit[]) =>
   );
 
 /**
- * A zone that would put the panel back exactly where it already is.
- *
- * Every panel carries zones on both sides, so a few of them always lead
- * nowhere. Saying so up front — half-lit, and never lighting up — is what stops
- * the board offering a dozen targets when only some of them mean anything.
+ * A zone that would put the panel back where it already is. Every panel carries
+ * zones on both sides, so several always lead nowhere; they render half-lit.
  */
 const isUnchanged = (before: number | null, wide: boolean) =>
   settled(arrangeWith(before, wide));
@@ -226,8 +211,7 @@ const isUnchanged = (before: number | null, wide: boolean) =>
 const drop = () => {
   const landing = target.value;
 
-  // Worked out while the drag is still standing: `arrangeWith` needs to know
-  // what is being carried, and `stop` is what puts it down.
+  // Before `stop()`, which is what clears `dragged` out from under `arrangeWith`.
   const arranged =
     dragged.value && landing
       ? arrangeWith(landing.before, landing.wide)
@@ -239,11 +223,7 @@ const drop = () => {
   if (!settled(arranged)) emit("arrange", arranged);
 };
 
-/**
- * The panel a drop would come to rest beside, outlined in the dragged habit's
- * colour while that seam is aimed at — so "share this row" points at the row it
- * means instead of leaving the reader to work out which two panels pair up.
- */
+/** Outlines the panel an aimed seam would land beside, so the pairing is shown. */
 const partnerStyle = (habit: Habit) => {
   if (target.value?.partner !== habit.id || !dragged.value) return undefined;
 
@@ -255,18 +235,14 @@ const partnerStyle = (habit: Habit) => {
 </script>
 
 <template>
-  <!-- A drag across a board of year grids selects text everywhere it passes,
-       and the selection then hangs about after the drop. Nothing here is worth
-       selecting mid-gesture. -->
+  <!-- Without this a drag selects text across every year grid it passes over. -->
   <div class="flex flex-col gap-4" :class="dragged && 'select-none'">
     <div
       v-for="(row, index) in rows"
       :key="index"
       class="relative flex flex-col gap-4 xl:flex-row xl:items-start"
     >
-      <!-- Straddling the gap above the row: the panel arrives as a row of its
-           own. The label earns its space — a bare bar would leave the reader
-           guessing which of the two things a drop here means. -->
+      <!-- Straddling the gap above the row: the panel arrives as a row of its own. -->
       <HabitsDropZone
         class="inset-x-0 top-0 -mt-2"
         orientation="row"
@@ -285,10 +261,8 @@ const partnerStyle = (habit: Habit) => {
         :key="habit.id"
         class="relative min-w-0 flex-1"
       >
-        <!-- Down the left edge of every panel: the dragged one takes a place in
-             this row and shares its width. This is the way back from a whole
-             row to half of one, which is why it stands beside every panel and
-             not only between two. -->
+        <!-- Beside every panel, not only between two: this is the way back from
+             a whole row to half of one. -->
         <HabitsDropZone
           class="top-0 -left-4 h-full"
           orientation="seam"
@@ -335,14 +309,8 @@ const partnerStyle = (habit: Habit) => {
           @select="emit('select', habit, $event)"
         >
           <template #handle>
-            <!-- Only the grip drags: the panel has a chart and a year of squares
-                 in it, and both want their own pointer.
-
-                 The draggable element is this span and not the button inside
-                 it. A `<button>` is a form control, and browsers are inconsistent
-                 about letting one be dragged at all however plainly it is
-                 marked; a span has no such history. The button keeps the look
-                 and stays out of the way of the pointer. -->
+            <!-- The span is draggable, not the button inside it: browsers are
+                 inconsistent about dragging form controls. -->
             <span
               class="relative z-2 inline-flex cursor-grab active:cursor-grabbing"
               draggable="true"

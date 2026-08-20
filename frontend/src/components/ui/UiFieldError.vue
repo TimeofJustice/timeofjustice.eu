@@ -10,8 +10,8 @@ defineProps<UiFieldErrorProps>();
 
 defineOptions({ inheritAttrs: false });
 
-// Sits inside the field, so it must not swallow the click that focuses it —
-// only the icon itself takes the pointer, and only to answer a hover.
+// Sits inside the field, so it must not swallow the click that focuses it.
+// Only the icon itself takes the pointer, and only to answer a hover.
 const { ui, rest } = useUi(() => [
   "pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-danger",
 ]);

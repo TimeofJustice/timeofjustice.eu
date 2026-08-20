@@ -125,7 +125,7 @@ const startSync = () => {
       setWallet(incoming);
 
       // A wallet without a name or a face is walked through the settings, as is
-      // one holding a phrase that has not been written down yet — even if it is
+      // one holding a phrase that has not been written down yet, even if it is
       // otherwise set up. Closing them stays closed until the wallet changes.
       const needsPrompt = incoming.needsSetup || incoming.mustSavePhrase;
 

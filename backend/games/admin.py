@@ -16,14 +16,14 @@ class WalletAdmin(admin.ModelAdmin):
     def issue_wallet_phrase(self, request, queryset):
         """
         Phrases are stored only as a keyed hash, so there is no way to look one
-        up — the replacement is shown here once and has to be passed on by hand.
+        up. The replacement is shown here once and has to be passed on by hand.
         """
         for wallet in queryset:
             phrase = assign_wallet_phrase(wallet)
 
             self.message_user(
                 request,
-                f"{wallet.public_id} ({wallet.name}) — new wallet phrase: {phrase}",
+                f"{wallet.public_id} ({wallet.name}): new wallet phrase: {phrase}",
                 messages.WARNING,
             )
 

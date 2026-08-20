@@ -1,9 +1,6 @@
 import type { ClassNameValue } from "tailwind-merge";
 
-/**
- * The shared look of the boxed controls — input, textarea, file input — so the
- * three cannot drift apart.
- */
+/** The shared look of input, textarea and file input. */
 export const FIELD: ClassNameValue = [
   "block w-full rounded-md border border-field-edge bg-field bg-clip-padding px-3 py-1.5",
   "text-control leading-normal text-light placeholder:text-accent",
@@ -15,11 +12,9 @@ export const FIELD: ClassNameValue = [
 ];
 
 /**
- * What validity paints. Only a wrong value gets colour: a correct one is the
- * expected case and needs no reward, so it keeps the neutral edge.
- *
- * `padded` leaves room on the right for the icon that explains the failure;
- * controls without one — a colour swatch, a slider — pass `false`.
+ * What validity paints. Only a wrong value gets colour; a correct one keeps the
+ * neutral edge. `padded` leaves room for the icon that explains the failure, so
+ * controls without one pass `false`.
  */
 export const fieldState = (
   state: boolean | null,

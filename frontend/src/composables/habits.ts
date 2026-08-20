@@ -6,11 +6,7 @@ import type {
   HabitStreak,
 } from "@/types/Habit.ts";
 
-/**
- * How full a day's square is painted, 0 (nothing logged) to 5 (goal reached).
- * Five steps is what makes a half-done day tell itself apart from an almost-
- * done one at a glance.
- */
+/** How full a day's square is painted, 0 (nothing logged) to 5 (goal reached). */
 export const levelOf = (value: number, goal: number) => {
   if (value <= 0) return 0;
 
@@ -27,10 +23,7 @@ export const levelOf = (value: number, goal: number) => {
 /** Opacity of each level, as a percentage of the habit's colour. */
 export const LEVEL_MIX = [0, 22, 40, 58, 76, 100];
 
-/**
- * The habit's colour, faded to match the level. Level 0 returns null so the
- * caller can fall back to the neutral "nothing here" square.
- */
+/** The habit's colour faded to the level. Null at 0, for the neutral square. */
 export const levelColor = (color: string, level: number) => {
   if (level <= 0) return null;
 
@@ -40,10 +33,7 @@ export const levelColor = (color: string, level: number) => {
 /** Two decimals, matching what the database stores. */
 const PLACES = 100;
 
-/**
- * Reads a number the way a person writes one — "7,5" as readily as "7.5", since
- * a German keyboard puts a comma there. `NaN` for anything that is not one.
- */
+/** Takes a comma as readily as a point, since a German keyboard types one. */
 export const parseDecimal = (input: string | number | null | undefined) => {
   if (typeof input === "number") return Number.isFinite(input) ? input : NaN;
 
@@ -55,8 +45,8 @@ export const parseDecimal = (input: string | number | null | undefined) => {
 };
 
 /**
- * Pins a number to the stored precision. Without this, tapping "+0.5" twice on
- * a 0.1 step leaves 0.30000000000000004 on the screen.
+ * Pins a number to the stored precision. Without it, "+0.5" twice on a 0.1 step
+ * leaves 0.30000000000000004 on the screen.
  */
 export const roundValue = (value: number) =>
   Math.round(value * PLACES) / PLACES;
@@ -66,12 +56,9 @@ export const formatNumber = (value: number, locale: string) =>
   value.toLocaleString(locale, { maximumFractionDigits: 2 });
 
 /**
- * The year grid's geometry, in pixels, in one place.
- *
- * `HabitsYearGrid` builds itself from these, and `gridHeight()` works out from
- * the same numbers how tall a year of squares stands — which is how a chart
- * standing next to one ends up exactly as tall. Change a number here and both
- * follow; hard-code one in a template and they drift apart.
+ * The year grid's geometry, in pixels. `HabitsYearGrid` builds itself from these
+ * and `gridHeight()` computes from the same numbers, which is how a chart beside
+ * a grid ends up exactly as tall. Hard-code one in a template and they drift.
  */
 export const GRID = {
   columns: 53,
@@ -113,8 +100,7 @@ export const toIsoDate = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 /**
- * The year laid out as calendar weeks, the way a contribution graph reads:
- * one column per week, Monday at the top. The first and last column are padded
+ * One column per week, Monday at the top. The first and last column are padded
  * with null days so every column holds seven cells.
  */
 export const yearWeeks = (
@@ -124,8 +110,7 @@ export const yearWeeks = (
   today: string,
 ): HabitDay[][] => {
   const first = new Date(year, 0, 1);
-  // Monday-based offset: getDay() has Sunday at 0, which would start the week
-  // on the wrong day for a European calendar.
+  // Monday-based: getDay() puts Sunday at 0.
   const offset = (first.getDay() + 6) % 7;
   const dayCount =
     (new Date(year + 1, 0, 1).getTime() - first.getTime()) / 86400000;
@@ -142,7 +127,7 @@ export const yearWeeks = (
       const date = toIsoDate(new Date(year, 0, 1 + dayOfYear));
       const value = values[date] ?? 0;
 
-      // ISO dates sort like strings, so this is the whole comparison.
+      // ISO dates sort like strings.
       week.push({
         date,
         value,
@@ -168,9 +153,8 @@ export const yearWeeks = (
 };
 
 /**
- * Which column each month starts in, for the labels above the grid. A month
- * whose first day falls late in a column is skipped, its label would sit on
- * top of the previous one.
+ * Which column each month's label goes above. A month starting late in a column
+ * is skipped, or its label would sit on top of the previous one.
  */
 export const monthColumns = (weeks: HabitDay[][]) => {
   const columns: { month: number; column: number }[] = [];
@@ -192,10 +176,8 @@ export const monthColumns = (weeks: HabitDay[][]) => {
 };
 
 /**
- * Days the goal was met, and the total, for the year on screen.
- *
- * Streaks are deliberately absent: they run past New Year, so only the server —
- * which has every year — can count them.
+ * Days the goal was met, and the total, for the year on screen. Streaks are
+ * absent on purpose: they run past New Year, so only the server can count them.
  */
 export const habitStats = (values: Record<string, number>, goal: number) => {
   let done = 0;
@@ -211,13 +193,7 @@ export const habitStats = (values: Record<string, number>, goal: number) => {
   return { done, total: roundValue(total) };
 };
 
-/**
- * What a measurement's year says.
- *
- * `toTarget` is the headline: a measurement is tracked *against* a target, so
- * where it stands relative to that matters more than any single reading. It is
- * signed, never judged — losing weight and saving money point opposite ways.
- */
+/** What a measurement's year says. `toTarget` is signed, never judged. */
 export const measureStats = (
   values: Record<string, number>,
   target: number,
@@ -247,11 +223,9 @@ export const measureStats = (
     latestDate,
     delta: roundValue(latest - readings[0]),
     toTarget: roundValue(latest - target),
-    // How much of the gap to the target was closed over the year. Positive
-    // means it came nearer. This is the only thing that can say whether a
-    // movement was progress: the target decides which way is forwards, so
-    // losing weight and saving money both read correctly without the tracker
-    // having to know which it is looking at.
+    // How much of the gap to the target was closed; positive means nearer.
+    // The target is what decides which way is forwards, so a falling weight
+    // and a rising balance both read as progress without a special case.
     closed: roundValue(
       Math.abs(readings[0] - target) - Math.abs(latest - target),
     ),
@@ -261,13 +235,8 @@ export const measureStats = (
 };
 
 /**
- * The reading in force on a day: the last one taken at or before it, and
- * failing that the first one after.
- *
- * Nothing is stored for the days in between — inventing measurements would be
- * a lie. This is what the editor *offers* when a past day is opened, so
- * correcting a gap starts from what was actually weighed nearby rather than
- * from zero.
+ * The reading in force on a day: the last one at or before it, else the first
+ * one after. Only *offered* by the day editor; nothing is stored in between.
  */
 export const carriedValue = (values: Record<string, number>, date: string) => {
   const dates = Object.keys(values).sort();
@@ -303,7 +272,7 @@ export const api = {
 
   remove: (id: number) => axios.post(`/momentum/api/habit/${id}/delete/`),
 
-  /** Saves the whole arrangement, not a move — see the view's docstring. */
+  /** Saves the whole arrangement, not a move. See the view's docstring. */
   layout: (habits: { id: number; wide: boolean }[]) =>
     axios
       .post<{ habits: Habit[] }>("/momentum/api/layout/", { habits })

@@ -84,7 +84,7 @@ def reveal_phrase(request, phrase, reason="registered"):
     """
     Parks a freshly issued phrase in the session so setup can show it once.
 
-    It cannot come from the wallet — only its hash is stored — so this is the
+    It cannot come from the wallet, where only its hash is stored, so this is the
     single copy, and it goes away as soon as setup is saved. `reason` tells the
     frontend whether to introduce the phrase or to warn that the old id is now
     spent.
@@ -121,7 +121,7 @@ def hash_wallet_phrase(phrase):
 
     A plain digest would not be enough: phrases come from a published wordlist,
     so a dump would be brute-forcable offline. The pepper lives in the settings,
-    not the database. It is a fast hash on purpose — the phrase carries its own
+    not the database. It is a fast hash on purpose: the phrase carries its own
     entropy, and login stays a single indexed lookup.
     """
     return hmac.new(settings.WALLET_PEPPER.encode(), phrase.encode(), sha256).hexdigest()

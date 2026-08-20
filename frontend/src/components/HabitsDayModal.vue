@@ -16,7 +16,7 @@ interface HabitsDayModalProps {
   /** Currently logged value, kept in sync with the page's optimistic state. */
   value: number;
   /**
-   * What to offer on a day that has nothing logged — the reading in force
+   * What to offer on a day that has nothing logged: the reading in force
    * around it. Only measurements have one; a missed daily goal is a zero.
    */
   suggestion?: number | null;

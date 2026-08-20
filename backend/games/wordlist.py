@@ -6,8 +6,8 @@ there are several thousand of them. See that file for the source and licence.
 
 A phrase is meant to be written on paper or read out loud, which a hex id never
 was, so the list is filtered to words of at least five letters and the source is
-one curated for exactly this purpose — a raw dictionary cannot be made safe by
-rules alone.
+one curated for exactly this purpose, because a raw dictionary cannot be made
+safe by rules alone.
 """
 
 from pathlib import Path

@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 
-# The most a single entry — or a goal — may hold. High enough for step counts
+# The most a single entry, or a goal, may hold. High enough for step counts
 # and millilitres, low enough that the year grid never has to render a novel.
 MAX_VALUE = Decimal(1_000_000_000)
 
@@ -27,13 +27,12 @@ class Habit(models.Model):
     """
     Something the owner tracks a day at a time. Two flavours, one model:
 
-    - `GOAL` — a daily target that is either met or not. "6000 steps." Drawn as
-      a year of squares, and it is the kind that has streaks.
-    - `MEASURE` — a reading whose *course* is the point, not any single day.
-      "Weight." Drawn as a line, and `goal` reads as a target to move towards.
+    - `GOAL` is a daily target, met or not. "6000 steps." A year of squares.
+    - `MEASURE` is a reading whose *course* is the point. "Weight." A line,
+      where `goal` is a target to move towards.
 
-    They share everything else — logging, the day editor, the quick-add — which
-    is the whole reason they are one model and not two.
+    Logging, the day editor and the quick-add are shared, which is why they are
+    one model and not two.
     """
 
     GOAL = "goal"
@@ -57,9 +56,8 @@ class Habit(models.Model):
         default=Decimal(1),
         validators=[MinValueValidator(SMALLEST), MaxValueValidator(MAX_VALUE)],
     )
-    # How much a single tap on the quick-add button adds. 1000 for steps, 1 for
-    # glasses of water, 0.5 for half an hour — this is what makes logging a day
-    # a one-click affair.
+    # What one tap on the quick-add button adds: 1000 for steps, 1 for glasses
+    # of water, 0.5 for half an hour.
     step = models.DecimalField(
         max_digits=MAX_DIGITS,
         decimal_places=DECIMAL_PLACES,
@@ -103,7 +101,7 @@ class Habit(models.Model):
 class Entry(models.Model):
     """
     How much of a habit happened on one day. Absent means "nothing logged",
-    which the grid paints the same as a zero — so a zero is never stored.
+    which the grid paints the same as a zero, so a zero is never stored.
     """
 
     id = models.AutoField(primary_key=True)

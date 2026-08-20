@@ -7,9 +7,9 @@ export interface HabitStreak {
 }
 
 /**
- * `goal` is a daily target that is met or missed — a year of squares, with
- * streaks. `measure` is a reading whose course is the point — a line, where
- * `goal` reads as a target to move towards.
+ * `goal` is a daily target, met or missed, drawn as a year of squares.
+ * `measure` is a reading drawn as a line, where `goal` is a target to move
+ * towards. Both carry streaks.
  */
 export type HabitKind = "goal" | "measure";
 
@@ -41,6 +41,6 @@ export interface HabitDay {
   date: string | null;
   value: number;
   level: number;
-  /** Still to come. Shown, but not tracked — only the past can be logged. */
+  /** Still to come. Shown, but not tracked: only the past can be logged. */
   future: boolean;
 }

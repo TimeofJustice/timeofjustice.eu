@@ -49,10 +49,7 @@ const create = ({
   return id;
 };
 
-/**
- * Queues transient messages. `UiToaster` — rendered once in the layout — picks
- * them up and takes care of positioning and dismissal.
- */
+/** Queues transient messages; `UiToaster` positions and dismisses them. */
 export const useToast = () => ({
   toasts: readonly(toasts),
   create,

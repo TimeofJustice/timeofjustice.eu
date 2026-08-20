@@ -14,8 +14,8 @@ from games.decorators import wallet_api_required, wallet_required
 from games.wallet import get_wallet
 from habits.models import MAX_HABITS_PER_WALLET, MAX_VALUE, SMALLEST, Entry, Habit
 
-# Nothing before this is worth a page — the site did not exist yet. There is no
-# offset at the other end: a habit is looked back on, never planned ahead.
+# The site did not exist before this. There is no offset at the other end:
+# a habit is looked back on, never planned ahead.
 FIRST_YEAR = 2020
 
 # Offered in the habit form. Every one of them reads on the dark surface.
@@ -40,9 +40,9 @@ def clamp_year(year):
 
 def to_decimal(raw):
     """
-    Parses a number the way a person would write one, comma included, and pins
-    it to the two decimals the database stores. `None` for anything else —
-    `Decimal` happily parses "nan", which would poison every comparison.
+    Parses a number the way a person writes one, comma included, pinned to two
+    decimals. `None` for anything else: `Decimal` parses "nan" quite happily,
+    which would poison every comparison.
     """
     try:
         number = Decimal(str(raw).replace(",", ".").strip())
@@ -105,11 +105,9 @@ def approach_streak(readings, target):
     """
     Runs of readings that did not move away from the target.
 
-    Counted per **reading**, not per day: a weight is not taken daily, and a
-    fortnight without a weigh-in is not a broken run — it is simply no news.
-    Staying put counts as holding the run, since not sliding back is its own
-    kind of progress. What is counted is the steps between readings, so a single
-    reading is a run of nothing.
+    Counted per **reading**, not per day, so a fortnight without a weigh-in is
+    no news rather than a broken run. Holding counts. The steps between readings
+    are what is counted, so a single reading is a run of nothing.
     """
     distances = [abs(value - target) for value in readings]
 
@@ -125,12 +123,9 @@ def approach_streak(readings, target):
 
 def streaks_for(wallet, habit=None):
     """
-    Runs, per habit id — of goal-met days for one kind, of readings that closed
-    on their target for the other.
-
-    Deliberately over all time rather than over the year on screen: a streak is
-    about now, and one that started in December does not stop counting because
-    January is being looked at.
+    Runs per habit id: goal-met days for one kind, readings that closed on their
+    target for the other. Over all time, not the year on screen, so a run that
+    started in December keeps counting while January is being looked at.
     """
     habits = Habit.objects.filter(wallet=wallet)
 
@@ -140,8 +135,7 @@ def streaks_for(wallet, habit=None):
     streaks = {}
     today = timezone.now().date()
 
-    # Only the days that actually met their goal come back — a small fraction of
-    # the rows, and one query rather than one per habit.
+    # Only goal-met days come back, in one query rather than one per habit.
     met = {}
 
     for habit_id, day in Entry.objects.filter(habit__in=habits, habit__kind=Habit.GOAL, value__gte=F("habit__goal")).values_list("habit_id", "date"):
@@ -319,12 +313,10 @@ def update(request, habit_id):
 @require_http_methods(["POST"])
 def layout(request):
     """
-    Rewrites the running order of the panels, and which of them take a whole row.
+    Rewrites the running order of the panels, and which take a whole row.
 
-    The body carries the arrangement in full — `[{"id": .., "wide": ..}, ..]` —
-    rather than a move to apply. Dragging produces the finished order anyway,
-    and sending it whole means a dropped request cannot leave the board in a
-    state nobody arranged.
+    Takes the arrangement in full, `[{"id": .., "wide": ..}, ..]`, not a move to
+    apply, so a dropped request cannot leave the board half rearranged.
     """
     wallet = get_wallet(request)
     panels = BodyContent(request).get("habits")
@@ -363,7 +355,7 @@ def delete(request, habit_id):
     if not habit:
         return JsonResponse({"error": "habits.errors.unknown_habit"}, status=404)
 
-    # The entries go with it — they mean nothing without their habit.
+    # The entries go with it, since they mean nothing without their habit.
     habit.delete()
 
     return JsonResponse({"id": habit_id})

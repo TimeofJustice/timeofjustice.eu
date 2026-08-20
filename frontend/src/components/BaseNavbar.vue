@@ -20,16 +20,12 @@ const showNavOffcanvas = ref(false);
 const bar = useTemplateRef<HTMLElement>("bar");
 
 /**
- * How wide the collapsed pill has to be, in pixels.
+ * How wide the collapsed pill has to be, in pixels. Measured rather than written
+ * down, because a sixth route or a wider flag changes it, and a fixed 26rem let
+ * the content spill out of the pill.
  *
- * Measured rather than written down: a sixth route, a language with a wider
- * flag or a signed-in avatar all change how much is left in the bar once the
- * titles have gone, and a hard-coded width simply lets the content spill out of
- * the pill — which is exactly what a fixed 26rem did once a route was added.
- *
- * The measurement is taken by putting the bar into its collapsed state for the
- * length of one synchronous read: no transition, no paint in between, so
- * nothing of it is visible.
+ * Read synchronously with the bar forced into its collapsed state, so no paint
+ * happens in between.
  */
 const collapsedWidth = ref<number>();
 
@@ -220,13 +216,8 @@ onMounted(() => {
 
 @media (min-width: 1400px) {
   .navbar-body {
-    /*
-     * The spring is what gives the bar its character, and it is kept — but a
-     * spring on `width` overshoots its target, and on the way in that means
-     * dipping below the width the icons need. The measured width is the floor
-     * it cannot fall through: the bounce lands on it instead of squeezing the
-     * contents out of the pill.
-     */
+    /* A spring on `width` overshoots, which on the way in would dip below the
+       width the icons need. This is the floor the bounce lands on. */
     min-width: var(--navbar-collapsed, 0px);
 
     transition:
@@ -239,16 +230,9 @@ onMounted(() => {
   }
 
   .navbar-body.scrolled {
-    /*
-     * A third of the page container, less a gap. That third is the column the
-     * profile card stands in on the home page, and the pill is centred over the
-     * page — so a pill exactly that wide ends where the card ends, and the gap
-     * is what keeps the two from touching.
-     *
-     * The measured width is the floor, not the target: the alignment is what
-     * decides how wide the pill is, and the measurement only steps in when the
-     * contents genuinely need more room than the column leaves.
-     */
+    /* A third of the page container, less a gap: the column the profile card
+       stands in on the home page, so the two end level. The measured width is
+       the floor, not the target. */
     width: max(
       var(--navbar-collapsed, 0px),
       calc(var(--container-page) / 3 - 1.5rem)
@@ -272,14 +256,9 @@ onMounted(() => {
     transition-delay: 0s;
   }
 
-  /*
-   * The links close ranks as the titles go: the gap in front of a title leaves
-   * with it, and the padding around each one draws in. That is where the spring
-   * finds the room it needs — it swings some 84px past the collapsed width, and
-   * only a row this tight leaves that much between the pill and its own
-   * contents. Same curve and same delays as the titles, so the two read as one
-   * movement rather than as a second animation.
-   */
+  /* The links close ranks as the titles go, which is where the spring finds its
+     room: it swings some 84px past the collapsed width. Same curve and delays as
+     the titles, so the two read as one movement. */
   .navbar-body :deep(.nav-link) {
     transition: padding 0.3s ease-in-out;
     transition-delay: 0.2s;

@@ -1,8 +1,8 @@
 """
 Wallet session pages, mounted at the site root.
 
-The wallet is no longer games-only — r/place needs one too — so signing in is
-not part of the games section any more.
+The wallet is no longer games-only, since r/place needs one too, so signing in
+is not part of the games section any more.
 """
 
 from django.urls import path

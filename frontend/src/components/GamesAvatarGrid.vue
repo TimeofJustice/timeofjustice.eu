@@ -14,7 +14,7 @@ interface GamesAvatarGridProps {
 const { disabled = false } = defineProps<GamesAvatarGridProps>();
 
 /**
- * The picked avatar's id. Selection only — persisting is left to the parent, so
+ * The picked avatar's id. Selection only: persisting is left to the parent, so
  * the games settings can save it together with the name.
  */
 const selected = defineModel<number | null>();

@@ -11,7 +11,7 @@ def rate_limited(request, scope, limit, window):
     """
     True once `limit` requests from one address are seen within `window` seconds.
 
-    Deliberately lightweight — it exists to stop pointless hammering, not a
+    Deliberately lightweight: it exists to stop pointless hammering, not a
     determined attacker, who could simply vary the forwarded address.
     """
     key = f"throttle:{scope}:{client_ip(request)}"

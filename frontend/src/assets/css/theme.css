@@ -172,8 +172,9 @@
   --color-field-edge-focus: #8a8b8c;
 
   /*
-   * The ring around whatever has keyboard focus. One ring for every control —
-   * button, link, field, menu item — so focus looks the same wherever it lands.
+   * The ring around whatever has keyboard focus. One ring for every control,
+   * be it button, link, field or menu item, so focus looks the same wherever
+   * it lands.
    */
   --color-focus-ring: rgb(248 249 250 / 0.1);
   --color-focus-ring-danger: rgb(220 53 69 / 0.25);
@@ -182,7 +183,7 @@
    * Surfaces, from the page upwards.
    *
    * `card` is the glass panel that floats over the background; `surface` is the
-   * opaque panel that has to hide what is behind it — a modal, an offcanvas, a
+   * opaque panel that has to hide what is behind it: a modal, an offcanvas, a
    * menu. Both share one radius and one hairline, which is what makes a dialog
    * and a card read as the same family.
    */

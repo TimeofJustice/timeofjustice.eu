@@ -20,8 +20,8 @@ const showToast = (message: string, variant: "success" | "danger") => {
 };
 
 /**
- * The phrase is the only credential, so the server hands it over just once —
- * while the wallet is new — and never puts it in the page props.
+ * The phrase is the only credential, so the server hands it over just once,
+ * while the wallet is new, and never puts it in the page props.
  */
 const loadRecoveryPhrase = () => {
   axios

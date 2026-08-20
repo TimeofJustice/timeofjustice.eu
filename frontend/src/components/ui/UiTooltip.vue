@@ -21,11 +21,9 @@ export interface UiTooltipProps {
    */
   wrap?: boolean;
   /**
-   * Anchored mode: the element the pill points at, driven from outside.
-   *
-   * Leave it out to wrap a trigger with the default slot instead. Anchored mode
-   * exists for the case where wrapping is the wrong shape — a grid of hundreds
-   * of cells wants one tooltip that moves, not one component per cell.
+   * Anchored mode: the element the pill points at, driven from outside. Leave it
+   * out to wrap a trigger with the default slot instead. Anchored mode is for
+   * grids of hundreds of cells, which want one moving pill, not one each.
    */
   anchor?: HTMLElement | null;
 }
@@ -54,9 +52,9 @@ const visible = ref(false);
 const position = ref({ x: 0, y: 0, caret: 0, below: false });
 
 /**
- * How long a pill lingers after the pointer leaves. Long enough that stepping
- * from one trigger to its neighbour — which fires a leave before the enter —
- * hands the pill over instead of restarting the dwell from nothing.
+ * How long a pill lingers after the pointer leaves. Stepping to a neighbouring
+ * trigger fires a leave before the enter, so this is what hands the pill over
+ * instead of restarting the dwell.
  */
 const LEAVE_GRACE = 120;
 
@@ -113,11 +111,8 @@ const hide = () => {
   }, LEAVE_GRACE);
 };
 
-/**
- * Waits out the dwell before appearing — but only the first time. Once a pill
- * is up, the next one follows the pointer straight away; waiting again for
- * every neighbour would make comparing two things a chore.
- */
+/** Waits out the dwell, but only the first time: once a pill is up, the next
+ * one follows the pointer straight away. */
 const show = () => {
   clearTimeout(timer);
 
@@ -140,7 +135,7 @@ const onKeydown = (event: KeyboardEvent) => {
 watch(visible, (open) => {
   if (open) {
     place();
-    // Capture, so an inner scroller counts too — a scroll event does not bubble.
+    // Capture, so an inner scroller counts too: a scroll event does not bubble.
     window.addEventListener("scroll", hideNow, true);
     document.addEventListener("keydown", onKeydown);
     return;

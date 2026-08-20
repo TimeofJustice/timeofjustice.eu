@@ -12,7 +12,7 @@ from games.wallet import get_wallet, revealable_phrase, stop_revealing_phrase
 @wallet_required
 @require_http_methods(["POST"])
 def update(request):
-    """Updates the name, the avatar, or both — whichever the body contains."""
+    """Updates the name, the avatar, or both, whichever the body contains."""
     wallet = get_wallet(request)
     post_data = BodyContent(request)
 

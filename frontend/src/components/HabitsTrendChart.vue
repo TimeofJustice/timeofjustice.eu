@@ -28,8 +28,7 @@ import {
 import { useMediaQuery } from "@composables/mediaQuery";
 import type { Habit } from "@/types/Habit.ts";
 
-// Only the pieces a single line needs; the rest of chart.js stays out of the
-// bundle.
+// Only the pieces a line chart needs; the rest of chart.js stays out of the bundle.
 Chart.register(
   LineController,
   LineElement,
@@ -40,10 +39,7 @@ Chart.register(
   Tooltip,
 );
 
-/**
- * How near the pointer has to come to a real reading for that reading to win,
- * in pixels.
- */
+/** How near the pointer has to come to a reading for it to win, in pixels. */
 const SNAP = 12;
 
 declare module "chart.js" {
@@ -53,16 +49,11 @@ declare module "chart.js" {
 }
 
 /**
- * Hit testing that prefers a day that was actually measured.
+ * Hit testing that snaps to a measured day within `SNAP` pixels, and otherwise
+ * takes the day under the pointer, so empty stretches stay openable.
  *
- * A year is 365 days across a few hundred pixels, so one day is barely a pixel
- * and a half wide — aiming at a particular one is hopeless, and the dots are
- * what anyone is aiming at anyway. Within `SNAP` pixels of a reading, that
- * reading wins; anywhere else the day under the pointer is taken as it is, so
- * an empty stretch can still be opened to fill a gap.
- *
- * The crosshair, the tooltip and the click all resolve through here, so what is
- * highlighted is always exactly what a click will open.
+ * A day is about a pixel and a half wide at 365 to a panel. Crosshair, tooltip
+ * and click all resolve through here so they cannot disagree.
  */
 Interaction.modes.habitDay = (chart, event) => {
   const position = getRelativePosition(event, chart as never);
@@ -75,9 +66,24 @@ Interaction.modes.habitDay = (chart, event) => {
   const last = meta.data.length - 1;
   const day = Math.min(Math.max(Math.round(raw), 0), last);
 
-  const measured =
-    (chart.data.datasets[0] as unknown as { measured?: number[] }).measured ??
-    [];
+  const dataset = chart.data.datasets[0] as unknown as {
+    measured?: number[];
+    selectable?: number;
+  };
+
+  // Past today the projection answers instead. Readable, but `onClick` ignores
+  // it: a day that has not happened cannot be logged.
+  if (day > (dataset.selectable ?? last)) {
+    const projected = chart.getDatasetMeta(1).data[day] as
+      | ((typeof meta.data)[number] & { skip?: boolean })
+      | undefined;
+
+    return projected && !projected.skip
+      ? [{ element: projected, datasetIndex: 1, index: day }]
+      : [];
+  }
+
+  const measured = dataset.measured ?? [];
 
   let index = day;
   let nearest = SNAP;
@@ -117,15 +123,14 @@ const i18n = useI18n();
 
 const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
-/** Recessive chrome: one shade off the surface, never competing with the line. */
 const GRID = "rgb(248 249 250 / 0.07)";
 const INK = "#adb5bd";
-/** The pill the rest of the page uses, so the tooltip is the same object. */
+/** Matches `UiTooltip`, so the two read as the same object. */
 const PILL = "rgb(0 0 0 / 0.75)";
 
 const format = (value: number) => formatNumber(value, i18n.locale.value);
 
-/** Every day of the year, so the spacing is real time and not "per reading". */
+/** Every day of the year, so the x axis is time and not "per reading". */
 const days = computed(() => {
   const first = new Date(year, 0, 1);
   const count =
@@ -136,29 +141,38 @@ const days = computed(() => {
   );
 });
 
-/** The days that were actually measured. Everything else is derived from these. */
 const readings = computed(() => days.value.map((day) => values[day] ?? null));
 
-/**
- * A value for every day up to today, built around the days actually measured.
- *
- * Between two readings the line **runs from one to the other**: a day in the
- * middle takes its share of the way, so two weigh-ins a fortnight apart are
- * joined by a steady slope rather than by a step that drops all at once on the
- * second day. Outside that span there is nothing to run towards, so the nearest
- * reading is simply held — forward past the last one, and backwards into the
- * days before the first.
- *
- * None of this is stored. Every filled day says on hover where its number comes
- * from, so a slope is never mistaken for a run of daily weigh-ins.
- */
-const series = computed(() => {
-  const marks = days.value
+const hasReadings = computed(() =>
+  readings.value.some((value) => value !== null),
+);
+
+/** The last day that can be pointed at. A year gone by is live to its end. */
+const lastLive = computed(() => {
+  const future = days.value.findIndex((day) => day > today);
+
+  return future === -1 ? days.value.length - 1 : future - 1;
+});
+
+/** The measured days, in order, with their place in the year. */
+const marks = computed(() =>
+  days.value
     .map((day, index) => ({ day, index, value: values[day] }))
     .filter(
       (mark): mark is { day: string; index: number; value: number } =>
         mark.value !== undefined,
-    );
+    ),
+);
+
+/**
+ * A value for every day up to today. Days between two readings are interpolated;
+ * outside that span the nearest reading is held.
+ *
+ * None of it is stored, and every filled day says on hover where its number came
+ * from, so a slope is not mistaken for a run of daily weigh-ins.
+ */
+const series = computed(() => {
+  const points = marks.value;
 
   const blank = {
     value: null as number | null,
@@ -168,20 +182,22 @@ const series = computed(() => {
     to: null as string | null,
   };
 
-  if (marks.length === 0) return days.value.map(() => ({ ...blank }));
+  // An empty year gets a flat zero baseline instead, and unlike everything else
+  // here it runs past today: bounded at today it would be two days long every
+  // January. Dashed, and its tooltip says it is not a reading.
+  if (points.length === 0)
+    return days.value.map(() => ({ ...blank, value: 0 }));
 
-  // Walks along with the days, so each one knows the readings either side of it.
+  // Walks along with the days, so each knows the readings either side of it.
   let next = 0;
 
   return days.value.map((day, index) => {
-    // The future is never filled: a weigh-in says nothing about a day that has
-    // not happened, and the year grid leaves those days inert too.
     if (day > today) return { ...blank };
 
-    while (next < marks.length && marks[next].index < index) next += 1;
+    while (next < points.length && points[next].index < index) next += 1;
 
-    const ahead = marks[next] ?? null;
-    const behind = next > 0 ? marks[next - 1] : null;
+    const ahead = points[next] ?? null;
+    const behind = next > 0 ? points[next - 1] : null;
 
     if (ahead?.index === index) {
       return {
@@ -196,10 +212,10 @@ const series = computed(() => {
     // Before the first reading, and after the last: one point is not a trend.
     if (!behind) {
       return {
-        value: marks[0].value,
+        value: points[0].value,
         measured: false,
         before: true,
-        from: marks[0].day,
+        from: points[0].day,
         to: null,
       };
     }
@@ -226,6 +242,53 @@ const series = computed(() => {
   });
 });
 
+/**
+ * How much the readings move per day, by least squares over the year. Fewer than
+ * two readings, or all of them equal, is a level rather than a direction: flat.
+ */
+const slope = computed(() => {
+  const points = marks.value;
+
+  if (points.length < 2) return 0;
+
+  const meanDay =
+    points.reduce((sum, point) => sum + point.index, 0) / points.length;
+  const meanValue =
+    points.reduce((sum, point) => sum + point.value, 0) / points.length;
+
+  let product = 0;
+  let spread = 0;
+
+  for (const point of points) {
+    product += (point.index - meanDay) * (point.value - meanValue);
+    spread += (point.index - meanDay) ** 2;
+  }
+
+  return spread === 0 ? 0 : product / spread;
+});
+
+/** Where the readings are heading, to New Year and through the target. */
+const projection = computed(() => {
+  const last = marks.value[marks.value.length - 1];
+  const start = lastLive.value;
+  const end = days.value.length - 1;
+
+  // Nothing measured, or no year left to run into.
+  if (!last || start < 0 || end <= start) return null;
+
+  const line: (number | null)[] = days.value.map(() => null);
+
+  // Anchored on the last reading, which the solid line holds forward to today,
+  // so the two meet without a step.
+  line[start] = last.value;
+
+  for (let index = start + 1; index <= end; index += 1) {
+    line[index] = roundValue(last.value + slope.value * (index - start));
+  }
+
+  return line;
+});
+
 const shortDate = (day: string) =>
   new Date(`${day}T00:00:00`).toLocaleDateString(i18n.locale.value, {
     day: "numeric",
@@ -233,11 +296,9 @@ const shortDate = (day: string) =>
   });
 
 /**
- * The window the line lives in, padded so it never touches the frame.
- *
- * The target is always in it, however far off the readings are: a measurement
- * is tracked *against* its target, and a chart that cropped it away would hide
- * the one relationship the whole card is about.
+ * The y window, padded so the line never touches the frame. The target is always
+ * inside it: a measurement is tracked *against* its target, and cropping it away
+ * would hide the one relationship the card exists for.
  */
 const bounds = computed(() => {
   const points = readings.value.filter(
@@ -246,19 +307,23 @@ const bounds = computed(() => {
 
   points.push(habit.goal);
 
+  // Both are drawn, so both are framed: the empty year's zero baseline, and the
+  // projection, whose far end is the thing being read off the axis.
+  if (!hasReadings.value) points.push(0);
+
+  for (const value of projection.value ?? []) {
+    if (value !== null) points.push(value);
+  }
+
   const low = Math.min(...points);
   const high = Math.max(...points);
-  // A single reading sitting on its target still needs a window, or the axis
-  // collapses to nothing.
+  // A single reading sitting on its target would otherwise collapse the axis.
   const padding = (high - low || Math.abs(high) || 1) * 0.15;
 
   return { min: low - padding, max: high + padding };
 });
 
-/**
- * The target, as a threshold rather than a second series: dashed, muted, and
- * labelled on the canvas, so no legend has to explain a line that is chrome.
- */
+/** The target as a threshold, labelled on the canvas because there is no legend. */
 const targetLine: Plugin<"line"> = {
   id: "habit-target",
   afterDatasetsDraw(chart) {
@@ -291,7 +356,46 @@ const targetLine: Plugin<"line"> = {
   },
 };
 
-/** A hairline down from the reading under the pointer, so the date is unambiguous. */
+/**
+ * Names the projection at its far end. Both labels are pinned to the right edge,
+ * so this one steps below its line when it would collide with the target's.
+ */
+const trendLabel: Plugin<"line"> = {
+  id: "habit-trend",
+  afterDatasetsDraw(chart) {
+    if (chart.data.datasets.length < 2) return;
+
+    const points = chart.getDatasetMeta(1).data as unknown as {
+      x: number;
+      y: number;
+      skip?: boolean;
+    }[];
+
+    // The last day the line reaches; past it are nulls the renderer skipped.
+    let end: (typeof points)[number] | undefined;
+
+    for (const point of points) if (!point.skip) end = point;
+
+    if (!end) return;
+
+    const { ctx, scales } = chart;
+    const clash = Math.abs(end.y - scales.y.getPixelForValue(habit.goal)) < 14;
+
+    ctx.save();
+    ctx.fillStyle = INK;
+    ctx.font = "10px Inter, sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = clash ? "top" : "bottom";
+    ctx.fillText(
+      i18n.t("habits.trend.projected"),
+      end.x,
+      clash ? end.y + 5 : end.y - 5,
+    );
+    ctx.restore();
+  },
+};
+
+/** A hairline down from the reading under the pointer. */
 const crosshair: Plugin<"line"> = {
   id: "habit-crosshair",
   afterDatasetsDraw(chart) {
@@ -312,33 +416,60 @@ const crosshair: Plugin<"line"> = {
   },
 };
 
+const projectionSet = computed(() =>
+  projection.value
+    ? [
+        {
+          data: projection.value,
+          // Faded and dashed like the target: a line nobody measured.
+          borderColor: `color-mix(in srgb, ${habit.color} 55%, transparent)`,
+          borderWidth: 2,
+          borderDash: [5, 5],
+          tension: 0,
+          // The nulls before today are a gap, not something to bridge.
+          spanGaps: false,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: `color-mix(in srgb, ${habit.color} 55%, transparent)`,
+          pointHoverBorderColor: "#252525",
+          pointHoverBorderWidth: 2,
+          fill: false,
+        },
+      ]
+    : [],
+);
+
 const chartData = computed(() => ({
   labels: days.value,
   datasets: [
     {
       data: series.value.map((point) => point.value),
-      // The indices the hit test is allowed to snap to.
+      // Read by `habitDay`: what it may snap to, and how far it may resolve.
       measured: series.value.flatMap((point, index) =>
         point.measured ? [index] : [],
       ),
-      borderColor: habit.color,
+      selectable: lastLive.value,
+      // An empty year's baseline is dashed and faded, so it is not read as a
+      // year of zero weigh-ins.
+      borderColor: hasReadings.value
+        ? habit.color
+        : `color-mix(in srgb, ${habit.color} 45%, transparent)`,
+      borderDash: hasReadings.value ? [] : [5, 5],
       borderWidth: 2,
-      // Straight between readings: interpolation is the only honest curve when
-      // the days in between were never measured.
+      // Straight between readings: a curve would invent days nobody measured.
       tension: 0,
       spanGaps: true,
-      // The dots are the measurements; the line between them is the value
-      // carried forward. One glance says which days were actually weighed.
+      // Dots mark the days actually weighed; the line between them is fill.
       pointRadius: (context: ScriptableContext<"line">) =>
         series.value[context.dataIndex]?.measured ? 3 : 0,
       pointBackgroundColor: habit.color,
       pointHoverRadius: (context: ScriptableContext<"line">) =>
         series.value[context.dataIndex]?.measured ? 5 : 4,
       pointHoverBackgroundColor: habit.color,
-      // The 2px ring that keeps a marker off whatever it overlaps.
       pointHoverBorderColor: "#252525",
       pointHoverBorderWidth: 2,
-      fill: true,
+      // The tinted area says how much was measured, so a baseline gets none.
+      fill: hasReadings.value,
       backgroundColor: (context: ScriptableContext<"line">) => {
         const { ctx, chartArea } = context.chart;
 
@@ -360,6 +491,7 @@ const chartData = computed(() => ({
         return gradient;
       },
     },
+    ...projectionSet.value,
   ],
 }));
 
@@ -368,11 +500,13 @@ const options = computed<ChartOptions<"line">>(() => ({
   maintainAspectRatio: false,
   animation: reducedMotion.value ? false : { duration: 400 },
   interaction: { mode: "habitDay", intersect: false },
-  // Straight off what the crosshair is showing. `habitDay` resolved it, so the
-  // day that was highlighted and the day that opens can never disagree — which
-  // is the whole reason a click used to feel like it missed.
+  // Straight off what the crosshair is showing, so the day highlighted and the
+  // day that opens cannot disagree.
   onClick: (_event, elements) => {
-    const day = days.value[elements[0]?.index ?? -1];
+    // The projection resolves through the same hit test, but is not editable.
+    if (elements[0]?.datasetIndex !== 0) return;
+
+    const day = days.value[elements[0].index];
 
     if (day) emit("select", day);
   },
@@ -385,8 +519,7 @@ const options = computed<ChartOptions<"line">>(() => ({
         font: { size: 10 },
         autoSkip: false,
         maxRotation: 0,
-        // One label per month, on its first day. Anything denser is unreadable
-        // at 53 weeks wide, and anything automatic lands on arbitrary dates.
+        // One label per month. Anything automatic lands on arbitrary dates.
         callback(_value, index) {
           const day = days.value[index];
 
@@ -405,8 +538,7 @@ const options = computed<ChartOptions<"line">>(() => ({
     },
   },
   plugins: {
-    // One series: the card header already names it, so a legend box would only
-    // repeat the title.
+    // One series, and the card header already names it.
     legend: { display: false },
     tooltip: {
       backgroundColor: PILL,
@@ -417,15 +549,22 @@ const options = computed<ChartOptions<"line">>(() => ({
       displayColors: false,
       titleFont: { size: 13, weight: "normal" },
       bodyFont: { size: 13, weight: "bold" },
-      // Before the first reading of the year there is nothing to say, and a
-      // zero would be a lie. With every item dropped, no tooltip appears.
+      // Dropping every item is what suppresses the tooltip on an unfilled day.
       filter: (item) => item.parsed.y !== null,
       callbacks: {
         title: (items) => shortDate(days.value[items[0].dataIndex]),
-        label: (item) => `${format(item.parsed.y ?? 0)} ${habit.unit}`.trim(),
-        // A day that was not measured names the day it takes its value from, so
-        // a flat stretch is never mistaken for a run of identical weigh-ins.
+        // "0 kg" would be a lie on an empty year: the line is a baseline.
+        label: (item) =>
+          hasReadings.value
+            ? `${format(item.parsed.y ?? 0)} ${habit.unit}`.trim()
+            : i18n.t("habits.trend.no_reading"),
+        // An unmeasured day names where its value came from, so a flat stretch
+        // is not mistaken for a run of identical weigh-ins.
         footer: (items) => {
+          if (items[0].datasetIndex === 1) {
+            return i18n.t("habits.trend.projected");
+          }
+
           const point = series.value[items[0].dataIndex];
 
           if (!point || point.measured || !point.from) return "";
@@ -454,18 +593,15 @@ const options = computed<ChartOptions<"line">>(() => ({
   },
 }));
 
-const plugins = [targetLine, crosshair];
+const plugins = [targetLine, trendLabel, crosshair];
 
 const wrapper = useTemplateRef<HTMLElement>("wrapper");
 const available = ref(0);
 
 /**
- * The panel stands exactly as tall as a year of squares would in its place.
- *
- * A ratio cannot express it: the grid's height grows with its width but carries
- * a fixed month band on top, and stops growing at `GRID.maxWidth` while this
- * panel keeps going. So it is measured and computed from the same geometry the
- * grid is built from.
+ * As tall as a year of squares would be in its place. No CSS ratio expresses it:
+ * the grid carries a fixed month band and stops growing at `GRID.maxWidth` while
+ * this panel keeps going, so the relationship is affine and clamped.
  */
 const height = computed(() => `${gridHeight(available.value)}px`);
 
@@ -483,11 +619,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => observer?.disconnect());
 
-const hasReadings = computed(() =>
-  readings.value.some((value) => value !== null),
-);
-
-/** Chart.js keeps a canvas alive per key; the year is what invalidates it. */
+/** Chart.js keeps one canvas per key; the year is what invalidates it. */
 const chartKey = computed(() => `${habit.id}-${year}`);
 
 defineExpose({ hasReadings });
@@ -496,18 +628,10 @@ defineExpose({ hasReadings });
 <template>
   <div ref="wrapper" class="w-full" :style="{ height }">
     <Line
-      v-if="hasReadings"
       :key="chartKey"
       :data="chartData as ChartType<'line'>['data']"
       :options="options"
       :plugins="plugins"
     />
-
-    <p
-      v-else
-      class="m-0 flex h-full items-center justify-center text-center text-sm text-accent"
-    >
-      {{ $t("habits.trend.empty", { year }) }}
-    </p>
   </div>
 </template>

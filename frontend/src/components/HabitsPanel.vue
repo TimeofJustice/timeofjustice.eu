@@ -10,8 +10,7 @@ import {
 import HabitsYearGrid from "@components/HabitsYearGrid.vue";
 import type { Habit } from "@/types/Habit.ts";
 
-// chart.js is 50 kB gzipped and only a progression needs it. Loaded on demand,
-// so a board of nothing but daily goals never fetches it at all.
+// 50 kB gzipped, and only a `measure` habit needs it.
 const HabitsTrendChart = defineAsyncComponent(
   () => import("@components/HabitsTrendChart.vue"),
 );
@@ -52,7 +51,7 @@ const atRecord = computed(
     habit.streak.current > 0 && habit.streak.current === habit.streak.longest,
 );
 
-/** Four ways to say "longest run", by kind and by whether it is the one running. */
+/** Four wordings, by kind and by whether the record is the run going now. */
 const recordKey = computed(() => {
   const measure = isMeasure.value ? "_measure" : "";
 
@@ -61,10 +60,9 @@ const recordKey = computed(() => {
     : `habits.stats.streak${measure}`;
 });
 
-/** A movement reads as a movement only with its sign on it. */
 const signed = (delta: number) => `${delta > 0 ? "+" : ""}${format(delta)}`;
 
-/** Which way it went. Whether that is good is the colour's job, not the icon's. */
+/** Which way it went. Whether that is good is the colour's job. */
 const trendIcon = (delta: number) => {
   if (delta > 0) return "fa6-solid:arrow-trend-up";
   if (delta < 0) return "fa6-solid:arrow-trend-down";
@@ -79,13 +77,7 @@ const longDate = (date: string) =>
     year: "numeric",
   });
 
-/**
- * What the year moved, and whether that counted as progress.
- *
- * The target is what makes the verdict possible at all: it decides which way is
- * forwards, so a falling weight and a rising balance both read as progress
- * without the tracker having to know which one it is looking at.
- */
+/** What the year moved, and whether that counted as progress. */
 const changeText = computed(() => {
   const { count, delta, closed } = measures.value;
 
@@ -110,7 +102,7 @@ const progressClass = computed(() => {
   return "text-accent";
 });
 
-/** Swatches for the legend, from "nothing" to "goal reached". */
+/** Legend swatches, from "nothing" to "goal reached". */
 const legendColors = computed(() =>
   LEVEL_MIX.map((mix) =>
     mix === 0
@@ -135,8 +127,7 @@ const legendColors = computed(() =>
 
         <h2 class="m-0 truncate text-h6">{{ habit.name }}</h2>
 
-        <!-- "6000 steps a day" for a goal, but a target weight is not a
-             daily quota — it is the number being moved towards. -->
+        <!-- A target weight is not a daily quota, so it is worded differently. -->
         <span class="text-sm text-accent">
           {{
             $t(isMeasure ? "habits.trend.target" : "habits.goal_label", {
@@ -151,8 +142,7 @@ const legendColors = computed(() =>
           {{ $t("habits.archived") }}
         </UiBadge>
 
-        <!-- How the habit is doing, up beside its name: days reached this
-             year, the run going now, and the best run there has ever been. -->
+        <!-- Days reached this year, the run going now, and the best ever. -->
         <div class="flex flex-wrap items-center gap-x-2">
           <!-- A measurement has no streak to run: what matters is where
                it stands, how far it has moved, and how often it was
@@ -173,9 +163,7 @@ const legendColors = computed(() =>
               </span>
             </UiTooltip>
 
-            <!-- What moved this year, and whether that was progress.
-                 The arrow is the fact — which way it went — and the
-                 colour is the verdict, which only the target can give. -->
+            <!-- The arrow is the fact, the colour is the verdict. -->
             <UiTooltip :text="changeText">
               <span
                 class="flex items-center gap-1 text-sm"
@@ -202,9 +190,8 @@ const legendColors = computed(() =>
             </span>
           </UiTooltip>
 
-          <!-- A running streak burns; a broken one is just a number.
-               Both kinds have one — days that met their goal, or readings
-               that kept closing on their target. -->
+          <!-- Both kinds have a streak: goal-met days, or readings that kept
+               closing on their target. -->
           <UiTooltip
             :text="
               $t(
@@ -312,8 +299,7 @@ const legendColors = computed(() =>
           }}
         </span>
 
-        <!-- Legend: how full a square is says how close that day came.
-               A line needs none — its axis says the same thing. -->
+        <!-- A line needs no legend; its axis says the same thing. -->
         <div v-if="!isMeasure" class="flex items-center gap-1">
           {{ $t("habits.legend.less") }}
           <span

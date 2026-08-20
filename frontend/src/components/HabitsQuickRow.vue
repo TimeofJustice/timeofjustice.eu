@@ -27,8 +27,8 @@ const reached = computed(() => levelOf(value, habit.goal) === 5);
 const isMeasure = computed(() => habit.kind === "measure");
 
 /**
- * Where today's reading stands to the target — the thing a measurement is kept
- * for. Falls back to naming the target while nothing has been read today.
+ * Where today's reading stands to the target, which is the thing a measurement
+ * is kept for. Falls back to naming the target while nothing has been read today.
  */
 const targetHint = computed(() => {
   const goal = `${format(habit.goal)} ${habit.unit}`.trim();
@@ -85,8 +85,8 @@ const targetHint = computed(() => {
     </div>
 
     <div class="flex items-center gap-2">
-      <!-- No bar for a measurement — there is no meter to fill. How far it is
-           from the target sits there instead, which is the thing being kept. -->
+      <!-- No bar for a measurement, because there is no meter to fill. How far
+           it is from the target sits there instead, which is what is kept. -->
       <span v-if="isMeasure" class="grow truncate text-sm text-accent">
         {{ targetHint }}
       </span>

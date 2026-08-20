@@ -2,13 +2,13 @@
 the wallet phrase.
 
 Written by hand and kept as one step, because a primary key swap has no valid
-intermediate state for the autodetector — and because the r/place foreign key
+intermediate state for the autodetector, and because the r/place foreign key
 has to be carried across in the same breath.
 
 Existing wallets keep their old hex id as a one-shot credential: it is hashed
 into `legacy_id_hash`, and the first sign-in that uses it issues a phrase and
 clears it. They are also given a phrase here, printed once, as a fallback for
-whoever runs the deploy — after this the plaintext is gone either way.
+whoever runs the deploy. After this the plaintext is gone either way.
 """
 
 import hmac

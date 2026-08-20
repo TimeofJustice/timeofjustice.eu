@@ -131,7 +131,7 @@
           "deck_empty": "Deck is empty",
           "invalid_bet": "Invalid bet"
         },
-        "rules": "### 📜 Rules\n\n#### 🎮 Objective:\nGuess whether the **next card** in the deck will be **higher**, **lower**, or **equal** in rank compared to the current one.\n\n---\n\n#### 🕹️ How to Play:\n\n1. **Start with one card** and place your **initial bet** (e.g., 10).\n2. Choose between **\"Higher\"**, **\"Lower\"**, or **\"Draw\"** for the next card.\n3. If your guess is correct:\n   - You earn a **fixed payout based on your initial bet**:\n      - **Higher / Lower** → +1× your initial bet\n      - **Draw** → +8× your initial bet\n   - Your winnings stack **linearly** on top of your initial bet.\n4. After each win, you can either:\n   - **Continue playing** (risking all winnings for the next guess)\n   - Or **cash out** (secure your current total winnings)\n\n---\n\n#### 🧮 Example:\n\n- 1 correct guess → 10 + 10 = **20**\n- 2 correct → 10 + 10 + 10 = **30**\n- 5 correct → **60**\n- If you guess \"Draw\" correctly: 10 + (8 × 10) = **90**\n\n---\n\n#### 🏆 Perfect Run (52 Correct Guesses):\n\nIf you guess **all 51 cards** in a full deck correctly:\n\n- You receive your regular payout: **10 + (51 × 10) = 520**\n- PLUS a **legendary bonus**:\n   - **+100,000× your initial bet**\n   - Example: Bet of 10 → **1,000,000 bonus payout**\n\n---\n\n#### ❗ Important Notes:\n\n- A **single wrong guess** ends the game and you lose everything.\n- If you choose \"Higher\" or \"Lower\" and the next card is **equal**, it's considered **incorrect**.\n- If you choose \"Draw\" and the next card **matches** the previous one exactly → **correct**, and you win 8× your bet.\n\n---\n\n#### 💡 Tip:\n\n- Longer streaks = higher total rewards.\n- You don’t need to chase the perfect run to win big — even 10–15 correct guesses can add up!"
+        "rules": "### 📜 Rules\n\n#### 🎮 Objective:\nGuess whether the **next card** in the deck will be **higher**, **lower**, or **equal** in rank compared to the current one.\n\n---\n\n#### 🕹️ How to Play:\n\n1. **Start with one card** and place your **initial bet** (e.g., 10).\n2. Choose between **\"Higher\"**, **\"Lower\"**, or **\"Draw\"** for the next card.\n3. If your guess is correct:\n   - You earn a **fixed payout based on your initial bet**:\n      - **Higher / Lower** → +1× your initial bet\n      - **Draw** → +8× your initial bet\n   - Your winnings stack **linearly** on top of your initial bet.\n4. After each win, you can either:\n   - **Continue playing** (risking all winnings for the next guess)\n   - Or **cash out** (secure your current total winnings)\n\n---\n\n#### 🧮 Example:\n\n- 1 correct guess → 10 + 10 = **20**\n- 2 correct → 10 + 10 + 10 = **30**\n- 5 correct → **60**\n- If you guess \"Draw\" correctly: 10 + (8 × 10) = **90**\n\n---\n\n#### 🏆 Perfect Run (52 Correct Guesses):\n\nIf you guess **all 51 cards** in a full deck correctly:\n\n- You receive your regular payout: **10 + (51 × 10) = 520**\n- PLUS a **legendary bonus**:\n   - **+100,000× your initial bet**\n   - Example: Bet of 10 → **1,000,000 bonus payout**\n\n---\n\n#### ❗ Important Notes:\n\n- A **single wrong guess** ends the game and you lose everything.\n- If you choose \"Higher\" or \"Lower\" and the next card is **equal**, it's considered **incorrect**.\n- If you choose \"Draw\" and the next card **matches** the previous one exactly → **correct**, and you win 8× your bet.\n\n---\n\n#### 💡 Tip:\n\n- Longer streaks = higher total rewards.\n- You don’t need to chase the perfect run to win big; even 10–15 correct guesses can add up!"
       },
       "ride_the_bus": {
         "title": "Ride the Bus",
@@ -161,7 +161,7 @@
           "deck_empty": "Deck is empty",
           "invalid_bet": "Invalid bet"
         },
-        "rules": "### 🚌 Ride the Bus – Game Instructions\n\n#### 🎯 Objective:\nMake it through **four consecutive card challenges**, each more difficult than the last.  \nEarn increasing payouts for each correct guess based on your **initial bet**.\n\n---\n\n#### 🃏 Step-by-Step Gameplay:\n\nYou will face **4 questions**, one after another. Each correct answer increases your total payout.  \nOne wrong answer ends the game — you \"crash the bus\" 🚍💥\n\n---\n\n### 🔹 Round 1: Color\n\n**Question:** Will the next card be **Red** or **Black**?\n\n- ♠️♣️ = Black\n- ♥️♦️ = Red\n\n**Correct guess:**  \n✅ Win **2× your initial bet**\n\n---\n\n### 🔸 Round 2: Higher or Lower\n\n**Question:** Will the **next card** be **Higher** or **Lower** than the last one?\n\n- Aces are low\n- Equal value = **Incorrect**\n\n**Correct guess:**  \n✅ Win **3× your initial bet**\n\n---\n\n### 🔺 Round 3: Inside or Outside\n\n**Question:** Will the **third card's value** be **inside** or **outside** the range of the first two cards?\n\n- **Inside** = between first two values\n- **Outside** = lower than both or higher than both\n- **Equal to one of the edges = Incorrect**\n\n**Correct guess:**  \n✅ Win **4× your initial bet**\n\n---\n\n### 🔻 Round 4: Suit Guess\n\n**Question:** What **suit** will the next card be? (♠️ ♥️ ♦️ ♣️)\n\n- Choose **1 of 4 suits**\n\n**Correct guess:**  \n✅ Win **8× your initial bet**\n\n---\n\n#### 💥 Lose Condition:\n- One wrong answer at any stage = ❌ **Game Over**\n- You lose your accumulated winnings unless you cashed out earlier"
+        "rules": "### 🚌 Ride the Bus – Game Instructions\n\n#### 🎯 Objective:\nMake it through **four consecutive card challenges**, each more difficult than the last.  \nEarn increasing payouts for each correct guess based on your **initial bet**.\n\n---\n\n#### 🃏 Step-by-Step Gameplay:\n\nYou will face **4 questions**, one after another. Each correct answer increases your total payout.  \nOne wrong answer ends the game and you \"crash the bus\" 🚍💥\n\n---\n\n### 🔹 Round 1: Color\n\n**Question:** Will the next card be **Red** or **Black**?\n\n- ♠️♣️ = Black\n- ♥️♦️ = Red\n\n**Correct guess:**  \n✅ Win **2× your initial bet**\n\n---\n\n### 🔸 Round 2: Higher or Lower\n\n**Question:** Will the **next card** be **Higher** or **Lower** than the last one?\n\n- Aces are low\n- Equal value = **Incorrect**\n\n**Correct guess:**  \n✅ Win **3× your initial bet**\n\n---\n\n### 🔺 Round 3: Inside or Outside\n\n**Question:** Will the **third card's value** be **inside** or **outside** the range of the first two cards?\n\n- **Inside** = between first two values\n- **Outside** = lower than both or higher than both\n- **Equal to one of the edges = Incorrect**\n\n**Correct guess:**  \n✅ Win **4× your initial bet**\n\n---\n\n### 🔻 Round 4: Suit Guess\n\n**Question:** What **suit** will the next card be? (♠️ ♥️ ♦️ ♣️)\n\n- Choose **1 of 4 suits**\n\n**Correct guess:**  \n✅ Win **8× your initial bet**\n\n---\n\n#### 💥 Lose Condition:\n- One wrong answer at any stage = ❌ **Game Over**\n- You lose your accumulated winnings unless you cashed out earlier"
       },
       "black_jack": {
         "title": "Black Jack",
@@ -182,7 +182,7 @@
           "deck_empty": "Deck is empty",
           "invalid_bet": "Invalid bet"
         },
-        "rules": "# 🃏 Blackjack Rules\n\n## 🎯 Goal of the Game\n- Get a **hand total as close to 21 as possible**, without going over.\n- **Beat the dealer’s hand** by:\n    - Having a higher total without busting (over 21), or\n    - The dealer busts and you don’t.\n\n---\n\n## 🧮 Card Values\n- **2–10:** Face value\n- **Jack, Queen, King:** 10 points\n- **Ace (A):** 1 **or** 11 points, whichever is more favorable to the hand\n\n---\n\n## 🎲 Game Flow\n\n### 1. Initial Deal\n- Players: 2 cards face up\n- Dealer: 1 card face up, 1 card face down (the \"hole card\")\n\n### 2. Player Turn\nEach player may:\n- **Hit** – Take another card\n- **Stand** – Keep your current hand\n\n### 3. Dealer Turn\n- Dealer reveals their hole card\n- Must hit until total is **17 or higher**\n- Dealer busts if total exceeds 21\n\n### 4. Compare Hands\n- Closest to 21 wins\n- **Blackjack** (Ace + 10-value card) on the initial deal beats a regular 21\n\n---\n\n## 💰 Payouts\n- **Win:** 1:1\n- **Blackjack:** 3:2\n- **Push (tie):** Bet returned\n- **Lose:** You lose your bet\n\n---\n\n## 📝 Example\n- **Player:** A♠ + 8♣ = 19 → Stand\n- **Dealer:** 10♦ + 6♥ + 7♠ = 23 → Bust → Player wins\n\n---\n\n## ✅ Quick Tips\n- Always **stand on 17 or more**\n- Hit on 11 or less — you can’t bust\n- Consider doubling down on 10 or 11 if the dealer has a weak card (like 4, 5, or 6)\n- Splitting aces is usually a good move\n\n"
+        "rules": "# 🃏 Blackjack Rules\n\n## 🎯 Goal of the Game\n- Get a **hand total as close to 21 as possible**, without going over.\n- **Beat the dealer’s hand** by:\n    - Having a higher total without busting (over 21), or\n    - The dealer busts and you don’t.\n\n---\n\n## 🧮 Card Values\n- **2–10:** Face value\n- **Jack, Queen, King:** 10 points\n- **Ace (A):** 1 **or** 11 points, whichever is more favorable to the hand\n\n---\n\n## 🎲 Game Flow\n\n### 1. Initial Deal\n- Players: 2 cards face up\n- Dealer: 1 card face up, 1 card face down (the \"hole card\")\n\n### 2. Player Turn\nEach player may:\n- **Hit** – Take another card\n- **Stand** – Keep your current hand\n\n### 3. Dealer Turn\n- Dealer reveals their hole card\n- Must hit until total is **17 or higher**\n- Dealer busts if total exceeds 21\n\n### 4. Compare Hands\n- Closest to 21 wins\n- **Blackjack** (Ace + 10-value card) on the initial deal beats a regular 21\n\n---\n\n## 💰 Payouts\n- **Win:** 1:1\n- **Blackjack:** 3:2\n- **Push (tie):** Bet returned\n- **Lose:** You lose your bet\n\n---\n\n## 📝 Example\n- **Player:** A♠ + 8♣ = 19 → Stand\n- **Dealer:** 10♦ + 6♥ + 7♠ = 23 → Bust → Player wins\n\n---\n\n## ✅ Quick Tips\n- Always **stand on 17 or more**\n- Hit on 11 or less, where you can’t bust\n- Consider doubling down on 10 or 11 if the dealer has a weak card (like 4, 5, or 6)\n- Splitting aces is usually a good move\n\n"
       },
       "sic_bo": {
         "title": "Sic Bo",
@@ -318,7 +318,7 @@
       "done": "{count} days reached in {year}",
       "current": "Current streak: {count} days",
       "streak": "Longest streak: {count} days",
-      "record": "Longest streak: {count} days — and it is the one running now",
+      "record": "Longest streak: {count} days, and it is the one running now",
       "total": "{total} {unit} in total",
       "latest": "Last measured on {date}",
       "no_readings": "Nothing measured yet",
@@ -329,9 +329,9 @@
       "below_target": "{delta} {unit} below the target of {goal}",
       "current_measure": "{count} readings in a row closer to the target, or holding",
       "streak_measure": "Best run: {count} readings closing on the target",
-      "record_measure": "Best run: {count} readings closing on the target — and it is the one going now",
-      "closer": "{delta} {unit} over {year} — closer to the target",
-      "further": "{delta} {unit} over {year} — further from the target"
+      "record_measure": "Best run: {count} readings closing on the target, and it is the one going now",
+      "closer": "{delta} {unit} over {year}, closer to the target",
+      "further": "{delta} {unit} over {year}, further from the target"
     },
     "day": {
       "add": "Add {step}",
@@ -351,14 +351,14 @@
       "step": "Quick-add step",
       "step_hint": "How much one tap on + adds.",
       "color": "Colour",
-      "archived": "Archived — hidden from the quick-add list",
+      "archived": "Archived: hidden from the quick-add list",
       "delete": "Delete",
       "delete_confirm": "Really delete?",
       "kind": "What is this?",
       "kind_goal": "Daily goal",
-      "kind_goal_hint": "Hit it or miss it — a year of squares",
+      "kind_goal_hint": "Hit it or miss it, as a year of squares",
       "kind_measure": "Progression",
-      "kind_measure_hint": "A reading over time — a line",
+      "kind_measure_hint": "A reading over time, as a line",
       "target": "Target",
       "name_placeholder_measure": "Weight",
       "unit_placeholder_measure": "kg",
@@ -382,7 +382,8 @@
     },
     "trend": {
       "target": "Target {value} {unit}",
-      "empty": "Nothing measured in {year} yet. Log a reading and the line starts here.",
+      "no_reading": "No reading yet",
+      "projected": "At this rate",
       "carried": "As measured on {date}",
       "before": "Before the first measurement, on {date}",
       "between": "On the way from {from} to {to}"
