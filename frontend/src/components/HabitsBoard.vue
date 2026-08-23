@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useMediaQuery } from "@composables/mediaQuery";
-import HabitsPanel from "@components/HabitsPanel.vue";
+import HabitsBoardPanel from "@components/HabitsBoardPanel.vue";
 import HabitsDropZone from "@components/HabitsDropZone.vue";
 import type { Habit, HabitEntries } from "@/types/Habit.ts";
 
@@ -66,6 +66,9 @@ const rows = computed(() => {
 
 const dragged = ref<Habit | null>(null);
 
+/** The zone the pointer is currently over, by key. */
+const aimed = ref<string | null>(null);
+
 /**
  * Where a drop would put the panel: the habit it lands in front of, `null` for
  * the very end, and how wide it will sit there.
@@ -74,16 +77,19 @@ const dragged = ref<Habit | null>(null);
  * which is what gives a wide panel a way back to half a row.
  */
 interface Landing {
-  zone: string;
   before: number | null;
   wide: boolean;
   /** The panel the drop would come to rest beside, if any. */
   partner: number | null;
 }
 
-const target = ref<Landing | null>(null);
+/**
+ * Shared, so a habit with nothing logged keeps the same `values` prop from one
+ * render to the next. A fresh `{}` would count as a change and rebuild its grid.
+ */
+const NO_VALUES: Record<string, number> = Object.freeze({});
 
-const valuesOf = (habit: Habit) => entries[String(habit.id)] ?? {};
+const valuesOf = (habit: Habit) => entries[String(habit.id)] ?? NO_VALUES;
 
 /**
  * The drag image: a chip naming the habit, instead of the browser's snapshot of
@@ -142,33 +148,65 @@ const start = (event: DragEvent, habit: Habit) => {
 
 const stop = () => {
   dragged.value = null;
-  target.value = null;
+  aimed.value = null;
 };
 
-const aim = (
-  zone: string,
-  before: number | null,
-  wide: boolean,
-  partner: number | null,
-) => {
-  if (!dragged.value) return;
+// `dragover` fires for every pointer move, and nearly all of them land on the
+// zone that is already aimed at.
+const aim = (zone: string) => {
+  if (!dragged.value || aimed.value === zone) return;
 
-  target.value = { zone, before, wide, partner };
+  aimed.value = zone;
 };
 
-const isAimed = (zone: string) => target.value?.zone === zone;
+/** The habit that follows each one in the running order, for the trailing zones. */
+const nextIds = computed(() => {
+  const map = new Map<number, number | null>();
 
-/** The habit that follows this one in the running order, for a trailing zone. */
-const after = (habit: Habit) => {
-  const index = habits.findIndex((entry) => entry.id === habit.id);
+  habits.forEach((habit, index) =>
+    map.set(habit.id, habits[index + 1]?.id ?? null),
+  );
 
-  return habits[index + 1]?.id ?? null;
-};
+  return map;
+});
 
 /** Below `xl` a panel owns its row regardless, so its width is left alone. */
 const ownRow = computed(() =>
   isWide.value ? true : (dragged.value?.wide ?? false),
 );
+
+/**
+ * Every zone on the board and what dropping on it would mean, under the keys the
+ * template names them by.
+ */
+const landings = computed(() => {
+  const map = new Map<string, Landing>();
+  const own = ownRow.value;
+
+  rows.value.forEach((row, index) => {
+    map.set(`row-${index}`, { before: row[0].id, wide: own, partner: null });
+
+    row.forEach((habit, position) => {
+      map.set(`share-${habit.id}`, {
+        before: habit.id,
+        wide: false,
+        partner: habit.id,
+      });
+
+      if (position === row.length - 1) {
+        map.set(`end-${index}`, {
+          before: nextIds.value.get(habit.id) ?? null,
+          wide: false,
+          partner: habit.id,
+        });
+      }
+    });
+  });
+
+  map.set("row-last", { before: null, wide: own, partner: null });
+
+  return map;
+});
 
 /** The board as it would stand if the drag ended on this zone. */
 const arrangeWith = (before: number | null, wide: boolean) => {
@@ -179,7 +217,8 @@ const arrangeWith = (before: number | null, wide: boolean) => {
   // The panel anchors the zones against it, but is filtered out of `rest` below,
   // so the lookup would fail and sweep it to the end of the board. Name the slot
   // by whatever follows instead.
-  const anchor = before === moving.id ? after(moving) : before;
+  const anchor =
+    before === moving.id ? (nextIds.value.get(moving.id) ?? null) : before;
 
   const rest = habits.filter((habit) => habit.id !== moving.id);
   const at =
@@ -202,14 +241,25 @@ const settled = (arranged: Habit[]) =>
   );
 
 /**
- * A zone that would put the panel back where it already is. Every panel carries
- * zones on both sides, so several always lead nowhere; they render half-lit.
+ * The zones that would put the panel back where it already is. Every panel
+ * carries zones on both sides, so several always lead nowhere; they render
+ * half-lit. Only the panel being dragged decides this, never the pointer, so it
+ * is settled once when the drag picks up.
  */
-const isUnchanged = (before: number | null, wide: boolean) =>
-  settled(arrangeWith(before, wide));
+const unchangedZones = computed(() => {
+  const idle = new Set<string>();
+
+  if (!dragged.value) return idle;
+
+  for (const [zone, landing] of landings.value) {
+    if (settled(arrangeWith(landing.before, landing.wide))) idle.add(zone);
+  }
+
+  return idle;
+});
 
 const drop = () => {
-  const landing = target.value;
+  const landing = aimed.value ? landings.value.get(aimed.value) : undefined;
 
   // Before `stop()`, which is what clears `dragged` out from under `arrangeWith`.
   const arranged =
@@ -223,15 +273,15 @@ const drop = () => {
   if (!settled(arranged)) emit("arrange", arranged);
 };
 
-/** Outlines the panel an aimed seam would land beside, so the pairing is shown. */
-const partnerStyle = (habit: Habit) => {
-  if (target.value?.partner !== habit.id || !dragged.value) return undefined;
+/** The panel an aimed seam would land beside. It is outlined, to show the pairing. */
+const partner = computed(() =>
+  dragged.value && aimed.value
+    ? (landings.value.get(aimed.value)?.partner ?? null)
+    : null,
+);
 
-  return {
-    outline: `2px dashed ${dragged.value.color}`,
-    outlineOffset: "4px",
-  };
-};
+const partnerColor = (habit: Habit) =>
+  partner.value === habit.id ? dragged.value?.color : undefined;
 </script>
 
 <template>
@@ -248,11 +298,11 @@ const partnerStyle = (habit: Habit) => {
         orientation="row"
         layout="full"
         :active="!!dragged"
-        :aimed="isAimed(`row-${index}`)"
-        :unchanged="isUnchanged(row[0].id, ownRow)"
+        :aimed="aimed === `row-${index}`"
+        :unchanged="unchangedZones.has(`row-${index}`)"
         :color="dragged?.color ?? ''"
         :label="$t('habits.drop.own_row')"
-        @aim="aim(`row-${index}`, row[0].id, ownRow, null)"
+        @aim="aim(`row-${index}`)"
         @drop="drop"
       />
 
@@ -269,11 +319,11 @@ const partnerStyle = (habit: Habit) => {
           layout="left"
           wide-only
           :active="!!dragged"
-          :aimed="isAimed(`share-${habit.id}`)"
-          :unchanged="isUnchanged(habit.id, false)"
+          :aimed="aimed === `share-${habit.id}`"
+          :unchanged="unchangedZones.has(`share-${habit.id}`)"
           :color="dragged?.color ?? ''"
           :label="$t('habits.drop.share_row')"
-          @aim="aim(`share-${habit.id}`, habit.id, false, habit.id)"
+          @aim="aim(`share-${habit.id}`)"
           @drop="drop"
         />
 
@@ -286,51 +336,27 @@ const partnerStyle = (habit: Habit) => {
           layout="right"
           wide-only
           :active="!!dragged"
-          :aimed="isAimed(`end-${index}`)"
-          :unchanged="isUnchanged(after(habit), false)"
+          :aimed="aimed === `end-${index}`"
+          :unchanged="unchangedZones.has(`end-${index}`)"
           :color="dragged?.color ?? ''"
           :label="$t('habits.drop.share_row')"
-          @aim="aim(`end-${index}`, after(habit), false, habit.id)"
+          @aim="aim(`end-${index}`)"
           @drop="drop"
         />
 
-        <HabitsPanel
+        <HabitsBoardPanel
           :habit="habit"
           :year="year"
           :values="valuesOf(habit)"
           :today="today"
           :loading="loading"
-          class="transition-all duration-200"
-          :class="
-            dragged?.id === habit.id && 'scale-[0.98] opacity-30 grayscale'
-          "
-          :style="partnerStyle(habit)"
+          :dragging="dragged?.id === habit.id"
+          :outline="partnerColor(habit)"
           @edit="emit('edit', habit)"
           @select="emit('select', habit, $event)"
-        >
-          <template #handle>
-            <!-- The span is draggable, not the button inside it: browsers are
-                 inconsistent about dragging form controls. -->
-            <span
-              class="relative z-2 inline-flex cursor-grab active:cursor-grabbing"
-              draggable="true"
-              :title="$t('habits.drag')"
-              @dragstart="start($event, habit)"
-              @dragend="stop"
-            >
-              <UiButton
-                variant="tertiary"
-                square
-                size="sm"
-                class="pointer-events-none"
-                tabindex="-1"
-                aria-hidden="true"
-              >
-                <iconify-icon icon="fa6-solid:grip-vertical" />
-              </UiButton>
-            </span>
-          </template>
-        </HabitsPanel>
+          @dragstart="start($event, habit)"
+          @dragend="stop"
+        />
       </div>
 
       <!-- A row of its own at the very bottom, below the last row. -->
@@ -340,11 +366,11 @@ const partnerStyle = (habit: Habit) => {
         orientation="row"
         layout="full"
         :active="!!dragged"
-        :aimed="isAimed('row-last')"
-        :unchanged="isUnchanged(null, ownRow)"
+        :aimed="aimed === 'row-last'"
+        :unchanged="unchangedZones.has('row-last')"
         :color="dragged?.color ?? ''"
         :label="$t('habits.drop.own_row')"
-        @aim="aim('row-last', null, ownRow, null)"
+        @aim="aim('row-last')"
         @drop="drop"
       />
     </div>

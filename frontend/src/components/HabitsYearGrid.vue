@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import {
   formatNumber,
   GRID,
+  LEVEL_MIX,
   levelColor,
   monthColumns,
   yearWeeks,
@@ -36,13 +37,22 @@ const HOVER_DELAY = 700;
 
 const format = (number: number) => formatNumber(number, i18n.locale.value);
 
+// Kept, rather than `toLocaleDateString`, which builds one of these each call.
+// The labels below want 365 of them.
+const dayFormat = computed(() => new Intl.DateTimeFormat(i18n.locale.value));
+
 const label = (date: string, value: number) =>
   i18n.t("habits.grid.day_title", {
-    date: new Date(`${date}T00:00:00`).toLocaleDateString(i18n.locale.value),
+    date: dayFormat.value.format(new Date(`${date}T00:00:00`)),
     value,
     goal: habit.goal,
     unit: habit.unit,
   });
+
+/** The six shades of the habit's colour, mixed once instead of per square. */
+const palette = computed(() =>
+  LEVEL_MIX.map((_, level) => levelColor(habit.color, level) ?? undefined),
+);
 
 /**
  * No fixed square size, which is what lets two habits sit side by side. Rows are
@@ -167,10 +177,7 @@ const leave = () => {
                     day.level === 0 && 'bg-dark-gray-500/40',
                     day.date === today && 'ring-1 ring-light/70',
                   ]"
-                  :style="{
-                    backgroundColor:
-                      levelColor(habit.color, day.level) ?? undefined,
-                  }"
+                  :style="{ backgroundColor: palette[day.level] }"
                   :aria-label="label(day.date, day.value)"
                   @mouseenter="enter($event, day)"
                   @focus="enter($event, day)"
