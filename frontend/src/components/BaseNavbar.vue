@@ -107,6 +107,7 @@ onMounted(() => {
       :class="{
         'scrolled relative min-w-0 bg-card shadow-card backdrop-blur-card':
           isScrolled || size === 'small',
+        jelly: isScrolled,
       }"
       :style="
         collapsedWidth ? { '--navbar-collapsed': `${collapsedWidth}px` } : {}
@@ -216,17 +217,91 @@ onMounted(() => {
 
 @media (min-width: 1400px) {
   .navbar-body {
+    --ease-jelly: linear(
+      0,
+      0.0779,
+      0.2553,
+      0.4655,
+      0.6647,
+      0.8291,
+      0.9496,
+      1.0272,
+      1.0687,
+      1.0831,
+      1.0796,
+      1.0662,
+      1.0489,
+      1.0318,
+      1.0172,
+      1.0063,
+      0.999,
+      0.9949,
+      0.9932,
+      0.9932,
+      0.9942,
+      0.9956,
+      0.997,
+      0.9983,
+      0.9993,
+      1,
+      1.0004,
+      1.0006,
+      1.0006,
+      1.0005,
+      1.0004
+    );
+
     /* A spring on `width` overshoots, which on the way in would dip below the
        width the icons need. This is the floor the bounce lands on. */
     min-width: var(--navbar-collapsed, 0px);
 
     transition:
-      width 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+      width 0.9s var(--ease-jelly),
       backdrop-filter 0.3s ease-in-out,
       background 0.3s ease-in-out,
       box-shadow 0.3s ease-in-out,
       padding 0.3s ease-in-out,
       margin 0.3s ease-in-out;
+  }
+
+  .navbar-body.jelly.scrolled {
+    animation: navbar-jelly 0.9s;
+  }
+
+  @keyframes navbar-jelly {
+    0% {
+      transform: scale(1, 1);
+    }
+
+    22% {
+      transform: scale(0.982, 1.075);
+    }
+
+    44% {
+      transform: scale(1.014, 0.951);
+    }
+
+    64% {
+      transform: scale(0.994, 1.028);
+    }
+
+    82% {
+      transform: scale(1.003, 0.99);
+    }
+
+    100% {
+      transform: scale(1, 1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .navbar-body {
+      --ease-jelly: ease-in-out;
+    }
+
+    .navbar-body.jelly.scrolled {
+      animation: none;
+    }
   }
 
   .navbar-body.scrolled {
@@ -245,8 +320,8 @@ onMounted(() => {
     overflow: hidden;
 
     transition:
-      max-width 0.3s ease-in-out,
-      margin-left 0.3s ease-in-out;
+      max-width 0.45s var(--ease-jelly),
+      margin-left 0.45s var(--ease-jelly);
     transition-delay: 0.2s;
   }
 
@@ -256,11 +331,11 @@ onMounted(() => {
     transition-delay: 0s;
   }
 
-  /* The links close ranks as the titles go, which is where the spring finds its
-     room: it swings some 84px past the collapsed width. Same curve and delays as
-     the titles, so the two read as one movement. */
+  /* The links close ranks as the titles go, which is where the spring finds
+     the room it overshoots into. Same curve and delays as the titles, so the
+     two read as one movement. */
   .navbar-body :deep(.nav-link) {
-    transition: padding 0.3s ease-in-out;
+    transition: padding 0.45s var(--ease-jelly);
     transition-delay: 0.2s;
   }
 
