@@ -1,6 +1,7 @@
 /**
- * The only two utilities that cannot be expressed inline: both need a
- * `@custom-variant`-free media chain that Tailwind builds from the theme.
+ * Utilities that cannot be expressed inline: the two containers need a
+ * `@custom-variant`-free media chain that Tailwind builds from the theme, and
+ * the skeleton surface is shared with a third-party class in `custom.css`.
  */
 
 /* Page container: fluid until the xxl breakpoint */
@@ -34,5 +35,29 @@
   }
   @variant xxl {
     max-width: var(--container-page);
+  }
+}
+
+/*
+ * The surface of anything still loading. Sized in `background-size` rather than
+ * in the gradient itself, so one sweep looks the same on a one-line bar and on
+ * a full-width image.
+ *
+ * Motion is the only thing `prefers-reduced-motion` takes away; the tinted
+ * block stays, because it is what marks the space as pending rather than empty.
+ */
+@utility skeleton {
+  background-image: linear-gradient(
+    to right,
+    var(--color-skeleton) 0%,
+    var(--color-skeleton-sheen) 10%,
+    var(--color-skeleton) 20%,
+    var(--color-skeleton) 100%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-skeleton);
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
   }
 }

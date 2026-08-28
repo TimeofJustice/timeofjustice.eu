@@ -151,6 +151,29 @@
     }
   }
 
+  /*
+   * A placeholder standing in for content that has not arrived yet: the sweep
+   * that runs across a skeleton bar, and across a lazily loaded image before it
+   * decodes. One animation for both, so a card whose picture and whose caption
+   * are both still loading shimmers as one object rather than two.
+   *
+   * The sweep travels right-to-left, which is why it ends past `-100%`: the
+   * highlight sits at the left edge of the gradient and has to clear the box.
+   */
+  --color-skeleton: rgb(44 44 46 / 0.5);
+  --color-skeleton-sheen: rgb(58 58 60 / 0.5);
+
+  --animate-skeleton: skeleton-sweep 1.2s linear infinite;
+
+  @keyframes skeleton-sweep {
+    0% {
+      background-position: 50% 0;
+    }
+    100% {
+      background-position: -150% 0;
+    }
+  }
+
   --color-control-accent: #0d6efd;
 
   /*

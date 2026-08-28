@@ -39,9 +39,6 @@ Chart.register(
   Tooltip,
 );
 
-/** How near the pointer has to come to a reading for it to win, in pixels. */
-const SNAP = 12;
-
 declare module "chart.js" {
   interface InteractionModeMap {
     habitDay: InteractionModeFunction;
@@ -49,11 +46,13 @@ declare module "chart.js" {
 }
 
 /**
- * Hit testing that snaps to a measured day within `SNAP` pixels, and otherwise
- * takes the day under the pointer, so empty stretches stay openable.
+ * Hit testing that takes the day under the pointer, measured or not. Snapping to
+ * the nearest reading was tried and does not work here: a day is about a pixel
+ * and a half wide at 365 to a panel, so any snap worth the name swallows the
+ * fortnight around every reading, and those empty days are the ones worth
+ * clicking.
  *
- * A day is about a pixel and a half wide at 365 to a panel. Crosshair, tooltip
- * and click all resolve through here so they cannot disagree.
+ * Crosshair, tooltip and click all resolve through here so they cannot disagree.
  */
 Interaction.modes.habitDay = (chart, event) => {
   const position = getRelativePosition(event, chart as never);
@@ -67,7 +66,6 @@ Interaction.modes.habitDay = (chart, event) => {
   const day = Math.min(Math.max(Math.round(raw), 0), last);
 
   const dataset = chart.data.datasets[0] as unknown as {
-    measured?: number[];
     selectable?: number;
   };
 
@@ -83,27 +81,15 @@ Interaction.modes.habitDay = (chart, event) => {
       : [];
   }
 
-  const measured = dataset.measured ?? [];
-
-  let index = day;
-  let nearest = SNAP;
-
-  for (const mark of measured) {
-    const distance = Math.abs(scale.getPixelForValue(mark) - position.x);
-
-    if (distance <= nearest) {
-      nearest = distance;
-      index = mark;
-    }
-  }
-
   // Days past today hold nothing and are drawn skipped: no highlight, and
   // nothing for a click to open.
-  const element = meta.data[index] as (typeof meta.data)[number] & {
+  const element = meta.data[day] as (typeof meta.data)[number] & {
     skip?: boolean;
   };
 
-  return element && !element.skip ? [{ element, datasetIndex: 0, index }] : [];
+  return element && !element.skip
+    ? [{ element, datasetIndex: 0, index: day }]
+    : [];
 };
 
 interface HabitsTrendChartProps {
@@ -444,10 +430,7 @@ const chartData = computed(() => ({
   datasets: [
     {
       data: series.value.map((point) => point.value),
-      // Read by `habitDay`: what it may snap to, and how far it may resolve.
-      measured: series.value.flatMap((point, index) =>
-        point.measured ? [index] : [],
-      ),
+      // Read by `habitDay`: how far into the year it may resolve.
       selectable: lastLive.value,
       // An empty year's baseline is dashed and faded, so it is not read as a
       // year of zero weigh-ins.
@@ -459,9 +442,9 @@ const chartData = computed(() => ({
       // Straight between readings: a curve would invent days nobody measured.
       tension: 0,
       spanGaps: true,
-      // Dots mark the days actually weighed; the line between them is fill.
-      pointRadius: (context: ScriptableContext<"line">) =>
-        series.value[context.dataIndex]?.measured ? 3 : 0,
+      // Nothing but the line, until the pointer names a day. A year of daily
+      // weigh-ins is 365 dots two pixels apart, which reads as a fat band.
+      pointRadius: 0,
       pointBackgroundColor: habit.color,
       pointHoverRadius: (context: ScriptableContext<"line">) =>
         series.value[context.dataIndex]?.measured ? 5 : 4,
