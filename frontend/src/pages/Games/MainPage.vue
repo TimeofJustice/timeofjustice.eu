@@ -5,6 +5,7 @@ import { useI18n } from "@node_modules/vue-i18n";
 import { ref, shallowRef } from "vue";
 import { onBeforeUnmount } from "@node_modules/vue";
 import { useWallet } from "@composables/wallet";
+import { useRefreshOnReturn } from "@composables/refresh";
 import axios from "axios";
 
 import HigherOrLower from "@components/Games/HigherOrLower.vue";
@@ -94,6 +95,31 @@ vaultTimer.value = getTimer(vaultResetDate.value);
 const vaultCounter = setInterval(() => {
   vaultTimer.value = getTimer(vaultResetDate.value);
 }, 1000);
+
+/**
+ * The bonus, the vault and the countdowns are all reckoned against a day the
+ * server picked when this page was first rendered, and the bonus dialog has no
+ * other way of being opened: on a tab left running past midnight the claim is
+ * simply out of reach until the page is asked again.
+ *
+ * The leaderboard and vault poll on their own, but only the props carry the
+ * bonus, so they are taken again here along with everything else.
+ */
+useRefreshOnReturn({
+  paused: () => waitingForResponse.value || showDailyBonus.value,
+  onRefreshed: () => {
+    updatedLeaderboard.value = leaderboard;
+    updatedOwnPosition.value = ownPosition;
+    updatedVault.value = vault;
+
+    nextBonusDate.value = new Date(nextBonus);
+    vaultResetDate.value = new Date(vaultReset);
+    bonusTimer.value = getTimer(nextBonusDate.value);
+    vaultTimer.value = getTimer(vaultResetDate.value);
+
+    showDailyBonus.value = newBonus;
+  },
+});
 
 const showToast = (message: string, variant: "success" | "danger") => {
   create({ body: message, variant, position: "bottom-start" });
@@ -188,7 +214,7 @@ onBeforeUnmount(() => {
       variant="success"
       class="w-full"
       @click="redeemDailyBonus"
-      :disabled="waitingForResponse"
+      :loading="waitingForResponse"
     >
       {{ $t("games.main.redeem") }}
     </UiButton>

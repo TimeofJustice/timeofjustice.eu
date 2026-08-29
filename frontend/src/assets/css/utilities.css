@@ -61,3 +61,46 @@
     animation: none;
   }
 }
+
+/*
+ * Waiting, with the content already there: a button whose request is in flight,
+ * a panel whose data is being replaced. The same sweep as `skeleton`, at the
+ * same rate, but laid over the element instead of standing in for it - so
+ * "waiting" looks like one thing across the site whether the content is missing
+ * or merely stale.
+ *
+ * Deliberately not the whole treatment: the dimming comes from the element
+ * being disabled, or from the caller. This adds only the movement, which is the
+ * part that separates "busy" from "not available".
+ */
+@utility busy {
+  position: relative;
+
+  &::after {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+    /* Follows whatever corner the element has, rather than assuming one. */
+    border-radius: inherit;
+    pointer-events: none;
+
+    background-image: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--color-busy-sheen) 10%,
+      transparent 20%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-skeleton);
+  }
+
+  /* A sweep that cannot sweep is just a bright band sitting on the element, so
+     here the dimming and `aria-busy` carry it alone. */
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      content: none;
+    }
+  }
+}

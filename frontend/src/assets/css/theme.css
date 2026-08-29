@@ -163,6 +163,14 @@
   --color-skeleton: rgb(44 44 46 / 0.5);
   --color-skeleton-sheen: rgb(58 58 60 / 0.5);
 
+  /*
+   * The same sweep passing over something that is already on screen and waiting
+   * on the server. Lighter, because here it has to be read through the content
+   * rather than instead of it, and through the dimming that comes with being
+   * disabled while busy.
+   */
+  --color-busy-sheen: rgb(248 249 250 / 0.22);
+
   --animate-skeleton: skeleton-sweep 1.2s linear infinite;
 
   @keyframes skeleton-sweep {

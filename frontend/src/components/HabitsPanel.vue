@@ -116,7 +116,7 @@ const legendColors = computed(() =>
   <UiCard
     no-body
     header-class="flex items-center justify-between gap-2"
-    :class="loading && 'opacity-60'"
+    :class="loading && 'busy opacity-65'"
   >
     <template #header>
       <div class="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">

@@ -12,7 +12,7 @@ from inertia import render
 from core.helpers import BodyContent, default_props
 from games.decorators import wallet_api_required, wallet_required
 from games.wallet import get_wallet
-from habits.models import MAX_HABITS_PER_WALLET, MAX_VALUE, SMALLEST, Entry, Habit
+from habits.models import MAX_HABITS_PER_WALLET, MAX_VALUE, SMALLEST, Entry, Habit, Recap
 
 # The site did not exist before this. There is no offset at the other end:
 # a habit is looked back on, never planned ahead.
@@ -26,6 +26,14 @@ DEFAULT_COLOR = COLORS[0]
 # What a habit with nothing to its name yet reports.
 NO_STREAK = {"current": 0, "longest": 0}
 
+# The unit the look back thinks in. A week that has ended is a week that can be
+# reported on; the one being lived cannot.
+WEEK = timedelta(days=7)
+
+# From this many unseen weeks on, the span stops being a week to go through
+# habit by habit and becomes a welcome back instead.
+AWAY_WEEKS = 2
+
 
 def year_bounds():
     """The years the tracker will show, oldest first. It stops at this one."""
@@ -36,6 +44,36 @@ def clamp_year(year):
     first, last = year_bounds()
 
     return max(first, min(last, year))
+
+
+def navigable_years(wallet, today):
+    """
+    The years the arrows may walk through, oldest first.
+
+    A year is in the list because it holds something, plus the current one,
+    which is always reachable since it is where logging happens. Empty years
+    are left out on purpose: paging back through a decade of blank grids is not
+    browsing, and there is nothing there to see.
+
+    Reaching further back is still possible, it is just not done with the
+    arrows: the day editor takes any date from `FIRST_YEAR` on, and a year
+    joins this list the moment it holds an entry.
+    """
+    years = {day.year for day in Entry.objects.filter(habit__wallet=wallet).dates("date", "year")}
+    years.add(today.year)
+
+    return sorted(years)
+
+
+def nearest_year(years, requested):
+    """
+    The reachable year closest to the one asked for.
+
+    A year can be typed into the URL, and it may well be one that was never
+    logged in. Rather than showing an empty grid the page lands on the nearest
+    year that has something, preferring the older one when it sits between two.
+    """
+    return min(years, key=lambda year: (abs(year - requested), year))
 
 
 def to_decimal(raw):
@@ -241,21 +279,237 @@ def read_habit_fields(post_data, habit):
     return None
 
 
+def monday_of(day):
+    return day - timedelta(days=day.weekday())
+
+
+def entries_between(wallet, start, end):
+    """`{habit id: {date: value}}` over a span. Dates stay dates here."""
+    entries = {}
+
+    for habit_id, day, value in Entry.objects.filter(habit__wallet=wallet, date__range=(start, end)).values_list("habit_id", "date", "value"):
+        entries.setdefault(habit_id, {})[day] = value
+
+    return entries
+
+
+def days_in(values, start, end):
+    """The logged days of one span for one habit, oldest first."""
+    return [(day, value) for day, value in sorted(values.items()) if start <= day <= end]
+
+
+def habit_span(habit, values, start, end, carried):
+    """
+    What one habit did over a span.
+
+    Both kinds report `logged`, the days that got an entry. Past that they have
+    nothing in common: a goal counts the days it was met and what they add up
+    to, a measurement reports where it stands and which way it moved. Whatever
+    a kind has no answer for stays null rather than zero, so the frontend can
+    tell "nothing to say" from "nothing happened".
+    """
+    logged = days_in(values, start, end)
+
+    if habit.kind == Habit.MEASURE:
+        readings = [value for _, value in logged]
+
+        if not readings:
+            return {"logged": 0, "values": {}, "done": None, "total": None, "latest": None, "delta": None, "closed": None}
+
+        # The reading in force going into the span is the honest starting
+        # point: a week with a single weigh-in has still moved somewhere since
+        # the last one, and comparing it against itself would say it had not.
+        first = carried if carried is not None else readings[0]
+
+        return {
+            "logged": len(readings),
+            "values": {day.isoformat(): float(value) for day, value in logged},
+            "done": None,
+            "total": None,
+            "latest": float(readings[-1]),
+            "delta": float(readings[-1] - first),
+            # How much of the gap to the target was closed. The target decides
+            # which way is forwards, so a falling weight and a rising balance
+            # both read as progress. Same rule as `measureStats` on the frontend.
+            "closed": float(abs(first - habit.goal) - abs(readings[-1] - habit.goal)),
+        }
+
+    return {
+        "logged": len(logged),
+        # Only the days that got an entry, so the frontend can draw the span
+        # day by day without the empty ones being shipped as zeroes.
+        "values": {day.isoformat(): float(value) for day, value in logged},
+        "done": sum(1 for _, value in logged if value >= habit.goal),
+        "total": float(sum(value for _, value in logged)),
+        "latest": None,
+        "delta": None,
+        "closed": None,
+    }
+
+
+def totals_of(goals, entries, start, end):
+    """
+    The span as a whole: goal-days met out of the ones on offer, days something
+    was logged at all, and days every single goal came in.
+    """
+    days = (end - start).days + 1
+    done = 0
+    active = set()
+    perfect = 0
+
+    for offset in range(days):
+        day = start + timedelta(days=offset)
+        met = 0
+
+        for habit in goals:
+            value = entries.get(habit.id, {}).get(day)
+
+            if value is not None and value >= habit.goal:
+                met += 1
+
+        done += met
+
+        if goals and met == len(goals):
+            perfect += 1
+
+    # A measurement counts as activity too, though never as a goal met.
+    for values in entries.values():
+        active.update(day for day, _ in days_in(values, start, end))
+
+    return {
+        "done": done,
+        "possible": len(goals) * days,
+        "activeDays": len(active),
+        "perfectDays": perfect,
+    }
+
+
+def recap_for(wallet, today, streaks):
+    """
+    The look back that is owed, or `None` when there is nothing to open.
+
+    One week ending is one recap. `Recap.last_week` remembers how far the owner
+    has been shown, so everything past it is what they have not seen, and the
+    dialog opens by itself exactly once per week. A wallet that stayed away
+    long enough for several weeks to pile up gets one welcome back over the
+    whole span rather than a queue of weekly dialogs.
+
+    The row is also skipped forward without opening anything: a week that ended
+    before there was a habit to track has nothing to report, and neither has a
+    week nothing was logged in.
+    """
+    last_week = monday_of(today) - WEEK
+    state = Recap.objects.filter(wallet=wallet).first()
+
+    if state is None:
+        # First sight. The weeks before now were lived without a recap, so they
+        # are marked as seen rather than reported all at once.
+        Recap.objects.create(wallet=wallet, last_week=last_week)
+
+        return None
+
+    if state.last_week >= last_week:
+        return None
+
+    def catch_up():
+        state.last_week = last_week
+        state.save()
+
+    habits = list(Habit.objects.filter(wallet=wallet))
+
+    if not habits:
+        catch_up()
+
+        return None
+
+    weeks = (last_week - state.last_week).days // 7
+    start = state.last_week + WEEK
+    end = last_week + timedelta(days=6)
+    length = (end - start).days + 1
+
+    # The span before it, of the same length, so a week can say which way it
+    # went rather than only where it landed.
+    previous_start = start - timedelta(days=length)
+    previous_end = start - timedelta(days=1)
+
+    entries = entries_between(wallet, previous_start, end)
+
+    # Where each measurement stood going into the span: the last reading before
+    # it, which is the one the ordering leaves behind in the dict.
+    carried = dict(
+        Entry.objects.filter(habit__wallet=wallet, habit__kind=Habit.MEASURE, date__lt=start).order_by("date").values_list("habit_id", "value"),
+    )
+
+    span = {habit.id: habit_span(habit, entries.get(habit.id, {}), start, end, carried.get(habit.id)) for habit in habits}
+
+    # Nothing logged in the whole span is not a week worth a dialog. It is a
+    # week the tracker was not used, and saying so helps nobody.
+    if not any(part["logged"] for part in span.values()):
+        catch_up()
+
+        return None
+
+    previous = {habit.id: habit_span(habit, entries.get(habit.id, {}), previous_start, previous_end, None) for habit in habits}
+    goals = [habit for habit in habits if habit.kind == Habit.GOAL and not habit.archived]
+
+    # What is still true of a span that was mostly not used. Everything counted
+    # inside such a span is a zero, and a zero is the one thing a return does
+    # not need pointing out, so the welcome back is built from these instead:
+    # the day each habit was last kept, and how many days were kept in total.
+    last_logged = dict(Entry.objects.filter(habit__wallet=wallet).values_list("habit_id").annotate(last=Max("date")))
+    tracked_days = Entry.objects.filter(habit__wallet=wallet).values("date").distinct().count()
+
+    return {
+        "kind": "welcome_back" if weeks >= AWAY_WEEKS else "recap",
+        "start": start.isoformat(),
+        "end": end.isoformat(),
+        "days": length,
+        "weeks": weeks,
+        # The last day anything was logged, and the days that were logged over
+        # all time. Both reach back past the span, which is the point of them.
+        "lastActive": max(last_logged.values()).isoformat() if last_logged else None,
+        "trackedDays": tracked_days,
+        "habits": [
+            habit.json()
+            | span[habit.id]
+            | {
+                "streak": streaks.get(habit.id, NO_STREAK),
+                "previousDone": previous[habit.id]["done"],
+                "lastLogged": last_logged[habit.id].isoformat() if habit.id in last_logged else None,
+            }
+            for habit in habits
+            # An archived habit is one the owner has stopped tracking. It stays
+            # in the recap only for as long as it was still being logged.
+            if not habit.archived or span[habit.id]["logged"]
+        ],
+        "totals": totals_of(goals, entries, start, end),
+        "previousTotals": totals_of(goals, entries, previous_start, previous_end),
+    }
+
+
 @wallet_required
 def index(request, year=None):
     wallet = get_wallet(request)
-    first, last = year_bounds()
-    selected_year = clamp_year(int(year) if year else timezone.now().date().year)
+    today = timezone.now().date()
+    first, _ = year_bounds()
+    years = navigable_years(wallet, today)
+    selected_year = nearest_year(years, clamp_year(int(year) if year else today.year))
     streaks = streaks_for(wallet)
 
     page_props = {
         "year": selected_year,
+        # The years the arrows offer, and how far back the day editor reaches.
+        # They are not the same: browsing follows the entries, while logging may
+        # go back to the beginning to create the first of them.
+        "years": years,
         "firstYear": first,
-        "lastYear": last,
-        "today": timezone.now().date().isoformat(),
+        "today": today.isoformat(),
         "colors": list(COLORS),
         "habits": [with_streak(habit, streaks) for habit in Habit.objects.filter(wallet=wallet)],
         "entries": entries_for(wallet, selected_year),
+        # Opened by the page itself, once, on the first visit after a week has
+        # ended. Null on every other visit.
+        "recap": recap_for(wallet, today, streaks),
     }
 
     return render(request, "HabitTrackerPage", props=default_props(page_props, request))
@@ -418,3 +672,21 @@ def log(request, habit_id):
             "streak": streaks_for(habit.wallet, habit).get(habit.id, NO_STREAK),
         },
     )
+
+
+@wallet_api_required
+@require_http_methods(["POST"])
+def recap_seen(request):
+    """
+    Marks the look back as done, up to and including the week that just ended.
+
+    Called when the dialog opens rather than when it is closed: a recap that is
+    on the screen has been seen, and a tab closed on it must not bring it back
+    a second time, nor count as a week away.
+    """
+    wallet = get_wallet(request)
+    last_week = monday_of(timezone.now().date()) - WEEK
+
+    Recap.objects.update_or_create(wallet=wallet, defaults={"last_week": last_week})
+
+    return JsonResponse({"lastWeek": last_week.isoformat()})

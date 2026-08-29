@@ -1,27 +1,39 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useToast } from "@composables/toast";
 import { api, carriedValue } from "@composables/habits";
+import { useRefreshOnReturn } from "@composables/refresh";
 import HabitsBoard from "@components/HabitsBoard.vue";
 import HabitsQuickRow from "@components/HabitsQuickRow.vue";
 import HabitsDayModal from "@components/HabitsDayModal.vue";
 import HabitsHabitModal from "@components/HabitsHabitModal.vue";
-import type { Habit, HabitEntries } from "@/types/Habit.ts";
+import HabitsRecapModal from "@components/HabitsRecapModal.vue";
+import type { Habit, HabitEntries, HabitRecap } from "@/types/Habit.ts";
 
 interface HabitTrackerPageProps {
   year: number;
+  /**
+   * The years the arrows walk through, oldest first: the ones that hold
+   * entries, plus the current one. An empty year is not worth paging to, and
+   * the day editor is what reaches further back than this.
+   */
+  years: number[];
   firstYear: number;
-  lastYear: number;
   /** Today as "YYYY-MM-DD", from the server, so the grid agrees with it. */
   today: string;
   colors: string[];
   habits: Habit[];
   entries: HabitEntries;
+  /**
+   * The week that has ended since the last visit, or the span of a longer
+   * absence. Null whenever there is nothing owed, which is most visits.
+   */
+  recap: HabitRecap | null;
 }
 
-const { year, firstYear, lastYear, today, colors, habits, entries } =
+const { year, years, firstYear, today, colors, habits, entries, recap } =
   defineProps<HabitTrackerPageProps>();
 
 const i18n = useI18n();
@@ -43,8 +55,77 @@ const dayHabit = ref<Habit | null>(null);
 const dayDate = ref<string | null>(null);
 const showDayModal = ref(false);
 
+/**
+ * The look back currently on screen. A copy, not the prop: the prop is null
+ * again the moment the server is told the recap has been seen, and the dialog
+ * would empty out from under the reader.
+ */
+const shownRecap = ref<HabitRecap | null>(null);
+const showRecap = ref(false);
+
+/**
+ * Opens the look back the server says is owed, and tells it straight away that
+ * it has been seen: a recap on the screen has been read, and a tab closed on it
+ * must not bring the same week back, nor count as a week away.
+ *
+ * Run again after every refresh, not only on mount, because a tab left open
+ * over a Sunday is exactly where the next week's recap falls due. The span it
+ * ends on is what keeps it from opening twice for the same week.
+ */
+const takeRecap = () => {
+  if (!recap || shownRecap.value?.end === recap.end) return;
+
+  shownRecap.value = recap;
+  showRecap.value = true;
+
+  // A failed mark costs nothing worth a toast: at worst the same recap opens
+  // once more on the next visit.
+  api.recapSeen().catch(() => {});
+};
+
+onMounted(takeRecap);
+
+/**
+ * A tab left open past midnight is drawing yesterday's grid: `today` comes from
+ * the server, and so does every streak counted against it. Coming back to the
+ * tab asks again.
+ *
+ * The page keeps its own copies of the habits and the entries, because both are
+ * written to optimistically while logging, and `reload` leaves the component
+ * mounted. So the copies are taken again here, or the fresh props would sit
+ * behind stale local state.
+ */
+useRefreshOnReturn({
+  paused: () => showDayModal.value || showHabitModal.value || showRecap.value,
+  onRefreshed: () => {
+    habitList.value = [...habits];
+
+    Object.keys(entryMap).forEach((key) => delete entryMap[key]);
+    Object.assign(entryMap, entries);
+
+    selectedYear.value = year;
+
+    takeRecap();
+  },
+});
+
 const activeHabits = computed(() =>
   habitList.value.filter((habit) => !habit.archived),
+);
+
+/** Where the year on screen sits in the years there are to walk through. */
+const yearIndex = computed(() => years.indexOf(selectedYear.value));
+
+/**
+ * Whether the grid is showing the year that is being lived.
+ *
+ * The quick rows log today, and today is only on the screen in this year. In a
+ * past one they would be a row of buttons that quietly write somewhere else,
+ * so they are not offered at all; the grid and the day editor are how a past
+ * year is corrected.
+ */
+const showingThisYear = computed(
+  () => selectedYear.value === Number(today.slice(0, 4)),
 );
 
 const valuesOf = (habit: Habit) => entryMap[String(habit.id)] ?? {};
@@ -134,7 +215,7 @@ const onHabitDeleted = (id: number) => {
 };
 
 const selectYear = (next: number) => {
-  if (next < firstYear || next > lastYear || loadingYear.value) return;
+  if (!years.includes(next) || loadingYear.value) return;
 
   loadingYear.value = true;
 
@@ -154,6 +235,13 @@ const selectYear = (next: number) => {
     .finally(() => {
       loadingYear.value = false;
     });
+};
+
+/** One year along the list, which is not always one year along the calendar. */
+const stepYear = (direction: number) => {
+  const next = years[yearIndex.value + direction];
+
+  if (next !== undefined) selectYear(next);
 };
 
 /**
@@ -187,9 +275,9 @@ const arrange = (arranged: Habit[]) => {
         <UiButton
           variant="secondary"
           square
-          :disabled="selectedYear <= firstYear || loadingYear"
+          :disabled="yearIndex <= 0 || loadingYear"
           :title="$t('habits.previous_year')"
-          @click="selectYear(selectedYear - 1)"
+          @click="stepYear(-1)"
         >
           <iconify-icon icon="fa6-solid:chevron-left" />
         </UiButton>
@@ -201,9 +289,9 @@ const arrange = (arranged: Habit[]) => {
         <UiButton
           variant="secondary"
           square
-          :disabled="selectedYear >= lastYear || loadingYear"
+          :disabled="yearIndex >= years.length - 1 || loadingYear"
           :title="$t('habits.next_year')"
-          @click="selectYear(selectedYear + 1)"
+          @click="stepYear(1)"
         >
           <iconify-icon icon="fa6-solid:chevron-right" />
         </UiButton>
@@ -228,9 +316,10 @@ const arrange = (arranged: Habit[]) => {
       </div>
     </UiCard>
 
-    <!-- Everything for today in one place, so logging never needs the grid. -->
+    <!-- Everything for today in one place, so logging never needs the grid.
+         Gone while a past year is on screen: today is not in it. -->
     <UiCard
-      v-if="activeHabits.length > 0"
+      v-if="activeHabits.length > 0 && showingThisYear"
       no-body
       header-class="flex items-center justify-between gap-2 relative"
     >
@@ -284,6 +373,8 @@ const arrange = (arranged: Habit[]) => {
       @arrange="arrange"
     />
   </div>
+
+  <HabitsRecapModal v-model="showRecap" :recap="shownRecap" />
 
   <HabitsHabitModal
     v-model="showHabitModal"

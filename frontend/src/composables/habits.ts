@@ -278,6 +278,14 @@ export const api = {
       .post<{ habits: Habit[] }>("/momentum/api/layout/", { habits })
       .then((response) => response.data.habits),
 
+  /**
+   * Marks the weekly look back as seen, up to the week that just ended.
+   *
+   * Sent when the dialog opens, not when it is closed: a recap that is on the
+   * screen has been seen, and a tab closed on it must not bring it back.
+   */
+  recapSeen: () => axios.post("/momentum/api/recap/seen/"),
+
   log: (id: number, date: string, value: number) =>
     axios
       .post<{

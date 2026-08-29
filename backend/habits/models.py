@@ -123,3 +123,24 @@ class Entry(models.Model):
 
     def __str__(self):
         return f"{self.habit.name}: {self.value} on {self.date}"
+
+
+class Recap(models.Model):
+    """
+    How far a wallet's look back at its own week has got.
+
+    `last_week` is the Monday of the most recent week the owner has been shown.
+    A week that has ended and is still ahead of this is one they have not seen,
+    which is what makes the recap open by itself exactly once per week, and what
+    turns a long absence into a single span rather than a queue of dialogs.
+    """
+
+    wallet = models.OneToOneField("games.Wallet", on_delete=models.CASCADE, related_name="habit_recap")
+    last_week = models.DateField()
+
+    class Meta:
+        verbose_name = " Recap"
+        verbose_name_plural = " Recaps"
+
+    def __str__(self):
+        return f"{self.wallet_id} through {self.last_week}"

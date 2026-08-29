@@ -47,6 +47,16 @@ const gameSession = ref<GameSession>({
 const newGameSession = ref<GameSession | undefined>(undefined);
 
 const waitingForResponse = ref(false);
+
+/**
+ * Which action is out, so the sweep marks the button that was actually pressed
+ * rather than every button the request happens to lock. Only ever set, never
+ * cleared: `waitingForResponse` is what says whether it still means anything.
+ */
+const pendingAction = ref<string | null>(null);
+
+const isPending = (action: string) =>
+  waitingForResponse.value && pendingAction.value === action;
 const areRulesOpen = ref(false);
 
 const cardLoaded = () => {
@@ -73,6 +83,7 @@ const showToast = (message: string, variant: "success" | "danger") => {
 
 const start = async () => {
   waitingForResponse.value = true;
+  pendingAction.value = "start";
 
   axios
     .post(`/games/api/higher-lower/start/`, {
@@ -105,6 +116,7 @@ type turnType = "higher" | "draw" | "lower" | "leave";
 
 const processTurn = (type: turnType, gameState: GameState) => {
   waitingForResponse.value = true;
+  pendingAction.value = type;
 
   axios
     .post(`/games/api/higher-lower/${type}/`, {
@@ -290,6 +302,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="primary"
               @click.prevent="start"
+              :loading="isPending('start')"
               v-else
               :disabled="
                 !validateBet ||
@@ -318,6 +331,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="success"
               @click.prevent="processTurn('higher', 'still_playing')"
+              :loading="isPending('higher')"
               :disabled="
                 (gameSession.state !== 'first_round' &&
                   gameSession.state !== 'still_playing') ||
@@ -329,6 +343,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="warning"
               @click.prevent="processTurn('draw', 'still_playing')"
+              :loading="isPending('draw')"
               :disabled="
                 (gameSession.state !== 'first_round' &&
                   gameSession.state !== 'still_playing') ||
@@ -340,6 +355,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="danger"
               @click.prevent="processTurn('lower', 'still_playing')"
+              :loading="isPending('lower')"
               :disabled="
                 (gameSession.state !== 'first_round' &&
                   gameSession.state !== 'still_playing') ||
@@ -351,6 +367,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="primary"
               @click.prevent="processTurn('leave', 'won')"
+              :loading="isPending('leave')"
               :disabled="
                 gameSession.state !== 'still_playing' || waitingForResponse
               "

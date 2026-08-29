@@ -44,3 +44,65 @@ export interface HabitDay {
   /** Still to come. Shown, but not tracked: only the past can be logged. */
   future: boolean;
 }
+
+/**
+ * One habit's share of a recap: the habit itself, plus what it did over the
+ * span being looked back on.
+ *
+ * A field the habit's kind has no answer for is null rather than zero, so
+ * "nothing to say" reads differently from "nothing happened": a measurement
+ * has no goal-days, and a daily goal has no reading.
+ */
+export interface HabitRecapEntry extends Habit {
+  /** Days of the span that got an entry. */
+  logged: number;
+  /** Those days' values, "YYYY-MM-DD" -> value. Only the logged ones. */
+  values: Record<string, number>;
+  /**
+   * The last day this habit was logged at all, over all time. Reaches back
+   * past the span on purpose: after a long absence everything inside the span
+   * is a zero, and this is what is still worth saying.
+   */
+  lastLogged: string | null;
+  /** Goal only: days the goal was met, and how many it was the span before. */
+  done: number | null;
+  previousDone: number | null;
+  /** Goal only: what the span's days add up to. */
+  total: number | null;
+  /** Measure only: where it stands, how far it moved, and whether that closed
+   *  the gap to the target. */
+  latest: number | null;
+  delta: number | null;
+  closed: number | null;
+}
+
+/** A span as a whole, counted over the goal habits that are still tracked. */
+export interface HabitRecapTotals {
+  /** Goal-days met, out of the ones the span had on offer. */
+  done: number;
+  possible: number;
+  /** Days anything at all was logged, and days every goal came in. */
+  activeDays: number;
+  perfectDays: number;
+}
+
+/**
+ * The look back the page opens by itself, once, after a week has ended.
+ *
+ * `recap` is the ordinary one week. `welcome_back` is the same figures over a
+ * longer absence, worded as a return rather than as a report.
+ */
+export interface HabitRecap {
+  kind: "recap" | "welcome_back";
+  /** The span, inclusive, as "YYYY-MM-DD". */
+  start: string;
+  end: string;
+  days: number;
+  weeks: number;
+  /** The last day anything was logged, and the days logged over all time. */
+  lastActive: string | null;
+  trackedDays: number;
+  habits: HabitRecapEntry[];
+  totals: HabitRecapTotals;
+  previousTotals: HabitRecapTotals;
+}

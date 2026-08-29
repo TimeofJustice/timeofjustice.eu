@@ -13,6 +13,12 @@ export interface UiButtonProps {
   circle?: boolean;
   active?: boolean;
   disabled?: boolean;
+  /**
+   * A request is in flight. Disables the button like `disabled` does, but says
+   * so differently: the sweep marks it as busy rather than as unavailable,
+   * which are two things a greyed-out button cannot tell apart on its own.
+   */
+  loading?: boolean;
   type?: "button" | "submit" | "reset";
   /** Renders the button as a link to the given target. */
   to?: string;
@@ -32,6 +38,7 @@ const {
   circle = false,
   active = false,
   disabled = false,
+  loading = false,
   unstyled = false,
   type = "button",
   to,
@@ -42,9 +49,13 @@ defineOptions({ inheritAttrs: false });
 const RESET =
   "cursor-pointer text-center align-middle no-underline select-none disabled:pointer-events-none disabled:opacity-65 aria-disabled:pointer-events-none aria-disabled:opacity-65";
 
+// Busy implies unavailable: there is nothing useful a second press could do
+// while the first one is still out.
+const isDisabled = () => disabled || loading;
+
 const { ui, rest } = useUi(() =>
   unstyled
-    ? RESET
+    ? [RESET, loading && "busy"]
     : [
         RESET,
         "inline-block rounded-md border border-transparent px-3 py-1.5 text-control leading-normal",
@@ -61,6 +72,8 @@ const { ui, rest } = useUi(() =>
           "flex size-9 shrink-0 items-center justify-center p-0",
         circle && "rounded-full",
         circle && size === "lg" && "size-[50px] text-2xl",
+
+        loading && "busy",
       ],
 );
 </script>
@@ -72,14 +85,22 @@ const { ui, rest } = useUi(() =>
     :external="external"
     :target="target"
     :offcanvas-source="offcanvasSource"
-    :aria-disabled="disabled || undefined"
+    :aria-disabled="isDisabled() || undefined"
+    :aria-busy="loading || undefined"
     :class="ui"
     v-bind="rest"
   >
     <slot />
   </BaseLink>
 
-  <button v-else :type="type" :disabled="disabled" :class="ui" v-bind="rest">
+  <button
+    v-else
+    :type="type"
+    :disabled="isDisabled()"
+    :aria-busy="loading || undefined"
+    :class="ui"
+    v-bind="rest"
+  >
     <slot />
   </button>
 </template>
