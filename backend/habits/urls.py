@@ -11,4 +11,5 @@ urlpatterns = [
     path("api/habit/<int:habit_id>/", views.update, name="update"),
     path("api/habit/<int:habit_id>/delete/", views.delete, name="delete"),
     path("api/habit/<int:habit_id>/log/", views.log, name="log"),
+    path("api/recap/seen/", views.recap_seen, name="recap_seen"),
 ]

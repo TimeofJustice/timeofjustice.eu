@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onBeforeUnmount, reactive, ref, watch } from "vue";
 import axios from "axios";
 import { useI18n } from "vue-i18n";
 import { useToast } from "@composables/toast";
@@ -14,6 +14,17 @@ const { wallet, settingsOpen, setName, setAvatar } = useWallet();
 const saving = ref(false);
 const walletPhrase = ref<string | null>(null);
 const revealReason = ref<string | null>(null);
+const phraseSaved = ref(false);
+
+/**
+ * The phrase is handed over once and never again, and saving the settings is
+ * what tells the server to stop revealing it. So while it is on screen and
+ * unconfirmed the dialog does not let go: no backdrop, no escape key, no close
+ * button and no saving, because every one of those ends with the phrase gone.
+ */
+const phrasePending = computed(
+  () => Boolean(walletPhrase.value) && !phraseSaved.value,
+);
 
 const showToast = (message: string, variant: "success" | "danger") => {
   create({ body: i18n.t(message), variant, position: "bottom-start" });
@@ -59,6 +70,7 @@ watch(
 
     form.name = wallet.name;
     form.avatarId = wallet.avatar?.id ?? null;
+    phraseSaved.value = false;
 
     loadRecoveryPhrase();
   },
@@ -69,8 +81,31 @@ watch(
 
 const validateName = computed(() => /^[a-zA-Z0-9]{3,32}$/.test(form.name));
 
+/**
+ * Closing the tab or reloading takes the phrase with it, and the browser is the
+ * only thing that can ask about that. The wording is the browser's own; setting
+ * `returnValue` is what still arms the prompt in the engines that want it.
+ */
+const warnOnLeave = (event: BeforeUnloadEvent) => {
+  event.preventDefault();
+  event.returnValue = "";
+};
+
+watch(
+  phrasePending,
+  (pending) => {
+    if (pending) window.addEventListener("beforeunload", warnOnLeave);
+    else window.removeEventListener("beforeunload", warnOnLeave);
+  },
+  { immediate: true },
+);
+
+// The dialog is mounted once by the layout and outlives every page, but a
+// listener on the window would outlive even that.
+onBeforeUnmount(() => window.removeEventListener("beforeunload", warnOnLeave));
+
 const save = () => {
-  if (!validateName.value || saving.value) return;
+  if (!validateName.value || saving.value || phrasePending.value) return;
 
   saving.value = true;
 
@@ -105,6 +140,7 @@ const save = () => {
     header-class="justify-between items-center"
     body-class="flex flex-col gap-4"
     size="lg"
+    :static="phrasePending"
     scrollable
     centered
   >
@@ -114,6 +150,10 @@ const save = () => {
       <UiButton
         variant="tertiary"
         class="text-light"
+        :disabled="phrasePending"
+        :title="
+          phrasePending ? $t('games.main.phrase_locked') : $t('general.close')
+        "
         @click="settingsOpen = false"
         square
       >
@@ -151,6 +191,15 @@ const save = () => {
       <small class="mt-2 block">
         {{ $t("games.main.wallet_phrase_hint") }}
       </small>
+
+      <label class="mt-3 flex cursor-pointer items-start gap-2">
+        <input
+          v-model="phraseSaved"
+          type="checkbox"
+          class="mt-0.5 size-4 shrink-0"
+        />
+        <span>{{ $t("games.main.phrase_confirm") }}</span>
+      </label>
     </UiAlert>
 
     <form @submit.prevent="save" class="flex w-full flex-col gap-4">
@@ -177,7 +226,9 @@ const save = () => {
         type="submit"
         variant="primary"
         class="w-full"
-        :disabled="!validateName || saving"
+        :disabled="!validateName || phrasePending"
+        :title="phrasePending ? $t('games.main.phrase_locked') : undefined"
+        :loading="saving"
       >
         {{ $t("general.save") }}
       </UiButton>

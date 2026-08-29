@@ -6,6 +6,26 @@ import type {
   HabitStreak,
 } from "@/types/Habit.ts";
 
+/**
+ * Whether a day's value counts as the goal reached.
+ *
+ * The one place the rule lives on this side, mirroring `Habit.met_by` on the
+ * other, so a zone cannot mean one thing to a square and another to a streak.
+ */
+export const isMet = (value: number, goal: number, goalMax: number | null) =>
+  value >= goal && (goalMax === null || value <= goalMax);
+
+/** Past the top of the zone: full, but missed, and not by being short. */
+export const isOver = (value: number, goalMax: number | null) =>
+  goalMax !== null && value > goalMax;
+
+/**
+ * The ring a day over the top of the zone is drawn with. A fixed colour rather
+ * than the habit's own: overshooting is the same news whatever is being
+ * tracked, and it has to read differently from the ring a rest day gets.
+ */
+export const OVER_RING = "inset 0 0 0 1.5px var(--color-warning)";
+
 /** How full a day's square is painted, 0 (nothing logged) to 5 (goal reached). */
 export const levelOf = (value: number, goal: number) => {
   if (value <= 0) return 0;
@@ -55,6 +75,12 @@ export const roundValue = (value: number) =>
 export const formatNumber = (value: number, locale: string) =>
   value.toLocaleString(locale, { maximumFractionDigits: 2 });
 
+/** The goal as it reads on screen: one number, or the two ends of the zone. */
+export const goalLabel = (habit: Habit, locale: string) =>
+  habit.goalMax === null
+    ? formatNumber(habit.goal, locale)
+    : `${formatNumber(habit.goal, locale)}–${formatNumber(habit.goalMax, locale)}`;
+
 /**
  * The year grid's geometry, in pixels. `HabitsYearGrid` builds itself from these
  * and `gridHeight()` computes from the same numbers, which is how a chart beside
@@ -96,6 +122,14 @@ export const gridHeight = (available: number) => {
   );
 };
 
+/** The weekday of an ISO date, Monday as 0. `getDay()` puts Sunday at 0. */
+export const weekdayOf = (date: string) =>
+  (new Date(`${date}T00:00:00`).getDay() + 6) % 7;
+
+/** Whether a day falls on one of the weekdays the goal is not asked on. */
+export const isRestDay = (date: string, restDays: number[]) =>
+  restDays.includes(weekdayOf(date));
+
 export const toIsoDate = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
@@ -104,9 +138,9 @@ export const toIsoDate = (date: Date) =>
  * with null days so every column holds seven cells.
  */
 export const yearWeeks = (
+  habit: Habit,
   year: number,
   values: Record<string, number>,
-  goal: number,
   today: string,
 ): HabitDay[][] => {
   const first = new Date(year, 0, 1);
@@ -122,7 +156,14 @@ export const yearWeeks = (
     const dayOfYear = cell - offset;
 
     if (dayOfYear < 0) {
-      week.push({ date: null, value: 0, level: 0, future: false });
+      week.push({
+        date: null,
+        value: 0,
+        level: 0,
+        rest: false,
+        over: false,
+        future: false,
+      });
     } else {
       const date = toIsoDate(new Date(year, 0, 1 + dayOfYear));
       const value = values[date] ?? 0;
@@ -131,7 +172,9 @@ export const yearWeeks = (
       week.push({
         date,
         value,
-        level: levelOf(value, goal),
+        level: levelOf(value, habit.goal),
+        rest: isRestDay(date, habit.restDays),
+        over: isOver(value, habit.goalMax),
         future: date > today,
       });
     }
@@ -144,7 +187,14 @@ export const yearWeeks = (
 
   // Trailing days of the final, incomplete week.
   while (week.length > 0 && week.length < 7) {
-    week.push({ date: null, value: 0, level: 0, future: false });
+    week.push({
+      date: null,
+      value: 0,
+      level: 0,
+      rest: false,
+      over: false,
+      future: false,
+    });
   }
 
   if (week.length > 0) weeks.push(week);
@@ -176,17 +226,29 @@ export const monthColumns = (weeks: HabitDay[][]) => {
 };
 
 /**
+ * The ring a day off is drawn with: the habit's own colour, on whatever the
+ * square already holds. A rest day is not an amount, so it cannot be a shade
+ * of the same scale as the others without reading as one.
+ */
+export const restRing = (color: string) =>
+  `inset 0 0 0 1.5px color-mix(in srgb, ${color} 65%, transparent)`;
+
+/**
  * Days the goal was met, and the total, for the year on screen. Streaks are
  * absent on purpose: they run past New Year, so only the server can count them.
  */
-export const habitStats = (values: Record<string, number>, goal: number) => {
+export const habitStats = (
+  values: Record<string, number>,
+  goal: number,
+  goalMax: number | null,
+) => {
   let done = 0;
   let total = 0;
 
   for (const value of Object.values(values)) {
     total += value;
 
-    if (value >= goal) done += 1;
+    if (isMet(value, goal, goalMax)) done += 1;
   }
 
   // Summed as floats, so the total needs pinning back to two decimals.
@@ -277,6 +339,14 @@ export const api = {
     axios
       .post<{ habits: Habit[] }>("/momentum/api/layout/", { habits })
       .then((response) => response.data.habits),
+
+  /**
+   * Marks the weekly look back as seen, up to the week that just ended.
+   *
+   * Sent when the dialog opens, not when it is closed: a recap that is on the
+   * screen has been seen, and a tab closed on it must not bring it back.
+   */
+  recapSeen: () => axios.post("/momentum/api/recap/seen/"),
 
   log: (id: number, date: string, value: number) =>
     axios

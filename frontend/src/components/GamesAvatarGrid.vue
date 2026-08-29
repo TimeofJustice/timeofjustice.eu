@@ -41,8 +41,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center py-4" v-if="loading">
-    <iconify-icon icon="fa6-solid:spinner" class="animate-spin text-2xl" />
+  <!-- The grid the avatars will land in, drawn empty: the modal is already at
+       its full height when they arrive, so nothing below the picker jumps. Ten
+       is two full rows at the widest column count, and close enough to the real
+       number that the reflow on arrival is small. -->
+  <div
+    class="grid grid-cols-4 gap-3 sm:grid-cols-5"
+    role="status"
+    :aria-label="$t('general.loading')"
+    aria-busy="true"
+    v-if="loading"
+  >
+    <UiSkeleton
+      variant="circle"
+      class="aspect-square size-auto w-full"
+      aria-hidden="true"
+      role="presentation"
+      v-for="index in 10"
+      :key="index"
+    />
   </div>
 
   <p class="m-0 text-center text-accent" v-else-if="avatars.length === 0">

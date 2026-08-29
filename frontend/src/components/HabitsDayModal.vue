@@ -3,7 +3,9 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formatNumber,
-  levelOf,
+  goalLabel,
+  isMet,
+  isOver,
   parseDecimal,
   roundValue,
 } from "@composables/habits";
@@ -20,6 +22,8 @@ interface HabitsDayModalProps {
    * around it. Only measurements have one; a missed daily goal is a zero.
    */
   suggestion?: number | null;
+  /** Whether this day falls on one of the habit's days off. Goals only. */
+  rest: boolean;
   /** The days that may be picked, so the past stays reachable and the future does not. */
   firstDate: string;
   lastDate: string;
@@ -30,6 +34,7 @@ const {
   date,
   value,
   suggestion = null,
+  rest,
   firstDate,
   lastDate,
 } = defineProps<HabitsDayModalProps>();
@@ -80,7 +85,17 @@ const percentage = computed(() =>
     : 0,
 );
 
-const reached = computed(() => !!habit && levelOf(value, habit.goal) === 5);
+const reached = computed(
+  () => !!habit && isMet(value, habit.goal, habit.goalMax),
+);
+
+/** Full, but past the top of the zone. */
+const over = computed(() => !!habit && isOver(value, habit.goalMax));
+
+/** One number, or the two ends of the zone. */
+const goalText = computed(() =>
+  habit ? goalLabel(habit, i18n.locale.value) : "",
+);
 
 const commit = (next: number) => {
   const clamped = Math.max(0, roundValue(next));
@@ -126,18 +141,23 @@ const bump = (direction: number) => {
 
     <div class="flex flex-col gap-3">
       <div class="text-center">
-        <span class="text-h3 leading-none" :class="reached && 'text-success'">
+        <span
+          class="text-h3 leading-none"
+          :class="over ? 'text-warning' : reached ? 'text-success' : undefined"
+        >
           {{ format(value) }}
         </span>
-        <span class="text-accent">
-          / {{ format(habit.goal) }} {{ habit.unit }}
-        </span>
+        <span class="text-accent"> / {{ goalText }} {{ habit.unit }} </span>
+
+        <p v-if="over" class="m-0 text-sm text-warning">
+          {{ $t("habits.over_limit") }}
+        </p>
       </div>
 
       <UiProgress>
         <UiProgressBar
           :value="percentage"
-          :variant="reached ? 'success' : undefined"
+          :variant="over ? 'warning' : reached ? 'success' : undefined"
         />
       </UiProgress>
 
@@ -190,6 +210,18 @@ const bump = (direction: number) => {
           <iconify-icon icon="fa6-solid:eraser" />
         </UiButton>
       </div>
+
+      <!-- A day the goal was never going to be asked for. Said here, not set
+           here: which weekdays are days off is a standing arrangement, and it
+           is changed where the rest of the habit is. Logging on one is still
+           allowed, and still counts. -->
+      <p
+        v-if="rest"
+        class="m-0 flex items-center justify-center gap-2 rounded-md border border-hairline p-2 text-sm text-accent"
+      >
+        <iconify-icon icon="fa6-solid:mug-hot" class="shrink-0" />
+        {{ $t("habits.day.rest_hint") }}
+      </p>
 
       <UiButton variant="secondary" @click="show = false">
         {{ $t("general.close") }}

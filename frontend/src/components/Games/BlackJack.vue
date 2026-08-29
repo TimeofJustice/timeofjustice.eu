@@ -52,6 +52,16 @@ const shownDealerCards = ref<string[]>(["back"]);
 const currentShownDealerCard = ref(0);
 
 const waitingForResponse = ref(false);
+
+/**
+ * Which action is out, so the sweep marks the button that was actually pressed
+ * rather than every button the request happens to lock. Only ever set, never
+ * cleared: `waitingForResponse` is what says whether it still means anything.
+ */
+const pendingAction = ref<string | null>(null);
+
+const isPending = (action: string) =>
+  waitingForResponse.value && pendingAction.value === action;
 const areRulesOpen = ref(false);
 
 const cardLoaded = (name: string) => {
@@ -87,6 +97,7 @@ const showToast = (message: string, variant: "success" | "danger") => {
 
 const start = async () => {
   waitingForResponse.value = true;
+  pendingAction.value = "start";
 
   axios
     .post(`/games/api/black-jack/start/`, {
@@ -145,6 +156,7 @@ type turnType = "hit" | "stand";
 
 const processTurn = (type: turnType) => {
   waitingForResponse.value = true;
+  pendingAction.value = type;
 
   axios
     .post(`/games/api/black-jack/${type}/`, {
@@ -374,6 +386,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="primary"
               @click.prevent="start"
+              :loading="isPending('start')"
               v-else
               :disabled="
                 !validateBet ||
@@ -465,6 +478,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="success"
               @click.prevent="processTurn('hit')"
+              :loading="isPending('hit')"
               :disabled="gameSession.state !== 'playing' || waitingForResponse"
             >
               <iconify-icon icon="fa7-solid:plus" />
@@ -473,6 +487,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="danger"
               @click.prevent="processTurn('stand')"
+              :loading="isPending('stand')"
               :disabled="gameSession.state !== 'playing' || waitingForResponse"
             >
               <iconify-icon icon="fa7-solid:hand" />

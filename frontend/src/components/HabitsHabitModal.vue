@@ -29,10 +29,15 @@ const form = reactive({
   name: "",
   unit: "",
   goal: "1",
+  goalMax: "",
   step: "1",
   color: colors[0],
+  restDays: [] as number[],
   archived: false,
 });
+
+/** Monday first, the way the grid reads a week. */
+const WEEK = [0, 1, 2, 3, 4, 5, 6];
 
 /** The largest number the backend will take. */
 const MAX_VALUE = 1_000_000_000;
@@ -52,8 +57,10 @@ watch(show, (open) => {
     name: habit?.name ?? "",
     unit: habit?.unit ?? "",
     goal: String(habit?.goal ?? 1),
+    goalMax: habit?.goalMax === null ? "" : String(habit?.goalMax ?? ""),
     step: String(habit?.step ?? 1),
     color: habit?.color ?? colors[0],
+    restDays: [...(habit?.restDays ?? [])],
     archived: habit?.archived ?? false,
   });
 });
@@ -66,6 +73,19 @@ const isMeasure = computed(() => form.kind === "measure");
 
 /** Both kinds ask for the same numbers; only the words around them change. */
 const KINDS: HabitKind[] = ["goal", "measure"];
+
+/**
+ * Turns one weekday on or off.
+ *
+ * The last remaining day cannot be given away: a goal that is never asked for
+ * on any day of the week is not a goal, and the backend refuses it too.
+ */
+const toggleRestDay = (day: number) => {
+  const at = form.restDays.indexOf(day);
+
+  if (at !== -1) form.restDays.splice(at, 1);
+  else if (form.restDays.length < WEEK.length - 1) form.restDays.push(day);
+};
 
 const isPositive = (input: string) => {
   const number = parseDecimal(input);
@@ -82,6 +102,21 @@ const stepState = computed(() =>
   form.step.length === 0 ? null : isPositive(form.step),
 );
 
+/**
+ * The top of the goal zone. Empty is the ordinary case and perfectly valid: it
+ * says more is always better. Given, it has to be a number the goal fits under.
+ */
+const hasMax = computed(() => form.goalMax.trim().length > 0);
+
+const maxState = computed(() => {
+  if (!hasMax.value) return null;
+
+  return (
+    isPositive(form.goalMax) &&
+    parseDecimal(form.goalMax) >= parseDecimal(form.goal)
+  );
+});
+
 /** What the number fields ask for, spelled out for the tooltip. */
 const numberError = computed(() =>
   i18n.t("habits.form.number_invalid", {
@@ -95,6 +130,7 @@ const isValid = computed(
     form.name.trim().length > 0 &&
     isPositive(form.goal) &&
     isPositive(form.step) &&
+    maxState.value !== false &&
     form.unit.length <= 16,
 );
 
@@ -116,6 +152,9 @@ const submit = () => {
     name: form.name.trim(),
     unit: form.unit.trim(),
     goal: parseDecimal(form.goal),
+    // Null, not an empty string: null is how the backend is told to take an
+    // upper bound off again.
+    goalMax: hasMax.value ? parseDecimal(form.goalMax) : null,
     step: parseDecimal(form.step),
   };
   const request = habit ? api.update(habit.id, payload) : api.create(payload);
@@ -253,6 +292,29 @@ const remove = () => {
         </UiFormGroup>
       </div>
 
+      <!-- A goal with a ceiling: 120 to 140 grams of protein, where 200 is
+           not a better day than 130. Left empty it is the ordinary goal, where
+           more is always better, which is most of them. A measurement has a
+           target to move towards rather than a bar to clear, so it has none. -->
+      <UiFormGroup
+        v-if="!isMeasure"
+        label-for="habit-goal-max"
+        :label="$t('habits.form.goal_max')"
+      >
+        <UiInput
+          id="habit-goal-max"
+          v-model="form.goalMax"
+          type="text"
+          inputmode="decimal"
+          :placeholder="$t('habits.form.goal_max_placeholder')"
+          :state="maxState"
+          :error="$t('habits.form.goal_max_invalid')"
+        />
+        <p class="mt-1 mb-0 text-sm text-accent">
+          {{ $t("habits.form.goal_max_hint") }}
+        </p>
+      </UiFormGroup>
+
       <UiFormGroup label-for="habit-step" :label="$t('habits.form.step')">
         <UiInput
           id="habit-step"
@@ -264,6 +326,29 @@ const remove = () => {
         />
         <p class="mt-1 mb-0 text-sm text-accent">
           {{ $t("habits.form.step_hint") }}
+        </p>
+      </UiFormGroup>
+
+      <!-- The days the goal is not asked on. A standing arrangement rather
+           than a date at a time: "no running on Sundays" is a rule, and one
+           kept as a rule needs no upkeep as the weeks go by. A measurement is
+           not owed on any given day to begin with, so it has none. -->
+      <UiFormGroup v-if="!isMeasure" :label="$t('habits.form.rest_days')">
+        <div class="flex flex-wrap gap-1">
+          <UiButton
+            v-for="day in WEEK"
+            :key="day"
+            variant="secondary"
+            size="sm"
+            :active="form.restDays.includes(day)"
+            class="w-11"
+            @click="toggleRestDay(day)"
+          >
+            {{ $t(`habits.weekdays.${day}`) }}
+          </UiButton>
+        </div>
+        <p class="mt-1 mb-0 text-sm text-accent">
+          {{ $t("habits.form.rest_days_hint") }}
         </p>
       </UiFormGroup>
 

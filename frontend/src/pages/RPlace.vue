@@ -196,6 +196,9 @@ const rectWidth = activeCanvas.width;
 const rectHeight = activeCanvas.height;
 const cellSize = 10;
 
+/** How much of the board stays on screen however far it is dragged, in pixels. */
+const REACHABLE_MARGIN = 80;
+
 const numberOfChunks = 5;
 const chunkWidth = rectWidth / numberOfChunks;
 const chunkHeight = rectHeight / numberOfChunks;
@@ -311,14 +314,7 @@ const view = {
 
       if (!imagePath) {
         this.drawChunk(cells);
-
-        if (activeCanvas.active) {
-          placeState.value.state = "started";
-        } else {
-          placeState.value.state = "viewing";
-        }
-
-        this.refresh();
+        this.ready();
 
         return;
       }
@@ -334,17 +330,22 @@ const view = {
         }
 
         this.drawChunk(cells);
-
-        if (activeCanvas.active) {
-          placeState.value.state = "started";
-        } else {
-          placeState.value.state = "viewing";
-        }
-
-        this.refresh();
+        this.ready();
       };
       img.src = imagePath;
     });
+  },
+  /**
+   * Every chunk now holds its pixels, so the canvas can be handed over. The
+   * reveal is armed before the first draw, not after it: arming builds an empty
+   * mask, and a `refresh` in between would put the finished canvas on screen
+   * for one frame before the wave started wiping it back off.
+   */
+  ready() {
+    placeState.value.state = activeCanvas.active ? "started" : "viewing";
+
+    reveal.start();
+    this.refresh();
   },
   drawChunk(cells: { x: number; y: number; color: string }[]) {
     cells.forEach((cell) => {
@@ -424,11 +425,41 @@ const view = {
     }
     this.width = this.canvas.width;
     this.height = this.canvas.height;
+
+    // After the new size is known: a window shrunk far enough could otherwise
+    // leave the board outside a viewport it used to fit in.
+    this.clampPosition();
     this.refresh();
+  },
+  /**
+   * Keeps the board reachable. Panning and zooming both move `position` by
+   * whatever they are handed, and a pinch about a far-off centre can move it a
+   * long way in one step, so this is the floor under all of it: however hard
+   * the board is thrown, this much of it stays on screen to drag back.
+   */
+  clampPosition() {
+    const boardWidth = rectWidth * cellSize * this.scale;
+    const boardHeight = rectHeight * cellSize * this.scale;
+
+    // Never more than the board itself, or a board smaller than the margin
+    // could not be moved at all.
+    const marginX = Math.min(REACHABLE_MARGIN, boardWidth);
+    const marginY = Math.min(REACHABLE_MARGIN, boardHeight);
+
+    this.position.x = Math.min(
+      this.width - marginX,
+      Math.max(marginX - boardWidth, this.position.x),
+    );
+    this.position.y = Math.min(
+      this.height - marginY,
+      Math.max(marginY - boardHeight, this.position.y),
+    );
   },
   pan(amount: { x: number; y: number }) {
     this.position.x += amount.x;
     this.position.y += amount.y;
+
+    this.clampPosition();
   },
   scaleAt(at: { x: number; y: number }, amount: number) {
     const oldScale = this.scale;
@@ -436,6 +467,8 @@ const view = {
     this.scale = Math.max(0.1, Math.min(this.scale, 10));
     this.position.x = at.x - (at.x - this.position.x) * (this.scale / oldScale);
     this.position.y = at.y - (at.y - this.position.y) * (this.scale / oldScale);
+
+    this.clampPosition();
   },
   refresh() {
     if (!this.canvas || !this.cursor) {
@@ -491,7 +524,11 @@ const view = {
       );
     }
 
-    if (view.scale > 2) {
+    if (reveal.mask) reveal.apply(ctx);
+
+    // The chrome sits on top of a finished board, so while the wave is still
+    // running there is nothing for it to sit on.
+    if (view.scale > 2 && !reveal.mask) {
       const alpha = Math.min(1, (view.scale - 2) / 2);
       ctx.save();
       ctx.globalAlpha = alpha;
@@ -512,13 +549,15 @@ const view = {
       ctx.restore();
     }
 
-    ctx.drawImage(
-      this.cursor,
-      this.cursorPosition.x * cellSize - 0.1,
-      this.cursorPosition.y * cellSize - 0.1,
-      cellSize + 0.2,
-      cellSize + 0.2,
-    );
+    if (!reveal.mask) {
+      ctx.drawImage(
+        this.cursor,
+        this.cursorPosition.x * cellSize - 0.1,
+        this.cursorPosition.y * cellSize - 0.1,
+        cellSize + 0.2,
+        cellSize + 0.2,
+      );
+    }
 
     if (placedBy.value) this.trackPlacedBy();
   },
@@ -627,6 +666,238 @@ const view = {
       placeState.value.color.custom = color;
     }
     placeState.value.color.active = color;
+  },
+};
+
+/**
+ * The entry animation.
+ *
+ * A million cells is far too many to animate one at a time, and at the zoom the
+ * canvas opens on a cell is barely a screen pixel anyway, so the wave works in
+ * blocks: `REVEAL_BLOCK` cells square, which lands at roughly ten screen pixels
+ * on arrival and reads as paint going on in dabs.
+ *
+ * Nothing about the canvas itself changes. The chunks are drawn in full, every
+ * time, and the mask decides how much of that drawing survives, so a pan or a
+ * pixel arriving over the socket mid-wave paints correctly and is simply
+ * revealed along with everything else.
+ */
+const REVEAL_DURATION = 1600;
+/** Cells per side of one dab of paint. */
+const REVEAL_BLOCK = 10;
+/**
+ * How far a block's turn may drift from the front, as a share of the run. Wide
+ * enough that the edge is made of dabs rather than ruled, narrow enough that
+ * they still read as one wave and not as a dissolve.
+ */
+const REVEAL_JITTER = 0.09;
+/** Half-width of the wet sheen at the front. Covers the frayed zone above, so
+    the scatter and the highlight arrive as the same event. */
+const REVEAL_EDGE = 0.1;
+/**
+ * How long one dab takes to soak in, as a share of the run. Without it a block
+ * is either there or not, and ten thousand of them switching over reads as a
+ * flicker no matter how well the wave itself is paced.
+ */
+const REVEAL_FADE = 0.08;
+/** Peak opacity of the wet sheen, where it sits right on the front. */
+const REVEAL_SHEEN = 0.55;
+/**
+ * How much of the run the sheen spends drying off at the end. The front cannot
+ * travel past the far corner, so without this the highlight stands there at
+ * full strength on the last frame and is simply gone on the next one.
+ */
+const REVEAL_DRY = 0.22;
+
+const reveal = {
+  /** Block-resolution alpha mask: opaque where paint has landed. */
+  mask: null as HTMLCanvasElement | null,
+  ctx: null as CanvasRenderingContext2D | null,
+  /** Block indices, in the order the wave reaches them. */
+  order: [] as number[],
+  times: new Float32Array(0),
+  /** Blocks up to here have finished soaking in and are left alone. */
+  settled: 0,
+  /** Blocks up to here have started. Between the two, paint is still going on. */
+  reached: 0,
+  columns: 0,
+  rows: 0,
+  progress: 0,
+  frame: 0,
+
+  start() {
+    // The wave is the whole point of it; there is no reduced version worth
+    // showing, so the canvas simply arrives finished.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    this.columns = Math.ceil(rectWidth / REVEAL_BLOCK);
+    this.rows = Math.ceil(rectHeight / REVEAL_BLOCK);
+
+    const count = this.columns * this.rows;
+    const span = Math.max(1, this.columns + this.rows - 2);
+    const times = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      const column = i % this.columns;
+      const row = (i - column) / this.columns;
+
+      // Corner to corner, with each block's turn nudged off the front so the
+      // wave arrives as bristles rather than as a ruler drawn across the grid.
+      //
+      // Packed into the run less one fade: a block still needs its fade after
+      // its turn comes up, and the last one has to be dry when the clock stops.
+      times[i] =
+        (((column + row) / span) * (1 - REVEAL_JITTER) +
+          Math.random() * REVEAL_JITTER) *
+        (1 - REVEAL_FADE);
+    }
+
+    this.times = times;
+    this.order = Array.from({ length: count }, (_, i) => i).sort(
+      (a, b) => times[a] - times[b],
+    );
+    this.settled = 0;
+    this.reached = 0;
+    this.progress = 0;
+
+    const mask = document.createElement("canvas");
+    mask.width = this.columns;
+    mask.height = this.rows;
+
+    this.mask = mask;
+    this.ctx = mask.getContext("2d")!;
+    this.ctx.fillStyle = "white";
+
+    const startedAt = performance.now();
+
+    const step = (now: number) => {
+      // Clamped at both ends. `now` is the timestamp of the frame the callback
+      // runs in, which can predate the `performance.now()` taken in `start` by
+      // a fraction of a millisecond, and a negative progress puts the sheen's
+      // colour stops outside the range a gradient will accept.
+      const elapsed = Math.min(
+        Math.max(now - startedAt, 0) / REVEAL_DURATION,
+        1,
+      );
+
+      // Smoothstep: the wave leaves and arrives at rest, so there is no jolt
+      // at either end. An ease-out alone starts at full speed, and against a
+      // board that is still fading in from the loading overlay that start is
+      // the most visible part of the whole animation.
+      this.progress = elapsed * elapsed * (3 - 2 * elapsed);
+
+      // Dabs that have finished soaking in are painted once at full strength;
+      // the mask keeps them, so the bulk of the work happens once per block for
+      // the whole animation rather than once per block per frame.
+      while (
+        this.settled < this.order.length &&
+        times[this.order[this.settled]] + REVEAL_FADE <= this.progress
+      ) {
+        this.paint(this.order[this.settled++], 1);
+      }
+
+      while (
+        this.reached < this.order.length &&
+        times[this.order[this.reached]] <= this.progress
+      ) {
+        this.reached++;
+      }
+
+      // Only the band between the two is still wet, and only that band is
+      // redrawn: a few thousand cells a frame rather than the whole mask.
+      for (let i = this.settled; i < this.reached; i++) {
+        const block = this.order[i];
+
+        this.paint(block, (this.progress - times[block]) / REVEAL_FADE);
+      }
+
+      view.refresh();
+
+      if (elapsed < 1) {
+        this.frame = requestAnimationFrame(step);
+        return;
+      }
+
+      this.stop();
+      view.refresh();
+    };
+
+    this.frame = requestAnimationFrame(step);
+  },
+
+  /** Sets one block's opacity on the mask. */
+  paint(block: number, alpha: number) {
+    const ctx = this.ctx!;
+    const column = block % this.columns;
+    const row = (block - column) / this.columns;
+
+    // Cleared first: `alpha` is how opaque the dab should be now, not something
+    // to be layered over whatever the last frame left in that cell.
+    ctx.clearRect(column, row, 1, 1);
+    ctx.globalAlpha = alpha;
+    ctx.fillRect(column, row, 1, 1);
+  },
+
+  /** Applied by `refresh` once the grid is drawn and before the chrome is. */
+  apply(ctx: CanvasRenderingContext2D) {
+    const width = rectWidth * cellSize;
+    const height = rectHeight * cellSize;
+
+    // Cuts away everything the wave has not reached. The mask covers the grid
+    // and nothing else has been drawn yet, so this takes the white backing with
+    // it and the unpainted part of the board is genuinely empty.
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-in";
+    ctx.drawImage(this.mask!, 0, 0, width, height);
+    ctx.restore();
+
+    // Blocks are square in cells, so the front runs at 45 degrees whatever
+    // shape the board is, and the sheen can be a plain diagonal gradient. Its
+    // far end is placed where the last block sits, which is what keeps the
+    // highlight on the front instead of drifting ahead of or behind it.
+    const reach =
+      (REVEAL_BLOCK * cellSize * Math.max(1, this.columns + this.rows - 2)) / 2;
+
+    // Wet paint drying. The highlight thins out over the last stretch of the
+    // run, so by the time the wave stops there is nothing left to switch off.
+    const wet = Math.min(1, (1 - this.progress) / REVEAL_DRY);
+
+    if (wet <= 0) return;
+
+    const gradient = ctx.createLinearGradient(0, 0, reach, reach);
+
+    // Where the front actually is, in the gradient's own 0..1 space. Turns are
+    // packed into the run less one fade, and a dab reads as arriving halfway
+    // through soaking in, so neither offset can be skipped without the
+    // highlight drifting ahead of the paint it is supposed to be sitting on.
+    const front = Math.min(
+      1,
+      Math.max(0, (this.progress - REVEAL_FADE / 2) / (1 - REVEAL_FADE)),
+    );
+
+    gradient.addColorStop(Math.max(0, front - REVEAL_EDGE), "#fff0");
+    gradient.addColorStop(front, `rgb(255 255 255 / ${REVEAL_SHEEN * wet})`);
+    gradient.addColorStop(Math.min(1, front + REVEAL_EDGE), "#fff0");
+
+    ctx.save();
+    // Only where paint has already landed: this is wet paint catching the
+    // light, not a beam sweeping over an empty board.
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    ctx.restore();
+  },
+
+  stop() {
+    cancelAnimationFrame(this.frame);
+
+    this.frame = 0;
+    this.mask = null;
+    this.ctx = null;
+    this.order = [];
+    this.times = new Float32Array(0);
+    this.settled = 0;
+    this.reached = 0;
   },
 };
 
@@ -746,31 +1017,52 @@ function clickAfterHandler(e: MouseEvent) {
   view.click(e);
 }
 
+/**
+ * Panning with the mouse.
+ *
+ * Movement and release are watched on the window, not on the canvas, so a drag
+ * that wanders off the element keeps working. That is also where this used to
+ * go wrong: a release the window never sees - one that happens over the
+ * browser's own chrome, or after the browser started a drag of its own - left
+ * the drag open with `lastMouse` pointing at wherever the pointer was last
+ * seen. Whenever the pointer turned up again, the whole distance it had
+ * travelled unwatched was panned in a single step and the board went off
+ * screen.
+ */
 function mouseDownHandler(e: MouseEvent) {
+  // Keeps the browser from starting a selection drag of its own, which would
+  // swallow the release this pan is waiting for.
+  e.preventDefault();
+
   isDragging = true;
   lastMouse = { x: e.clientX, y: e.clientY };
   mouseDown.x = e.clientX;
   mouseDown.y = e.clientY;
+}
 
-  const onMouseMove = (e: MouseEvent) => {
-    if (isDragging) {
-      const dx = e.clientX - lastMouse.x;
-      const dy = e.clientY - lastMouse.y;
-      view.pan({ x: dx, y: dy });
-      lastMouse = { x: e.clientX, y: e.clientY };
-      view.refresh();
-    }
-    e.stopPropagation();
-  };
+function mouseMoveHandler(e: MouseEvent) {
+  if (!isDragging) return;
 
-  const onMouseUp = () => {
+  // Nothing is being held any more, so the release went missing. The drag ends
+  // here, rather than the pointer's unwatched travel being panned in one go.
+  if (e.buttons === 0) {
     isDragging = false;
-    window.removeEventListener("mousemove", onMouseMove);
-    window.removeEventListener("mouseup", onMouseUp);
-  };
+    return;
+  }
 
-  window.addEventListener("mousemove", onMouseMove);
-  window.addEventListener("mouseup", onMouseUp);
+  view.pan({
+    x: e.clientX - lastMouse.x,
+    y: e.clientY - lastMouse.y,
+  });
+
+  lastMouse = { x: e.clientX, y: e.clientY };
+  view.refresh();
+
+  e.stopPropagation();
+}
+
+function mouseUpHandler() {
+  isDragging = false;
 }
 
 function wheelHandler(e: WheelEvent) {
@@ -790,12 +1082,22 @@ function wheelHandler(e: WheelEvent) {
   view.refresh();
 }
 
+/** Whether a second finger has joined since the gesture began. */
+let pinched = false;
+
 function touchStartHandler(e: TouchEvent) {
   if (e.touches.length === 1) {
     isDragging = true;
+    pinched = false;
     lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     mouseDown.x = e.touches[0].clientX;
     mouseDown.y = e.touches[0].clientY;
+  } else {
+    // A second finger turns the gesture into a pinch, which zooms rather than
+    // pans. Panning picks up again in `touchEndHandler`, from whichever finger
+    // is left.
+    isDragging = false;
+    pinched = true;
   }
 }
 
@@ -838,13 +1140,24 @@ function touchMoveHandler(e: TouchEvent) {
 }
 
 function touchEndHandler(e: TouchEvent) {
-  isDragging = false;
+  if (e.touches.length === 1) {
+    // Down to one finger after a pinch. `lastMouse` still holds whatever the
+    // gesture started from, and the remaining finger is somewhere else
+    // entirely, so it is re-seeded here rather than that gap being panned in
+    // one step on the next move.
+    isDragging = true;
+    lastMouse = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  } else {
+    isDragging = false;
+  }
 
   if (e.touches.length < 2) {
     lastPinchDist = null;
   }
 
-  if (e.changedTouches.length === 1) {
+  // A pinch is not a tap, and `mouseDown` belongs to the finger the gesture
+  // opened with, which is not necessarily the one being lifted here.
+  if (e.changedTouches.length === 1 && !pinched && e.touches.length === 0) {
     const touch = e.changedTouches[0];
     if (
       Math.abs(mouseDown.x - touch.clientX) < 30 &&
@@ -864,6 +1177,8 @@ function touchEndHandler(e: TouchEvent) {
 
 function touchCancelHandler() {
   isDragging = false;
+  lastPinchDist = null;
+  pinched = false;
 }
 
 onMounted(() => {
@@ -890,6 +1205,11 @@ onMounted(() => {
   canvas.value.addEventListener("click", clickAfterHandler, false);
   canvas.value.addEventListener("mousedown", mouseDownHandler);
   canvas.value.addEventListener("wheel", wheelHandler);
+  // On the window so a drag can leave the canvas, and registered once rather
+  // than per press, which used to leak a pair of listeners whenever a release
+  // went missing.
+  window.addEventListener("mousemove", mouseMoveHandler);
+  window.addEventListener("mouseup", mouseUpHandler);
 
   // Mobile: Touch-controls
   canvas.value.addEventListener("touchstart", touchStartHandler, {
@@ -906,12 +1226,15 @@ onMounted(() => {
   });
 
   onBeforeUnmount(() => {
+    reveal.stop();
     clearTimeout(placedByTimer);
     window.removeEventListener("keydown", keydownHandler);
     canvas.value?.removeEventListener("click", clickBeforeHandler, true);
     canvas.value?.removeEventListener("click", clickAfterHandler, false);
     canvas.value?.removeEventListener("mousedown", mouseDownHandler);
     canvas.value?.removeEventListener("wheel", wheelHandler);
+    window.removeEventListener("mousemove", mouseMoveHandler);
+    window.removeEventListener("mouseup", mouseUpHandler);
     canvas.value?.removeEventListener("touchstart", touchStartHandler);
     canvas.value?.removeEventListener("touchmove", touchMoveHandler);
     canvas.value?.removeEventListener("touchend", touchEndHandler);

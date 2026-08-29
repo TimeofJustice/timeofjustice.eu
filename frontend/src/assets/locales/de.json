@@ -71,6 +71,8 @@
       "wallet_phrase": "Wallet-Phrase",
       "wallet_phrase_migrated": "Deine alte Wallet-ID wurde verbraucht und funktioniert nicht mehr. Ab jetzt meldest du dich mit dieser Wallet-Phrase an.",
       "wallet_phrase_hint": "Schreibe diese Wörter jetzt auf. Sie sind der einzige Weg zurück in deine Wallet und werden nur dieses eine Mal angezeigt.",
+      "phrase_confirm": "Ich habe meine Wallet-Phrase gesichert und weiß, dass sie der einzige Weg ist, mich erneut anzumelden.",
+      "phrase_locked": "Bestätige zuerst, dass du deine Wallet-Phrase gesichert hast",
       "copy_phrase": "Wallet-Phrase in die Zwischenablage kopiert",
       "copy_phrase_error": "Fehler beim Kopieren der Wallet-Phrase",
       "logout": "Abmelden",
@@ -263,6 +265,8 @@
     "previous_year": "Vorheriges Jahr",
     "next_year": "Nächstes Jahr",
     "archived": "Archiviert",
+    "rest_day": "Ruhetag",
+    "over_limit": "Über der Obergrenze",
     "drag": "Ziehen zum Umsortieren",
     "drop": {
       "own_row": "Eigene Reihe",
@@ -296,7 +300,8 @@
       "11": "Dez"
     },
     "grid": {
-      "day_title": "{date}: {value} von {goal} {unit}"
+      "day_title": "{date}: {value} von {goal} {unit}",
+      "day_rest": "{date}: Ruhetag"
     },
     "legend": {
       "less": "Weniger",
@@ -308,6 +313,7 @@
       "streak": "Längste Serie: {count} Tage",
       "record": "Längste Serie: {count} Tage, und die läuft gerade",
       "total": "{total} {unit} insgesamt",
+      "rest_days": "Ruhetage: {days}",
       "latest": "Zuletzt gemessen am {date}",
       "no_readings": "Noch nichts gemessen",
       "change": "Veränderung in {year}: {delta} {unit}",
@@ -321,11 +327,38 @@
       "closer": "{delta} {unit} in {year}, näher am Ziel",
       "further": "{delta} {unit} in {year}, weiter weg vom Ziel"
     },
+    "recap": {
+      "title": "Deine Woche",
+      "welcome_title": "Willkommen zurück",
+      "span": "{from} bis {to}",
+      "goal_days": "Tagesziele geschafft",
+      "of": "von {count}",
+      "away": "Wochen ohne Momentum",
+      "away_lead": "Schön, dass du wieder da bist. Hier ist, was seit dem {date} passiert ist.",
+      "trend": "{count} gegenüber der Woche davor",
+      "trend_same": "Genau wie in der Woche davor",
+      "lead_strong": "Starke Woche. Genau so sieht Dranbleiben aus.",
+      "lead_good": "Solide Woche.",
+      "lead_slow": "Ruhige Woche. Die nächste fängt gerade erst an.",
+      "lead_any": "Das war deine Woche.",
+      "last_active": "Zuletzt aktiv",
+      "tracked_days": "Erfasste Tage insgesamt",
+      "best_ever": "Beste Serie",
+      "last_logged": "zuletzt am {date}",
+      "never_logged": "noch nie erfasst",
+      "active_days": "Aktive Tage",
+      "perfect_days": "Perfekte Tage",
+      "best_streak": "Längste laufende Serie",
+      "habit_days": "{done} von {days} Tagen",
+      "close": "Weiter so",
+      "resume": "Los geht's"
+    },
     "day": {
       "add": "{step} hinzufügen",
       "subtract": "{step} abziehen",
       "exact_value": "Genauer Wert",
       "clear": "Tag leeren",
+      "rest_hint": "Ruhetag: an diesem Wochentag wird das Ziel nicht verlangt. Er unterbricht deine Serie nicht und zählt auch nicht dazu.",
       "pick": "Tag wählen"
     },
     "form": {
@@ -334,11 +367,17 @@
       "name": "Name",
       "name_placeholder": "Spazieren",
       "goal": "Tagesziel",
+      "goal_max": "Obergrenze (optional)",
+      "goal_max_placeholder": "Keine",
+      "goal_max_hint": "Wenn mehr nicht besser ist: der Tag zählt nur zwischen Tagesziel und Obergrenze.",
+      "goal_max_invalid": "Die Obergrenze muss eine Zahl sein, die nicht unter dem Tagesziel liegt.",
       "unit": "Einheit",
       "unit_placeholder": "Schritte",
       "step": "Schnell-Schritt",
       "step_hint": "Wie viel ein Tippen auf + hinzufügt.",
       "color": "Farbe",
+      "rest_days": "Ruhetage",
+      "rest_days_hint": "Wochentage, an denen das Ziel nicht verlangt wird. Sie unterbrechen keine Serie und zählen auch nicht dazu.",
       "archived": "Archiviert: nicht mehr in der Schnellerfassung",
       "delete": "Löschen",
       "delete_confirm": "Wirklich löschen?",
@@ -357,6 +396,8 @@
       "name_invalid": "Bitte gib der Gewohnheit einen Namen mit höchstens 40 Zeichen.",
       "unit_invalid": "Die Einheit ist zu lang.",
       "goal_invalid": "Das Tagesziel muss eine positive Zahl sein.",
+      "goal_max_invalid": "Die Obergrenze muss eine positive Zahl sein.",
+      "goal_max_below": "Die Obergrenze darf nicht unter dem Tagesziel liegen.",
       "step_invalid": "Der Schnell-Schritt muss eine positive Zahl sein.",
       "color_invalid": "Bitte wähle eine der angebotenen Farben.",
       "too_many": "Mehr Gewohnheiten gehen nicht.",
@@ -366,7 +407,8 @@
       "value_invalid": "Bitte gib einen Wert zwischen 0 und 1.000.000.000 ein.",
       "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut.",
       "kind_invalid": "Bitte wähle eine der beiden Arten.",
-      "invalid_layout": "Diese Anordnung ließ sich nicht speichern."
+      "invalid_layout": "Diese Anordnung ließ sich nicht speichern.",
+      "rest_days_invalid": "Bitte wähle die Ruhetage aus den Wochentagen, und lass mindestens einen Tag übrig."
     },
     "trend": {
       "target": "Ziel {value} {unit}",

@@ -1802,6 +1802,7 @@ const removeBet = () => {
           <UiButton
             variant="primary"
             @click.prevent="start"
+            :loading="waitingForResponse"
             :disabled="
               gameSession.state !== 'betting' ||
               waitingForResponse ||

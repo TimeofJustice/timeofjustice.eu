@@ -46,6 +46,16 @@ const gameSession = ref<GameSession>({
 const newGameSession = ref<GameSession | undefined>(undefined);
 
 const waitingForResponse = ref(false);
+
+/**
+ * Which action is out, so the sweep marks the button that was actually pressed
+ * rather than every button the request happens to lock. Only ever set, never
+ * cleared: `waitingForResponse` is what says whether it still means anything.
+ */
+const pendingAction = ref<string | null>(null);
+
+const isPending = (action: string) =>
+  waitingForResponse.value && pendingAction.value === action;
 const areRulesOpen = ref(false);
 
 const cardLoaded = (from_round: GameState) => {
@@ -74,6 +84,7 @@ const showToast = (message: string, variant: "success" | "danger") => {
 
 const start = async () => {
   waitingForResponse.value = true;
+  pendingAction.value = "start";
 
   axios
     .post(`/games/api/ride-the-bus/start/`, {
@@ -117,6 +128,7 @@ type turnType =
 
 const processTurn = (type: turnType, gameState: GameState) => {
   waitingForResponse.value = true;
+  pendingAction.value = type;
 
   axios
     .post(`/games/api/ride-the-bus/${type}/`, {
@@ -294,6 +306,7 @@ onBeforeUnmount(() => {
             <UiButton
               variant="primary"
               @click.prevent="start"
+              :loading="isPending('start')"
               v-else
               :disabled="
                 !validateBet ||
@@ -363,6 +376,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="danger"
                 @click.prevent="processTurn('red', 'second_round')"
+                :loading="isPending('red')"
                 :disabled="
                   gameSession.state !== 'first_round' || waitingForResponse
                 "
@@ -384,6 +398,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="primary"
                 @click.prevent="processTurn('black', 'second_round')"
+                :loading="isPending('black')"
                 :disabled="
                   gameSession.state !== 'first_round' || waitingForResponse
                 "
@@ -428,6 +443,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="success"
                 @click.prevent="processTurn('higher', 'third_round')"
+                :loading="isPending('higher')"
                 :disabled="
                   gameSession.state !== 'second_round' || waitingForResponse
                 "
@@ -440,6 +456,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="danger"
                 @click.prevent="processTurn('lower', 'third_round')"
+                :loading="isPending('lower')"
                 :disabled="
                   gameSession.state !== 'second_round' || waitingForResponse
                 "
@@ -452,6 +469,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="secondary"
                 @click.prevent="processTurn('leave', 'won')"
+                :loading="isPending('leave')"
                 :disabled="
                   gameSession.state !== 'second_round' || waitingForResponse
                 "
@@ -484,6 +502,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="primary"
                 @click.prevent="processTurn('inside', 'fourth_round')"
+                :loading="isPending('inside')"
                 :disabled="
                   gameSession.state !== 'third_round' || waitingForResponse
                 "
@@ -496,6 +515,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="danger"
                 @click.prevent="processTurn('outside', 'fourth_round')"
+                :loading="isPending('outside')"
                 :disabled="
                   gameSession.state !== 'third_round' || waitingForResponse
                 "
@@ -508,6 +528,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="secondary"
                 @click.prevent="processTurn('leave', 'won')"
+                :loading="isPending('leave')"
                 :disabled="
                   gameSession.state !== 'third_round' || waitingForResponse
                 "
@@ -540,6 +561,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="primary"
                 @click.prevent="processTurn('clubs', 'won')"
+                :loading="isPending('clubs')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
@@ -552,6 +574,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="danger"
                 @click.prevent="processTurn('diamonds', 'won')"
+                :loading="isPending('diamonds')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
@@ -564,6 +587,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="primary"
                 @click.prevent="processTurn('spades', 'won')"
+                :loading="isPending('spades')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
@@ -576,6 +600,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="danger"
                 @click.prevent="processTurn('hearts', 'won')"
+                :loading="isPending('hearts')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "
@@ -588,6 +613,7 @@ onBeforeUnmount(() => {
               <UiButton
                 variant="secondary"
                 @click.prevent="processTurn('leave', 'won')"
+                :loading="isPending('leave')"
                 :disabled="
                   gameSession.state !== 'fourth_round' || waitingForResponse
                 "

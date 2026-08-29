@@ -83,6 +83,8 @@
       "wallet_phrase": "Wallet phrase",
       "wallet_phrase_migrated": "Your old wallet ID has been used up and no longer works. From now on you sign in with this wallet phrase instead.",
       "wallet_phrase_hint": "Write these words down now. They are the only way back into your wallet, and they are shown only this once.",
+      "phrase_confirm": "I have saved my wallet phrase and understand that it is the only way to sign in again.",
+      "phrase_locked": "Confirm you have saved your wallet phrase first",
       "copy_phrase": "Wallet phrase copied to clipboard",
       "copy_phrase_error": "Error copying wallet phrase to clipboard",
       "logout": "Log out",
@@ -275,6 +277,8 @@
     "previous_year": "Previous year",
     "next_year": "Next year",
     "archived": "Archived",
+    "rest_day": "Rest day",
+    "over_limit": "Over the upper limit",
     "drag": "Drag to rearrange",
     "drop": {
       "own_row": "A row of its own",
@@ -308,7 +312,8 @@
       "11": "Dec"
     },
     "grid": {
-      "day_title": "{date}: {value} of {goal} {unit}"
+      "day_title": "{date}: {value} of {goal} {unit}",
+      "day_rest": "{date}: rest day"
     },
     "legend": {
       "less": "Less",
@@ -320,6 +325,7 @@
       "streak": "Longest streak: {count} days",
       "record": "Longest streak: {count} days, and it is the one running now",
       "total": "{total} {unit} in total",
+      "rest_days": "Rest days: {days}",
       "latest": "Last measured on {date}",
       "no_readings": "Nothing measured yet",
       "change": "Change over {year}: {delta} {unit}",
@@ -333,11 +339,38 @@
       "closer": "{delta} {unit} over {year}, closer to the target",
       "further": "{delta} {unit} over {year}, further from the target"
     },
+    "recap": {
+      "title": "Your week",
+      "welcome_title": "Welcome back",
+      "span": "{from} to {to}",
+      "goal_days": "daily goals met",
+      "of": "of {count}",
+      "away": "weeks away from Momentum",
+      "away_lead": "Good to see you again. Here is what happened since {date}.",
+      "trend": "{count} against the week before",
+      "trend_same": "Exactly like the week before",
+      "lead_strong": "Strong week. That is what keeping at it looks like.",
+      "lead_good": "Solid week.",
+      "lead_slow": "Quiet week. The next one has only just started.",
+      "lead_any": "That was your week.",
+      "last_active": "Last active",
+      "tracked_days": "Days tracked in total",
+      "best_ever": "Best streak ever",
+      "last_logged": "last on {date}",
+      "never_logged": "never logged",
+      "active_days": "Active days",
+      "perfect_days": "Perfect days",
+      "best_streak": "Longest running streak",
+      "habit_days": "{done} of {days} days",
+      "close": "Keep it up",
+      "resume": "Let's go"
+    },
     "day": {
       "add": "Add {step}",
       "subtract": "Subtract {step}",
       "exact_value": "Exact value",
       "clear": "Clear this day",
+      "rest_hint": "Rest day: the goal is not asked for on this weekday. It neither breaks your streak nor counts towards it.",
       "pick": "Pick a day"
     },
     "form": {
@@ -346,11 +379,17 @@
       "name": "Name",
       "name_placeholder": "Walk",
       "goal": "Daily goal",
+      "goal_max": "Upper limit (optional)",
+      "goal_max_placeholder": "None",
+      "goal_max_hint": "For when more is not better: the day only counts between the goal and this limit.",
+      "goal_max_invalid": "The upper limit has to be a number that is not below the daily goal.",
       "unit": "Unit",
       "unit_placeholder": "steps",
       "step": "Quick-add step",
       "step_hint": "How much one tap on + adds.",
       "color": "Colour",
+      "rest_days": "Rest days",
+      "rest_days_hint": "Weekdays the goal is not asked for. They neither break a streak nor count towards one.",
       "archived": "Archived: hidden from the quick-add list",
       "delete": "Delete",
       "delete_confirm": "Really delete?",
@@ -369,6 +408,8 @@
       "name_invalid": "Please give the habit a name of at most 40 characters.",
       "unit_invalid": "The unit is too long.",
       "goal_invalid": "The daily goal has to be a positive number.",
+      "goal_max_invalid": "The upper limit has to be a positive number.",
+      "goal_max_below": "The upper limit cannot be below the daily goal.",
       "step_invalid": "The quick-add step has to be a positive number.",
       "color_invalid": "Please pick one of the offered colours.",
       "too_many": "That is the maximum number of habits.",
@@ -378,7 +419,8 @@
       "value_invalid": "Please enter a value between 0 and 1,000,000,000.",
       "unknown": "Something went wrong. Please try again.",
       "kind_invalid": "Please pick one of the two kinds.",
-      "invalid_layout": "That arrangement could not be saved."
+      "invalid_layout": "That arrangement could not be saved.",
+      "rest_days_invalid": "Please pick the rest days from the weekdays, and leave at least one day standing."
     },
     "trend": {
       "target": "Target {value} {unit}",
