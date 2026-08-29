@@ -3,10 +3,13 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formatNumber,
+  goalLabel,
   GRID,
   LEVEL_MIX,
   levelColor,
   monthColumns,
+  OVER_RING,
+  restRing,
   yearWeeks,
 } from "@composables/habits";
 import type { Habit, HabitDay } from "@/types/Habit.ts";
@@ -26,7 +29,7 @@ const emit = defineEmits<{ select: [date: string] }>();
 
 const i18n = useI18n();
 
-const weeks = computed(() => yearWeeks(year, values, habit.goal, today));
+const weeks = computed(() => yearWeeks(habit, year, values, today));
 const months = computed(() => monthColumns(weeks.value));
 
 // Every other row. At this pitch, seven labels would touch.
@@ -41,13 +44,23 @@ const format = (number: number) => formatNumber(number, i18n.locale.value);
 // The labels below want 365 of them.
 const dayFormat = computed(() => new Intl.DateTimeFormat(i18n.locale.value));
 
-const label = (date: string, value: number) =>
-  i18n.t("habits.grid.day_title", {
-    date: dayFormat.value.format(new Date(`${date}T00:00:00`)),
-    value,
-    goal: habit.goal,
-    unit: habit.unit,
-  });
+const label = (day: HabitDay) =>
+  day.rest
+    ? i18n.t("habits.grid.day_rest", {
+        date: dayFormat.value.format(new Date(`${day.date}T00:00:00`)),
+      })
+    : i18n.t("habits.grid.day_title", {
+        date: dayFormat.value.format(new Date(`${day.date}T00:00:00`)),
+        value: day.value,
+        goal: goalText.value,
+        unit: habit.unit,
+      });
+
+/** One number, or the two ends of the zone. */
+const goalText = computed(() => goalLabel(habit, i18n.locale.value));
+
+/** The ring that marks a day nothing was asked on. Mixed once, not per square. */
+const ring = computed(() => restRing(habit.color));
 
 /** The six shades of the habit's colour, mixed once instead of per square. */
 const palette = computed(() =>
@@ -177,8 +190,15 @@ const leave = () => {
                     day.level === 0 && 'bg-dark-gray-500/40',
                     day.date === today && 'ring-1 ring-light/70',
                   ]"
-                  :style="{ backgroundColor: palette[day.level] }"
-                  :aria-label="label(day.date, day.value)"
+                  :style="{
+                    backgroundColor: palette[day.level],
+                    boxShadow: day.over
+                      ? OVER_RING
+                      : day.rest
+                        ? ring
+                        : undefined,
+                  }"
+                  :aria-label="label(day)"
                   @mouseenter="enter($event, day)"
                   @focus="enter($event, day)"
                   @mouseleave="leave"
@@ -197,12 +217,30 @@ const leave = () => {
         <template v-if="hovered">
           {{ hoveredDate }}
           <span class="opacity-60">·</span>
-          <span :class="hovered.level === 5 && 'text-success'">
-            {{ format(hovered.value) }}
-          </span>
-          <span class="opacity-60">
-            / {{ format(habit.goal) }} {{ habit.unit }}
-          </span>
+
+          <!-- A day off has no fraction to report: nothing was asked for. -->
+          <template v-if="hovered.rest && hovered.level < 5">
+            {{ $t("habits.rest_day") }}
+          </template>
+
+          <template v-else>
+            <span
+              :class="
+                hovered.over
+                  ? 'text-warning'
+                  : hovered.level === 5 && 'text-success'
+              "
+            >
+              {{ format(hovered.value) }}
+            </span>
+            <span class="opacity-60"> / {{ goalText }} {{ habit.unit }} </span>
+            <span v-if="hovered.over" class="text-warning">
+              · {{ $t("habits.over_limit") }}
+            </span>
+            <span v-if="hovered.rest" class="opacity-60">
+              · {{ $t("habits.rest_day") }}
+            </span>
+          </template>
         </template>
       </template>
     </UiTooltip>

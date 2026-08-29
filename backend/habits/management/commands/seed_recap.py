@@ -39,9 +39,12 @@ HISTORY_DAYS = 120
 SEED = 20260829
 
 HABITS = (
-    {"name": "Spazieren", "unit": "Schritte", "goal": 6000, "step": 1000, "color": "#198754", "chance": 0.75, "wide": True},
+    # Sundays are this one's day off, which is what puts rest days on the grid.
+    {"name": "Spazieren", "unit": "Schritte", "goal": 6000, "step": 1000, "color": "#198754", "chance": 0.75, "wide": True, "rest_days": [6]},
     {"name": "Wasser", "unit": "Gläser", "goal": 8, "step": 1, "color": "#0dcaf0", "chance": 0.65, "wide": False},
     {"name": "Lesen", "unit": "min", "goal": 30, "step": 10, "color": "#6f42c1", "chance": 0.5, "wide": False},
+    # A zone rather than a bar to clear: 200 grams is not a better day than 130.
+    {"name": "Protein", "unit": "g", "goal": 120, "goal_max": 140, "step": 10, "color": "#d63384", "chance": 0.7, "wide": False},
     {"name": "Gewicht", "unit": "kg", "goal": 72, "step": 0.5, "color": "#fd7e14", "kind": Habit.MEASURE, "wide": False},
 )
 
@@ -161,8 +164,10 @@ class Command(BaseCommand):
                 name=spec["name"],
                 unit=spec["unit"],
                 goal=Decimal(str(spec["goal"])),
+                goal_max=Decimal(str(spec["goal_max"])) if spec.get("goal_max") else None,
                 step=Decimal(str(spec["step"])),
                 color=spec["color"],
+                rest_days=spec.get("rest_days", []),
                 order=order,
                 wide=spec["wide"],
             )
@@ -187,7 +192,6 @@ class Command(BaseCommand):
         though not always, made the goal. The two named weeks are dealt a fixed
         hand instead, so the recap's comparison is the same on every run.
         """
-        goal = float(habit.goal)
         entries = []
 
         for day in self.days():
@@ -195,26 +199,48 @@ class Command(BaseCommand):
             weekday = day.weekday()
 
             if week in self.strong_weeks:
-                # Six days on, one off, and every one of them over the goal.
+                # Six days on, one off, and every one of them a day that counts.
                 if weekday == 6:
                     continue
 
-                value = goal * self.rng.uniform(1.0, 1.4)
+                hit = True
             elif week == self.weak_week:
-                # Half the week, and the later half of those short of it.
+                # Half the week, and the later half of those missed.
                 if weekday % 2:
                     continue
 
-                value = goal * (self.rng.uniform(1.0, 1.2) if weekday < 3 else self.rng.uniform(0.3, 0.8))
+                hit = weekday < 3
             else:
                 if self.rng.random() > spec["chance"]:
                     continue
 
-                value = goal * (self.rng.uniform(1.0, 1.5) if self.rng.random() < 0.7 else self.rng.uniform(0.2, 0.9))
+                hit = self.rng.random() < 0.7
 
-            entries.append(Entry(habit=habit, date=day, value=Decimal(str(round(value, 2)))))
+            entries.append(Entry(habit=habit, date=day, value=Decimal(str(round(self.shape(habit, hit=hit), 2)))))
 
         return entries
+
+    def shape(self, habit, *, hit):
+        """
+        A value that makes the day, or misses it.
+
+        A habit with a ceiling is missed from either side, which is the whole
+        point of a zone: half the bad days fall short and half overshoot, so the
+        grid shows both kinds.
+        """
+        goal = float(habit.goal)
+        ceiling = float(habit.goal_max) if habit.goal_max else None
+
+        if ceiling is None:
+            return goal * (self.rng.uniform(1.0, 1.5) if hit else self.rng.uniform(0.2, 0.9))
+
+        if hit:
+            return self.rng.uniform(goal, ceiling)
+
+        if self.rng.random() < 0.5:
+            return self.rng.uniform(goal * 0.4, goal * 0.9)
+
+        return self.rng.uniform(ceiling * 1.05, ceiling * 1.5)
 
     def measure_entries(self, habit):
         """

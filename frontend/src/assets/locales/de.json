@@ -265,6 +265,8 @@
     "previous_year": "Vorheriges Jahr",
     "next_year": "Nächstes Jahr",
     "archived": "Archiviert",
+    "rest_day": "Ruhetag",
+    "over_limit": "Über der Obergrenze",
     "drag": "Ziehen zum Umsortieren",
     "drop": {
       "own_row": "Eigene Reihe",
@@ -298,7 +300,8 @@
       "11": "Dez"
     },
     "grid": {
-      "day_title": "{date}: {value} von {goal} {unit}"
+      "day_title": "{date}: {value} von {goal} {unit}",
+      "day_rest": "{date}: Ruhetag"
     },
     "legend": {
       "less": "Weniger",
@@ -310,6 +313,7 @@
       "streak": "Längste Serie: {count} Tage",
       "record": "Längste Serie: {count} Tage, und die läuft gerade",
       "total": "{total} {unit} insgesamt",
+      "rest_days": "Ruhetage: {days}",
       "latest": "Zuletzt gemessen am {date}",
       "no_readings": "Noch nichts gemessen",
       "change": "Veränderung in {year}: {delta} {unit}",
@@ -354,6 +358,7 @@
       "subtract": "{step} abziehen",
       "exact_value": "Genauer Wert",
       "clear": "Tag leeren",
+      "rest_hint": "Ruhetag: an diesem Wochentag wird das Ziel nicht verlangt. Er unterbricht deine Serie nicht und zählt auch nicht dazu.",
       "pick": "Tag wählen"
     },
     "form": {
@@ -362,11 +367,17 @@
       "name": "Name",
       "name_placeholder": "Spazieren",
       "goal": "Tagesziel",
+      "goal_max": "Obergrenze (optional)",
+      "goal_max_placeholder": "Keine",
+      "goal_max_hint": "Wenn mehr nicht besser ist: der Tag zählt nur zwischen Tagesziel und Obergrenze.",
+      "goal_max_invalid": "Die Obergrenze muss eine Zahl sein, die nicht unter dem Tagesziel liegt.",
       "unit": "Einheit",
       "unit_placeholder": "Schritte",
       "step": "Schnell-Schritt",
       "step_hint": "Wie viel ein Tippen auf + hinzufügt.",
       "color": "Farbe",
+      "rest_days": "Ruhetage",
+      "rest_days_hint": "Wochentage, an denen das Ziel nicht verlangt wird. Sie unterbrechen keine Serie und zählen auch nicht dazu.",
       "archived": "Archiviert: nicht mehr in der Schnellerfassung",
       "delete": "Löschen",
       "delete_confirm": "Wirklich löschen?",
@@ -385,6 +396,8 @@
       "name_invalid": "Bitte gib der Gewohnheit einen Namen mit höchstens 40 Zeichen.",
       "unit_invalid": "Die Einheit ist zu lang.",
       "goal_invalid": "Das Tagesziel muss eine positive Zahl sein.",
+      "goal_max_invalid": "Die Obergrenze muss eine positive Zahl sein.",
+      "goal_max_below": "Die Obergrenze darf nicht unter dem Tagesziel liegen.",
       "step_invalid": "Der Schnell-Schritt muss eine positive Zahl sein.",
       "color_invalid": "Bitte wähle eine der angebotenen Farben.",
       "too_many": "Mehr Gewohnheiten gehen nicht.",
@@ -394,7 +407,8 @@
       "value_invalid": "Bitte gib einen Wert zwischen 0 und 1.000.000.000 ein.",
       "unknown": "Da ist etwas schiefgelaufen. Bitte versuch es erneut.",
       "kind_invalid": "Bitte wähle eine der beiden Arten.",
-      "invalid_layout": "Diese Anordnung ließ sich nicht speichern."
+      "invalid_layout": "Diese Anordnung ließ sich nicht speichern.",
+      "rest_days_invalid": "Bitte wähle die Ruhetage aus den Wochentagen, und lass mindestens einen Tag übrig."
     },
     "trend": {
       "target": "Ziel {value} {unit}",

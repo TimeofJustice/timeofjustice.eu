@@ -3,6 +3,7 @@ import { computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formatNumber,
+  goalLabel,
   habitStats,
   LEVEL_MIX,
   measureStats,
@@ -42,7 +43,10 @@ const format = (number: number) => formatNumber(number, i18n.locale.value);
 /** A reading whose course is the point, rather than a goal met or missed. */
 const isMeasure = computed(() => habit.kind === "measure");
 
-const stats = computed(() => habitStats(values, habit.goal));
+const stats = computed(() => habitStats(values, habit.goal, habit.goalMax));
+
+/** One number, or the two ends of the zone. */
+const goalText = computed(() => goalLabel(habit, i18n.locale.value));
 const measures = computed(() => measureStats(values, habit.goal));
 
 /** The run going now is the best there has ever been. */
@@ -102,6 +106,11 @@ const progressClass = computed(() => {
   return "text-accent";
 });
 
+/** The days off, spelled out: "Sa, So". */
+const restDayNames = computed(() =>
+  habit.restDays.map((day) => i18n.t(`habits.weekdays.${day}`)).join(", "),
+);
+
 /** Legend swatches, from "nothing" to "goal reached". */
 const legendColors = computed(() =>
   LEVEL_MIX.map((mix) =>
@@ -131,7 +140,7 @@ const legendColors = computed(() =>
         <span class="text-sm text-accent">
           {{
             $t(isMeasure ? "habits.trend.target" : "habits.goal_label", {
-              goal: format(habit.goal),
+              goal: goalText,
               value: format(habit.goal),
               unit: habit.unit,
             })
@@ -174,6 +183,19 @@ const legendColors = computed(() =>
               </span>
             </UiTooltip>
           </template>
+
+          <!-- The weekdays nothing is asked on. Named rather than counted:
+               "Sa, So" says what the arrangement is, where "104" would only
+               say how often it came up. -->
+          <UiTooltip
+            v-if="!isMeasure && habit.restDays.length > 0"
+            :text="$t('habits.stats.rest_days', { days: restDayNames })"
+          >
+            <span class="flex items-center gap-1 text-sm text-accent">
+              <iconify-icon icon="fa6-solid:mug-hot" />
+              {{ restDayNames }}
+            </span>
+          </UiTooltip>
 
           <UiTooltip
             v-if="!isMeasure"

@@ -3,8 +3,13 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formatNumber,
+  goalLabel,
+  isOver,
+  isRestDay,
   levelColor,
   levelOf,
+  OVER_RING,
+  restRing,
   toIsoDate,
 } from "@composables/habits";
 import type { HabitRecap, HabitRecapEntry } from "@/types/Habit.ts";
@@ -144,16 +149,25 @@ const strip = (habit: HabitRecapEntry) => {
     return {
       date,
       value,
+      rest: isRestDay(date, habit.restDays),
+      over: isOver(value, habit.goalMax),
       color: levelColor(habit.color, levelOf(value, habit.goal)),
     };
   });
 };
 
+/** The ring marking a day off, drawn over whatever the square already holds. */
+const ring = (habit: HabitRecapEntry) => restRing(habit.color);
+
+/** The days a habit was actually asked on: the span, less its days off. */
+const askedDays = (habit: HabitRecapEntry) =>
+  strip(habit).filter((day) => !day.rest).length;
+
 const dayTitle = (habit: HabitRecapEntry, date: string, value: number) =>
   i18n.t("habits.grid.day_title", {
     date: shortDate(date),
     value: format(value),
-    goal: format(habit.goal),
+    goal: goalLabel(habit, i18n.locale.value),
     unit: habit.unit,
   });
 
@@ -386,8 +400,19 @@ const measureClass = (closed: number | null) => {
               :key="day.date"
               class="size-3.5 rounded-xs"
               :class="!day.color && 'bg-dark-gray-500/40'"
-              :style="{ backgroundColor: day.color ?? undefined }"
-              :title="dayTitle(habit, day.date, day.value)"
+              :style="{
+                backgroundColor: day.color ?? undefined,
+                boxShadow: day.over
+                  ? OVER_RING
+                  : day.rest
+                    ? ring(habit)
+                    : undefined,
+              }"
+              :title="
+                day.rest
+                  ? $t('habits.grid.day_rest', { date: shortDate(day.date) })
+                  : dayTitle(habit, day.date, day.value)
+              "
             />
           </div>
 
@@ -412,7 +437,7 @@ const measureClass = (closed: number | null) => {
               {{
                 $t("habits.recap.habit_days", {
                   done: format(habit.done ?? 0),
-                  days: recap.days,
+                  days: askedDays(habit),
                 })
               }}
             </span>

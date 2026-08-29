@@ -3,7 +3,7 @@ import { Head } from "@inertiajs/vue3";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useToast } from "@composables/toast";
-import { api, carriedValue } from "@composables/habits";
+import { api, carriedValue, isRestDay } from "@composables/habits";
 import { useRefreshOnReturn } from "@composables/refresh";
 import HabitsBoard from "@components/HabitsBoard.vue";
 import HabitsQuickRow from "@components/HabitsQuickRow.vue";
@@ -134,6 +134,17 @@ const valueOf = (habit: Habit, date: string) => valuesOf(habit)[date] ?? 0;
 
 const dayValue = computed(() =>
   dayHabit.value && dayDate.value ? valueOf(dayHabit.value, dayDate.value) : 0,
+);
+
+/**
+ * Whether the day on screen falls on one of the habit's days off. Read-only
+ * here: which weekdays those are is a setting of the habit, not of the day.
+ */
+const dayRest = computed(
+  () =>
+    !!dayHabit.value &&
+    !!dayDate.value &&
+    isRestDay(dayDate.value, dayHabit.value.restDays),
 );
 
 /** Only a measurement carries a value forward; a missed daily goal is a zero. */
@@ -390,6 +401,7 @@ const arrange = (arranged: Habit[]) => {
     :date="dayDate"
     :value="dayValue"
     :suggestion="daySuggestion"
+    :rest="dayRest"
     :first-date="firstDate"
     :last-date="today"
     @navigate="dayDate = $event"

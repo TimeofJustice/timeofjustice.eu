@@ -56,6 +56,17 @@ class Habit(models.Model):
         default=Decimal(1),
         validators=[MinValueValidator(SMALLEST), MaxValueValidator(MAX_VALUE)],
     )
+    # The top of the goal zone, where there is one. With it, `goal` stops being
+    # a bar to clear and becomes the bottom of a band: 120 to 140 grams of
+    # protein, where 200 misses the day exactly as 100 does. Null for the
+    # ordinary "as much as you can" goal, which is most of them.
+    goal_max = models.DecimalField(
+        max_digits=MAX_DIGITS,
+        decimal_places=DECIMAL_PLACES,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(SMALLEST), MaxValueValidator(MAX_VALUE)],
+    )
     # What one tap on the quick-add button adds: 1000 for steps, 1 for glasses
     # of water, 0.5 for half an hour.
     step = models.DecimalField(
@@ -66,6 +77,15 @@ class Habit(models.Model):
     )
     color = models.CharField(max_length=7, default="#198754", validators=[HEX_COLOR])
     order = models.IntegerField(default=0)
+    # The weekdays the goal is not asked on, Monday as 0, e.g. [5, 6] for a
+    # habit that rests at the weekend. A schedule rather than a list of dates:
+    # a rest day is usually a standing arrangement ("no running on Sundays"),
+    # and one kept as a rule needs no upkeep as the weeks go by.
+    #
+    # It is worth knowing that this reaches backwards as well as forwards:
+    # marking Sundays off excuses every Sunday there has ever been, because the
+    # grid and the streaks are all read through the rule as it stands now.
+    rest_days = models.JSONField(default=list, blank=True)
     # Whether the panel takes a whole row rather than sharing one. A year of
     # squares reads better wide; a habit with little history does not need it.
     wide = models.BooleanField(default=False)
@@ -80,6 +100,15 @@ class Habit(models.Model):
     def __str__(self):
         return f"{self.name} ({self.wallet_id})"
 
+    def met_by(self, value):
+        """
+        Whether a day's value counts as the goal reached.
+
+        The one place the rule lives, so a zone cannot mean one thing to the
+        streaks and another to the grid.
+        """
+        return value >= self.goal and (self.goal_max is None or value <= self.goal_max)
+
     def json(self):
         return {
             "id": self.id,
@@ -89,8 +118,10 @@ class Habit(models.Model):
             # Floats on the wire: JSON has no decimal, and two places survive
             # a double intact.
             "goal": float(self.goal),
+            "goalMax": float(self.goal_max) if self.goal_max is not None else None,
             "step": float(self.step),
             "color": self.color,
+            "restDays": list(self.rest_days or ()),
             "order": self.order,
             "wide": self.wide,
             "archived": self.archived,

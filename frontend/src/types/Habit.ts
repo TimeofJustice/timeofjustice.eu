@@ -19,12 +19,24 @@ export interface Habit {
   name: string;
   /** Shown next to the numbers ("steps", "min"). May be empty. */
   unit: string;
-  /** What counts as a full day. */
+  /** What counts as a full day. With `goalMax`, the bottom of the zone. */
   goal: number;
+  /**
+   * The top of the goal zone, or null for the ordinary goal where more is
+   * always better. With one, 200 g of protein misses a 120–140 g zone exactly
+   * as 100 g does.
+   */
+  goalMax: number | null;
   /** How much one tap on the quick-add button adds. */
   step: number;
   /** Hex colour the year grid is painted in. */
   color: string;
+  /**
+   * The weekdays the goal is not asked on, Monday as 0. A standing arrangement
+   * rather than a list of dates, so it applies to every week there has been and
+   * every week to come.
+   */
+  restDays: number[];
   order: number;
   /** Takes a whole row on the board rather than sharing one. */
   wide: boolean;
@@ -41,6 +53,10 @@ export interface HabitDay {
   date: string | null;
   value: number;
   level: number;
+  /** Marked as a day off: the goal was not asked for. */
+  rest: boolean;
+  /** Past the top of the goal zone. Full, but not met. */
+  over: boolean;
   /** Still to come. Shown, but not tracked: only the past can be logged. */
   future: boolean;
 }

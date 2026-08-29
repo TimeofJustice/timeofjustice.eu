@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { formatNumber, levelOf, roundValue } from "@composables/habits";
+import {
+  formatNumber,
+  goalLabel,
+  isMet,
+  isOver,
+  roundValue,
+} from "@composables/habits";
 import type { Habit } from "@/types/Habit.ts";
 
 interface HabitsQuickRowProps {
@@ -22,7 +28,13 @@ const percentage = computed(() =>
   habit.goal > 0 ? Math.min(100, Math.round((value / habit.goal) * 100)) : 0,
 );
 
-const reached = computed(() => levelOf(value, habit.goal) === 5);
+const reached = computed(() => isMet(value, habit.goal, habit.goalMax));
+
+/** Full, but past the top of the zone: not a success and not a near miss. */
+const over = computed(() => isOver(value, habit.goalMax));
+
+/** One number, or the two ends of the zone. */
+const goalText = computed(() => goalLabel(habit, i18n.locale.value));
 
 const isMeasure = computed(() => habit.kind === "measure");
 
@@ -79,8 +91,12 @@ const targetHint = computed(() => {
       </span>
 
       <span v-else class="shrink-0 text-sm whitespace-nowrap text-accent">
-        <span :class="reached && 'text-success'">{{ format(value) }}</span>
-        / {{ format(habit.goal) }} {{ habit.unit }}
+        <span
+          :class="over ? 'text-warning' : reached ? 'text-success' : undefined"
+        >
+          {{ format(value) }}
+        </span>
+        / {{ goalText }} {{ habit.unit }}
       </span>
     </div>
 
@@ -92,9 +108,11 @@ const targetHint = computed(() => {
       </span>
 
       <UiProgress v-else class="h-2 grow">
+        <!-- Warning, not success, once the zone has been overshot: the bar is
+             full either way, so the colour is what tells them apart. -->
         <UiProgressBar
           :value="percentage"
-          :variant="reached ? 'success' : undefined"
+          :variant="over ? 'warning' : reached ? 'success' : undefined"
         />
       </UiProgress>
 

@@ -3,7 +3,7 @@ from decimal import Decimal, InvalidOperation
 from itertools import pairwise
 
 from django.db import IntegrityError, transaction
-from django.db.models import F, Max
+from django.db.models import F, Max, Q
 from django.http.response import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -25,6 +25,14 @@ DEFAULT_COLOR = COLORS[0]
 
 # What a habit with nothing to its name yet reports.
 NO_STREAK = {"current": 0, "longest": 0}
+
+# Stands for "this field was not in the body at all", which is not the same as
+# a field sent as null. Only the nullable ones need to tell the two apart.
+KEEP = object()
+
+# Monday as 0, the way the grid reads a week. A habit that rests on every one of
+# them would never be asked for anything, so one day always has to remain.
+WEEKDAYS = range(7)
 
 # The unit the look back thinks in. A week that has ended is a week that can be
 # reported on; the one being lived cannot.
@@ -110,31 +118,43 @@ def entries_for(wallet, year):
     return entries
 
 
-def streak_of(met, today):
-    """The current and the longest run inside a set of goal-met days."""
-    # Today is still open, so a streak is not broken until yesterday was missed.
-    cursor = today if today in met else today - timedelta(days=1)
-    current = 0
+def streak_of(met, rests, today):
+    """
+    The current and the longest run inside a set of goal-met days.
 
-    while cursor in met:
-        current += 1
+    `rests` holds the weekdays the goal is not asked on, Monday as 0. Such a day
+    is neither a hit nor a miss: it does not break a run and it does not lengthen
+    one. The run steps straight over it, which is what a rest day is for.
+    """
+    current = 0
+    cursor = today
+    # Nothing older than the oldest met day can add to the run. Stopping there
+    # is also what keeps a habit that rests on nearly every weekday from walking
+    # backwards through empty years.
+    floor = (min(met) if met else today) - timedelta(days=len(WEEKDAYS))
+
+    while cursor >= floor:
+        if cursor in met:
+            current += 1
+        # Today is still open, so it is not a miss until it has been slept on.
+        elif cursor.weekday() not in rests and cursor != today:
+            break
+
         cursor -= timedelta(days=1)
 
     longest = 0
+    run = 0
+    previous = None
 
-    for day in met:
-        # Each run is walked once, from the day that starts it.
-        if day - timedelta(days=1) in met:
-            continue
+    for day in sorted(met):
+        # Two met days belong to the same run when every day between them was
+        # one off. Adjacent days have nothing between them, so they always do.
+        gap = range(1, (day - previous).days) if previous else ()
+        bridged = all((previous + timedelta(days=offset)).weekday() in rests for offset in gap)
 
-        run = 0
-        probe = day
-
-        while probe in met:
-            run += 1
-            probe += timedelta(days=1)
-
+        run = run + 1 if previous and bridged else 1
         longest = max(longest, run)
+        previous = day
 
     return {"current": current, "longest": longest}
 
@@ -176,11 +196,19 @@ def streaks_for(wallet, habit=None):
     # Only goal-met days come back, in one query rather than one per habit.
     met = {}
 
-    for habit_id, day in Entry.objects.filter(habit__in=habits, habit__kind=Habit.GOAL, value__gte=F("habit__goal")).values_list("habit_id", "date"):
+    # The zone's upper bound has to be applied here rather than in Python: this
+    # is every goal-met day of all time, and the point of one query was not to
+    # bring them all back to be sifted. `met_by` says the same thing in one place.
+    within = Q(value__gte=F("habit__goal")) & (Q(habit__goal_max__isnull=True) | Q(value__lte=F("habit__goal_max")))
+
+    for habit_id, day in Entry.objects.filter(within, habit__in=habits, habit__kind=Habit.GOAL).values_list("habit_id", "date"):
         met.setdefault(habit_id, set()).add(day)
 
-    for habit_id, days in met.items():
-        streaks[habit_id] = streak_of(days, today)
+    # Every daily goal, not only the ones with a day to their name: the rest
+    # days come off the habit itself now, and a habit with nothing logged still
+    # reports the same run of nothing it always did.
+    for habit_id, days in habits.filter(kind=Habit.GOAL).values_list("id", "rest_days"):
+        streaks[habit_id] = streak_of(met.get(habit_id, set()), set(days or ()), today)
 
     targets = dict(habits.filter(kind=Habit.MEASURE).values_list("id", "goal"))
 
@@ -247,6 +275,26 @@ def read_habit_fields(post_data, habit):
 
         setattr(habit, field, number)
 
+    # A sentinel rather than `None`: null is how the top of the zone is taken
+    # off again, and a key that is simply absent has to go on meaning "leave it".
+    maximum = post_data.get("goalMax", KEEP)
+
+    if maximum is not KEEP:
+        if maximum in (None, ""):
+            habit.goal_max = None
+        else:
+            number = to_decimal(maximum)
+
+            if number is None or not SMALLEST <= number <= MAX_VALUE:
+                return "habits.errors.goal_max_invalid"
+
+            # Read after `goal`, so the two are compared as they will be stored
+            # even when both arrive in the same request.
+            if number < habit.goal:
+                return "habits.errors.goal_max_below"
+
+            habit.goal_max = number
+
     color = post_data.get("color")
 
     if color is not None:
@@ -262,6 +310,31 @@ def read_habit_fields(post_data, habit):
             return "habits.errors.kind_invalid"
 
         habit.kind = kind
+
+    # A measurement's goal is a target to move towards, not a bar to clear, so
+    # there is no band around it to stay inside. Cleared rather than refused:
+    # the field is not on screen for this kind, so an error about it would be
+    # about something the owner cannot see.
+    if habit.kind == Habit.MEASURE:
+        habit.goal_max = None
+
+    weekdays = post_data.get("restDays")
+
+    if weekdays is not None:
+        if not isinstance(weekdays, list):
+            return "habits.errors.rest_days_invalid"
+
+        try:
+            days = {int(day) for day in weekdays}
+        except (TypeError, ValueError):
+            return "habits.errors.rest_days_invalid"
+
+        # A habit that is never asked for anything is not a habit, and a run
+        # counted over nothing but days off would never end.
+        if not days <= set(WEEKDAYS) or len(days) >= len(WEEKDAYS):
+            return "habits.errors.rest_days_invalid"
+
+        habit.rest_days = sorted(days)
 
     wide = post_data.get("wide")
 
@@ -339,7 +412,7 @@ def habit_span(habit, values, start, end, carried):
         # Only the days that got an entry, so the frontend can draw the span
         # day by day without the empty ones being shipped as zeroes.
         "values": {day.isoformat(): float(value) for day, value in logged},
-        "done": sum(1 for _, value in logged if value >= habit.goal),
+        "done": sum(1 for _, value in logged if habit.met_by(value)),
         "total": float(sum(value for _, value in logged)),
         "latest": None,
         "delta": None,
@@ -349,27 +422,38 @@ def habit_span(habit, values, start, end, carried):
 
 def totals_of(goals, entries, start, end):
     """
-    The span as a whole: goal-days met out of the ones on offer, days something
-    was logged at all, and days every single goal came in.
+    The span as a whole: goal-days met out of the ones that were asked for, days
+    something was logged at all, and days every goal that was asked for came in.
+
+    A day off is not on offer, so it is not in the total either. That is what
+    keeps a week of two rest days from reading as a week two days short.
     """
     days = (end - start).days + 1
     done = 0
+    asked = 0
     active = set()
     perfect = 0
 
     for offset in range(days):
         day = start + timedelta(days=offset)
         met = 0
+        owed = 0
 
         for habit in goals:
+            if day.weekday() in habit.rest_days:
+                continue
+
+            owed += 1
             value = entries.get(habit.id, {}).get(day)
 
-            if value is not None and value >= habit.goal:
+            if value is not None and habit.met_by(value):
                 met += 1
 
         done += met
+        asked += owed
 
-        if goals and met == len(goals):
+        # A day where everything was excused is a day off, not a perfect one.
+        if met > 0 and met == owed:
             perfect += 1
 
     # A measurement counts as activity too, though never as a goal met.
@@ -378,7 +462,7 @@ def totals_of(goals, entries, start, end):
 
     return {
         "done": done,
-        "possible": len(goals) * days,
+        "possible": asked,
         "activeDays": len(active),
         "perfectDays": perfect,
     }
