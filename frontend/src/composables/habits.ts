@@ -296,6 +296,47 @@ export const measureStats = (
   };
 };
 
+/** The Monday of a date's week, as "YYYY-MM-DD". */
+export const mondayOf = (date: string) => {
+  const day = new Date(`${date}T00:00:00`);
+
+  day.setDate(day.getDate() - weekdayOf(date));
+
+  return toIsoDate(day);
+};
+
+/**
+ * The readings of each week, averaged, oldest week first.
+ *
+ * A week nothing was measured in is absent rather than zero: a fortnight
+ * without a weigh-in is no news, and averaging it as nothing would draw a cliff
+ * where there was only a holiday.
+ *
+ * Weighted by reading, not by day, which is the honest average of what was
+ * actually measured. A week weighed on Monday and Friday is the mean of those
+ * two, and it does not pretend to know about the days in between.
+ */
+export const weeklyAverages = (values: Record<string, number>) => {
+  const weeks = new Map<string, { total: number; count: number }>();
+
+  for (const [date, value] of Object.entries(values)) {
+    const week = weeks.get(mondayOf(date)) ?? { total: 0, count: 0 };
+
+    week.total += value;
+    week.count += 1;
+
+    weeks.set(mondayOf(date), week);
+  }
+
+  return [...weeks.entries()]
+    .sort(([one], [other]) => one.localeCompare(other))
+    .map(([week, { total, count }]) => ({
+      week,
+      count,
+      average: roundValue(total / count),
+    }));
+};
+
 /**
  * The reading in force on a day: the last one at or before it, else the first
  * one after. Only *offered* by the day editor; nothing is stored in between.

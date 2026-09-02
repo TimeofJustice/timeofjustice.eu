@@ -327,6 +327,7 @@
       "total": "{total} {unit} in total",
       "rest_days": "Rest days: {days}",
       "latest": "Last measured on {date}",
+      "week_average": "Average of the week of {date}: {value} {unit} from {count} readings",
       "no_readings": "Nothing measured yet",
       "change": "Change over {year}: {delta} {unit}",
       "entries": "{count} readings in {year}",
@@ -425,6 +426,9 @@
     "trend": {
       "target": "Target {value} {unit}",
       "no_reading": "No reading yet",
+      "week_average": "Weekly average: {value} {unit}",
+      "readings": "Readings",
+      "weekly": "Weekly average",
       "projected": "At this rate",
       "carried": "As measured on {date}",
       "before": "Before the first measurement, on {date}",

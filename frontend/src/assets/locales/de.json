@@ -315,6 +315,7 @@
       "total": "{total} {unit} insgesamt",
       "rest_days": "Ruhetage: {days}",
       "latest": "Zuletzt gemessen am {date}",
+      "week_average": "Ø der Woche vom {date}: {value} {unit} aus {count} Messungen",
       "no_readings": "Noch nichts gemessen",
       "change": "Veränderung in {year}: {delta} {unit}",
       "entries": "{count} Messungen in {year}",
@@ -413,6 +414,9 @@
     "trend": {
       "target": "Ziel {value} {unit}",
       "no_reading": "Noch kein Eintrag",
+      "week_average": "Ø Woche: {value} {unit}",
+      "readings": "Messungen",
+      "weekly": "Ø Woche",
       "projected": "Bei diesem Tempo",
       "carried": "Stand vom {date}",
       "before": "Vor der ersten Messung am {date}",

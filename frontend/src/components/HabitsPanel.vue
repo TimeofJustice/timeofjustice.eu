@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import {
   formatNumber,
@@ -7,6 +7,8 @@ import {
   habitStats,
   LEVEL_MIX,
   measureStats,
+  roundValue,
+  weeklyAverages,
 } from "@composables/habits";
 import HabitsYearGrid from "@components/HabitsYearGrid.vue";
 import type { Habit } from "@/types/Habit.ts";
@@ -48,6 +50,50 @@ const stats = computed(() => habitStats(values, habit.goal, habit.goalMax));
 /** One number, or the two ends of the zone. */
 const goalText = computed(() => goalLabel(habit, i18n.locale.value));
 const measures = computed(() => measureStats(values, habit.goal));
+
+/**
+ * The most recent week that was measured in, and the one measured before it.
+ *
+ * Not "this week" and "last week": in a year gone by there is no this week, and
+ * a fortnight without a weigh-in would leave both empty. The last two weeks
+ * that hold anything are what there is to compare.
+ */
+const weeks = computed(() => {
+  const averages = weeklyAverages(values);
+
+  return {
+    latest: averages[averages.length - 1] ?? null,
+    previous: averages[averages.length - 2] ?? null,
+  };
+});
+
+/**
+ * How the last measured week moved against the one before it. Null when there
+ * is only one week to go on, which is a level, not a direction.
+ */
+const weekDelta = computed(() => {
+  const { latest, previous } = weeks.value;
+
+  return latest && previous
+    ? roundValue(latest.average - previous.average)
+    : null;
+});
+
+/** Whether that week closed on the target. The target says which way is forwards. */
+const weekClass = computed(() => {
+  const { latest, previous } = weeks.value;
+
+  if (!latest || !previous) return "text-accent";
+
+  const closed =
+    Math.abs(previous.average - habit.goal) -
+    Math.abs(latest.average - habit.goal);
+
+  if (closed > 0) return "text-success";
+  if (closed < 0) return "text-danger";
+
+  return "text-accent";
+});
 
 /** The run going now is the best there has ever been. */
 const atRecord = computed(
@@ -111,6 +157,14 @@ const restDayNames = computed(() =>
   habit.restDays.map((day) => i18n.t(`habits.weekdays.${day}`)).join(", "),
 );
 
+/**
+ * Which of the chart's two lines are drawn. Held here rather than in the chart
+ * because the legend that switches them shares the footer row with the grid's
+ * own legend, and that row belongs to the panel.
+ */
+const showReadings = ref(true);
+const showWeeks = ref(true);
+
 /** Legend swatches, from "nothing" to "goal reached". */
 const legendColors = computed(() =>
   LEVEL_MIX.map((mix) =>
@@ -169,6 +223,27 @@ const legendColors = computed(() =>
               <span class="text-sm text-light">
                 {{ measures.latest === null ? "—" : format(measures.latest!) }}
                 {{ habit.unit }}
+              </span>
+            </UiTooltip>
+
+            <!-- What the week averaged. A daily weigh-in swings with the salt
+                 in yesterday's dinner; the week is what actually moved. -->
+            <UiTooltip
+              v-if="weeks.latest"
+              :text="
+                $t('habits.stats.week_average', {
+                  date: longDate(weeks.latest.week),
+                  value: format(weeks.latest.average),
+                  unit: habit.unit,
+                  count: weeks.latest.count,
+                })
+              "
+            >
+              <span class="flex items-center gap-1 text-sm" :class="weekClass">
+                ⌀ {{ format(weeks.latest.average) }}
+                <template v-if="weekDelta !== null">
+                  ({{ signed(weekDelta) }})
+                </template>
               </span>
             </UiTooltip>
 
@@ -286,6 +361,8 @@ const legendColors = computed(() =>
         :year="year"
         :values="values"
         :today="today"
+        :show-readings="showReadings"
+        :show-weeks="showWeeks"
         @select="emit('select', $event)"
       />
 
@@ -320,6 +397,39 @@ const legendColors = computed(() =>
             })
           }}
         </span>
+
+        <!-- Two lines, and a switch each. In the same row the grid puts
+             its own legend in, so a chart panel and a grid panel beside it
+             stay exactly as tall as one another. -->
+        <div
+          v-if="isMeasure && measures.count > 0"
+          class="flex flex-wrap items-center gap-3"
+        >
+          <button
+            type="button"
+            class="flex cursor-pointer items-center gap-1.5 transition-opacity duration-150"
+            :class="!showReadings && 'opacity-40'"
+            :aria-pressed="showReadings"
+            @click="showReadings = !showReadings"
+          >
+            <span
+              class="h-0.5 w-4 shrink-0 rounded-full"
+              :style="{ backgroundColor: habit.color }"
+            />
+            {{ $t("habits.trend.readings") }}
+          </button>
+
+          <button
+            type="button"
+            class="flex cursor-pointer items-center gap-1.5 transition-opacity duration-150"
+            :class="!showWeeks && 'opacity-40'"
+            :aria-pressed="showWeeks"
+            @click="showWeeks = !showWeeks"
+          >
+            <span class="h-0.5 w-4 shrink-0 rounded-full bg-light/65" />
+            {{ $t("habits.trend.weekly") }}
+          </button>
+        </div>
 
         <!-- A line needs no legend; its axis says the same thing. -->
         <div v-if="!isMeasure" class="flex items-center gap-1">
