@@ -14,6 +14,7 @@ import {
   Tooltip,
   type Chart as ChartType,
   type ChartOptions,
+  type ChartType as ChartKind,
   type InteractionModeFunction,
   type Plugin,
   type ScriptableContext,
@@ -22,8 +23,10 @@ import { getRelativePosition } from "chart.js/helpers";
 import {
   formatNumber,
   gridHeight,
+  mondayOf,
   roundValue,
   toIsoDate,
+  weeklyAverages,
 } from "@composables/habits";
 import { useMediaQuery } from "@composables/mediaQuery";
 import type { Habit } from "@/types/Habit.ts";
@@ -43,6 +46,17 @@ declare module "chart.js" {
   interface InteractionModeMap {
     habitDay: InteractionModeFunction;
   }
+
+  /**
+   * `weekMarks` takes its switch through the chart options rather than off a
+   * variable it closes over. The canvas is only repainted when the data or the
+   * options change, and a flag held anywhere else would flip without anything
+   * asking the chart to draw itself again.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the parameter is unused here but has to match chart.js's own declaration exactly
+  interface PluginOptionsByType<TType extends ChartKind> {
+    "habit-weeks"?: { show: boolean };
+  }
 }
 
 /**
@@ -55,6 +69,10 @@ declare module "chart.js" {
  * Crosshair, tooltip and click all resolve through here so they cannot disagree.
  */
 Interaction.modes.habitDay = (chart, event) => {
+  // Nothing to point at while the readings are hidden: the crosshair, the
+  // tooltip and the click that opens a day all resolve through here.
+  if (!chart.isDatasetVisible(0)) return [];
+
   const position = getRelativePosition(event, chart as never);
   const scale = chart.scales.x;
   const raw = scale.getValueForPixel(position.x);
@@ -99,9 +117,24 @@ interface HabitsTrendChartProps {
   values: Record<string, number>;
   /** Today's date. Nothing is drawn or opened past it. */
   today: string;
+  /**
+   * Which of the two lines to draw. The panel holds these and draws the legend
+   * that switches them, because the legend has to sit in the same footer row a
+   * year grid puts its own in: a row of its own here would make a chart panel
+   * taller than the grid panel beside it.
+   */
+  showReadings?: boolean;
+  showWeeks?: boolean;
 }
 
-const { habit, year, values, today } = defineProps<HabitsTrendChartProps>();
+const {
+  habit,
+  year,
+  values,
+  today,
+  showReadings = true,
+  showWeeks = true,
+} = defineProps<HabitsTrendChartProps>();
 
 const emit = defineEmits<{ select: [date: string] }>();
 
@@ -110,6 +143,10 @@ const i18n = useI18n();
 const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
 const GRID = "rgb(248 249 250 / 0.07)";
+/** The weekly average: light, so it reads over the habit's own colour. */
+const WEEK_INK = "rgb(248 249 250 / 0.65)";
+/** Where one week gives way to the next. Fainter than the grid: there are 52. */
+const WEEK_RULE = "rgb(248 249 250 / 0.05)";
 const INK = "#adb5bd";
 /** Matches `UiTooltip`, so the two read as the same object. */
 const PILL = "rgb(0 0 0 / 0.75)";
@@ -275,6 +312,85 @@ const projection = computed(() => {
   return line;
 });
 
+/**
+ * The year cut into weeks: where each one starts and ends among the days, and
+ * what it averaged.
+ *
+ * This is the answer to the daily line's noise. A weight that swings a kilo
+ * with the salt in yesterday's dinner still has a week that plainly went one
+ * way, and a flat bar across the week says so without pretending to know what
+ * happened on the days nobody stepped on the scales.
+ *
+ * A week runs to today and no further: the bar over the week being lived covers
+ * the days it has had, not the ones it has yet to get. Weeks with nothing
+ * measured keep their separator and get no bar at all.
+ */
+const weekBands = computed(() => {
+  const averages = new Map(
+    weeklyAverages(values).map((week) => [week.week, week.average]),
+  );
+
+  const bands: {
+    monday: string;
+    start: number;
+    end: number;
+    average: number | null;
+  }[] = [];
+
+  days.value.forEach((day, index) => {
+    const monday = mondayOf(day);
+    const open = bands[bands.length - 1];
+
+    if (open?.monday === monday) open.end = index;
+    else
+      bands.push({
+        monday,
+        start: index,
+        end: index,
+        average: averages.get(monday) ?? null,
+      });
+  });
+
+  return bands;
+});
+
+/** Which band each day belongs to, so the tooltip can name its week's average. */
+const bandOfDay = computed(() => {
+  const index: (number | null)[] = days.value.map(() => null);
+
+  weekBands.value.forEach((band, position) => {
+    for (let day = band.start; day <= band.end; day += 1) {
+      index[day] = position;
+    }
+  });
+
+  return index;
+});
+
+/** What the week under the pointer averaged, for the tooltip. */
+const weekAt = (index: number) => {
+  const band = bandOfDay.value[index];
+
+  return band === null ? null : weekBands.value[band].average;
+};
+
+/**
+ * Where one day gives way to the next, in pixels: halfway between their two
+ * points. The scale puts a day on a point rather than in a slot, so a boundary
+ * is between two of them and the ends of the year are the frame itself.
+ */
+const edgeAt = (chart: ChartType<"line">, index: number) => {
+  const { chartArea, scales } = chart;
+
+  if (index <= 0) return chartArea.left;
+  if (index >= days.value.length) return chartArea.right;
+
+  return (
+    (scales.x.getPixelForValue(index - 1) + scales.x.getPixelForValue(index)) /
+    2
+  );
+};
+
 const shortDate = (day: string) =>
   new Date(`${day}T00:00:00`).toLocaleDateString(i18n.locale.value, {
     day: "numeric",
@@ -381,6 +497,73 @@ const trendLabel: Plugin<"line"> = {
   },
 };
 
+/**
+ * The weeks: a hairline where each one begins, and a bar across it at what it
+ * averaged.
+ *
+ * Drawn rather than plotted, because neither is a series. The separators go
+ * under the readings, where the rest of the grid lives, and the bars go over
+ * them, because a bar hidden behind the line it is summarising would be no use.
+ */
+const weekMarks: Plugin<"line"> = {
+  id: "habit-weeks",
+
+  beforeDatasetsDraw(chart, _args, options) {
+    // An empty year is a dashed baseline and nothing else. Ruling it into weeks
+    // would be drawing a calendar over the fact that nothing was measured.
+    if (!options.show || !hasReadings.value) return;
+
+    const { ctx, chartArea } = chart;
+
+    ctx.save();
+    ctx.strokeStyle = WEEK_RULE;
+    ctx.lineWidth = 1;
+
+    // Not the first: the axis is already drawn there.
+    for (const band of weekBands.value.slice(1)) {
+      // Halfway between the Sunday and the Monday, so the line falls between
+      // two days rather than through one of them.
+      const x = Math.round(edgeAt(chart, band.start)) + 0.5;
+
+      ctx.beginPath();
+      ctx.moveTo(x, chartArea.top);
+      ctx.lineTo(x, chartArea.bottom);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  },
+
+  afterDatasetsDraw(chart, _args, options) {
+    if (!options.show) return;
+
+    const { ctx, scales } = chart;
+
+    ctx.save();
+    ctx.strokeStyle = WEEK_INK;
+    ctx.lineWidth = 2;
+    ctx.lineCap = "butt";
+
+    for (const band of weekBands.value) {
+      // A week with nothing measured has no average, and a week still to come
+      // has nothing to average yet.
+      if (band.average === null || band.start > lastLive.value) continue;
+
+      const y = scales.y.getPixelForValue(band.average);
+      // Stops at today, so the week being lived does not draw across days it
+      // has not had.
+      const right = edgeAt(chart, Math.min(band.end, lastLive.value) + 1);
+
+      ctx.beginPath();
+      ctx.moveTo(edgeAt(chart, band.start), y);
+      ctx.lineTo(right, y);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  },
+};
+
 /** A hairline down from the reading under the pointer. */
 const crosshair: Plugin<"line"> = {
   id: "habit-crosshair",
@@ -407,6 +590,8 @@ const projectionSet = computed(() =>
     ? [
         {
           data: projection.value,
+          // Drawn from the readings, so it goes when they do.
+          hidden: !showReadings,
           // Faded and dashed like the target: a line nobody measured.
           borderColor: `color-mix(in srgb, ${habit.color} 55%, transparent)`,
           borderWidth: 2,
@@ -430,6 +615,7 @@ const chartData = computed(() => ({
   datasets: [
     {
       data: series.value.map((point) => point.value),
+      hidden: !showReadings,
       // Read by `habitDay`: how far into the year it may resolve.
       selectable: lastLive.value,
       // An empty year's baseline is dashed and faded, so it is not read as a
@@ -521,6 +707,9 @@ const options = computed<ChartOptions<"line">>(() => ({
     },
   },
   plugins: {
+    // Read by `weekMarks`. Here rather than closed over, so that switching the
+    // weeks off is a change to the options and the chart repaints by itself.
+    "habit-weeks": { show: showWeeks },
     // One series, and the card header already names it.
     legend: { display: false },
     tooltip: {
@@ -549,25 +738,41 @@ const options = computed<ChartOptions<"line">>(() => ({
           }
 
           const point = series.value[items[0].dataIndex];
+          const lines: string[] = [];
 
-          if (!point || point.measured || !point.from) return "";
-
-          if (point.before) {
-            return i18n.t("habits.trend.before", {
-              date: shortDate(point.from),
-            });
+          // Where the number came from, when nobody measured this day.
+          if (point && !point.measured && point.from) {
+            if (point.before) {
+              lines.push(
+                i18n.t("habits.trend.before", { date: shortDate(point.from) }),
+              );
+            } else if (point.to) {
+              lines.push(
+                i18n.t("habits.trend.between", {
+                  from: shortDate(point.from),
+                  to: shortDate(point.to),
+                }),
+              );
+            } else {
+              lines.push(
+                i18n.t("habits.trend.carried", { date: shortDate(point.from) }),
+              );
+            }
           }
 
-          if (point.to) {
-            return i18n.t("habits.trend.between", {
-              from: shortDate(point.from),
-              to: shortDate(point.to),
-            });
+          // What the week around it averaged, which is the line drawn over it.
+          const average = weekAt(items[0].dataIndex);
+
+          if (average !== null && average !== undefined) {
+            lines.push(
+              i18n.t("habits.trend.week_average", {
+                value: format(average),
+                unit: habit.unit,
+              }),
+            );
           }
 
-          return i18n.t("habits.trend.carried", {
-            date: shortDate(point.from),
-          });
+          return lines;
         },
       },
       footerColor: "#adb5bd",
@@ -576,7 +781,7 @@ const options = computed<ChartOptions<"line">>(() => ({
   },
 }));
 
-const plugins = [targetLine, trendLabel, crosshair];
+const plugins = [weekMarks, targetLine, trendLabel, crosshair];
 
 const wrapper = useTemplateRef<HTMLElement>("wrapper");
 const available = ref(0);
